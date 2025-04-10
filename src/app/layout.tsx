@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
+import DaisyNavbar from "@/components/ui/DaisyNavbar";
+import DaisyFooter from "@/components/ui/DaisyFooter";
 
 
 const geistSans = Geist({
@@ -32,9 +33,13 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-gray-950 dark:text-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col dark:bg-gray-950 dark:text-gray-50`}
       >
-        {children}
+        <DaisyNavbar />
+        <main className="flex-grow">
+          {children}
+        </main>
+        <DaisyFooter />
       </body>
     </html>
   );
