@@ -10,11 +10,7 @@ export function NavbarWithChildren() {
   return (
     <div className="w-full bg-neutral-100 px-2 py-20 dark:bg-neutral-900">
       <Navbar />
-      <div className="mt-8 flex h-[100vh] w-full items-center justify-center">
-        <p className="w-full rounded-md p-8 text-center text-neutral-600 dark:text-neutral-300">
-          Your content here
-        </p>
-      </div>
+      
     </div>
   );
 }
@@ -82,14 +78,14 @@ const DesktopNav = ({ navItems }: any) => {
             <div className="grid grid-cols-2 gap-10 p-4 text-sm">
               <ProductItem
                 title="Algochurn"
-                href="https://algochurn.com"
-                src="https://assets.aceternity.com/demos/algochurn.webp"
+                href="#"
+                src="/logo.png"
                 description="Prepare for tech interviews like never before."
               />
               <ProductItem
                 title="Tailwind Master Kit"
-                href="https://tailwindmasterkit.com"
-                src="https://assets.aceternity.com/demos/tailwindmasterkit.webp"
+                href="#"
+                src="/logo.png"
                 description="Production ready Tailwind css components for your next project"
               />
             </div>
@@ -213,7 +209,7 @@ const Logo = () => {
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
       <Image
-        src="https://assets.aceternity.com/logo-dark.png"
+        src="/logo.png"
         alt="logo"
         width={30}
         height={30}
@@ -312,7 +308,7 @@ export const ProductItem = ({
   return (
     <Link href={href} className="flex gap-4">
       <Image
-        src={src}
+        src="/logo.png"
         width={140}
         height={70}
         alt={title}
