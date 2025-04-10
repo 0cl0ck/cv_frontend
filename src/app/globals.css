@@ -1,12 +1,12 @@
-@import "tailwindcss/preflight";
-
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
-
-
 
 @media (prefers-color-scheme: dark) {
   :root {
