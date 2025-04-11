@@ -32,7 +32,8 @@ export default function HomeHero() {
           </p>
           <ul className="flex justify-center gap-4">
             <li>
-              <Link href="/produits" className="btn btn-primary px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 transition-colors inline-flex items-center justify-center">
+              <Link href="/produits" className="btn  px-6 py-3 rounded-lg   inline-flex items-center justify-center bg-[#126E62] hover:bg-[#002D4C]"
+              >
                 Découvrir
               </Link>
             </li>
