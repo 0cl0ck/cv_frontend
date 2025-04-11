@@ -1,0 +1,49 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+
+export default function HomeHero() {
+  return (
+    <div className="relative min-h-[90vh] flex items-center justify-center text-white bg-gray-800" data-theme="dark">
+      {/* Vidéo de fond */}
+      <div className="absolute inset-0 overflow-hidden">
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/glass_anim.mp4" type="video/mp4" />
+        </video>
+        {/* Overlay pour assombrir légèrement la vidéo */}
+        <div className="absolute inset-0 bg-black opacity-40"></div>
+      </div>
+      
+      {/* Contenu texte */}
+      <div className="container z-10 relative flex items-center justify-center py-16 md:py-24">
+        <div className="max-w-[36.5rem] md:text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+            Découvrez nos produits CBD de qualité
+          </h1>
+          <p className="text-lg md:text-xl mb-6">
+            100% naturel, légal et cultivé en Europe
+          </p>
+          <ul className="flex md:justify-center gap-4">
+            <li>
+              <Link href="/produits" className="btn btn-primary px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 transition-colors inline-flex items-center justify-center">
+                Découvrir
+              </Link>
+            </li>
+            <li>
+              <Link href="/a-propos" className="btn btn-outline px-6 py-3 rounded-lg border-2 border-white hover:bg-white hover:text-green-800 transition-colors inline-flex items-center justify-center">
+                En savoir plus
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}

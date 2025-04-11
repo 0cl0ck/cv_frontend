@@ -1,11 +1,15 @@
-import { NavbarWithChildren } from "@/components/ui/navbar";
-import Image from "next/image";
-
+import HomeHero from "@/components/Hero/HomeHero";
+import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import CategoriesSection from "@/components/sections/CategoriesSection";
+import WhyChooseUs from "@/components/sections/WhyChooseUs";
 
 export default function Home() {
   return (
-    <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-      <p>Home</p>
-    </main>
+    <>
+      <HomeHero />
+      <FeaturedProducts />
+      <CategoriesSection />
+      <WhyChooseUs />
+    </>
   );
 }
