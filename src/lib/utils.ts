@@ -31,3 +31,11 @@ export function initDarkMode() {
     htmlEl.classList.add(theme);
   }
 }
+
+// Format price to Euro format
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(price);
+}

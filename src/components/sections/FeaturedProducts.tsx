@@ -3,77 +3,55 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ProductCard } from '@/components/ProductCard/ProductCard';
+import { Product } from '@/types/product';
 
-// Type pour nos produits statiques
-type Product = {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  imageUrl: string;
-  description: string;
-};
+// Note: Nous utilisons maintenant le type Product importé depuis @/types/product
 
-// Produits en dur pour le MVP
+// Produits en dur pour le MVP avec les vraies images
 const featuredProducts: Product[] = [
   {
     id: '1',
-    name: 'Huile CBD Premium',
-    slug: 'huile-cbd-premium',
-    price: 39.99,
-    imageUrl: '/images/products/huile-cbd.jpg',
-    description: 'Huile CBD 10% de qualité supérieure'
+    name: 'Banana Berry',
+    slug: 'banana-berry',
+    price: 15.90,
+    images: ['/images/products/banana-berry.webp'],
+    description: 'Fleurs CBD saveur Banana Berry',
+    productType: 'simple',
+    featured: true,
+    category: [{ id: '1', name: 'Fleurs', slug: 'fleurs' }]
   },
   {
     id: '2',
-    name: 'Fleurs CBD Indoor',
-    slug: 'fleurs-cbd-indoor',
-    price: 12.90,
-    imageUrl: '/images/products/fleurs-cbd.jpg',
-    description: 'Fleurs CBD cultivées en intérieur'
+    name: 'Blue Berry',
+    slug: 'blue-berry',
+    price: 16.90,
+    images: ['/images/products/blue-berry.webp'],
+    description: 'Fleurs CBD saveur Blue Berry',
+    productType: 'simple',
+    category: [{ id: '1', name: 'Fleurs', slug: 'fleurs' }]
   },
   {
     id: '3',
-    name: 'E-liquide CBD',
-    slug: 'e-liquide-cbd',
-    price: 24.50,
-    imageUrl: '/images/products/e-liquide-cbd.jpg',
-    description: 'E-liquide CBD saveur fruits rouges'
-  },
-  {
-    id: '4',
-    name: 'Tisane CBD Relax',
-    slug: 'tisane-cbd-relax',
-    price: 14.90,
-    imageUrl: '/images/products/tisane-cbd.jpg',
-    description: 'Tisane relaxante au CBD et à la camomille'
+    name: 'Corelato',
+    slug: 'corelato',
+    price: 18.50,
+    images: ['/images/products/corelato.webp'],
+    description: 'Fleurs CBD premium Corelato',
+    productType: 'simple',
+    category: [{ id: '1', name: 'Fleurs', slug: 'fleurs' }]
   }
 ];
 
-// Composant de carte produit
-function ProductCard({ product }: { product: Product }) {
-  return (
-    <Link href={`/produits/${product.slug}`} className="group">
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-4 aspect-square">
-        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-          {/* Remplacer par vos propres images une fois qu'elles seront disponibles */}
-          <div className="text-gray-400">Image produit</div>
-        </div>
-      </div>
-      <h3 className="font-semibold text-lg">{product.name}</h3>
-      <p className="text-green-600 font-medium">{product.price.toFixed(2)} €</p>
-      <p className="text-gray-600 text-sm mt-1">{product.description}</p>
-    </Link>
-  );
-}
+// Nous utilisons maintenant le composant ProductCard importé depuis @/components/ProductCard/ProductCard
 
 export default function FeaturedProducts() {
   return (
     <section className="container mx-auto px-4 py-16">
       <h2 className="text-3xl font-bold mb-8 text-center">Nos produits vedettes</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {featuredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {featuredProducts.map((product, index) => (
+          <ProductCard key={product.id} product={product} index={index} />
         ))}
       </div>
       <div className="text-center mt-10">
