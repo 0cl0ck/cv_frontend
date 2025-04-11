@@ -101,11 +101,11 @@ export default function Header() {
           </div>
 
           {/* Mobile layout */}
-          <div className="py-4 flex md:hidden justify-between items-center relative">
+          <div className="py-4 px-4 flex md:hidden justify-between items-center relative">
             {/* Menu hamburger à gauche */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 focus:outline-none text-white"
+              className="p-2 ml-1 focus:outline-none text-white"
               aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={menuOpen}
             >
@@ -131,7 +131,7 @@ export default function Header() {
             <div className="flex items-center justify-end">
               <Link
                 href="/login"
-                className="p-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
+                className="p-2 mr-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="w-5 h-5" />

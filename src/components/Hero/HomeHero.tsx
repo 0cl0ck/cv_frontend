@@ -22,15 +22,15 @@ export default function HomeHero() {
       </div>
       
       {/* Contenu texte - ajusté avec padding-top pour tenir compte du header */}
-      <div className="container z-10 relative flex items-center justify-center py-16 md:py-24 pt-28 md:pt-32">
-        <div className="max-w-[36.5rem] md:text-center">
+      <div className="container mx-auto px-4 z-10 relative flex items-center justify-center py-16 md:py-24 pt-28 md:pt-32">
+        <div className="max-w-[36.5rem] text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Découvrez nos produits CBD de qualité
           </h1>
           <p className="text-lg md:text-xl mb-6">
             100% naturel, légal et cultivé en Europe
           </p>
-          <ul className="flex md:justify-center gap-4">
+          <ul className="flex justify-center gap-4">
             <li>
               <Link href="/produits" className="btn btn-primary px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 transition-colors inline-flex items-center justify-center">
                 Découvrir
