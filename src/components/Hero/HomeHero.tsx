@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function HomeHero() {
   return (
-    <div className="relative min-h-[90vh] flex items-center justify-center text-white bg-gray-800" data-theme="dark">
+    <div className="relative min-h-[100vh] flex items-center justify-center text-white bg-gray-800" data-theme="dark">
       {/* Vidéo de fond */}
       <div className="absolute inset-0 overflow-hidden">
         <video 
@@ -21,8 +21,8 @@ export default function HomeHero() {
         <div className="absolute inset-0 bg-black opacity-40"></div>
       </div>
       
-      {/* Contenu texte */}
-      <div className="container z-10 relative flex items-center justify-center py-16 md:py-24">
+      {/* Contenu texte - ajusté avec padding-top pour tenir compte du header */}
+      <div className="container z-10 relative flex items-center justify-center py-16 md:py-24 pt-28 md:pt-32">
         <div className="max-w-[36.5rem] md:text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Découvrez nos produits CBD de qualité

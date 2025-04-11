@@ -194,8 +194,7 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Padding spacer to prevent content from hiding under fixed header */}
-      <div className="h-20 md:h-24"></div>
+      {/* Suppression du padding spacer pour permettre au Hero de passer sous le Header */}
     </>
   );
 }
