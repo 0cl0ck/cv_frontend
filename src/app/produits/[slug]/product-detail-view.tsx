@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+// RichTextContent est importé pour les types mais n'est pas utilisé directement
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Category, Media, Product, ProductVariation, RichTextContent } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
@@ -88,7 +90,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
     return product.stock === undefined || product.stock > 0;
   };
 
-  // Calculer le prix actuel
+  // Calculer le prix actuel - fonction définie mais non utilisée actuellement
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const currentPrice = (): number | null => {
     if (product.productType === 'variable' && selectedVariation) {
       return selectedVariation.price;

@@ -58,7 +58,7 @@ export function useCart() {
       (variantId ? item.variantId === variantId : !item.variantId)
     );
 
-    let newItems = [...cart.items];
+    const newItems = [...cart.items];
     
     // Si le produit est variable, récupérer les infos de la variante
     let price = product.price || 0;

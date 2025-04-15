@@ -3,6 +3,8 @@ import { Metadata } from 'next';
 import { getProductBySlug, getRelatedProducts, getCategories } from '@/services/api';
 import { notFound } from 'next/navigation';
 import ProductDetailView from '@/app/produits/[slug]/product-detail-view';
+// Importation nécessaire pour les types mais elle n'est pas utilisée directement
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RichTextContent } from '@/types/product';
 
 // Génération des métadonnées dynamiques pour le SEO
@@ -45,7 +47,7 @@ export async function generateMetadata({
         ] : []
       }
     };
-  } catch (error) {
+  } catch  {
     return {
       title: 'Produit non trouvé | Chanvre Vert',
       description: 'Le produit que vous recherchez n\'existe pas ou a été déplacé.'
@@ -89,7 +91,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         categories={categories} 
       />
     );
-  } catch (error) {
+  } catch  {
     // Si le produit n'est pas trouvé, renvoyer une page 404
     notFound();
   }

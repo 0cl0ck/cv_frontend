@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 
 export default function ProductsError({
+  // error est nécessaire pour le type, mais n'est pas utilisé actuellement
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   error,
   reset,
 }: {

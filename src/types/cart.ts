@@ -1,4 +1,4 @@
-import { Product } from './product';
+// Import supprimé car non utilisé
 
 export interface CartItem {
   productId: string;      // ID du produit

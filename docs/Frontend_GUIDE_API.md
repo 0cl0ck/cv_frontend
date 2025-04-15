@@ -456,3 +456,397 @@ Les URLs configurées dans l'interface Viva Wallet doivent pointer vers :
   - Les utilisateurs publics peuvent lire les produits, catégories et méthodes de livraison
   - Seuls les administrateurs peuvent créer/modifier les produits, catégories et méthodes de livraison
   - Les commandes peuvent être créées par les utilisateurs publics (guest checkout)
+
+## Guide d'intégration Frontend Complet
+
+Ce guide fournit des instructions détaillées pour implémenter l'intégration complète du panier d'achat, du processus de commande et des paiements dans le frontend.
+
+### Gestion du panier
+
+Le panier d'achat est géré côté client avec une persistance locale via `localStorage`. Voici un exemple complet d'implémentation :
+
+#### 1. Structure du panier
+
+```typescript
+// types/cart.ts
+import { Product } from './product';
+
+export interface CartItem {
+  productId: string;      // ID du produit
+  variantId?: string;     // ID de la variante (pour les produits variables)
+  name: string;           // Nom du produit
+  price: number;          // Prix unitaire
+  weight?: number;        // Poids (pour les produits variables)
+  quantity: number;       // Quantité
+  image: string;          // URL de l'image
+  slug: string;           // Slug du produit (pour les liens)
+}
+
+export interface Cart {
+  items: CartItem[];
+  subtotal: number;       // Sous-total (somme des articles)
+  shipping?: {
+    methodId: string;     // ID de la méthode de livraison
+    cost: number;         // Coût de la livraison
+  };
+  total: number;          // Total avec livraison
+}
+```
+
+#### 2. Hooks de gestion du panier
+
+```typescript
+// hooks/useCart.ts
+import { useState, useEffect } from 'react';
+import { Cart, CartItem } from '../types/cart';
+import { Product } from '../types/product';
+
+// Clé utilisée pour stocker le panier dans localStorage
+const CART_STORAGE_KEY = 'chanvre_vert_cart';
+
+// État initial du panier
+const initialCart: Cart = {
+  items: [],
+  subtotal: 0,
+  total: 0
+};
+
+export function useCart() {
+  const [cart, setCart] = useState<Cart>(initialCart);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Récupérer le panier depuis localStorage au chargement
+  useEffect(() => {
+    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+    if (storedCart) {
+      try {
+        const parsedCart = JSON.parse(storedCart);
+        setCart(parsedCart);
+      } catch (error) {
+        console.error('Erreur lors du chargement du panier:', error);
+      }
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Sauvegarder le panier dans localStorage à chaque changement
+  useEffect(() => {
+    if (!isLoading) {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    }
+  }, [cart, isLoading]);
+
+  // Recalculer les totaux
+  const recalculateCart = (items: CartItem[]): Cart => {
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shippingCost = cart.shipping?.cost || 0;
+    
+    return {
+      items,
+      subtotal,
+      shipping: cart.shipping,
+      total: subtotal + shippingCost
+    };
+  };
+
+  // Ajouter un produit au panier
+  const addItem = (product: Product, quantity: number = 1, variantId?: string) => {
+    const existingItemIndex = cart.items.findIndex(item => 
+      item.productId === product.id && 
+      (variantId ? item.variantId === variantId : !item.variantId)
+    );
+
+    let newItems = [...cart.items];
+    
+    // Si le produit est variable, récupérer les infos de la variante
+    let price = product.price;
+    let weight = undefined;
+    let variantName = '';
+    
+    if (variantId && product.variants && product.productType === 'variable') {
+      const variant = product.variants.find(v => v.id === variantId);
+      if (variant) {
+        price = variant.price;
+        weight = variant.weight;
+        variantName = ` - ${weight}g`;
+      }
+    }
+
+    // Si l'article existe déjà, incrémenter la quantité
+    if (existingItemIndex !== -1) {
+      newItems[existingItemIndex].quantity += quantity;
+    } else {
+      // Sinon, ajouter un nouvel article
+      newItems.push({
+        productId: product.id,
+        variantId,
+        name: product.name + (variantName || ''),
+        price,
+        weight,
+        quantity,
+        image: product.mainImage?.url || product.images?.[0] || '',
+        slug: product.slug
+      });
+    }
+
+    setCart(recalculateCart(newItems));
+  };
+
+  // Mettre à jour la quantité d'un article
+  const updateQuantity = (index: number, quantity: number) => {
+    if (quantity < 1) return;
+    
+    const newItems = [...cart.items];
+    newItems[index].quantity = quantity;
+    setCart(recalculateCart(newItems));
+  };
+
+  // Supprimer un article
+  const removeItem = (index: number) => {
+    const newItems = cart.items.filter((_, i) => i !== index);
+    setCart(recalculateCart(newItems));
+  };
+
+  // Vider le panier
+  const clearCart = () => {
+    setCart(initialCart);
+  };
+
+  // Définir la méthode de livraison
+  const setShippingMethod = (methodId: string, cost: number) => {
+    setCart({
+      ...cart,
+      shipping: {
+        methodId,
+        cost
+      },
+      total: cart.subtotal + cost
+    });
+  };
+
+  return {
+    cart,
+    isLoading,
+    addItem,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    setShippingMethod
+  };
+}
+```
+
+### Intégration des paiements VivaWallet
+
+Le processus de paiement via VivaWallet se déroule en plusieurs étapes :
+
+1. Création d'une commande dans la collection `orders`
+2. Initialisation d'un paiement VivaWallet via l'API `/api/payment/create`
+3. Redirection du client vers la page de paiement sécurisée de VivaWallet
+4. Gestion du retour client et vérification du statut de paiement
+
+#### 1. Service de paiement
+
+```typescript
+// services/paymentService.ts
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://api.chanvre-vert.fr/api';
+
+interface PaymentRequest {
+  orderId: string;
+  orderNumber: string;
+  amount: number;
+  customerEmail: string;
+  customerFullName: string;
+}
+
+interface PaymentResponse {
+  success: boolean;
+  data?: {
+    orderCode: string;
+    checkoutUrl: string;
+  };
+  message?: string;
+}
+
+/**
+ * Initialiser un paiement via VivaWallet
+ */
+export async function initializePayment(paymentData: PaymentRequest): Promise<PaymentResponse> {
+  try {
+    const response = await fetch(`${API_URL}/payment/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        orderNumber: paymentData.orderNumber,
+        amount: paymentData.amount,
+        customerEmail: paymentData.customerEmail,
+        customerTrns: paymentData.customerFullName,
+        customerData: {
+          email: paymentData.customerEmail,
+          fullName: paymentData.customerFullName,
+          orderId: paymentData.orderId,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur lors de l'initialisation du paiement: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation du paiement:', error);
+    throw error;
+  }
+}
+
+/**
+ * Vérifier le statut d'un paiement
+ */
+export async function verifyPayment(orderCode: string): Promise<PaymentVerifyResponse> {
+  try {
+    const response = await fetch(`${API_URL}/payment/verify/${orderCode}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur lors de la vérification du paiement: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erreur lors de la vérification du paiement:', error);
+    throw error;
+  }
+}
+```
+
+#### 2. Exemple d'intégration du processus de paiement
+
+```typescript
+// pages/checkout.tsx - Fonction de traitement du paiement
+async function handlePayment(order) {
+  try {
+    // 1. Initialiser le paiement
+    const payment = await initializePayment({
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      amount: order.total,
+      customerEmail: order.guestInformation?.email || order.customer?.email,
+      customerFullName: order.guestInformation?.fullName || order.customer?.fullName,
+    });
+    
+    if (payment.success && payment.data?.checkoutUrl) {
+      // Stocker l'orderCode pour vérification ultérieure
+      localStorage.setItem('pendingOrderCode', payment.data.orderCode);
+      localStorage.setItem('pendingOrderNumber', order.orderNumber);
+      
+      // 2. Rediriger vers la page de paiement VivaWallet
+      window.location.href = payment.data.checkoutUrl;
+    } else {
+      throw new Error(payment.message || 'Erreur lors de l\'initialisation du paiement');
+    }
+  } catch (error) {
+    console.error('Erreur de paiement:', error);
+    throw error;
+  }
+}
+```
+
+#### 3. Gestion du retour après paiement
+
+```typescript
+// pages/payment-success.tsx
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { verifyPayment } from '../services/paymentService';
+import { getOrderByNumber } from '../services/orderService';
+import { useCartContext } from '../context/CartContext';
+
+export default function PaymentSuccessPage() {
+  const router = useRouter();
+  const { clearCart } = useCartContext();
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [paymentStatus, setPaymentStatus] = useState<'success'|'pending'|'failed'>('pending');
+  const [orderInfo, setOrderInfo] = useState(null);
+  
+  useEffect(() => {
+    async function verifyTransaction() {
+      try {
+        // Récupérer l'orderCode stocké lors de l'initialisation du paiement
+        const orderCode = localStorage.getItem('pendingOrderCode');
+        const orderNumber = localStorage.getItem('pendingOrderNumber');
+        
+        if (!orderCode || !orderNumber) {
+          setPaymentStatus('failed');
+          return;
+        }
+        
+        // Vérifier le statut du paiement
+        const verificationResult = await verifyPayment(orderCode);
+        
+        if (verificationResult.success && verificationResult.data?.paymentStatus === 'paid') {
+          // Paiement réussi
+          setPaymentStatus('success');
+          
+          // Récupérer les détails de la commande
+          const order = await getOrderByNumber(orderNumber);
+          setOrderInfo(order);
+          
+          // Vider le panier
+          clearCart();
+          
+          // Nettoyer localStorage
+          localStorage.removeItem('pendingOrderCode');
+          localStorage.removeItem('pendingOrderNumber');
+        } else {
+          // Paiement en attente ou échoué
+          setPaymentStatus(verificationResult.data?.paymentStatus === 'pending' ? 'pending' : 'failed');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification du paiement:', error);
+        setPaymentStatus('failed');
+      } finally {
+        setIsVerifying(false);
+      }
+    }
+    
+    verifyTransaction();
+  }, [clearCart]);
+  
+  // Rendu conditionnel selon le statut
+  // ...
+}
+```
+
+### Webhooks VivaWallet
+
+Le backend est configuré pour recevoir des notifications asynchrones de VivaWallet via webhooks. Cette fonctionnalité est entièrement gérée côté serveur et ne nécessite pas d'implémentation côté frontend. Les étapes sont les suivantes :
+
+1. VivaWallet envoie une notification au endpoint `/api/webhook/vivaWallet`
+2. Le backend vérifie la signature du webhook
+3. Le statut de la commande et du paiement est mis à jour automatiquement
+4. Si le paiement est confirmé, les stocks sont mis à jour
+
+Cette approche garantit que même si le client ferme la fenêtre ou perd sa connexion après le paiement, la commande sera correctement mise à jour dans votre système.
+
+### Processus d'achat complet
+
+Résumé du flux complet d'achat :
+
+1. **Panier** : L'utilisateur ajoute des produits au panier
+2. **Checkout** : Remplissage des informations client et livraison
+3. **Création commande** : Création d'une commande via l'API `/api/orders`
+4. **Initialisation paiement** : Appel à `/api/payment/create` pour obtenir un lien de paiement
+5. **Paiement** : Redirection vers VivaWallet pour le paiement sécurisé
+6. **Retour client** : Redirection vers votre site (succès ou échec)
+7. **Vérification** : Vérification du statut via `/api/payment/verify/[orderCode]`
+8. **Confirmation** : Affichage de la confirmation de commande et des détails
+9. **Mise à jour asynchrone** : Les webhooks mettent à jour les statuts si nécessaire
+
+Ce workflow complet garantit une expérience utilisateur optimale tout en assurant la fiabilité des transactions.

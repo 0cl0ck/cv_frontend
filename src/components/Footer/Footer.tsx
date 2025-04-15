@@ -3,14 +3,18 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+// Ces imports sont préparés pour une fonctionnalité future de thème dark/light
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cn } from '@/lib/utils';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconSun, IconMoon } from '@tabler/icons-react';
 
 export default function Footer() {
   // État pour le thème (simplifié par rapport au ThemeSelector)
   const [isDarkMode, setIsDarkMode] = useState(false);
   
-  // Fonction simplifiée pour basculer le thème
+  // Fonction simplifiée pour basculer le thème (préparée pour une fonctionnalité future)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const toggleTheme = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);

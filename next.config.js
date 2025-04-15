@@ -19,6 +19,21 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
+  // Configuration des redirections pour les pages de paiement
+  async redirects() {
+    return [
+      {
+        source: '/success',
+        destination: '/paiement-reussi',
+        permanent: true,
+      },
+      {
+        source: '/failure',
+        destination: '/paiement-echoue',
+        permanent: true,
+      },
+    ];
+  },
   // Autres configurations si nécessaire
 };
 

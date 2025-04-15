@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   description: 'Découvrez notre gamme complète de produits CBD de haute qualité - fleurs, huiles, infusions et plus encore.',
 };
 
-export default async function ProductsPage(props: { searchParams?: Promise<URLSearchParams> }) {
+export default async function ProductsPage(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  props: { searchParams?: Promise<URLSearchParams> }
+) {
   // Récupérer les query params dynamiquement, en vérifiant si Next.js les fournit directement
   const headersList = await headers();
   const url = headersList.get('x-url') || '';

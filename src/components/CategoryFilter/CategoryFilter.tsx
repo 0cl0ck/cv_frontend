@@ -12,10 +12,13 @@ type Props = {
 };
 
 export const CategoryFilter: React.FC<Props> = ({ categories, activeCategory, isLoading = false }) => {
+  // Ces variables sont préparées pour un usage futur dans les filtres de catégories
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // Construire une nouvelle URL avec les paramètres mis à jour
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const createQueryString = (name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(name, value);

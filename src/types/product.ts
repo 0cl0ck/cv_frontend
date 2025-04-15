@@ -41,12 +41,12 @@ export type Category = {
   name: string;
   slug: string;
   isActive?: boolean;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
 };
 
-export type ProductDetails = Record<string, any>;
+export type ProductDetails = Record<string, unknown>;
 
 export type MetaInfo = {
   legalWarning?: string;
@@ -55,7 +55,7 @@ export type MetaInfo = {
 
 export type RichTextContent = {
   root: {
-    children: any[];
+    children: Array<Record<string, unknown>>;
     direction: string;
     format: string;
     indent: number;

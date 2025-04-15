@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import React from "react";
 import { useId } from "react";
 import { ShieldCheck, Truck, Leaf, Award } from 'lucide-react';
@@ -45,7 +45,7 @@ export function StatsWithGridBackground() {
       <h2 className="text-3xl font-bold mb-10 text-center text-neutral-800 dark:text-neutral-200">Pourquoi nous choisir ?</h2>
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {benefits.map((benefit, index) => (
+          {benefits.map((benefit) => (
             <div
               key={benefit.id}
               className="group/card relative overflow-hidden p-10 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow"
