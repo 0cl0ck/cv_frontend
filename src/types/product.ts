@@ -1,35 +1,87 @@
-// Types simplifiés remplaçant ceux de PayloadCMS pour l'usage local
+// Types correspondant à la structure de l'API PayloadCMS
+export type MediaSize = {
+  width: number | null;
+  height: number | null;
+  mimeType: string | null;
+  filesize: number | null;
+  filename: string | null;
+  url: string;
+};
+
 export type Media = {
   id?: string;
   url: string;
   alt?: string;
   width?: number;
   height?: number;
+  filename?: string;
+  mimeType?: string;
+  filesize?: number;
+  sizes?: {
+    thumbnail?: MediaSize;
+    card?: MediaSize;
+    tablet?: MediaSize;
+    desktop?: MediaSize;
+  };
+  thumbnailURL?: string | null;
 };
 
 export type ProductVariation = {
   id: string;
-  name: string;
+  weight?: number;
   price: number;
+  pricePerGram?: number;
+  sku?: string;
   stock?: number;
+  isActive?: boolean;
 };
 
 export type Category = {
   id: string;
   name: string;
   slug: string;
+  isActive?: boolean;
+  meta?: Record<string, any>;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type ProductDetails = Record<string, any>;
+
+export type MetaInfo = {
+  legalWarning?: string;
+  certificates?: string[];
+};
+
+export type RichTextContent = {
+  root: {
+    children: any[];
+    direction: string;
+    format: string;
+    indent: number;
+    type: string;
+    version: number;
+  };
 };
 
 export type Product = {
   id: string;
   name: string;
   slug: string;
-  description?: string;
+  description?: string | RichTextContent;
   price?: number;
   stock?: number;
-  images?: (Media | string)[];
-  category?: (Category | string)[];
-  featured?: boolean;
+  sku?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  mainImage?: Media;
+  galleryImages?: Media[];
+  category?: Category | string;
+  isFeatured?: boolean;
+  isActive?: boolean;
   productType?: 'simple' | 'variable';
-  variations?: ProductVariation[];
+  variants?: ProductVariation[];
+  productDetails?: ProductDetails;
+  tags?: string[];
+  metaInfo?: MetaInfo;
 };

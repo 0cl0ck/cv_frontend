@@ -13,12 +13,13 @@ type Props = {
 };
 
 export const ProductCard: React.FC<Props> = ({ product, index }) => {
-  const mainImage = product.images?.[0];
-  const hoverImage = product.images?.[1];
+  // Utiliser mainImage comme image principale
+  const mainImage = product.mainImage;
+  // Utiliser la première image de la galerie comme image au survol (si disponible)
+  const hoverImage = product.galleryImages?.[0];
 
-  const getImageUrl = (image: Media | string | undefined): string => {
+  const getImageUrl = (image: Media | undefined): string => {
     if (!image) return '';
-    if (typeof image === 'string') return image;
     return image.url || '';
   };
 
@@ -51,7 +52,7 @@ export const ProductCard: React.FC<Props> = ({ product, index }) => {
             )}
           </>
         )}
-        {product.featured && (
+        {product.isFeatured && (
           <span className="absolute left-2 top-2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
             Produit vedette
           </span>
@@ -63,14 +64,13 @@ export const ProductCard: React.FC<Props> = ({ product, index }) => {
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">{product.name}</h3>
           {product.category && (
             <div className="mt-1 flex flex-wrap gap-1">
-              {product.category.map((cat) => (
-                <span
-                  key={typeof cat === 'string' ? cat : cat.id}
-                  className="text-sm text-neutral-600 dark:text-neutral-400"
-                >
-                  {typeof cat === 'string' ? cat : cat.name}
-                </span>
-              ))}
+              <span
+                className="text-sm text-neutral-600 dark:text-neutral-400"
+              >
+                {typeof product.category === 'string' 
+                  ? product.category 
+                  : product.category.name}
+              </span>
             </div>
           )}
         </Link>
@@ -88,14 +88,14 @@ export const ProductCard: React.FC<Props> = ({ product, index }) => {
           ) : (
             <div className="flex items-center justify-between">
               <span className="text-lg font-bold text-primary">
-                {product.variations && product.variations.length > 0
+                {product.variants && product.variants.length > 0
                   ? `À partir de ${formatPrice(
-                      Math.min(...product.variations.map((v) => v.price)),
+                      Math.min(...product.variants.map((v) => v.price)),
                     )}`
                   : 'Prix sur demande'}
               </span>
-              {product.variations &&
-                product.variations.every((v) => typeof v.stock === 'number' && v.stock <= 0) && (
+              {product.variants &&
+                product.variants.every((v) => typeof v.stock === 'number' && v.stock <= 0) && (
                   <span className="text-sm text-red-500">Rupture de stock</span>
                 )}
             </div>

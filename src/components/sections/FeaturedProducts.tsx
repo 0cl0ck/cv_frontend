@@ -14,31 +14,46 @@ const featuredProducts: Product[] = [
     name: 'Banana Berry',
     slug: 'banana-berry',
     price: 15.90,
-    images: ['/images/products/banana-berry.webp'],
+    mainImage: {
+      url: '/images/products/banana-berry.webp',
+      alt: 'Banana Berry',
+      width: 1080,
+      height: 1080
+    },
     description: 'Fleurs CBD saveur Banana Berry',
     productType: 'simple',
-    featured: true,
-    category: [{ id: '1', name: 'Fleurs', slug: 'fleurs' }]
+    isFeatured: true,
+    category: { id: '1', name: 'Fleurs', slug: 'fleurs' }
   },
   {
     id: '2',
     name: 'Blue Berry',
     slug: 'blue-berry',
     price: 16.90,
-    images: ['/images/products/blue-berry.webp'],
+    mainImage: {
+      url: '/images/products/blue-berry.webp',
+      alt: 'Blue Berry',
+      width: 1080,
+      height: 1080
+    },
     description: 'Fleurs CBD saveur Blue Berry',
     productType: 'simple',
-    category: [{ id: '1', name: 'Fleurs', slug: 'fleurs' }]
+    category: { id: '1', name: 'Fleurs', slug: 'fleurs' }
   },
   {
     id: '3',
     name: 'Corelato',
     slug: 'corelato',
     price: 18.50,
-    images: ['/images/products/corelato.webp'],
+    mainImage: {
+      url: '/images/products/corelato.webp',
+      alt: 'Corelato',
+      width: 1080,
+      height: 1080
+    },
     description: 'Fleurs CBD premium Corelato',
     productType: 'simple',
-    category: [{ id: '1', name: 'Fleurs', slug: 'fleurs' }]
+    category: { id: '1', name: 'Fleurs', slug: 'fleurs' }
   }
 ];
 
