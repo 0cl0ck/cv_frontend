@@ -8,32 +8,32 @@ const productCategories: Card[] = [
   {
     title: 'Huiles CBD',
     src: '/images/categories/categorie_huile_cbd.webp',
-    href: '/produits?categorie=huiles-cbd'
+    href: '/produits/categorie/huiles-cbd'
   },
   {
     title: 'Fleurs CBD',
     src: '/images/categories/categorie_fleurs_cbd.webp',
-    href: '/produits?categorie=fleurs-cbd'
+    href: '/produits/categorie/fleurs-cbd'
   },
   {
     title: 'Infusions CBD',
     src: '/images/categories/categorie_infusion_cbd.webp',
-    href: '/produits?categorie=infusions-cbd'
+    href: '/produits/categorie/infusions-cbd'
   },
   {
     title: 'Résine CBD',
     src: '/images/categories/categorie_resine_cbd.webp',
-    href: '/produits?categorie=resine-cbd'
+    href: '/produits/categorie/resine-cbd'
   },
   {
     title: 'Gélules CBD',
     src: '/images/categories/categorie_gelules_cbd.webp',
-    href: '/produits?categorie=gelules-cbd'
+    href: '/produits/categorie/gelules-cbd'
   },
   {
     title: 'Packs CBD',
     src: '/images/categories/categorie_packs_cbd.webp',
-    href: '/produits?categorie=packs-cbd'
+    href: '/produits/categorie/packs-cbd'
   }
 ];
 
