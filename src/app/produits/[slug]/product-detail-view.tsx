@@ -6,6 +6,7 @@ import { Category, Media, Product, ProductVariation, RichTextContent } from '@/t
 import { formatPrice } from '@/lib/utils';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
+import { useCartContext } from '@/context/CartContext';
 
 type Props = {
   product: Product;
@@ -14,11 +15,13 @@ type Props = {
 };
 
 export default function ProductDetailView({ product, relatedProducts, categories }: Props) {
+  const { addItem } = useCartContext();
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
   const [mainImage, setMainImage] = useState<Media | string | undefined>(product.mainImage || (product.galleryImages && product.galleryImages.length > 0 ? product.galleryImages[0] : undefined));
   const [quantity, setQuantity] = useState(1);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
 
   // Formater les catégories pour l'affichage
   const categoryDisplay: Category[] = [];
@@ -62,6 +65,18 @@ export default function ProductDetailView({ product, relatedProducts, categories
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1) {
       setQuantity(newQuantity);
+    }
+  };
+  
+  // Gérer l'ajout au panier
+  const handleAddToCart = () => {
+    if (isInStock()) {
+      // Ajouter au panier avec la variation sélectionnée si disponible
+      addItem(product, quantity, selectedVariation || undefined);
+      
+      // Afficher un message de confirmation (temporaire)
+      setIsAddedToCart(true);
+      setTimeout(() => setIsAddedToCart(false), 2000);
     }
   };
 
@@ -251,13 +266,14 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
                 <button
                   disabled={!isInStock()}
+                  onClick={handleAddToCart}
                   className={`flex-1 px-6 py-3 rounded-md font-medium text-white transition-colors ${
                     isInStock()
                       ? 'bg-primary hover:bg-primary-dark'
                       : 'bg-neutral-400 cursor-not-allowed'
                   }`}
                 >
-                  {isInStock() ? 'Ajouter au panier' : 'Produit épuisé'}
+                  {isAddedToCart ? 'Produit ajouté ✓' : isInStock() ? 'Ajouter au panier' : 'Produit épuisé'}
                 </button>
               </div>
 
