@@ -1,0 +1,722 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+type CartItem = {
+  id: string;
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  variantId?: string;
+  variantName?: string;
+  weight?: number;
+  sku?: string;
+};
+
+type CartSummary = {
+  items: CartItem[];
+  subtotal: number;
+  shipping: {
+    cost: number;
+    method?: {
+      id: string;
+      name: string;
+    };
+  };
+  total: number;
+};
+
+type ShippingMethod = {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  deliveryTime: string;
+};
+
+export default function CheckoutPage() {
+  const [currentStep, setCurrentStep] = useState(1); // Étape 1 ou 2
+  const [cart, setCart] = useState<CartSummary>({
+    items: [],
+    subtotal: 0,
+    shipping: {
+      cost: 0
+    },
+    total: 0
+  });
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>(''); 
+  
+  const [formData, setFormData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    address1: '',
+    address2: '',
+    city: '',
+    postalCode: '',
+    country: 'FR',
+    sameAsBilling: true,
+    billingAddress1: '',
+    billingAddress2: '',
+    billingCity: '',
+    billingPostalCode: '',
+    billingCountry: 'FR',
+  });
+  
+  // Chargement du panier et des méthodes de livraison
+  useEffect(() => {
+    // Charger le panier depuis localStorage
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      try {
+        const parsedItems = JSON.parse(storedCart);
+        
+        // Calculer le sous-total
+        const calcSubtotal = parsedItems.reduce(
+          (sum: number, item: CartItem) => sum + (item.price * item.quantity), 0
+        );
+        
+        // Déterminer les frais de port (gratuit au-dessus de 49€)
+        const calcShipping = calcSubtotal >= 49 ? 0 : 4.95;
+        
+        // Mettre à jour le cart avec les bonnes valeurs
+        setCart({
+          items: parsedItems,
+          subtotal: calcSubtotal,
+          shipping: { cost: calcShipping },
+          total: calcSubtotal + calcShipping
+        });
+        
+      } catch (error) {
+        console.error('Erreur lors du chargement du panier:', error);
+      }
+    }
+    
+    // Charger les méthodes de livraison disponibles
+    const fetchShippingMethods = async () => {
+      try {
+        // Utiliser des méthodes par défaut pour l'instant
+        setShippingMethods([
+          {
+            id: '1',
+            name: 'Livraison standard',
+            description: 'Livraison en 3-5 jours ouvrés',
+            cost: 4.95,
+            deliveryTime: '3-5 jours'
+          },
+          {
+            id: '2',
+            name: 'Livraison express',
+            description: 'Livraison en 24-48h',
+            cost: 8.95,
+            deliveryTime: '1-2 jours'
+          }
+        ]);
+        
+        // Sélectionner la première méthode par défaut
+        setSelectedShippingMethod('1');
+        
+      } catch (error) {
+        console.error('Erreur lors du chargement des méthodes de livraison:', error);
+      }
+    };
+    
+    fetchShippingMethods();
+  }, []);
+  
+  // Gestion des changements dans le formulaire
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Si l'adresse de facturation est la même que livraison, mettre à jour les champs
+    if (name === 'sameAsBilling') {
+      const isChecked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({
+        ...prev,
+        sameAsBilling: isChecked
+      }));
+    } else if (formData.sameAsBilling && (
+      name === 'address1' || 
+      name === 'address2' || 
+      name === 'city' || 
+      name === 'postalCode' || 
+      name === 'country'
+    )) {
+      // Copier les champs de livraison vers facturation
+      const billingField = 'billing' + name.charAt(0).toUpperCase() + name.slice(1);
+      setFormData(prev => ({
+        ...prev,
+        [billingField]: value
+      }));
+    }
+  };
+  
+  // Changement de méthode de livraison
+  const handleShippingMethodChange = (methodId: string) => {
+    setSelectedShippingMethod(methodId);
+    
+    // Mettre à jour le coût de livraison
+    const selectedMethod = shippingMethods.find(method => method.id === methodId);
+    if (selectedMethod) {
+      // Mise à jour du panier avec la nouvelle méthode de livraison
+      setCart(prev => ({
+        ...prev,
+        shipping: {
+          cost: selectedMethod.cost,
+          method: {
+            id: selectedMethod.id,
+            name: selectedMethod.name
+          }
+        },
+        total: prev.subtotal + selectedMethod.cost
+      }));
+    }
+  };
+  
+  // Passage à l'étape suivante
+  const goToNextStep = () => {
+    // Validation de base des champs du formulaire
+    if (!formData.email || !formData.firstName || !formData.lastName || 
+        !formData.address1 || !formData.city || !formData.postalCode) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+    
+    // Passer à l'étape suivante
+    setCurrentStep(2);
+  };
+  
+  // Revenir à l'étape précédente
+  const goToPreviousStep = () => {
+    setCurrentStep(1);
+  };
+  
+  // Soumission du paiement
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (cart.items.length === 0) {
+      alert('Votre panier est vide');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // 1. Préparation des données de commande selon l'exemple fourni
+      const orderData = {
+        guestInformation: {
+          email: formData.email,
+          fullName: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone
+        },
+        shippingAddress: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          line1: formData.address1,
+          line2: formData.address2 || '', 
+          city: formData.city,
+          postalCode: formData.postalCode,
+          country: formData.country
+        },
+        billingAddress: formData.sameAsBilling ? {
+          name: `${formData.firstName} ${formData.lastName}`,
+          line1: formData.address1,
+          line2: formData.address2 || '',
+          city: formData.city,
+          postalCode: formData.postalCode,
+          country: formData.country
+        } : {
+          name: `${formData.firstName} ${formData.lastName}`,
+          line1: formData.billingAddress1,
+          line2: formData.billingAddress2 || '',
+          city: formData.billingCity,
+          postalCode: formData.billingPostalCode,
+          country: formData.billingCountry
+        },
+        items: cart.items.map(item => ({
+          productId: item.productId || item.id,
+          variantId: item.variantId,
+          price: item.price,
+          quantity: item.quantity,
+          sku: item.sku || `SKU-${item.id}`
+        })),
+        shipping: {
+          methodId: selectedShippingMethod,
+          methodName: shippingMethods.find(m => m.id === selectedShippingMethod)?.name || 'Livraison standard',
+          cost: cart.shipping.cost,
+        },
+        subtotal: cart.subtotal,
+        total: cart.total
+      };
+      
+      // 2. Créer la commande dans le backend
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      
+      try {
+        // 1. Créer la commande
+        const orderResponse = await fetch(`${API_URL}/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData),
+        });
+        
+        if (!orderResponse.ok) {
+          throw new Error(`Erreur API: ${orderResponse.status}`);
+        }
+        
+        const order = await orderResponse.json();
+        
+        // 2. Initialiser le paiement Viva Wallet avec l'ID de commande
+        const paymentData = {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          amount: cart.total,
+          customerEmail: formData.email,
+          customerFullName: `${formData.firstName} ${formData.lastName}`
+        };
+
+        const paymentResponse = await fetch(`${API_URL}/payment/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(paymentData),
+        });
+        
+        if (!paymentResponse.ok) {
+          throw new Error(`Erreur création paiement: ${paymentResponse.status}`);
+        }
+        
+        const payment = await paymentResponse.json();
+        
+        // 3. Sauvegarder les informations pour vérification ultérieure
+        if (payment.success && payment.data?.checkoutUrl) {
+          localStorage.setItem('pendingOrderCode', payment.data.orderCode);
+          localStorage.setItem('pendingOrderNumber', order.orderNumber);
+          
+          // Vider le panier
+          localStorage.removeItem('cart');
+          
+          // 4. REDIRIGER vers la page de paiement Viva Wallet
+          window.location.href = payment.data.checkoutUrl;
+        } else {
+          alert(`Erreur: ${payment.error || 'Impossible de créer le paiement'}`);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Erreur lors du processus de paiement:', error);
+        alert('Une erreur est survenue lors du traitement de votre commande.');
+        setIsLoading(false);
+      }
+      
+    } catch (error) {
+      console.error('Erreur lors du checkout:', error);
+      alert('Une erreur est survenue lors du traitement de votre commande.');
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Finaliser votre commande</h1>
+      
+      {/* Étapes du checkout */}
+      <div className="mb-8">
+        <div className="flex items-center justify-center">
+          <div className={`flex items-center ${currentStep >= 1 ? 'text-green-600' : 'text-gray-400'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${currentStep >= 1 ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500'}`}>1</div>
+            <span className="font-medium">Informations</span>
+          </div>
+          <div className={`w-16 h-1 mx-2 ${currentStep >= 2 ? 'bg-green-600' : 'bg-gray-200'}`}></div>
+          <div className={`flex items-center ${currentStep >= 2 ? 'text-green-600' : 'text-gray-400'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${currentStep >= 2 ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500'}`}>2</div>
+            <span className="font-medium">Paiement</span>
+          </div>
+        </div>
+      </div>
+      
+      {cart.items.length === 0 ? (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-lg">
+          <p>Votre panier est vide. <Link href="/produits" className="underline">Parcourir les produits</Link></p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Contenu différent selon l'étape */}
+          {currentStep === 1 ? (
+            // Étape 1: Formulaire d'informations
+            <div className="lg:col-span-2">
+              <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); goToNextStep(); }}>
+              {/* Informations personnelles */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4">Informations personnelles</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="email" className="block mb-1">Email*</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="phone" className="block mb-1">Téléphone</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="firstName" className="block mb-1">Prénom*</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      required
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lastName" className="block mb-1">Nom*</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      required
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Adresse de facturation */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4">Adresse de facturation</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label htmlFor="address1" className="block mb-1">Adresse*</label>
+                    <input
+                      type="text"
+                      id="address1"
+                      name="address1"
+                      required
+                      value={formData.address1}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label htmlFor="address2" className="block mb-1">Complément d&apos;adresse</label>
+                    <input
+                      type="text"
+                      id="address2"
+                      name="address2"
+                      value={formData.address2}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="postalCode" className="block mb-1">Code postal*</label>
+                    <input
+                      type="text"
+                      id="postalCode"
+                      name="postalCode"
+                      required
+                      value={formData.postalCode}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="city" className="block mb-1">Ville*</label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      required
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="country" className="block mb-1">Pays*</label>
+                    <select
+                      id="country"
+                      name="country"
+                      required
+                      value={formData.country}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded"
+                    >
+                      <option value="FR">France</option>
+                      <option value="BE">Belgique</option>
+                      <option value="CH">Suisse</option>
+                      <option value="LU">Luxembourg</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Adresse de livraison */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex items-center mb-4">
+                  <input
+                    type="checkbox"
+                    id="sameAsBilling"
+                    name="sameAsBilling"
+                    checked={formData.sameAsBilling}
+                    onChange={handleInputChange}
+                    className="mr-2"
+                  />
+                  <label htmlFor="sameAsBilling">Utiliser la même adresse pour la facturation</label>
+                </div>
+                
+                {!formData.sameAsBilling && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="md:col-span-2">
+                      <label htmlFor="billingAddress1" className="block mb-1">Adresse de facturation*</label>
+                      <input
+                        type="text"
+                        id="billingAddress1"
+                        name="billingAddress1"
+                        required={!formData.sameAsBilling}
+                        value={formData.billingAddress1}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label htmlFor="billingAddress2" className="block mb-1">Complément d&apos;adresse</label>
+                      <input
+                        type="text"
+                        id="billingAddress2"
+                        name="billingAddress2"
+                        value={formData.billingAddress2}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="billingPostalCode" className="block mb-1">Code postal*</label>
+                      <input
+                        type="text"
+                        id="billingPostalCode"
+                        name="billingPostalCode"
+                        required={!formData.sameAsBilling}
+                        value={formData.billingPostalCode}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="billingCity" className="block mb-1">Ville*</label>
+                      <input
+                        type="text"
+                        id="billingCity"
+                        name="billingCity"
+                        required={!formData.sameAsBilling}
+                        value={formData.billingCity}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="billingCountry" className="block mb-1">Pays*</label>
+                      <select
+                        id="billingCountry"
+                        name="billingCountry"
+                        required={!formData.sameAsBilling}
+                        value={formData.billingCountry}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded"
+                      >
+                        <option value="FR">France</option>
+                        <option value="BE">Belgique</option>
+                        <option value="CH">Suisse</option>
+                        <option value="LU">Luxembourg</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Bouton pour passer à l'étape suivante */}
+              <div className="mt-8">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium"
+                >
+                  {isLoading ? 'Traitement en cours...' : 'Continuer vers le paiement'}
+                </button>
+              </div>
+            </form>
+          </div>
+          ) : (
+            // Étape 2: Récapitulatif de commande avant paiement
+            <div className="lg:col-span-2">
+              <form onSubmit={handlePaymentSubmit} className="space-y-8">
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                  <h2 className="text-xl font-semibold mb-4">Vérifiez vos informations</h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {/* Coordonnées client */}
+                    <div>
+                      <h3 className="font-medium mb-2 pb-1 border-b">Coordonnées</h3>
+                      <p>{formData.firstName} {formData.lastName}</p>
+                      <p>{formData.email}</p>
+                      {formData.phone && <p>{formData.phone}</p>}
+                    </div>
+                    
+                    {/* Adresse de livraison */}
+                    <div>
+                      <h3 className="font-medium mb-2 pb-1 border-b">Adresse de livraison</h3>
+                      <p>{formData.firstName} {formData.lastName}</p>
+                      <p>{formData.address1}</p>
+                      {formData.address2 && <p>{formData.address2}</p>}
+                      <p>{formData.postalCode} {formData.city}</p>
+                      <p>{formData.country === 'FR' ? 'France' : 
+                         formData.country === 'BE' ? 'Belgique' : 
+                         formData.country === 'CH' ? 'Suisse' : 'Luxembourg'}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Méthodes de livraison */}
+                  <div className="mb-6">
+                    <h3 className="font-medium mb-2 pb-1 border-b">Méthode de livraison</h3>
+                    <div className="space-y-3">
+                      {shippingMethods.map(method => (
+                        <div key={method.id} className="flex items-center">
+                          <input
+                            type="radio"
+                            id={`shipping-${method.id}`}
+                            name="shippingMethod"
+                            checked={selectedShippingMethod === method.id}
+                            onChange={() => handleShippingMethodChange(method.id)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`shipping-${method.id}`} className="flex-1">
+                            <span className="font-medium">{method.name}</span>
+                            <span className="text-sm text-gray-500 block">{method.description}</span>
+                            <span className="text-sm">{method.deliveryTime}</span>
+                          </label>
+                          <span className="font-medium">{method.cost.toFixed(2)} €</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between mt-8">
+                    <button 
+                      type="button" 
+                      onClick={goToPreviousStep}
+                      className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      Retour
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium"
+                    >
+                      {isLoading ? 'Traitement en cours...' : `Procéder au paiement`}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          )}
+          
+          {/* Récapitulatif de commande */}
+          <div className="lg:col-span-1">
+            <div className="bg-white p-6 rounded-lg shadow-md sticky top-8">
+              <h2 className="text-xl font-semibold mb-4">Récapitulatif de commande</h2>
+              
+              <div className="max-h-80 overflow-y-auto mb-4">
+                {cart.items.map((item, index: number) => (
+                  <div key={index} className="flex justify-between py-2 border-b">
+                    <div>
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {item.variantName || item.weight ? `${item.weight}g` : ''} x {item.quantity}
+                      </p>
+                    </div>
+                    <div className="font-medium">
+                      {(item.price * item.quantity).toFixed(2)} €
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between">
+                  <div>Sous-total</div>
+                  <div>{cart.subtotal.toFixed(2)} €</div>
+                </div>
+                <div className="flex justify-between">
+                  <div>Livraison</div>
+                  <div>{cart.shipping.cost.toFixed(2)} €</div>
+                </div>
+                <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                  <div>Total</div>
+                  <div>{cart.total.toFixed(2)} €</div>
+                </div>
+                
+                <div className="text-xs text-gray-500 mt-2">
+                  {cart.shipping.cost === 0 ? (
+                    <p>Livraison gratuite</p>
+                  ) : (
+                    <p>Livraison gratuite à partir de 49€ d&apos;achat</p>
+                  )}
+                </div>
+                
+                {currentStep === 1 && (
+                  <div className="hidden lg:block mt-6">
+                    <button
+                      type="submit"
+                      form="checkout-form"
+                      disabled={isLoading}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium"
+                    >
+                      {isLoading ? 'Traitement en cours...' : 'Continuer vers le paiement'}
+                    </button>
+                  </div>
+                )}
+                
+                <div className="mt-4 text-sm text-gray-600">
+                  <p>En passant commande, vous acceptez nos <Link href="/conditions-generales" className="text-green-600 hover:underline">conditions générales de vente</Link> et reconnaissez notre <Link href="/confidentialite" className="text-green-600 hover:underline">politique de confidentialité</Link>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

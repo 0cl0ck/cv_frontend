@@ -34,7 +34,7 @@ export default function CartView() {
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-3xl font-bold mb-6 text-neutral-900 dark:text-white">Votre panier est vide</h1>
         <p className="text-neutral-600 dark:text-neutral-400 mb-8">
-          Vous n'avez aucun article dans votre panier.
+          Vous n&apos;avez aucun article dans votre panier.
         </p>
         <Link
           href="/produits"
