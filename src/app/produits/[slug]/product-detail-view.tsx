@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Category, Product, ProductVariation } from '@/types/product';
+import { Category, Media, Product, ProductVariation, RichTextContent } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
@@ -15,26 +15,39 @@ type Props = {
 
 export default function ProductDetailView({ product, relatedProducts, categories }: Props) {
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(
-    product.variations && product.variations.length > 0 ? product.variations[0] : null
+    product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
-  const [mainImage, setMainImage] = useState(product.images?.[0]);
+  const [mainImage, setMainImage] = useState<Media | string | undefined>(product.mainImage || (product.galleryImages && product.galleryImages.length > 0 ? product.galleryImages[0] : undefined));
   const [quantity, setQuantity] = useState(1);
 
   // Formater les catégories pour l'affichage
-  const categoryDisplay = product.category
-    ? product.category
-        .map((cat) => {
-          if (typeof cat === 'string') {
-            const foundCat = categories.find((c) => c.id === cat);
-            return foundCat ? foundCat : null;
-          }
-          return cat;
-        })
-        .filter(Boolean)
-    : [];
+  const categoryDisplay: Category[] = [];
+  
+  if (product.category) {
+    // Si category est un tableau
+    if (Array.isArray(product.category)) {
+      product.category.forEach((cat) => {
+        if (typeof cat === 'string') {
+          const foundCat = categories.find((c) => c.id === cat);
+          if (foundCat) categoryDisplay.push(foundCat);
+        } else {
+          categoryDisplay.push(cat);
+        }
+      });
+    }
+    // Si category est une seule catégorie (string ou object)
+    else {
+      if (typeof product.category === 'string') {
+        const foundCat = categories.find((c) => c.id === product.category);
+        if (foundCat) categoryDisplay.push(foundCat);
+      } else {
+        categoryDisplay.push(product.category);
+      }
+    }
+  }
 
   // Récupérer l'URL de l'image
-  const getImageUrl = (image: any): string => {
+  const getImageUrl = (image: Media | string | undefined): string => {
     if (!image) return '';
     if (typeof image === 'string') return image;
     return image.url || '';
@@ -121,9 +134,9 @@ export default function ProductDetailView({ product, relatedProducts, categories
               </div>
 
               {/* Thumbnails */}
-              {product.images && product.images.length > 1 && (
+              {product.galleryImages && product.galleryImages.length > 1 && (
                 <div className="flex gap-2 mt-4">
-                  {product.images.map((image, index) => (
+                  {product.galleryImages.map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setMainImage(image)}
@@ -180,17 +193,21 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
               {/* Description courte */}
               {product.description && (
-                <div className="mb-6 text-neutral-700 dark:text-neutral-300">{product.description}</div>
+                <div className="mb-6 text-neutral-700 dark:text-neutral-300">
+                  {typeof product.description === 'string' 
+                    ? product.description 
+                    : 'Découvrez ce produit de qualité'}
+                </div>
               )}
 
               {/* Sélection de variation */}
-              {product.productType === 'variable' && product.variations && product.variations.length > 0 && (
+              {product.productType === 'variable' && product.variants && product.variants.length > 0 && (
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                     Options
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {product.variations.map((variation) => (
+                    {product.variants.map((variation: ProductVariation) => (
                       <button
                         key={variation.id}
                         onClick={() => handleVariationChange(variation)}
@@ -205,7 +222,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
                         }`}
                         disabled={variation.stock !== undefined && variation.stock <= 0}
                       >
-                        {variation.name}
+                        {variation.weight ? `${variation.weight}g` : `Option ${variation.id}`}
                         {variation.stock !== undefined && variation.stock <= 0 && ' (Épuisé)'}
                       </button>
                     ))}
@@ -267,12 +284,12 @@ export default function ProductDetailView({ product, relatedProducts, categories
                     ID: {product.id}
                   </span>
                 </div>
-                {product.category && product.category.length > 0 && (
+                {product.category && Array.isArray(product.category) && product.category.length > 0 && (
                   <div className="mb-2 flex items-center">
                     <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Catégorie:</span>
                     <span className="text-sm text-neutral-900 dark:text-white">
                       {categoryDisplay
-                        .map((cat) => (cat as Category).name)
+                        .map((cat: Category) => cat.name)
                         .join(', ')}
                     </span>
                   </div>
@@ -286,7 +303,9 @@ export default function ProductDetailView({ product, relatedProducts, categories
             <div className="p-6 border-t border-neutral-200 dark:border-neutral-800">
               <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">Description</h2>
               <div className="prose dark:prose-invert max-w-none text-neutral-700 dark:text-neutral-300">
-                {product.description}
+                {typeof product.description === 'string' 
+                  ? product.description 
+                  : 'Découvrez ce produit de qualité'}
               </div>
             </div>
           )}

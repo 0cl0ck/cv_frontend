@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { getProductBySlug, getRelatedProducts, getCategories } from '@/services/api';
 import { notFound } from 'next/navigation';
 import ProductDetailView from '@/app/produits/[slug]/product-detail-view';
+import { RichTextContent } from '@/types/product';
 
 // Génération des métadonnées dynamiques pour le SEO
 export async function generateMetadata({ 
@@ -11,19 +12,32 @@ export async function generateMetadata({
   params: { slug: string } 
 }): Promise<Metadata> {
   try {
-    const product = await getProductBySlug(params.slug);
+    // Attendre les paramètres avant d'utiliser leurs propriétés (Next.js 15)
+    const paramsResolved = await params;
+    const slug = paramsResolved.slug;
     
+    const product = await getProductBySlug(slug);
+    
+    // Convertir la description en texte si c'est un objet RichTextContent
+    const descriptionText = product.description 
+      ? (typeof product.description === 'string' 
+          ? product.description 
+          : 'Découvrez notre produit de qualité')
+      : `Découvrez notre produit ${product.name} - Chanvre Vert`;
+
+    // Construire l'URL de l'image à partir de mainImage ou galleryImages
+    const imageUrl = product.mainImage?.url || 
+      (product.galleryImages && product.galleryImages.length > 0 ? product.galleryImages[0].url : '');
+      
     return {
       title: `${product.name} | Chanvre Vert`,
-      description: product.description || `Découvrez notre produit ${product.name} - Chanvre Vert`,
+      description: descriptionText,
       openGraph: {
         title: `${product.name} | Chanvre Vert`,
-        description: product.description || `Découvrez notre produit ${product.name} - Chanvre Vert`,
-        images: product.images && product.images.length > 0 ? [
+        description: descriptionText,
+        images: imageUrl ? [
           {
-            url: typeof product.images[0] === 'string' 
-              ? product.images[0] 
-              : product.images[0].url,
+            url: imageUrl,
             width: 1200,
             height: 630,
             alt: product.name
@@ -41,18 +55,30 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   try {
+    // Attendre les paramètres avant d'utiliser leurs propriétés (Next.js 15)
+    const paramsResolved = await params;
+    const slug = paramsResolved.slug;
+    
     // Récupérer les informations du produit
-    const product = await getProductBySlug(params.slug);
+    const product = await getProductBySlug(slug);
     
     // Récupérer les catégories
     const categories = await getCategories();
     
     // Récupérer les produits associés
-    const categoryIds = product.category
-      ? product.category
-          .map(cat => typeof cat === 'string' ? cat : cat.id)
-          .filter(id => id !== undefined) as string[]
-      : [];
+    // Gérer correctement la catégorie qui peut être un objet ou une chaîne
+    let categoryIds: string[] = [];
+    if (product.category) {
+      if (Array.isArray(product.category)) {
+        // Si c'est un tableau de catégories
+        categoryIds = product.category.map(cat => 
+          typeof cat === 'string' ? cat : cat.id
+        );
+      } else {
+        // Si c'est une seule catégorie (objet ou chaîne)
+        categoryIds = [typeof product.category === 'string' ? product.category : product.category.id];
+      }
+    }
     
     const relatedProducts = await getRelatedProducts(product.id, categoryIds, 4);
     
