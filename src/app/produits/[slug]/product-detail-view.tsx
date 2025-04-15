@@ -279,10 +279,10 @@ export default function ProductDetailView({ product, relatedProducts, categories
                   </div>
                 )}
                 <div className="mb-2 flex items-center">
-                  <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Références:</span>
-                  <span className="text-sm text-neutral-900 dark:text-white">
+                  {/* <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Références:</span> */}
+                  {/* <span className="text-sm text-neutral-900 dark:text-white">
                     ID: {product.id}
-                  </span>
+                  </span> */}
                 </div>
                 {product.category && Array.isArray(product.category) && product.category.length > 0 && (
                   <div className="mb-2 flex items-center">
