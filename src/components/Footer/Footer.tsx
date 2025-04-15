@@ -50,7 +50,7 @@ export default function Footer() {
 
         <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
           {/* Sélecteur de thème simplifié */}
-          <button 
+          {/* <button 
             onClick={toggleTheme}
             className={cn(
               "p-2 rounded-full transition-colors",
@@ -61,7 +61,7 @@ export default function Footer() {
             aria-label={isDarkMode ? "Passer au mode clair" : "Passer au mode sombre"}
           >
             {isDarkMode ? <IconSun size={20} /> : <IconMoon size={20} />}
-          </button>
+          </button> */}
           
           {/* Navigation */}
           <nav className="flex justify-center items-center flex-col md:flex-row gap-4">
