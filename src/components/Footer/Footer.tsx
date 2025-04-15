@@ -82,7 +82,7 @@ export default function Footer() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-4 border-t border-white/20">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-white/70">
-            © {new Date().getFullYear()} Chanvre Vert - Tous droits réservés
+            &copy; {new Date().getFullYear()} Chanvre Vert - Tous droits réservés
           </p>
           
           <div className="flex gap-4">
@@ -90,7 +90,7 @@ export default function Footer() {
               Politique de confidentialité
             </Link>
             <Link href="/terms" className="text-sm text-white/70 hover:text-white">
-              Conditions d'utilisation
+              Conditions d&apos;utilisation
             </Link>
           </div>
         </div>

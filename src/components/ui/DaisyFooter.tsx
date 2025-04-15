@@ -26,10 +26,15 @@ export default function DaisyFooter() {
       </nav> 
       <nav>
         <h6 className="footer-title">Légal</h6> 
-        <Link href="/terms" className="link link-hover">Conditions d'utilisation</Link>
+        <Link href="/terms" className="link link-hover">Conditions d&#39;utilisation</Link>
         <Link href="/privacy" className="link link-hover">Politique de confidentialité</Link>
         <Link href="/cookies" className="link link-hover">Politique de cookies</Link>
       </nav>
+      <div>
+        <p>Copyright &copy; {new Date().getFullYear()} - Tous droits réservés par Le Chanvre Vert</p>
+        <p>Site développé par <a href="https://www.agence-web-rouen.fr/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors duration-300">Web Impulse Rouen - Création de site internet</a></p>
+        <p>Ce site n&#39;encourage pas la consommation de produits stupéfiants.</p>
+      </div>
     </footer>
   );
 }

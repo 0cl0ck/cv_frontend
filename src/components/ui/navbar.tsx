@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { IconChevronDown, IconMenu2, IconX } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "motion/react";
+import { IconMenu2, IconX } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -16,45 +16,15 @@ export function NavbarWithChildren() {
 }
 
 const Navbar = () => {
-  const navItems = [
-    {
-      name: "Services",
-      link: "#",
-      children: [
-        { name: "Web Development", link: "#" },
-        { name: "Interface Design", link: "#" },
-        { name: "Search Engine Optimization", link: "#" },
-        { name: "Branding", link: "#" },
-      ],
-    },
-    {
-      name: "Products",
-      link: "#",
-      children: [
-        { name: "Algochurn", link: "#" },
-        { name: "Tailwind Master Kit", link: "#" },
-      ],
-    },
-    {
-      name: "Pricing",
-      link: "#",
-      children: [
-        { name: "Hobby", link: "#" },
-        { name: "Individual", link: "#" },
-        { name: "Team", link: "#" },
-      ],
-    },
-  ];
-
   return (
     <div className="w-full">
-      <DesktopNav navItems={navItems} />
-      <MobileNav navItems={navItems} />
+      <DesktopNav />
+      <MobileNav />
     </div>
   );
 };
 
-const DesktopNav = ({ navItems }: any) => {
+const DesktopNav = () => {
   const [active, setActive] = useState<string | null>(null);
   return (
     <motion.div
@@ -68,8 +38,8 @@ const DesktopNav = ({ navItems }: any) => {
         <Menu setActive={setActive}>
           <MenuItem setActive={setActive} active={active} item="Services">
             <div className="flex flex-col space-y-4 text-sm">
-              <HoveredLink href="/#">Web Development</HoveredLink>
-              <HoveredLink href="/#">Interface Design</HoveredLink>
+              <HoveredLink href="#">Web Development</HoveredLink>
+              <HoveredLink href="#">Interface Design</HoveredLink>
               <HoveredLink href="/seo">Search Engine Optimization</HoveredLink>
               <HoveredLink href="/branding">Branding</HoveredLink>
             </div>
@@ -79,13 +49,11 @@ const DesktopNav = ({ navItems }: any) => {
               <ProductItem
                 title="Algochurn"
                 href="#"
-                src="/logo.png"
                 description="Prepare for tech interviews like never before."
               />
               <ProductItem
                 title="Tailwind Master Kit"
                 href="#"
-                src="/logo.png"
                 description="Production ready Tailwind css components for your next project"
               />
             </div>
@@ -107,7 +75,7 @@ const DesktopNav = ({ navItems }: any) => {
   );
 };
 
-const MobileNav = ({ navItems }: any) => {
+const MobileNav = () => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -140,22 +108,24 @@ const MobileNav = ({ navItems }: any) => {
               exit={{ opacity: 0 }}
               className="absolute inset-x-0 top-16 z-20 flex w-full flex-col items-start justify-start gap-4 rounded-lg bg-white px-4 py-8 dark:bg-neutral-950"
             >
-              {navItems.map((navItem: any, idx: number) => (
-                <div key={`navItem-${idx}`} className="w-full">
-                  {navItem.children ? (
-                    <MobileChildNavItems navItem={navItem} />
-                  ) : (
-                    <Link
-                      href={navItem.link}
-                      className="relative text-neutral-600 dark:text-neutral-300"
-                    >
-                      <motion.span className="block">
-                        {navItem.name}
-                      </motion.span>
-                    </Link>
-                  )}
-                </div>
-              ))}
+              <Link
+                href="#"
+                className="relative text-neutral-600 dark:text-neutral-300"
+              >
+                <motion.span className="block">Services</motion.span>
+              </Link>
+              <Link
+                href="#"
+                className="relative text-neutral-600 dark:text-neutral-300"
+              >
+                <motion.span className="block">Products</motion.span>
+              </Link>
+              <Link
+                href="#"
+                className="relative text-neutral-600 dark:text-neutral-300"
+              >
+                <motion.span className="block">Pricing</motion.span>
+              </Link>
               <button className="w-full rounded-lg bg-black px-8 py-2 font-medium text-white shadow-[0px_-2px_0px_0px_rgba(255,255,255,0.4)_inset] dark:bg-white dark:text-black">
                 Book a call
               </button>
@@ -164,41 +134,6 @@ const MobileNav = ({ navItems }: any) => {
         </AnimatePresence>
       </motion.div>
     </>
-  );
-};
-
-const MobileChildNavItems = ({ navItem }: { navItem: any }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <motion.div className="overflow-hidden">
-      <button
-        onClick={() => setOpen(!open)}
-        className="relative flex w-full justify-between text-neutral-600 dark:text-neutral-300"
-      >
-        <motion.span className="block">{navItem.name}</motion.span>
-        <IconChevronDown className="text-neutral-700 dark:text-neutral-300" />
-      </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0 }}
-            className="pl-4"
-          >
-            {navItem.children.map((child: any, childIdx: number) => (
-              <Link
-                key={`child-${childIdx}`}
-                href={child.link}
-                className="relative text-neutral-600 dark:text-neutral-300"
-              >
-                <motion.span className="block">{child.name}</motion.span>
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
   );
 };
 
@@ -298,12 +233,10 @@ export const ProductItem = ({
   title,
   description,
   href,
-  src,
 }: {
   title: string;
   description: string;
   href: string;
-  src: string;
 }) => {
   return (
     <Link href={href} className="flex gap-4">
@@ -326,11 +259,12 @@ export const ProductItem = ({
   );
 };
 
-export const HoveredLink = ({ children, ...rest }: any) => {
+export const HoveredLink = ({ children, href, ...rest }: { children: React.ReactNode; href: string } & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>) => {
   return (
     <Link
+      href={href}
       {...rest}
-      className="text-neutral-700 hover:text-black dark:text-neutral-200"
+      className="text-neutral-700 dark:text-neutral-200 hover:text-black "
     >
       {children}
     </Link>
