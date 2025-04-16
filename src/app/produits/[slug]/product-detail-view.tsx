@@ -16,6 +16,53 @@ type Props = {
   categories: Category[];
 };
 
+/**
+ * Fonction pour extraire le texte d'une description, qu'elle soit sous forme de chaîne
+ * ou d'objet RichTextContent
+ */
+const extractDescription = (description: string | RichTextContent | undefined): string => {
+  if (!description) return 'Description non disponible';
+  
+  // Si c'est déjà une chaîne, on la retourne directement
+  if (typeof description === 'string') {
+    return description;
+  }
+  
+  try {
+    // Si c'est un objet RichTextContent, on essaie d'extraire le texte
+    if (description.root && description.root.children) {
+      // Parcourir les enfants et extraire le texte
+      const extractedText = extractTextFromRichTextNodes(description.root.children);
+      return extractedText || 'Découvrez ce produit de qualité';
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'extraction du texte riche:', error);
+  }
+  
+  return 'Découvrez ce produit de qualité';
+};
+
+/**
+ * Fonction récursive pour extraire le texte des noeuds d'un contenu riche
+ */
+const extractTextFromRichTextNodes = (nodes: Array<Record<string, any>>): string => {
+  if (!nodes || !Array.isArray(nodes)) return '';
+  
+  return nodes.map(node => {
+    // Si le noeud contient du texte
+    if (node.text) {
+      return node.text;
+    }
+    
+    // Si le noeud a des enfants, on les parcourt récursivement
+    if (node.children && Array.isArray(node.children)) {
+      return extractTextFromRichTextNodes(node.children);
+    }
+    
+    return '';
+  }).join(' ');
+};
+
 export default function ProductDetailView({ product, relatedProducts, categories }: Props) {
   const { addItem } = useCartContext();
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(
@@ -212,9 +259,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
               {/* Description courte */}
               {product.description && (
                 <div className="mb-6 text-neutral-700 dark:text-neutral-300">
-                  {typeof product.description === 'string' 
-                    ? product.description 
-                    : 'Découvrez ce produit de qualité'}
+                  {extractDescription(product.description)}
                 </div>
               )}
 
@@ -317,17 +362,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
             </div>
           </div>
 
-          {/* Description détaillée */}
-          {product.description && (
-            <div className="p-6 border-t border-neutral-200 dark:border-neutral-800">
-              <h2 className="text-xl font-semibold text-neutral-900 dark:text-white mb-4">Description</h2>
-              <div className="prose dark:prose-invert max-w-none text-neutral-700 dark:text-neutral-300">
-                {typeof product.description === 'string' 
-                  ? product.description 
-                  : 'Découvrez ce produit de qualité'}
-              </div>
-            </div>
-          )}
+          {/* La description détaillée a été retirée pour éviter la redondance */}
         </div>
 
         {/* Produits similaires */}
