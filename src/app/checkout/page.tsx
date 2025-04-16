@@ -79,57 +79,100 @@ export default function CheckoutPage() {
   
   // Chargement du panier et des méthodes de livraison
   useEffect(() => {
-
     // Ajout des logs de débogage
-  console.log('Cart loading state:', cartIsLoading);
-  console.log('Cart context:', cartContext);
-  console.log('LocalStorage cart:', localStorage.getItem('chanvre_vert_cart'));
+    console.log('Cart loading state:', cartIsLoading);
+    console.log('Cart context:', cartContext);
+    console.log('LocalStorage cart:', localStorage.getItem('chanvre_vert_cart'));
 
-    // Attendre que le panier soit chargé avant de vérifier s'il est vide
+    // Vérifier si on a des données dans le localStorage (solution de secours)
     if (cartIsLoading) {
-      console.log('Panier en cours de chargement...');
+      console.log('Panier en cours de chargement, tentative de récupération depuis localStorage...');
+      try {
+        const storedCart = localStorage.getItem('chanvre_vert_cart');
+        if (storedCart) {
+          const cartData = JSON.parse(storedCart);
+          if (cartData && cartData.items && cartData.items.length > 0) {
+            // Utiliser directement les données du localStorage
+            const checkoutItems: CartItem[] = cartData.items.map((item: {
+              productId: string;
+              name: string;
+              price: number;
+              quantity: number;
+              variantId?: string;
+              weight?: number;
+              image?: string;
+              slug?: string;
+            }) => ({
+              id: item.productId,
+              productId: item.productId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              variantId: item.variantId,
+              weight: item.weight,
+              image: item.image,
+              slug: item.slug
+            }));
+            
+            const calcShipping = cartData.subtotal >= 49 ? 0 : 4.95;
+            
+            setLocalCart({
+              items: checkoutItems,
+              subtotal: cartData.subtotal,
+              shipping: { cost: cartData.shipping?.cost || calcShipping },
+              total: cartData.total || (cartData.subtotal + calcShipping)
+            });
+            
+            // Marquer comme initialisé pour éviter de bloquer l'interface
+            setCartInitialized(true);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du parsing du panier depuis localStorage:', error);
+      }
+      // Si on n'a pas pu récupérer depuis localStorage, attendre encore
+      console.log('Attente du chargement du panier...');
       return;
     }
   
-    // Utiliser le panier du contexte
-    if (!cartIsLoading) {
-      console.log('CartContext:', cartContext);
-      setCartInitialized(true);
+    // Utiliser le panier du contexte s'il est chargé
+    console.log('CartContext:', cartContext);
+    setCartInitialized(true);
+    
+    if (cartContext && cartContext.items && cartContext.items.length > 0) {
+      // Convertir les items du contexte au format attendu par la page checkout
+      const checkoutItems: CartItem[] = cartContext.items.map(item => ({
+        id: item.productId,
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        variantId: item.variantId,
+        weight: item.weight,
+        image: item.image,
+        slug: item.slug
+      }));
       
-      if (cartContext && cartContext.items && cartContext.items.length > 0) {
-        // Convertir les items du contexte au format attendu par la page checkout
-        const checkoutItems: CartItem[] = cartContext.items.map(item => ({
-          id: item.productId,
-          productId: item.productId,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          variantId: item.variantId,
-          weight: item.weight,
-          image: item.image,
-          slug: item.slug
-        }));
-        
-        // Déterminer les frais de port (gratuit au-dessus de 49€)
-        const calcShipping = cartContext.subtotal >= 49 ? 0 : 4.95;
-        
-        // Mettre à jour le cart local avec les bonnes valeurs
-        setLocalCart({
-          items: checkoutItems,
-          subtotal: cartContext.subtotal,
-          shipping: { cost: cartContext.shipping?.cost || calcShipping },
-          total: cartContext.total || (cartContext.subtotal + calcShipping)
-        });
-        
-        // Si pas de méthode de livraison définie, établir celle par défaut
-        if (!cartContext.shipping?.methodId) {
-          setShippingMethod('1', calcShipping);
-        }
-      } else {
-        console.log('Panier vide, redirection vers /panier');
-        // Rediriger vers le panier si on arrive directement sur checkout sans items
-        router.push('/panier');
+      // Déterminer les frais de port (gratuit au-dessus de 49€)
+      const calcShipping = cartContext.subtotal >= 49 ? 0 : 4.95;
+      
+      // Mettre à jour le cart local avec les bonnes valeurs
+      setLocalCart({
+        items: checkoutItems,
+        subtotal: cartContext.subtotal,
+        shipping: { cost: cartContext.shipping?.cost || calcShipping },
+        total: cartContext.total || (cartContext.subtotal + calcShipping)
+      });
+      
+      // Si pas de méthode de livraison définie, établir celle par défaut
+      if (!cartContext.shipping?.methodId) {
+        setShippingMethod('1', calcShipping);
       }
+    } else {
+      console.log('Panier vide, redirection vers /panier');
+      // Rediriger vers le panier si on arrive directement sur checkout sans items
+      router.push('/panier');
     }
     
     // Charger les méthodes de livraison disponibles

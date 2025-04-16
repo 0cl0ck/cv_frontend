@@ -18,17 +18,32 @@ export function useCart() {
 
   // Récupérer le panier depuis localStorage au chargement
   useEffect(() => {
-    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-    if (storedCart) {
-      try {
-        const parsedCart = JSON.parse(storedCart);
-        setCart(parsedCart);
-      } catch (error) {
-        console.error('Erreur lors du chargement du panier:', error);
+    const loadCart = () => {
+      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+      if (storedCart) {
+        try {
+          const parsedCart = JSON.parse(storedCart);
+          setCart(parsedCart);
+        } catch (error) {
+          console.error('Erreur lors du chargement du panier:', error);
+        }
       }
-    }
-    setIsLoading(false);
-  }, []);
+      setIsLoading(false);
+    };
+
+    // Exécuter loadCart immédiatement
+    loadCart();
+    
+    // Garantir que isLoading sera mis à false même si une erreur se produit
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.log('Forçage du chargement du panier après délai');
+        setIsLoading(false);
+      }
+    }, 1000); // Délai de secours de 1 seconde
+    
+    return () => clearTimeout(timeout);
+  }, [isLoading]); // Ajout de isLoading comme dépendance
 
   // Sauvegarder le panier dans localStorage à chaque changement
   useEffect(() => {
