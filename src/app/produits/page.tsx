@@ -20,14 +20,35 @@ export default async function ProductsPage(
 
   const page = searchParams.get('page') || '1';
   const limitStr = searchParams.get('limit') || '12';
+  const priceRange = searchParams.get('price') || 'all';
 
   const currentPage = parseInt(page);
   const limit = parseInt(limitStr);
+  
+  // Configurer les filtres de prix en fonction de la plage sélectionnée
+  let minPrice: number | undefined;
+  let maxPrice: number | undefined;
+  
+  switch (priceRange) {
+    case 'under-20':
+      maxPrice = 20;
+      break;
+    case '20-to-50':
+      minPrice = 20;
+      maxPrice = 50;
+      break;
+    case 'above-50':
+      minPrice = 50;
+      break;
+    // Pour 'all', on ne met pas de filtre de prix
+  }
 
   const productsData = await getProducts({
     page: currentPage,
     limit: limit,
     sort: '-createdAt',
+    minPrice,
+    maxPrice,
   });
 
   const categories = await getCategories();
@@ -41,6 +62,7 @@ export default async function ProductsPage(
       totalProducts={productsData.totalDocs}
       title="Tous nos produits CBD"
       description="Découvrez notre gamme complète de produits CBD de haute qualité"
+      priceRange={priceRange}
     />
   );
 }

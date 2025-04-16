@@ -132,6 +132,8 @@ export async function getProducts(params?: {
   category?: string;
   featured?: boolean;
   sort?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }): Promise<{ docs: Product[]; totalDocs: number; totalPages: number; page: number }> {
   try {
     const queryParams = new URLSearchParams();
@@ -141,6 +143,10 @@ export async function getProducts(params?: {
     if (params?.category) queryParams.append('where[category][contains]', params.category);
     if (params?.featured) queryParams.append('where[featured][equals]', 'true');
     if (params?.sort) queryParams.append('sort', params.sort);
+    
+    // Filtres de prix
+    if (params?.minPrice) queryParams.append('where[price][greater_than_equal]', params.minPrice.toString());
+    if (params?.maxPrice) queryParams.append('where[price][less_than_equal]', params.maxPrice.toString());
 
     // Tentative de récupération depuis l'API
     const response = await fetch(`${API_URL}/api/products?${queryParams.toString()}`, {
@@ -174,6 +180,19 @@ export async function getProducts(params?: {
     
     if (params?.featured) {
       filteredProducts = filteredProducts.filter(product => product.isFeatured);
+    }
+    
+    // Filtres de prix pour les données de secours
+    if (params?.minPrice) {
+      filteredProducts = filteredProducts.filter(product => 
+        (product.price ?? 0) >= params.minPrice!
+      );
+    }
+    
+    if (params?.maxPrice) {
+      filteredProducts = filteredProducts.filter(product => 
+        (product.price ?? 0) <= params.maxPrice!
+      );
     }
     
     // Pagination simple

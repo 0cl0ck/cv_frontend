@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import { Category, Product } from '@/types/product';
 import CategoryFilter from '@/components/CategoryFilter/CategoryFilter';
 import Pagination from '@/components/Pagination/Pagination';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface ProductsLayoutProps {
   products: Product[];
@@ -15,7 +16,25 @@ interface ProductsLayoutProps {
   title: string;
   description?: string;
   activeCategory?: string;
+  priceRange?: string;
 }
+
+// Types pour les plages de prix
+type PriceRangeType = 'all' | 'under-20' | '20-to-50' | 'above-50';
+
+// Fonction pour obtenir les valeurs min/max de prix selon le type de plage
+const getPriceRangeValues = (type: PriceRangeType): { min?: number; max?: number } => {
+  switch (type) {
+    case 'under-20':
+      return { max: 20 };
+    case '20-to-50':
+      return { min: 20, max: 50 };
+    case 'above-50':
+      return { min: 50 };
+    default:
+      return {};
+  }
+};
 
 export default function ProductsLayout({
   products,
@@ -26,7 +45,43 @@ export default function ProductsLayout({
   title,
   description,
   activeCategory,
+  priceRange: initialPriceRange,
 }: ProductsLayoutProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
+  // État local pour le filtre de prix
+  const [priceRange, setPriceRange] = useState<PriceRangeType>(initialPriceRange as PriceRangeType || 'all');
+  
+  // Fonction pour mettre à jour les paramètres d'URL et naviguer
+  const updateSearchParams = (name: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (value === null) {
+      params.delete(name);
+    } else {
+      params.set(name, value);
+    }
+    
+    // Réinitialiser la page à 1 quand on change les filtres
+    params.set('page', '1');
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+  
+  // Gestionnaire d'événement pour le changement de filtre de prix
+  const handlePriceChange = (value: PriceRangeType) => {
+    setPriceRange(value);
+    updateSearchParams('price', value === 'all' ? null : value);
+  };
+  
+  // Mettre à jour l'état local si initialPriceRange change
+  useEffect(() => {
+    if (initialPriceRange) {
+      setPriceRange(initialPriceRange as PriceRangeType);
+    }
+  }, [initialPriceRange]);
   return (
     <div className="bg-neutral-50 dark:bg-neutral-950 min-h-screen py-8">
       <div className="container mx-auto px-4">
@@ -53,7 +108,8 @@ export default function ProductsLayout({
                     id="price-all"
                     type="radio"
                     name="price"
-                    defaultChecked
+                    checked={priceRange === 'all'}
+                    onChange={() => handlePriceChange('all')}
                     className="h-4 w-4 text-primary"
                   />
                   <label htmlFor="price-all" className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">
@@ -65,6 +121,8 @@ export default function ProductsLayout({
                     id="price-under-20"
                     type="radio"
                     name="price"
+                    checked={priceRange === 'under-20'}
+                    onChange={() => handlePriceChange('under-20')}
                     className="h-4 w-4 text-primary"
                   />
                   <label
@@ -79,6 +137,8 @@ export default function ProductsLayout({
                     id="price-20-to-50"
                     type="radio"
                     name="price"
+                    checked={priceRange === '20-to-50'}
+                    onChange={() => handlePriceChange('20-to-50')}
                     className="h-4 w-4 text-primary"
                   />
                   <label
@@ -93,6 +153,8 @@ export default function ProductsLayout({
                     id="price-above-50"
                     type="radio"
                     name="price"
+                    checked={priceRange === 'above-50'}
+                    onChange={() => handlePriceChange('above-50')}
                     className="h-4 w-4 text-primary"
                   />
                   <label

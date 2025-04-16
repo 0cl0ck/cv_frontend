@@ -80,20 +80,20 @@ export default function Header() {
                     {item.label}
                   </Link>
                 ))}
-                <Link href="/search" className="flex items-center">
+                {/* <Link href="/search" className="flex items-center">
                   <span className="sr-only">Search</span>
                   <SearchIcon className="w-5 text-white" />
-                </Link>
+                </Link> */}
               </nav>
               {/* Login button */}
-              <Link
+              {/* <Link
                 href="/login"
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="md:mr-2 w-5 h-5" />
                 <span className="hidden md:inline">Connexion</span>
-              </Link>
+              </Link> */}
             </div>
           </div>
 
