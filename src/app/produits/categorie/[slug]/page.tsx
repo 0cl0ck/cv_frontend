@@ -70,6 +70,15 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
 
     const categories = await getCategories();
 
+    // Fonction helper pour ajouter CBD uniquement si pas déjà présent
+    const formatWithCBD = (text: string) => {
+      return text.includes('CBD') ? text : `${text} CBD`;
+    };
+    
+    // Formater le titre et la description
+    const title = formatWithCBD(category.name);
+    const description = `Découvrez notre sélection de ${category.name.toLowerCase().replace(' cbd', '')} CBD de haute qualité`;
+    
     return (
       <ProductsLayout
         products={productsData.docs}
@@ -77,8 +86,8 @@ export default async function CategoryPage(props: { params: Promise<{ slug: stri
         currentPage={currentPage}
         totalPages={productsData.totalPages}
         totalProducts={productsData.totalDocs}
-        title={`${category.name} CBD`}
-        description={`Découvrez notre sélection de ${category.name.toLowerCase()} CBD de haute qualité`}
+        title={title}
+        description={description}
         activeCategory={slug}
       />
     );
