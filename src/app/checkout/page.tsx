@@ -41,6 +41,17 @@ type ShippingMethod = {
   deliveryTime: string;
 };
 
+// Type pour la réponse de l'API des méthodes de livraison
+interface ShippingMethodResponse {
+  id: string;
+  name: string;
+  description?: string;
+  cost?: number;
+  deliveryTime?: string;
+  // Autres propriétés qui pourraient être dans la réponse
+  [key: string]: any;
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1); // Étape 1 ou 2
@@ -177,27 +188,57 @@ export default function CheckoutPage() {
     const fetchShippingMethods = async () => {
       try {
         console.log('Chargement des méthodes de livraison...');
-        // Utiliser des méthodes par défaut pour l'instant
+        
+        // Appel à l'API pour récupérer les méthodes de livraison
+        try {
+          const response = await fetch('/api/shipping-methods');
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success && data.docs && data.docs.length > 0) {
+              const methods = data.docs.map((method: ShippingMethodResponse) => ({
+                id: method.id,
+                name: method.name,
+                description: method.description || '',
+                cost: method.cost || 0,
+                deliveryTime: method.deliveryTime || ''
+              }));
+              
+              setShippingMethods(methods);
+              if (methods.length > 0) {
+                setSelectedShippingMethod(methods[0].id);
+                console.log('Méthodes de livraison chargées depuis API:', methods[0].id);
+                return; // Sortir de la fonction si réussi
+              }
+            }
+          }
+        } catch (apiError) {
+          console.warn('Erreur lors de la récupération des méthodes de livraison depuis l\'API:', apiError);
+        }
+        
+        // Fallback avec les méthodes codées en dur si l'API échoue
+        console.log('Utilisation des méthodes de livraison par défaut');
         setShippingMethods([
           {
-            id: '1',
+            id: '67fffcd911f3717499195edf',
             name: 'Livraison standard',
-            description: 'Livraison en 3-5 jours ouvrés',
+            description: 'Livraison en 1-2 jours ouvrés',
             cost: 4.95,
-            deliveryTime: '3-5 jours'
+            deliveryTime: '1-2 jours'
           },
           {
-            id: '2',
-            name: 'Livraison express',
-            description: 'Livraison en 24-48h',
+            id: '6800056585f591e4d60bd924',
+            name: 'Livraison sécurisée',
+            description: 'Livraison sécurisée en 1-2 jours ouvrés',
             cost: 8.95,
             deliveryTime: '1-2 jours'
           }
         ]);
         
         // Sélectionner la première méthode par défaut
-        setSelectedShippingMethod('1');
-        console.log('Méthodes de livraison chargées et méthode par défaut sélectionnée:', '1');
+        setSelectedShippingMethod('67fffcd911f3717499195edf');
+        console.log('Méthodes de livraison par défaut chargées:', '67fffcd911f3717499195edf');
         
       } catch (error) {
         console.error('Erreur lors du chargement des méthodes de livraison:', error);
