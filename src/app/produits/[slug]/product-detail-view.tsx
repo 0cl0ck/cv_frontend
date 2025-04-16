@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-// RichTextContent est importé pour les types mais n'est pas utilisé directement
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Category, Media, Product, ProductVariation, RichTextContent } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
@@ -45,7 +43,7 @@ const extractDescription = (description: string | RichTextContent | undefined): 
 /**
  * Fonction récursive pour extraire le texte des noeuds d'un contenu riche
  */
-const extractTextFromRichTextNodes = (nodes: Array<Record<string, any>>): string => {
+const extractTextFromRichTextNodes = (nodes: Array<Record<string, unknown>>): string => {
   if (!nodes || !Array.isArray(nodes)) return '';
   
   return nodes.map(node => {

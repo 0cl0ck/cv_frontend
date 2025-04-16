@@ -34,7 +34,7 @@ export default function LoginPage() {
         const data = await response.json();
         setError(data.message || 'Mot de passe incorrect');
       }
-    } catch (err) {
+    } catch {
       setError('Une erreur est survenue');
     } finally {
       setLoading(false);

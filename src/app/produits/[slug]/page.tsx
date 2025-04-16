@@ -11,7 +11,7 @@ import { RichTextContent } from '@/types/product';
 export async function generateMetadata({ 
   params 
 }: { 
-  params: { slug: string } 
+  params: Promise<{ slug: string }> 
 }): Promise<Metadata> {
   try {
     // Attendre les paramètres avant d'utiliser leurs propriétés (Next.js 15)
@@ -55,7 +55,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   try {
     // Attendre les paramètres avant d'utiliser leurs propriétés (Next.js 15)
     const paramsResolved = await params;

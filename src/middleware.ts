@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Mot de passe à changer (vous voudrez le mettre dans une variable d'environnement)
-const PASSWORD = 'cannabidiol';
+
 
 // Routes qui ne nécessitent pas d'authentification
 const PUBLIC_PATHS = ['/login', '/api/auth'];

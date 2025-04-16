@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 // Mot de passe à changer (vous voudrez le mettre dans une variable d'environnement)
 const PASSWORD = 'cannabidiol';

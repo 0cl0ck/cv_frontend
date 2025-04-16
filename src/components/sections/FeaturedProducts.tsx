@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
-import { Product } from '@/types/product';
 import { getProducts } from '@/services/api';
 
 // Nombre maximum de produits à afficher dans la section des produits vedettes
@@ -34,7 +33,7 @@ export default async function FeaturedProducts() {
         </div>
       ) : (
         <p className="text-center text-neutral-600 dark:text-neutral-400 mb-8">
-          Aucun produit vedette n'est actuellement disponible.
+          Aucun produit vedette n&apos;est actuellement disponible.
         </p>
       )}
       <div className="text-center mt-10">

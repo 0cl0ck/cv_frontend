@@ -22,19 +22,7 @@ interface ProductsLayoutProps {
 // Types pour les plages de prix
 type PriceRangeType = 'all' | 'under-20' | '20-to-50' | 'above-50';
 
-// Fonction pour obtenir les valeurs min/max de prix selon le type de plage
-const getPriceRangeValues = (type: PriceRangeType): { min?: number; max?: number } => {
-  switch (type) {
-    case 'under-20':
-      return { max: 20 };
-    case '20-to-50':
-      return { min: 20, max: 50 };
-    case 'above-50':
-      return { min: 50 };
-    default:
-      return {};
-  }
-};
+
 
 export default function ProductsLayout({
   products,

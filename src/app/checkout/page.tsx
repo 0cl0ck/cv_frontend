@@ -162,6 +162,7 @@ export default function CheckoutPage() {
     };
     
     fetchShippingMethods();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   // Gestion des changements dans le formulaire
