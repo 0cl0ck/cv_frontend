@@ -458,6 +458,12 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify(paymentData)
       });
+
+      if (!paymentResponse.ok) {
+        const rawText = await paymentResponse.text();
+        console.error('Réponse non-OK:', rawText);
+        throw new Error("Erreur lors de la création du paiement : réponse non valide");
+      }
       
       const paymentInfo = await paymentResponse.json();
       
