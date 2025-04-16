@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCartContext } from '@/context/CartContext';
+import { useRouter } from 'next/navigation';
 
 type CartItem = {
   id: string;
@@ -13,6 +16,8 @@ type CartItem = {
   variantName?: string;
   weight?: number;
   sku?: string;
+  image?: string;
+  slug?: string;
 };
 
 type CartSummary = {
@@ -37,8 +42,11 @@ type ShippingMethod = {
 };
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1); // Étape 1 ou 2
-  const [cart, setCart] = useState<CartSummary>({
+  const { cart: cartContext, setShippingMethod, clearCart, isLoading: cartIsLoading } = useCartContext();
+  const [cartInitialized, setCartInitialized] = useState(false);
+  const [localCart, setLocalCart] = useState<CartSummary>({
     items: [],
     subtotal: 0,
     shipping: {
@@ -71,30 +79,56 @@ export default function CheckoutPage() {
   
   // Chargement du panier et des méthodes de livraison
   useEffect(() => {
-    // Charger le panier depuis localStorage
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      try {
-        const parsedItems = JSON.parse(storedCart);
-        
-        // Calculer le sous-total
-        const calcSubtotal = parsedItems.reduce(
-          (sum: number, item: CartItem) => sum + (item.price * item.quantity), 0
-        );
+
+    // Ajout des logs de débogage
+  console.log('Cart loading state:', cartIsLoading);
+  console.log('Cart context:', cartContext);
+  console.log('LocalStorage cart:', localStorage.getItem('chanvre_vert_cart'));
+
+    // Attendre que le panier soit chargé avant de vérifier s'il est vide
+    if (cartIsLoading) {
+      console.log('Panier en cours de chargement...');
+      return;
+    }
+  
+    // Utiliser le panier du contexte
+    if (!cartIsLoading) {
+      console.log('CartContext:', cartContext);
+      setCartInitialized(true);
+      
+      if (cartContext && cartContext.items && cartContext.items.length > 0) {
+        // Convertir les items du contexte au format attendu par la page checkout
+        const checkoutItems: CartItem[] = cartContext.items.map(item => ({
+          id: item.productId,
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          variantId: item.variantId,
+          weight: item.weight,
+          image: item.image,
+          slug: item.slug
+        }));
         
         // Déterminer les frais de port (gratuit au-dessus de 49€)
-        const calcShipping = calcSubtotal >= 49 ? 0 : 4.95;
+        const calcShipping = cartContext.subtotal >= 49 ? 0 : 4.95;
         
-        // Mettre à jour le cart avec les bonnes valeurs
-        setCart({
-          items: parsedItems,
-          subtotal: calcSubtotal,
-          shipping: { cost: calcShipping },
-          total: calcSubtotal + calcShipping
+        // Mettre à jour le cart local avec les bonnes valeurs
+        setLocalCart({
+          items: checkoutItems,
+          subtotal: cartContext.subtotal,
+          shipping: { cost: cartContext.shipping?.cost || calcShipping },
+          total: cartContext.total || (cartContext.subtotal + calcShipping)
         });
         
-      } catch (error) {
-        console.error('Erreur lors du chargement du panier:', error);
+        // Si pas de méthode de livraison définie, établir celle par défaut
+        if (!cartContext.shipping?.methodId) {
+          setShippingMethod('1', calcShipping);
+        }
+      } else {
+        console.log('Panier vide, redirection vers /panier');
+        // Rediriger vers le panier si on arrive directement sur checkout sans items
+        router.push('/panier');
       }
     }
     
@@ -169,17 +203,23 @@ export default function CheckoutPage() {
     // Mettre à jour le coût de livraison
     const selectedMethod = shippingMethods.find(method => method.id === methodId);
     if (selectedMethod) {
-      // Mise à jour du panier avec la nouvelle méthode de livraison
-      setCart(prev => ({
+      const newShippingCost = selectedMethod.cost;
+      
+      // Mettre à jour le contexte du panier
+      setShippingMethod(methodId, newShippingCost);
+      
+      // Mettre à jour le panier local
+      setLocalCart(prev => ({
         ...prev,
         shipping: {
-          cost: selectedMethod.cost,
+          ...prev.shipping,
+          cost: newShippingCost,
           method: {
             id: selectedMethod.id,
             name: selectedMethod.name
           }
         },
-        total: prev.subtotal + selectedMethod.cost
+        total: prev.subtotal + newShippingCost
       }));
     }
   };
@@ -206,125 +246,148 @@ export default function CheckoutPage() {
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (cart.items.length === 0) {
+    if (localCart.items.length === 0) {
       alert('Votre panier est vide');
       return;
     }
     
-    setIsLoading(true);
+    // Validation du formulaire
+    if (!formData.email || !formData.firstName || !formData.lastName || !formData.address1 ||
+        !formData.city || !formData.postalCode) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
     
+    // Validation du format d'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert('Veuillez entrer une adresse email valide');
+      return;
+    }
+    
+    // Vérifier si une méthode de livraison a été sélectionnée
+    if (!selectedShippingMethod) {
+      alert('Veuillez sélectionner une méthode de livraison');
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      // 1. Préparation des données de commande selon l'exemple fourni
+      // 1. Créer l'objet commande selon le format API
       const orderData = {
+        items: localCart.items.map(item => ({
+          productId: item.productId || item.id,
+          variantId: item.variantId,
+          title: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          attributes: {} // Attributs additionnels si disponibles
+        })),
+        // Information client pour commandes anonymes
         guestInformation: {
           email: formData.email,
-          fullName: `${formData.firstName} ${formData.lastName}`,
-          phone: formData.phone
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone || ''
         },
-        shippingAddress: {
+        // Adresse de facturation
+        billingAddress: {
           name: `${formData.firstName} ${formData.lastName}`,
-          line1: formData.address1,
-          line2: formData.address2 || '', 
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country
+          line1: formData.sameAsBilling ? formData.address1 : formData.billingAddress1,
+          line2: formData.sameAsBilling ? (formData.address2 || '') : (formData.billingAddress2 || ''),
+          city: formData.sameAsBilling ? formData.city : formData.billingCity,
+          postalCode: formData.sameAsBilling ? formData.postalCode : formData.billingPostalCode,
+          country: formData.sameAsBilling ? 
+            (formData.country === 'FR' ? 'France' : 
+             formData.country === 'BE' ? 'Belgique' : 'France') : 
+            (formData.billingCountry === 'FR' ? 'France' : 
+             formData.billingCountry === 'BE' ? 'Belgique' : 'France')
         },
-        billingAddress: formData.sameAsBilling ? {
+        // Adresse de livraison
+        shippingAddress: {
           name: `${formData.firstName} ${formData.lastName}`,
           line1: formData.address1,
           line2: formData.address2 || '',
           city: formData.city,
           postalCode: formData.postalCode,
-          country: formData.country
-        } : {
-          name: `${formData.firstName} ${formData.lastName}`,
-          line1: formData.billingAddress1,
-          line2: formData.billingAddress2 || '',
-          city: formData.billingCity,
-          postalCode: formData.billingPostalCode,
-          country: formData.billingCountry
+          country: formData.country === 'FR' ? 'France' : 
+                   formData.country === 'BE' ? 'Belgique' : 'France'
         },
-        items: cart.items.map(item => ({
-          productId: item.productId || item.id,
-          variantId: item.variantId,
-          price: item.price,
-          quantity: item.quantity,
-          sku: item.sku || `SKU-${item.id}`
-        })),
+        // Informations de livraison
         shipping: {
-          methodId: selectedShippingMethod,
-          methodName: shippingMethods.find(m => m.id === selectedShippingMethod)?.name || 'Livraison standard',
-          cost: cart.shipping.cost,
+          method: selectedShippingMethod,
+          cost: localCart.shipping.cost
         },
-        subtotal: cart.subtotal,
-        total: cart.total
+        notes: '' // Champ optionnel pour instructions spéciales
       };
       
-      // 2. Créer la commande dans le backend
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      console.log('Création de la commande...', orderData);
       
-      try {
-        // 1. Créer la commande
-        const orderResponse = await fetch(`${API_URL}/orders`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(orderData),
-        });
-        
-        if (!orderResponse.ok) {
-          throw new Error(`Erreur API: ${orderResponse.status}`);
-        }
-        
-        const order = await orderResponse.json();
-        
-        // 2. Initialiser le paiement Viva Wallet avec l'ID de commande
-        const paymentData = {
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-          amount: cart.total,
-          customerEmail: formData.email,
-          customerFullName: `${formData.firstName} ${formData.lastName}`
-        };
-
-        const paymentResponse = await fetch(`${API_URL}/payment/create`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(paymentData),
-        });
-        
-        if (!paymentResponse.ok) {
-          throw new Error(`Erreur création paiement: ${paymentResponse.status}`);
-        }
-        
-        const payment = await paymentResponse.json();
-        
-        // 3. Sauvegarder les informations pour vérification ultérieure
-        if (payment.success && payment.data?.checkoutUrl) {
-          localStorage.setItem('pendingOrderCode', payment.data.orderCode);
-          localStorage.setItem('pendingOrderNumber', order.orderNumber);
-          
-          // Vider le panier
-          localStorage.removeItem('cart');
-          
-          // 4. REDIRIGER vers la page de paiement Viva Wallet
-          window.location.href = payment.data.checkoutUrl;
-        } else {
-          alert(`Erreur: ${payment.error || 'Impossible de créer le paiement'}`);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Erreur lors du processus de paiement:', error);
-        alert('Une erreur est survenue lors du traitement de votre commande.');
-        setIsLoading(false);
+      // Appel à l'API pour créer la commande
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+      });
+      
+      const order = await orderResponse.json();
+      
+      if (!order.success) {
+        throw new Error(`Erreur: ${order.message || 'Erreur lors de la création de la commande'}`);
       }
       
+      // 3. Initialiser le paiement avec VivaWallet
+      console.log('Commande créée:', order.data);
+      
+      // Construire l'objet de données de paiement selon le format API
+      const paymentData = {
+        amount: localCart.total,
+        customerEmail: formData.email,
+        customerTrns: `${formData.firstName} ${formData.lastName}`,
+        orderId: order.data.id,
+        orderCode: order.data.orderNumber,
+        merchantTrns: `Commande ${order.data.orderNumber}`
+      };
+      
+      console.log('Initialisation du paiement VivaWallet...', paymentData);
+      
+      // Appel à l'API pour initialiser le paiement et obtenir l'URL VivaWallet
+      const paymentResponse = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+      });
+      
+      const paymentInfo = await paymentResponse.json();
+      
+      if (!paymentInfo.success) {
+        throw new Error(`Erreur: ${paymentInfo.message || "Erreur lors de l'initialisation du paiement"}`);
+      }
+      
+      // Vérifier si l'URL de checkout est disponible
+      if (paymentInfo.data && paymentInfo.data.checkoutUrl) {
+        // Stocker l'ID de commande et l'orderCode dans sessionStorage pour vérification ultérieure
+        sessionStorage.setItem('lastOrderId', order.data.id);
+        sessionStorage.setItem('lastOrderNumber', order.data.orderNumber);
+        
+        // Vider le panier après une redirection réussie
+        clearCart();
+        
+        // Rediriger vers la passerelle de paiement VivaWallet
+        window.location.href = paymentInfo.data.checkoutUrl;
+      } else {
+        throw new Error('Impossible d\'initialiser le paiement: URL de checkout manquante');
+      }
     } catch (error) {
-      console.error('Erreur lors du checkout:', error);
-      alert('Une erreur est survenue lors du traitement de votre commande.');
+      console.error('Erreur lors du processus de paiement:', error);
+      setIsLoading(false);
+      alert('Une erreur est survenue lors du traitement de votre commande. Veuillez réessayer.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -348,7 +411,11 @@ export default function CheckoutPage() {
         </div>
       </div>
       
-      {cart.items.length === 0 ? (
+      {!cartInitialized ? (
+        <div className="p-4 bg-blue-50 text-blue-700 rounded-lg">
+          <p>Chargement du panier en cours...</p>
+        </div>
+      ) : localCart.items.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-4 rounded-lg">
           <p>Votre panier est vide. <Link href="/produits" className="underline">Parcourir les produits</Link></p>
         </div>
@@ -360,7 +427,7 @@ export default function CheckoutPage() {
             <div className="lg:col-span-2">
               <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); goToNextStep(); }}>
               {/* Informations personnelles */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className=" p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-semibold mb-4">Informations personnelles</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -414,7 +481,7 @@ export default function CheckoutPage() {
               </div>
               
               {/* Adresse de facturation */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className=" p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-semibold mb-4">Adresse de facturation</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
@@ -476,15 +543,14 @@ export default function CheckoutPage() {
                     >
                       <option value="FR">France</option>
                       <option value="BE">Belgique</option>
-                      <option value="CH">Suisse</option>
-                      <option value="LU">Luxembourg</option>
+               
                     </select>
                   </div>
                 </div>
               </div>
               
               {/* Adresse de livraison */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="bg-black p-6 rounded-lg shadow-md">
                 <div className="flex items-center mb-4">
                   <input
                     type="checkbox"
@@ -582,7 +648,7 @@ export default function CheckoutPage() {
             // Étape 2: Récapitulatif de commande avant paiement
             <div className="lg:col-span-2">
               <form onSubmit={handlePaymentSubmit} className="space-y-8">
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-black p-6 rounded-lg shadow-md">
                   <h2 className="text-xl font-semibold mb-4">Vérifiez vos informations</h2>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -655,15 +721,15 @@ export default function CheckoutPage() {
           
           {/* Récapitulatif de commande */}
           <div className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-lg shadow-md sticky top-8">
+            <div className="bg-black p-6 rounded-lg shadow-md sticky top-8">
               <h2 className="text-xl font-semibold mb-4">Récapitulatif de commande</h2>
               
               <div className="max-h-80 overflow-y-auto mb-4">
-                {cart.items.map((item, index: number) => (
-                  <div key={index} className="flex justify-between py-2 border-b">
+                {localCart.items.map((item, index: number) => (
+                  <div key={index} className="flex justify-between py-2">
                     <div>
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm ">
                         {item.variantName || item.weight ? `${item.weight}g` : ''} x {item.quantity}
                       </p>
                     </div>
@@ -677,19 +743,19 @@ export default function CheckoutPage() {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
                   <div>Sous-total</div>
-                  <div>{cart.subtotal.toFixed(2)} €</div>
+                  <div>{localCart.subtotal.toFixed(2)} €</div>
                 </div>
                 <div className="flex justify-between">
                   <div>Livraison</div>
-                  <div>{cart.shipping.cost.toFixed(2)} €</div>
+                  <div>{localCart.shipping.cost.toFixed(2)} €</div>
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
                   <div>Total</div>
-                  <div>{cart.total.toFixed(2)} €</div>
+                  <div>{localCart.total.toFixed(2)} €</div>
                 </div>
                 
                 <div className="text-xs text-gray-500 mt-2">
-                  {cart.shipping.cost === 0 ? (
+                  {localCart.shipping.cost === 0 ? (
                     <p>Livraison gratuite</p>
                   ) : (
                     <p>Livraison gratuite à partir de 49€ d&apos;achat</p>
