@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const withPWA = require('next-pwa')({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
@@ -19,7 +18,6 @@ const nextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
-  // Configuration des redirections pour les pages de paiement
   async redirects() {
     return [
       {
@@ -34,7 +32,14 @@ const nextConfig = {
       },
     ];
   },
-  // Autres configurations si nécessaire
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://cv-backend-ezur.onrender.com//api/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = withPWA(nextConfig);
