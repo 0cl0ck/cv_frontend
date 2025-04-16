@@ -17,7 +17,7 @@ export default function Header() {
   
   // Navigation items
   const navItems = [
-    { label: 'Produits', url: '/products' },
+    { label: 'Produits', url: '/produits' },
     { label: 'Panier', url: '/panier' }
   ];
 
