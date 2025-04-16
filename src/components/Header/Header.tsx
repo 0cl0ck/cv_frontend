@@ -45,12 +45,10 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        className={`w-full z-50 transition-all duration-300 ${
           isHomePage
-            ? isScrolled
-              ? 'bg-background/70 backdrop-blur-lg shadow-md'
-              : 'bg-transparent'
-            : 'bg-neutral-900 text-white shadow-md'
+            ? `fixed top-0 left-0 ${isScrolled ? 'bg-background/70 backdrop-blur-lg shadow-md' : 'bg-transparent'}`
+            : 'relative bg-neutral-900 text-white shadow-md'
         }`}
       >
         <div className="container mx-auto">
@@ -193,7 +191,7 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Suppression du padding spacer pour permettre au Hero de passer sous le Header */}
+      {/* Pas besoin de spacer ici car nous utilisons position relative pour les pages autres que Home */}
     </>
   );
 }
