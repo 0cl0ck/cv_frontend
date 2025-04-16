@@ -1,73 +1,42 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import { Product } from '@/types/product';
+import { getProducts } from '@/services/api';
 
-// Note: Nous utilisons maintenant le type Product importé depuis @/types/product
+// Nombre maximum de produits à afficher dans la section des produits vedettes
+const MAX_FEATURED_PRODUCTS = 3;
 
-// Produits en dur pour le MVP avec les vraies images
-const featuredProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Banana Berry',
-    slug: 'banana-berry',
-    price: 15.90,
-    mainImage: {
-      url: '/images/products/banana-berry.webp',
-      alt: 'Banana Berry',
-      width: 1080,
-      height: 1080
-    },
-    description: 'Fleurs CBD saveur Banana Berry',
-    productType: 'simple',
-    isFeatured: true,
-    category: { id: '1', name: 'Fleurs', slug: 'fleurs' }
-  },
-  {
-    id: '2',
-    name: 'Blue Berry',
-    slug: 'blue-berry',
-    price: 16.90,
-    mainImage: {
-      url: '/images/products/blue-berry.webp',
-      alt: 'Blue Berry',
-      width: 1080,
-      height: 1080
-    },
-    description: 'Fleurs CBD saveur Blue Berry',
-    productType: 'simple',
-    category: { id: '1', name: 'Fleurs', slug: 'fleurs' }
-  },
-  {
-    id: '3',
-    name: 'Corelato',
-    slug: 'corelato',
-    price: 18.50,
-    mainImage: {
-      url: '/images/products/corelato.webp',
-      alt: 'Corelato',
-      width: 1080,
-      height: 1080
-    },
-    description: 'Fleurs CBD premium Corelato',
-    productType: 'simple',
-    category: { id: '1', name: 'Fleurs', slug: 'fleurs' }
-  }
-];
+export default async function FeaturedProducts() {
+  // Récupérer les produits mis en avant depuis l'API
+  const featuredProductsData = await getProducts({
+    featured: true,
+    limit: MAX_FEATURED_PRODUCTS,
+    sort: '-createdAt', // Trier par date de création (les plus récents d'abord)
+  });
 
-// Nous utilisons maintenant le composant ProductCard importé depuis @/components/ProductCard/ProductCard
+  // Extraire les produits de la réponse
+  const featuredProducts = featuredProductsData.docs || [];
 
-export default function FeaturedProducts() {
   return (
     <section className="container mx-auto px-4 py-16">
       <h2 className="text-3xl font-bold mb-8 text-center">Nos produits vedettes</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {featuredProducts.map((product, index) => (
-          <ProductCard key={product.id} product={product} index={index} />
-        ))}
-      </div>
+      {featuredProducts.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {featuredProducts.map((product, index) => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              index={index} 
+              showFeaturedBadge={false} // Désactiver le badge sur la page d'accueil
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-neutral-600 dark:text-neutral-400 mb-8">
+          Aucun produit vedette n'est actuellement disponible.
+        </p>
+      )}
       <div className="text-center mt-10">
         <Link 
           href="/produits" 

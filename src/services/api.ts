@@ -141,7 +141,7 @@ export async function getProducts(params?: {
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.category) queryParams.append('where[category][contains]', params.category);
-    if (params?.featured) queryParams.append('where[featured][equals]', 'true');
+    if (params?.featured) queryParams.append('where[isFeatured][equals]', 'true');
     if (params?.sort) queryParams.append('sort', params.sort);
     
     // Filtres de prix
@@ -179,7 +179,7 @@ export async function getProducts(params?: {
     }
     
     if (params?.featured) {
-      filteredProducts = filteredProducts.filter(product => product.isFeatured);
+      filteredProducts = filteredProducts.filter(product => product.isFeatured === true);
     }
     
     // Filtres de prix pour les données de secours

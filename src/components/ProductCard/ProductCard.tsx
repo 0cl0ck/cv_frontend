@@ -10,9 +10,10 @@ import React from 'react';
 type Props = {
   product: Product;
   index: number;
+  showFeaturedBadge?: boolean; // Prop optionnel pour contrôler l'affichage du badge
 };
 
-export const ProductCard: React.FC<Props> = ({ product, index }) => {
+export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge = true }) => {
   // Utiliser mainImage comme image principale
   const mainImage = product.mainImage;
   // Utiliser la première image de la galerie comme image au survol (si disponible)
@@ -52,7 +53,7 @@ export const ProductCard: React.FC<Props> = ({ product, index }) => {
             )}
           </>
         )}
-        {product.isFeatured && (
+        {product.isFeatured && showFeaturedBadge && (
           <span className="absolute left-2 top-2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
             Produit vedette
           </span>
