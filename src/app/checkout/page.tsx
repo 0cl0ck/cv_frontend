@@ -49,7 +49,7 @@ interface ShippingMethodResponse {
   cost?: number;
   deliveryTime?: string;
   // Autres propriétés qui pourraient être dans la réponse
-  [key: string]: any;
+  [key: string]: string | number | boolean | undefined;
 };
 
 export default function CheckoutPage() {
