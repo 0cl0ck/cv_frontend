@@ -38,7 +38,11 @@ type ShippingMethod = {
   name: string;
   description: string;
   cost: number;
-  deliveryTime: string;
+  deliveryTime: string | {
+    minDays: number;
+    maxDays: number;
+    cutoffTime: string;
+  };
 };
 
 // Type pour la réponse de l'API des méthodes de livraison
@@ -47,9 +51,13 @@ interface ShippingMethodResponse {
   name: string;
   description?: string;
   cost?: number;
-  deliveryTime?: string;
+  deliveryTime?: string | {
+    minDays: number;
+    maxDays: number;
+    cutoffTime: string;
+  };
   // Autres propriétés qui pourraient être dans la réponse
-  [key: string]: string | number | boolean | undefined;
+  [key: string]: string | number | boolean | object | undefined;
 };
 
 export default function CheckoutPage() {
@@ -202,7 +210,9 @@ export default function CheckoutPage() {
                 name: method.name,
                 description: method.description || '',
                 cost: method.cost || 0,
-                deliveryTime: method.deliveryTime || ''
+                deliveryTime: method.deliveryTime && typeof method.deliveryTime === 'object' ? 
+                  `${method.deliveryTime.minDays}-${method.deliveryTime.maxDays} jours` : 
+                  method.deliveryTime || ''
               }));
               
               setShippingMethods(methods);
@@ -776,9 +786,15 @@ export default function CheckoutPage() {
                           <label htmlFor={`shipping-${method.id}`} className="flex-1">
                             <span className="font-medium">{method.name}</span>
                             <span className="text-sm text-gray-500 block">{method.description}</span>
-                            <span className="text-sm">{method.deliveryTime}</span>
+                            <span className="text-sm">
+  {typeof method.deliveryTime === 'string' 
+    ? method.deliveryTime 
+    : method.deliveryTime && typeof method.deliveryTime === 'object'
+      ? `${method.deliveryTime.minDays} à ${method.deliveryTime.maxDays} jours (avant ${method.deliveryTime.cutoffTime})`
+      : ''}
+</span>
                           </label>
-                          <span className="font-medium">{method.cost.toFixed(2)} €</span>
+                          <span className="font-medium">{typeof method.cost === 'number' ? method.cost.toFixed(2) : '0.00'} €</span>
                         </div>
                       ))}
                     </div>
