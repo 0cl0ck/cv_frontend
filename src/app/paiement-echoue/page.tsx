@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function PaymentFailurePage() {
+// Component that uses useSearchParams hook wrapped in its own client component
+function PaymentFailureContent() {
   const searchParams = useSearchParams();
   const [errorInfo, setErrorInfo] = useState<string | null>(null);
 
@@ -30,38 +31,54 @@ export default function PaymentFailurePage() {
     
     setErrorInfo(message);
   }, [searchParams]);
+  
+  return (
+    <>
+      <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-8">
+        <p className="font-medium">Le paiement n&apos;a pas pu être effectué</p>
+        {errorInfo && <p className="mt-2">{errorInfo}</p>}
+      </div>
+      
+      <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg mb-8">
+        <h2 className="text-xl font-semibold mb-4">Que faire maintenant ?</h2>
+        <ul className="list-disc pl-6 space-y-2 text-gray-700">
+          <li>Vérifiez que les informations de votre carte bancaire sont correctes</li>
+          <li>Assurez-vous que votre carte est active et autorisée pour les paiements en ligne</li>
+          <li>Vérifiez que vous disposez des fonds suffisants sur votre compte</li>
+          <li>Essayez avec une autre carte bancaire si possible</li>
+          <li>Si le problème persiste, contactez votre banque ou notre service client</li>
+        </ul>
+      </div>
+      
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+        <Link href="/panier"
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
+          Retourner au panier
+        </Link>
+        <Link href="/contact"
+          className="bg-white hover:bg-gray-100 text-green-700 border border-green-600 px-6 py-3 rounded-md font-medium transition-colors">
+          Contacter le support
+        </Link>
+      </div>
+    </>
+  );
+}
+
+export default function PaymentFailurePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
         <h1 className="text-3xl font-bold text-red-600 text-center mb-8">Paiement échoué</h1>
         
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-8">
-          <p className="font-medium">Le paiement n&apos;a pas pu être effectué</p>
-          {errorInfo && <p className="mt-2">{errorInfo}</p>}
-        </div>
-        
-        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg mb-8">
-          <h2 className="text-xl font-semibold mb-4">Que faire maintenant ?</h2>
-          <ul className="list-disc pl-6 space-y-2 text-gray-700">
-            <li>Vérifiez que les informations de votre carte bancaire sont correctes</li>
-            <li>Assurez-vous que votre carte est active et autorisée pour les paiements en ligne</li>
-            <li>Vérifiez que vous disposez des fonds suffisants sur votre compte</li>
-            <li>Essayez avec une autre carte bancaire si possible</li>
-            <li>Si le problème persiste, contactez votre banque ou notre service client</li>
-          </ul>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-          <Link href="/panier"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
-            Retourner au panier
-          </Link>
-          <Link href="/contact"
-            className="bg-white hover:bg-gray-100 text-green-700 border border-green-600 px-6 py-3 rounded-md font-medium transition-colors">
-            Contacter le support
-          </Link>
-        </div>
+        <Suspense fallback={
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="w-16 h-16 border-t-4 border-red-500 border-solid rounded-full animate-spin mb-4"></div>
+            <p className="text-lg text-gray-600">Chargement...</p>
+          </div>
+        }>
+          <PaymentFailureContent />
+        </Suspense>
       </div>
     </div>
   );

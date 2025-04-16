@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
-export default function LoginPage() {
+// Component that uses useSearchParams hook wrapped in its own client component
+function LoginContent() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,53 +43,67 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 px-4">
-      <div className="w-full max-w-md bg-white dark:bg-neutral-800 rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <Image
-              src="/logo.png"
-              alt="Chanvre Vert Logo"
-              width={80}
-              height={80}
-              className="mx-auto"
-            />
-          </div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Accès Protégé</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-2">
-            Ce site est en cours de développement. Veuillez saisir le mot de passe pour continuer.
-          </p>
+    <div className="w-full max-w-md bg-white dark:bg-neutral-800 rounded-lg shadow-md p-8">
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/logo.png"
+            alt="Chanvre Vert Logo"
+            width={80}
+            height={80}
+            className="mx-auto"
+          />
+        </div>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Accès Protégé</h1>
+        <p className="text-neutral-600 dark:text-neutral-400 mt-2">
+          Ce site est en cours de développement. Veuillez saisir le mot de passe pour continuer.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+            Mot de passe
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-neutral-900 dark:text-white"
+            placeholder="Entrez le mot de passe"
+            required
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Mot de passe
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-neutral-300 dark:border-neutral-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-neutral-900 dark:text-white"
-              placeholder="Entrez le mot de passe"
-              required
-            />
-          </div>
+        {error && (
+          <div className="text-red-500 text-sm">{error}</div>
+        )}
 
-          {error && (
-            <div className="text-red-500 text-sm">{error}</div>
-          )}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
+          {loading ? 'Vérification...' : 'Accéder au site'}
+        </button>
+      </form>
+    </div>
+  );
+}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            {loading ? 'Vérification...' : 'Accéder au site'}
-          </button>
-        </form>
-      </div>
+// Main page component that wraps the content with Suspense
+export default function LoginPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 px-4">
+      <Suspense fallback={
+        <div className="w-full max-w-md bg-white dark:bg-neutral-800 rounded-lg shadow-md p-8 flex flex-col items-center justify-center py-8">
+          <div className="w-16 h-16 border-t-4 border-primary border-solid rounded-full animate-spin mb-4"></div>
+          <p className="text-lg text-neutral-600 dark:text-neutral-400">Chargement...</p>
+        </div>
+      }>
+        <LoginContent />
+      </Suspense>
     </div>
   );
 }
