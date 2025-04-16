@@ -125,59 +125,58 @@ export default function CheckoutPage() {
             
             // Marquer comme initialisé pour éviter de bloquer l'interface
             setCartInitialized(true);
-            return;
           }
         }
       } catch (error) {
         console.error('Erreur lors du parsing du panier depuis localStorage:', error);
       }
-      // Si on n'a pas pu récupérer depuis localStorage, attendre encore
-      console.log('Attente du chargement du panier...');
-      return;
     }
   
     // Utiliser le panier du contexte s'il est chargé
-    console.log('CartContext:', cartContext);
-    setCartInitialized(true);
-    
-    if (cartContext && cartContext.items && cartContext.items.length > 0) {
-      // Convertir les items du contexte au format attendu par la page checkout
-      const checkoutItems: CartItem[] = cartContext.items.map(item => ({
-        id: item.productId,
-        productId: item.productId,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        variantId: item.variantId,
-        weight: item.weight,
-        image: item.image,
-        slug: item.slug
-      }));
+    if (!cartIsLoading) {
+      console.log('CartContext:', cartContext);
+      setCartInitialized(true);
       
-      // Déterminer les frais de port (gratuit au-dessus de 49€)
-      const calcShipping = cartContext.subtotal >= 49 ? 0 : 4.95;
-      
-      // Mettre à jour le cart local avec les bonnes valeurs
-      setLocalCart({
-        items: checkoutItems,
-        subtotal: cartContext.subtotal,
-        shipping: { cost: cartContext.shipping?.cost || calcShipping },
-        total: cartContext.total || (cartContext.subtotal + calcShipping)
-      });
-      
-      // Si pas de méthode de livraison définie, établir celle par défaut
-      if (!cartContext.shipping?.methodId) {
-        setShippingMethod('1', calcShipping);
+      if (cartContext && cartContext.items && cartContext.items.length > 0) {
+        // Convertir les items du contexte au format attendu par la page checkout
+        const checkoutItems: CartItem[] = cartContext.items.map(item => ({
+          id: item.productId,
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          variantId: item.variantId,
+          weight: item.weight,
+          image: item.image,
+          slug: item.slug
+        }));
+        
+        // Déterminer les frais de port (gratuit au-dessus de 49€)
+        const calcShipping = cartContext.subtotal >= 49 ? 0 : 4.95;
+        
+        // Mettre à jour le cart local avec les bonnes valeurs
+        setLocalCart({
+          items: checkoutItems,
+          subtotal: cartContext.subtotal,
+          shipping: { cost: cartContext.shipping?.cost || calcShipping },
+          total: cartContext.total || (cartContext.subtotal + calcShipping)
+        });
+        
+        // Si pas de méthode de livraison définie, établir celle par défaut
+        if (!cartContext.shipping?.methodId) {
+          setShippingMethod('1', calcShipping);
+        }
+      } else {
+        console.log('Panier vide, redirection vers /panier');
+        // Rediriger vers le panier si on arrive directement sur checkout sans items
+        router.push('/panier');
       }
-    } else {
-      console.log('Panier vide, redirection vers /panier');
-      // Rediriger vers le panier si on arrive directement sur checkout sans items
-      router.push('/panier');
     }
     
     // Charger les méthodes de livraison disponibles
     const fetchShippingMethods = async () => {
       try {
+        console.log('Chargement des méthodes de livraison...');
         // Utiliser des méthodes par défaut pour l'instant
         setShippingMethods([
           {
@@ -198,15 +197,17 @@ export default function CheckoutPage() {
         
         // Sélectionner la première méthode par défaut
         setSelectedShippingMethod('1');
+        console.log('Méthodes de livraison chargées et méthode par défaut sélectionnée:', '1');
         
       } catch (error) {
         console.error('Erreur lors du chargement des méthodes de livraison:', error);
       }
     };
     
+    // Exécuter le chargement des méthodes de livraison indépendamment de l'état du panier
     fetchShippingMethods();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   
   // Gestion des changements dans le formulaire
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -809,8 +810,15 @@ export default function CheckoutPage() {
                 {currentStep === 1 && (
                   <div className="hidden lg:block mt-6">
                     <button
-                      type="submit"
-                      form="checkout-form"
+                      type="button"
+                      onClick={() => {
+                        // Déclencher la soumission du formulaire à l'étape 1
+                        const form = document.getElementById('checkout-form');
+                        if (form) {
+                          const event = new Event('submit', { cancelable: true, bubbles: true });
+                          form.dispatchEvent(event);
+                        }
+                      }}
                       disabled={isLoading}
                       className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium"
                     >
