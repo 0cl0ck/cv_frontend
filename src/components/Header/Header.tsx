@@ -1,7 +1,6 @@
 'use client';
 
 import { IconLogin, IconMenu2, IconX } from "@tabler/icons-react";
-import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -200,7 +199,7 @@ export default function Header() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-bold text-gray-900 mb-2">Comptes clients</h3>
-            <p className="text-gray-700 mb-4">Les comptes clients arrivent bientôt ! Vos commandes sont compatibilisées avec votre email. Vous ne perdez pas vos avantages! Vous pourrez suivre vos commandes et bénéficier d'offres personnalisées.</p>
+            <p className="text-gray-700 mb-4">Les comptes clients arrivent bientôt ! Vos commandes sont compatibilisées avec votre email. Vous ne perdez pas vos avantages! Vous pourrez suivre vos commandes et bénéficier d&apos;offres personnalisées.</p>
             <button
               onClick={() => setShowAccountPopup(false)}
               className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"

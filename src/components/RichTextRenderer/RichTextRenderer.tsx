@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { ElementType } from 'react';
 import { RichTextContent } from '@/types/product';
 
 interface RichTextRendererProps {
@@ -46,8 +46,8 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
       {nodes.map((node, index) => {
         // Nœud texte simple
         if (node.text) {
-          let textContent = node.text as string;
-          let style: React.CSSProperties = {};
+          const textContent = node.text as string;
+          const style: React.CSSProperties = {};
 
           // Appliquer les styles en fonction des attributs du nœud
           if (node.bold) style.fontWeight = 'bold';
@@ -66,7 +66,7 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
 
         // Nœuds avec des enfants
         if (node.children && Array.isArray(node.children)) {
-          let Element: any = 'div';
+          let Element: ElementType = 'div';
           
           // Déterminer le type d'élément en fonction du type de nœud
           switch (node.type) {
@@ -74,7 +74,18 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
               Element = 'p';
               break;
             case 'heading':
-              Element = `h${node.tag || 1}`; // h1, h2, etc.
+              // Convertir le tag en nombre et l'utiliser pour déterminer le niveau d'en-tête
+              const headingLevel = Number(node.tag) || 1;
+              // Limiter le niveau d'en-tête entre 1 et 6 (HTML valide)
+              switch (Math.min(Math.max(headingLevel, 1), 6)) {
+                case 1: Element = 'h1'; break;
+                case 2: Element = 'h2'; break;
+                case 3: Element = 'h3'; break;
+                case 4: Element = 'h4'; break;
+                case 5: Element = 'h5'; break;
+                case 6: Element = 'h6'; break;
+                default: Element = 'h1';
+              }
               break;
             case 'list':
               Element = node.listType === 'ordered' ? 'ol' : 'ul';

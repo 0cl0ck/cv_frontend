@@ -8,7 +8,7 @@ export default function PaymentSuccessPage() {
   // const router = useRouter(); // Pas nécessaire pour le moment
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   useEffect(() => {
     // Récupérer l'orderCode/transactionId depuis les paramètres d'URL ou sessionStorage
@@ -128,7 +128,7 @@ export default function PaymentSuccessPage() {
             Votre commande a bien été enregistrée et sera traitée très prochainement.
           </p>
           <p className="text-base mt-2">
-            Pour des raisons techniques, le numéro de commande n'est pas visible immédiatement.
+            Pour des raisons techniques, le numéro de commande n&apos;est pas visible immédiatement.
             Vous le recevrez par email dans la confirmation qui vous sera envoyée.
           </p>
         </div>

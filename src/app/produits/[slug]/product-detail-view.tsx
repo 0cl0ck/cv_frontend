@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Category, Media, Product, ProductVariation, RichTextContent } from '@/types/product';
+import { Category, Media, Product, ProductVariation } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
