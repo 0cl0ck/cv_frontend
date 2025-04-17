@@ -8,7 +8,6 @@ import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
 import { useCartContext } from '@/context/CartContext';
 import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
-import { dirxml } from 'console';
 
 type Props = {
   product: Product;
