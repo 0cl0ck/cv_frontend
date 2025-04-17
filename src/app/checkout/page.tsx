@@ -438,31 +438,19 @@ export default function CheckoutPage() {
       // 3. Initialiser le paiement avec VivaWallet
       console.log('Commande créée:', order.data);
       
-      // Construire l'objet de données de paiement selon le format API adapté à la nouvelle route
+      // Construire l'objet de données de paiement simplifié pour la route directe
       const paymentData = {
         amount: localCart.total,
         customerEmail: formData.email,
         customerName: `${formData.firstName} ${formData.lastName}`,
-        customerPhone: formData.phone || 'Non fourni',
-        items: localCart.items.map(item => ({
-          product: {
-            id: item.productId || item.id,
-            name: item.name,
-            price: item.price
-          },
-          variation: item.variantId ? {
-            id: item.variantId,
-            name: item.variantName || 'Variation',
-            price: item.price
-          } : undefined,
-          quantity: item.quantity
-        }))
+        customerPhone: formData.phone || 'Non fourni'
+        // La route direct ne nécessite pas les items du panier
       };
       
       console.log('Initialisation du paiement VivaWallet...', paymentData);
       
-      // Appel à la nouvelle API pour initialiser le paiement et obtenir l'URL VivaWallet
-      const paymentResponse = await fetch('/api/payment', {
+      // Appel à la nouvelle API simplifiée pour initialiser le paiement et contourner PayloadCMS
+      const paymentResponse = await fetch('/api/payment/direct', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
