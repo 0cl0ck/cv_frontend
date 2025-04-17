@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/utils';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
 import { useCartContext } from '@/context/CartContext';
+import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
 
 type Props = {
   product: Product;
@@ -14,52 +15,7 @@ type Props = {
   categories: Category[];
 };
 
-/**
- * Fonction pour extraire le texte d'une description, qu'elle soit sous forme de chaîne
- * ou d'objet RichTextContent
- */
-const extractDescription = (description: string | RichTextContent | undefined): string => {
-  if (!description) return 'Description non disponible';
-  
-  // Si c'est déjà une chaîne, on la retourne directement
-  if (typeof description === 'string') {
-    return description;
-  }
-  
-  try {
-    // Si c'est un objet RichTextContent, on essaie d'extraire le texte
-    if (description.root && description.root.children) {
-      // Parcourir les enfants et extraire le texte
-      const extractedText = extractTextFromRichTextNodes(description.root.children);
-      return extractedText || 'Découvrez ce produit de qualité';
-    }
-  } catch (error) {
-    console.error('Erreur lors de l\'extraction du texte riche:', error);
-  }
-  
-  return 'Découvrez ce produit de qualité';
-};
-
-/**
- * Fonction récursive pour extraire le texte des noeuds d'un contenu riche
- */
-const extractTextFromRichTextNodes = (nodes: Array<Record<string, unknown>>): string => {
-  if (!nodes || !Array.isArray(nodes)) return '';
-  
-  return nodes.map(node => {
-    // Si le noeud contient du texte
-    if (node.text) {
-      return node.text;
-    }
-    
-    // Si le noeud a des enfants, on les parcourt récursivement
-    if (node.children && Array.isArray(node.children)) {
-      return extractTextFromRichTextNodes(node.children);
-    }
-    
-    return '';
-  }).join(' ');
-};
+// Les fonctions extractDescription et extractTextFromRichTextNodes ont été remplacées par le composant RichTextRenderer
 
 export default function ProductDetailView({ product, relatedProducts, categories }: Props) {
   const { addItem } = useCartContext();
@@ -257,7 +213,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
               {/* Description courte */}
               {product.description && (
                 <div className="mb-6 text-neutral-700 dark:text-neutral-300">
-                  {extractDescription(product.description)}
+                  <RichTextRenderer content={product.description} />
                 </div>
               )}
 
