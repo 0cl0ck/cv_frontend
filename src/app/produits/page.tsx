@@ -54,16 +54,18 @@ export default async function ProductsPage(
   }
 
   // 6️⃣ On récupère les données
+  // Si tri par prix par gramme, on récupère tous les produits sans pagination
+  const shouldSortByPricePerGram = pricePerGramSort && pricePerGramSort !== 'none';
   const productsData = await getProducts({
-    page:    currentPage,
-    limit:   limitNum,
+    page:    shouldSortByPricePerGram ? 1 : currentPage,
+    limit:   shouldSortByPricePerGram ? 1000 : limitNum, // On prend un nombre élevé pour avoir tous les produits
     sort:    '-createdAt',
     minPrice,
     maxPrice,
   });
 
   // 7️⃣ Tri des produits par prix par gramme si nécessaire
-  if (pricePerGramSort && pricePerGramSort !== 'none') {
+  if (shouldSortByPricePerGram) {
     productsData.docs.sort((a, b) => {
       // Calcul du prix par gramme pour le produit A
       let pricePerGramA = 0;
@@ -108,12 +110,28 @@ export default async function ProductsPage(
   }
   const categories = await getCategories();
 
+  // Si on a trié par prix par gramme, on applique la pagination manuellement
+  let displayedProducts = productsData.docs;
+  let totalPages = productsData.totalPages;
+  
+  if (shouldSortByPricePerGram) {
+    // Calcul de l'index de début et de fin pour la pagination manuelle
+    const startIndex = (currentPage - 1) * limitNum;
+    const endIndex = startIndex + limitNum;
+    
+    // Extraction des produits pour la page courante
+    displayedProducts = productsData.docs.slice(startIndex, endIndex);
+    
+    // Recalcul du nombre total de pages
+    totalPages = Math.ceil(productsData.docs.length / limitNum);
+  }
+
   return (
     <ProductsLayout
-      products={productsData.docs}
+      products={displayedProducts}
       categories={categories}
       currentPage={currentPage}
-      totalPages={productsData.totalPages}
+      totalPages={totalPages}
       totalProducts={productsData.totalDocs}
       title="Tous nos produits CBD"
       description="Découvrez notre gamme complète de produits CBD de haute qualité"
