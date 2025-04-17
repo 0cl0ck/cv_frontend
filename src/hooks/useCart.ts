@@ -1,128 +1,176 @@
 import { useState, useEffect } from 'react';
-import { Cart, CartItem } from '../types/cart';
-import { Product, ProductVariation } from '../types/product';
+import { Cart, CartItem, ShippingMethod } from '@/types/cart';
+import { Product, ProductVariation } from '@/types/product';
 
-// Clé utilisée pour stocker le panier dans localStorage
-const CART_STORAGE_KEY = 'chanvre_vert_cart';
-
-// État initial du panier
+// Panier initial vide
 const initialCart: Cart = {
   items: [],
   subtotal: 0,
-  total: 0
+  subtotalCents: 0,
+  total: 0,
+  totalCents: 0
 };
 
-export function useCart() {
-  const [cart, setCart] = useState<Cart>(initialCart);
-  const [isLoading, setIsLoading] = useState(true);
+// Fonction pour calculer le sous-total en centimes
+const calculateSubtotalCents = (items: CartItem[]): number => {
+  return items.reduce((acc, item) => acc + ((item.priceCents ?? eurosToCents(item.price)) * item.quantity), 0);
+};
 
-  // Récupérer le panier depuis localStorage au chargement
+// Convertir centimes en euros (pour l'affichage)
+const centsToEuros = (cents: number): number => {
+  return Math.round(cents) / 100;
+};
+
+// Convertir euros en centimes (pour les calculs)
+const eurosToCents = (euros: number): number => {
+  return Math.round(euros * 100);
+};
+
+// Fonction pour calculer le total en centimes (sous-total + frais de livraison)
+const calculateTotalCents = (subtotalCents: number, shipping?: ShippingMethod): number => {
+  const shippingCostCents = shipping?.costCents || 0;
+  
+  // Si le sous-total est >= 49€ (4900 centimes), la livraison est gratuite
+  if (subtotalCents >= 4900 && shippingCostCents > 0) {
+    return subtotalCents;
+  }
+  
+  return subtotalCents + shippingCostCents;
+};
+
+export const useCart = () => {
+  const [cart, setCart] = useState<Cart>(initialCart);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Charger le panier depuis le localStorage au montage du composant
   useEffect(() => {
     const loadCart = () => {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (storedCart) {
-        try {
-          const parsedCart = JSON.parse(storedCart);
+      try {
+        const savedCart = localStorage.getItem('chanvre_vert_cart');
+        if (savedCart) {
+          const parsedCart = JSON.parse(savedCart) as Cart;
           setCart(parsedCart);
-        } catch (error) {
-          console.error('Erreur lors du chargement du panier:', error);
         }
-      }
-      setIsLoading(false);
-    };
-
-    // Exécuter loadCart immédiatement
-    loadCart();
-    
-    // Garantir que isLoading sera mis à false même si une erreur se produit
-    const timeout = setTimeout(() => {
-      if (isLoading) {
-        console.log('Forçage du chargement du panier après délai');
+      } catch (error) {
+        console.error('Erreur lors du chargement du panier:', error);
+      } finally {
         setIsLoading(false);
       }
-    }, 1000); // Délai de secours de 1 seconde
-    
-    return () => clearTimeout(timeout);
-  }, [isLoading]); // Ajout de isLoading comme dépendance
+    };
 
-  // Sauvegarder le panier dans localStorage à chaque changement
+    loadCart();
+  }, []);
+
+  // Sauvegarder le panier dans le localStorage à chaque modification
   useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    // Ne pas sauvegarder le panier initial lors du chargement initial
+    if (isLoading) return;
+    
+    try {
+      localStorage.setItem('chanvre_vert_cart', JSON.stringify(cart));
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde du panier:', error);
     }
   }, [cart, isLoading]);
 
-  // Recalculer les totaux
-  const recalculateCart = (items: CartItem[]): Cart => {
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shippingCost = cart.shipping?.cost || 0;
-    
-    return {
-      items,
-      subtotal,
-      shipping: cart.shipping,
-      total: subtotal + shippingCost
-    };
-  };
-
   // Ajouter un produit au panier
   const addItem = (product: Product, quantity: number = 1, variant?: ProductVariation) => {
-    const variantId = variant?.id;
-    const existingItemIndex = cart.items.findIndex(item => 
-      item.productId === product.id && 
-      (variantId ? item.variantId === variantId : !item.variantId)
-    );
+    setCart(prevCart => {
+      // Vérifier si le produit est déjà dans le panier
+      const existingItemIndex = prevCart.items.findIndex(item => 
+        item.productId === product.id && 
+        (!variant || item.variantId === variant.id)
+      );
 
-    const newItems = [...cart.items];
-    
-    // Si le produit est variable, récupérer les infos de la variante
-    let price = product.price || 0;
-    let weight = undefined;
-    let variantName = '';
-    
-    if (variant && product.productType === 'variable') {
-      price = variant.price || price;
-      weight = variant.weight;
-      variantName = weight ? ` - ${weight}g` : '';
-    }
+      let newItems;
 
-    // Si l'article existe déjà, incrémenter la quantité
-    if (existingItemIndex !== -1) {
-      newItems[existingItemIndex].quantity += quantity;
-    } else {
-      // Sinon, ajouter un nouvel article
-      const imageUrl = typeof product.mainImage === 'string' 
-        ? product.mainImage 
-        : product.mainImage?.url || '';
+      if (existingItemIndex !== -1) {
+        // Mettre à jour la quantité si le produit existe déjà
+        newItems = [...prevCart.items];
+        newItems[existingItemIndex].quantity += quantity;
+      } else {
+        // Ajouter un nouveau produit
+        const price = variant?.price || product.price || 0;
+        const priceCents = eurosToCents(price);
+        
+        const newItem: CartItem = {
+          productId: product.id,
+          name: product.name,
+          price: price,
+          priceCents: priceCents,
+          quantity,
+          weight: variant?.weight,
+          image: product.mainImage?.url,
+          slug: product.slug
+        };
 
-      newItems.push({
-        productId: product.id,
-        variantId: variantId,
-        name: product.name + (variantName || ''),
-        price,
-        weight,
-        quantity,
-        image: imageUrl,
-        slug: product.slug
-      });
-    }
+        if (variant) {
+          newItem.variantId = variant.id;
+        }
 
-    setCart(recalculateCart(newItems));
+        newItems = [...prevCart.items, newItem];
+      }
+
+      const subtotalCents = calculateSubtotalCents(newItems);
+      const subtotal = centsToEuros(subtotalCents);
+      const totalCents = calculateTotalCents(subtotalCents, prevCart.shipping);
+      const total = centsToEuros(totalCents);
+
+      return {
+        ...prevCart,
+        items: newItems,
+        subtotal,
+        subtotalCents,
+        total,
+        totalCents
+      };
+    });
   };
 
-  // Mettre à jour la quantité d'un article
+  // Mettre à jour la quantité d'un produit
   const updateQuantity = (index: number, quantity: number) => {
     if (quantity < 1) return;
-    
-    const newItems = [...cart.items];
-    newItems[index].quantity = quantity;
-    setCart(recalculateCart(newItems));
+
+    setCart(prevCart => {
+      const newItems = [...prevCart.items];
+      newItems[index].quantity = quantity;
+
+      const subtotalCents = calculateSubtotalCents(newItems);
+      const subtotal = centsToEuros(subtotalCents);
+      const totalCents = calculateTotalCents(subtotalCents, prevCart.shipping);
+      const total = centsToEuros(totalCents);
+
+      return {
+        ...prevCart,
+        items: newItems,
+        subtotal,
+        subtotalCents,
+        total,
+        totalCents
+      };
+    });
   };
 
-  // Supprimer un article
+  // Supprimer un produit du panier
   const removeItem = (index: number) => {
-    const newItems = cart.items.filter((_, i) => i !== index);
-    setCart(recalculateCart(newItems));
+    setCart(prevCart => {
+      const newItems = [...prevCart.items];
+      newItems.splice(index, 1);
+
+      const subtotalCents = calculateSubtotalCents(newItems);
+      const subtotal = centsToEuros(subtotalCents);
+      const totalCents = calculateTotalCents(subtotalCents, prevCart.shipping);
+      const total = centsToEuros(totalCents);
+
+      return {
+        ...prevCart,
+        items: newItems,
+        subtotal,
+        subtotalCents,
+        total,
+        totalCents
+      };
+    });
   };
 
   // Vider le panier
@@ -131,14 +179,44 @@ export function useCart() {
   };
 
   // Définir la méthode de livraison
-  const setShippingMethod = (methodId: string, cost: number) => {
-    setCart({
-      ...cart,
-      shipping: {
-        methodId,
-        cost
-      },
-      total: cart.subtotal + cost
+  const setShippingMethod = (methodId: string, cost: number, methodName: string = 'Standard') => {
+    setCart(prevCart => {
+      const costCents = eurosToCents(cost);
+      
+      const shipping: ShippingMethod = {
+        id: methodId,
+        name: methodName,
+        cost,
+        costCents
+      };
+
+      const totalCents = calculateTotalCents(prevCart.subtotalCents, shipping);
+      const total = centsToEuros(totalCents);
+
+      return {
+        ...prevCart,
+        shipping,
+        total,
+        totalCents
+      };
+    });
+  };
+
+  // Forcer une mise à jour du panier (utile après des modifications externes)
+  const forceUpdateCart = () => {
+    setCart(prevCart => {
+      const subtotalCents = calculateSubtotalCents(prevCart.items);
+      const subtotal = centsToEuros(subtotalCents);
+      const totalCents = calculateTotalCents(subtotalCents, prevCart.shipping);
+      const total = centsToEuros(totalCents);
+
+      return {
+        ...prevCart,
+        subtotal,
+        subtotalCents,
+        total,
+        totalCents
+      };
     });
   };
 
@@ -149,6 +227,7 @@ export function useCart() {
     updateQuantity,
     removeItem,
     clearCart,
-    setShippingMethod
+    setShippingMethod,
+    forceUpdateCart
   };
-}
+};

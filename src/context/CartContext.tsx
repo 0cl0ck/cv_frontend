@@ -12,7 +12,8 @@ interface CartContextType {
   updateQuantity: (index: number, quantity: number) => void;
   removeItem: (index: number) => void;
   clearCart: () => void;
-  setShippingMethod: (methodId: string, cost: number) => void;
+  setShippingMethod: (methodId: string, cost: number, methodName?: string) => void;
+  forceUpdateCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);

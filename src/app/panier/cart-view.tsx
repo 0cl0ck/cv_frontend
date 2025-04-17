@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartContext } from '@/context/CartContext';
@@ -9,6 +9,20 @@ import { formatPrice } from '@/lib/utils';
 export default function CartView() {
   const { cart, updateQuantity, removeItem, clearCart } = useCartContext();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutMode, setCheckoutMode] = useState(false);
+  const isSubmitting = useRef(false);
+  const [customerInfo, setCustomerInfo] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+  });
+  const [errors, setErrors] = useState<{
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  }>({});
 
   // Gestion de la quantité
   const handleQuantityChange = (index: number, newQuantity: number) => {
@@ -23,10 +37,185 @@ export default function CartView() {
 
   // Procéder au checkout
   const handleCheckout = () => {
-    setIsCheckingOut(true);
-    // Logique de checkout à implémenter
-    // Redirection vers la page de checkout
-    window.location.href = '/checkout';
+    setCheckoutMode(true);
+  };
+
+  // Gestion des changements dans les champs
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCustomerInfo(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Validation du formulaire
+  const validateForm = () => {
+    const newErrors: {
+      email?: string;
+      firstName?: string;
+      lastName?: string;
+      phone?: string;
+    } = {};
+    let isValid = true;
+
+    if (!customerInfo.email) {
+      newErrors.email = 'L\'email est requis';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(customerInfo.email)) {
+      newErrors.email = 'Email invalide';
+      isValid = false;
+    }
+
+    if (!customerInfo.firstName) {
+      newErrors.firstName = 'Le prénom est requis';
+      isValid = false;
+    }
+    
+    if (!customerInfo.lastName) {
+      newErrors.lastName = 'Le nom est requis';
+      isValid = false;
+    }
+
+    if (!customerInfo.phone) {
+      newErrors.phone = 'Le numéro de téléphone est requis';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // Soumission du paiement
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+  
+    // Protection contre les soumissions multiples
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
+
+    try {
+      setIsCheckingOut(true);
+      
+      // Utilisation des valeurs en centimes déjà calculées
+      const shippingCostCents = cart.subtotalCents >= 4900 ? 0 : 495; // 4.95€ = 495 centimes
+      const totalCents = cart.subtotalCents + shippingCostCents;
+      
+      // Valeurs formattées en euros pour l'affichage
+      const shippingCost = shippingCostCents / 100;
+      const total = totalCents / 100;
+      
+      // Créer l'objet commande
+      const orderData = {
+        items: cart.items.map((item) => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          title: item.name,
+          price: item.price, // Prix en euros pour l'affichage
+          priceCents: item.priceCents, // Prix en centimes pour les calculs
+          quantity: item.quantity,
+          attributes: {}
+        })),
+        guestInformation: {
+          email: customerInfo.email,
+          firstName: customerInfo.firstName,
+          lastName: customerInfo.lastName,
+          phone: customerInfo.phone
+        },
+        billingAddress: {
+          name: `${customerInfo.firstName} ${customerInfo.lastName}`,
+          line1: "Adresse non fournie", // Simplifié
+          line2: "",
+          city: "Ville non fournie",
+          postalCode: "00000",
+          country: "France"
+        },
+        shippingAddress: {
+          name: `${customerInfo.firstName} ${customerInfo.lastName}`,
+          line1: "Adresse non fournie", // Simplifié
+          line2: "",
+          city: "Ville non fournie",
+          postalCode: "00000",
+          country: "France"
+        },
+        shipping: {
+          method: "67fffcd911f3717499195edf", // ID livraison standard
+          cost: shippingCost
+        },
+        notes: ""
+      };
+      
+      console.log('Création de la commande...', orderData);
+      
+      // Créer la commande
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+      });
+      
+      const order = await orderResponse.json();
+      
+      if (!order.success) {
+        throw new Error(`Erreur: ${order.message || 'Erreur lors de la création de la commande'}`);
+      }
+      
+      console.log('Commande créée:', order.data);
+      
+      // Préparer les données de paiement
+      const paymentData = {
+        amount: total,
+        amountCents: totalCents,
+        subtotal: cart.subtotal,
+        subtotalCents: cart.subtotalCents,
+        shippingCost: shippingCost,
+        shippingCostCents: shippingCostCents,
+        customerEmail: customerInfo.email,
+        customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
+        customerPhone: customerInfo.phone
+      };
+      
+      console.log('Données de paiement:', paymentData);
+      
+      // Initialiser le paiement
+      const paymentResponse = await fetch('/api/payment/direct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+      });
+
+      if (!paymentResponse.ok) {
+        const errorText = await paymentResponse.text();
+        throw new Error(`Erreur de paiement: ${errorText}`);
+      }
+      
+      const paymentResult = await paymentResponse.json();
+      
+      if (paymentResult.smartCheckoutUrl) {
+        // Vider le panier avant de rediriger
+        clearCart();
+        
+        // Rediriger vers la page de paiement
+        window.location.href = paymentResult.smartCheckoutUrl;
+      } else {
+        throw new Error("URL de paiement non reçue");
+      }
+    } catch (error) {
+      console.error("Erreur lors du processus de paiement:", error);
+      alert("Une erreur est survenue lors de l'initialisation du paiement. Veuillez réessayer.");
+    } finally {
+      setIsCheckingOut(false);
+      // Réinitialiser le verrouillage de soumission
+      isSubmitting.current = false;
+    }
   };
 
   if (cart.items.length === 0) {
@@ -154,35 +343,125 @@ export default function CartView() {
                 <span className="text-neutral-900 dark:text-white">{formatPrice(cart.subtotal)}</span>
               </div>
               
-              {cart.shipping && (
-                <div className="flex justify-between">
-                  <span className="text-neutral-600 dark:text-neutral-400">Livraison</span>
-                  <span className="text-neutral-900 dark:text-white">{formatPrice(cart.shipping.cost)}</span>
-                </div>
-              )}
+              {/* Calcul des frais de livraison (4.95€ si sous-total < 49€, sinon gratuit) */}
+              <div className="flex justify-between">
+                <span className="text-neutral-600 dark:text-neutral-400">Livraison</span>
+                <span className="text-neutral-900 dark:text-white">
+                  {cart.subtotal >= 49 
+                    ? 'Gratuit' 
+                    : formatPrice(4.95)}
+                </span>
+              </div>
               
               <div className="border-t border-neutral-200 dark:border-neutral-800 pt-3 flex justify-between">
                 <span className="font-bold text-neutral-900 dark:text-white">Total</span>
-                <span className="font-bold text-neutral-900 dark:text-white">{formatPrice(cart.total)}</span>
+                <span className="font-bold text-neutral-900 dark:text-white">
+                  {formatPrice(cart.subtotal >= 49 ? cart.subtotal : cart.subtotal + 4.95)}
+                </span>
               </div>
+              
+              {cart.subtotal < 49 && (
+                <div className="text-xs text-green-600 mt-1">
+                  Plus que {formatPrice(49 - cart.subtotal)} pour bénéficier de la livraison gratuite
+                </div>
+              )}
             </div>
             
-            <div className="space-y-3">
-              <button
-                onClick={handleCheckout}
-                disabled={isCheckingOut}
-                className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-md font-medium transition-colors disabled:opacity-70"
-              >
-                {isCheckingOut ? 'Traitement en cours...' : 'Procéder au paiement'}
-              </button>
-              
-              <Link
-                href="/produits"
-                className="block text-center w-full text-primary hover:text-primary-dark py-2 transition-colors"
-              >
-                Continuer mes achats
-              </Link>
-            </div>
+            {!checkoutMode ? (
+              <div className="space-y-3">
+                <button
+                  onClick={handleCheckout}
+                  className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-md font-medium transition-colors"
+                >
+                  Procéder au paiement
+                </button>
+                
+                <Link
+                  href="/produits"
+                  className="block text-center w-full text-primary hover:text-primary-dark py-2 transition-colors"
+                >
+                  Continuer mes achats
+                </Link>
+              </div>
+            ) : (
+              <form onSubmit={handlePaymentSubmit} className="space-y-4">
+                <h3 className="font-medium text-lg text-neutral-900 dark:text-white">Informations de contact</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Prénom</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={customerInfo.firstName}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border rounded ${errors.firstName ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    />
+                    {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Nom</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={customerInfo.lastName}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border rounded ${errors.lastName ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    />
+                    {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={customerInfo.email}
+                    onChange={handleInputChange}
+                    className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                  />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Téléphone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={customerInfo.phone}
+                    onChange={handleInputChange}
+                    className={`w-full p-2 border rounded ${errors.phone ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                  />
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                </div>
+                
+                <div className="text-xs text-neutral-600 dark:text-neutral-400 mt-2">
+                  En passant commande, vous acceptez nos <Link href="/conditions-generales" className="text-primary hover:underline">conditions générales de vente</Link> et reconnaissez notre <Link href="/confidentialite" className="text-primary hover:underline">politique de confidentialité</Link>.
+                </div>
+                
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isCheckingOut}
+                    className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-md font-medium transition-colors disabled:opacity-70"
+                  >
+                    {isCheckingOut ? 'Traitement en cours...' : 'Finaliser le paiement'}
+                  </button>
+                  
+                  {!isCheckingOut && (
+                    <button
+                      type="button"
+                      onClick={() => setCheckoutMode(false)}
+                      className="w-full text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 py-2 mt-2 transition-colors"
+                    >
+                      Retour au panier
+                    </button>
+                  )}
+                </div>
+              </form>
+            )}
           </div>
         </div>
         
