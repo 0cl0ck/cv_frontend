@@ -67,7 +67,9 @@ export default function PaymentSuccessPage() {
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des détails de commande:', err);
-        setError('Référence de commande manquante. Vous pouvez contacter notre service client pour plus d\'informations.');
+        // Nous ne mettons plus d'erreur, juste un numéro de commande null
+        // cela permettra d'afficher le message rassurant au lieu d'une page d'erreur
+        setOrderNumber(null);
       } finally {
         setIsLoading(false);
       }
@@ -121,13 +123,19 @@ export default function PaymentSuccessPage() {
           Commande n° <span className="font-bold">{orderNumber}</span>
         </p>
       ) : (
-        <p className="text-lg mb-4 text-red-500">
-          Référence de commande manquante
-        </p>
+        <div className="mb-4">
+          <p className="text-lg">
+            Votre commande a bien été enregistrée et sera traitée très prochainement.
+          </p>
+          <p className="text-base mt-2">
+            Pour des raisons techniques, le numéro de commande n'est pas visible immédiatement.
+            Vous le recevrez par email dans la confirmation qui vous sera envoyée.
+          </p>
+        </div>
       )}
       
       <p className="text-lg mb-8">
-        Nous vous remercions pour votre achat. Vous recevrez prochainement un email de confirmation.
+        Nous vous remercions pour votre achat. Vous recevrez prochainement un email de confirmation avec tous les détails de votre commande.
       </p>
       
       <div className="flex flex-col sm:flex-row justify-center gap-4">
