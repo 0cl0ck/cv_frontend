@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation'; // Pas nécessaire pour le moment
 
 export default function PaymentSuccessPage() {
-  const router = useRouter();
+  // const router = useRouter(); // Pas nécessaire pour le moment
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export default function PaymentSuccessPage() {
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des détails de commande:', err);
-        setError('Nous n\'avons pas pu récupérer les détails de votre commande. Veuillez contacter notre service client.');
+        setError('Nous n&apos;avons pas pu récupérer les détails de votre commande. Veuillez contacter notre service client.');
       } finally {
         setIsLoading(false);
       }
@@ -72,7 +72,7 @@ export default function PaymentSuccessPage() {
           href="/"
           className="inline-block bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md font-medium transition-colors"
         >
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
       </div>
     );
@@ -105,7 +105,7 @@ export default function PaymentSuccessPage() {
           href="/"
           className="inline-block bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md font-medium transition-colors"
         >
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
         
         <Link 

@@ -17,7 +17,7 @@ export default function PaymentFailurePage() {
       </h1>
       
       <p className="text-lg mb-8">
-        Votre paiement n'a pas pu être traité. Aucun montant n'a été débité de votre compte.
+        Votre paiement n&apos;a pas pu être traité. Aucun montant n&apos;a été débité de votre compte.
       </p>
       
       <div className="flex flex-col sm:flex-row justify-center gap-4">

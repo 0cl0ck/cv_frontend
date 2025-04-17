@@ -17,7 +17,7 @@ export default function PaymentCancelPage() {
       </h1>
       
       <p className="text-lg mb-8">
-        Votre paiement a été annulé. Aucun montant n'a été débité de votre compte.
+        Votre paiement a été annulé. Aucun montant n&apos;a été débité de votre compte.
       </p>
       
       <div className="flex flex-col sm:flex-row justify-center gap-4">
