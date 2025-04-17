@@ -24,14 +24,45 @@ export default function PaymentSuccessPage() {
         if (t || storedOrderNumber) {
           // Utiliser l'ID de transaction pour vérifier le statut
           if (t) {
-            // Appeler l'API pour vérifier la transaction
-            const response = await fetch(`/api/payment/verify/${t}`);
-            const data = await response.json();
-            
-            if (data.success && data.data) {
-              setOrderNumber(data.data.orderCode || storedOrderNumber);
-            } else {
-              throw new Error('Impossible de vérifier le paiement');
+            try {
+              // Appeler l'API pour vérifier la transaction
+              const response = await fetch(`/api/payment/verify/${t}`);
+              
+              if (!response.ok) {
+                throw new Error(`Erreur API: ${response.status}`);
+              }
+              
+              const data = await response.json();
+              console.log('Réponse API payment/verify:', data); // Pour débogage
+              
+              // Extraire l'orderCode en fonction de la structure réelle renvoyée par l'API
+              let orderCode = null;
+              if (data.success) {
+                if (data.data?.orderCode) {
+                  orderCode = data.data.orderCode;
+                } else if (data.data?.orderNumber) {
+                  orderCode = data.data.orderNumber;
+                } else if (data.orderCode) {
+                  orderCode = data.orderCode;
+                }
+              }
+              
+              if (orderCode) {
+                setOrderNumber(orderCode);
+              } else if (storedOrderNumber) {
+                setOrderNumber(storedOrderNumber);
+              } else {
+                throw new Error('Référence de commande non trouvée dans la réponse');
+              }
+            } catch (error) {
+              console.error('Erreur lors de la vérification du paiement:', error);
+              // Utiliser storedOrderNumber comme fallback en cas d'erreur API
+              if (storedOrderNumber) {
+                setOrderNumber(storedOrderNumber);
+                console.log('Utilisation du orderNumber stocké en fallback:', storedOrderNumber);
+              } else {
+                throw new Error('Impossible de vérifier le paiement');
+              }
             }
           } else {
             setOrderNumber(storedOrderNumber);
@@ -41,7 +72,7 @@ export default function PaymentSuccessPage() {
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des détails de commande:', err);
-        setError('Nous n&apos;avons pas pu récupérer les détails de votre commande. Veuillez contacter notre service client.');
+        setError('Référence de commande manquante. Vous pouvez contacter notre service client pour plus d\'informations.');
       } finally {
         setIsLoading(false);
       }
@@ -90,9 +121,13 @@ export default function PaymentSuccessPage() {
         Votre commande a été validée !
       </h1>
       
-      {orderNumber && (
+      {orderNumber ? (
         <p className="text-lg mb-4">
           Commande n° <span className="font-bold">{orderNumber}</span>
+        </p>
+      ) : (
+        <p className="text-lg mb-4 text-red-500">
+          Référence de commande manquante
         </p>
       )}
       
