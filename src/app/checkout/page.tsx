@@ -439,8 +439,14 @@ export default function CheckoutPage() {
       console.log('Commande créée:', order.data);
       
       // Construire l'objet de données de paiement simplifié pour la route directe
+      // IMPORTANT: Utiliser le total qui inclut les frais de livraison
+      console.log('Montant avant envoi:', {
+        subtotal: localCart.subtotal,
+        shippingCost: localCart.shipping?.cost || 0,
+        total: localCart.total
+      });
       const paymentData = {
-        amount: localCart.total,
+        amount: localCart.total, // Inclut frais de livraison
         customerEmail: formData.email,
         customerName: `${formData.firstName} ${formData.lastName}`,
         customerPhone: formData.phone || 'Non fourni'
