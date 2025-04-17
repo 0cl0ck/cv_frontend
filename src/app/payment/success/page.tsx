@@ -14,16 +14,19 @@ export default function PaymentSuccessPage() {
     // Récupérer l'orderCode/transactionId depuis les paramètres d'URL ou sessionStorage
     const fetchOrderDetails = async () => {
       try {
-        // Récupérer l'orderCode depuis les paramètres d'URL (dépend du retour de VivaWallet)
+        // Récupérer l'orderCode depuis les paramètres d'URL (plusieurs possibilités)
         const params = new URLSearchParams(window.location.search);
-        const t = params.get('t'); // VivaWallet retourne 't' comme paramètre de transaction ID
-
-        // Si pas de paramètre, vérifier dans sessionStorage
-        const storedOrderNumber = sessionStorage.getItem('lastOrderNumber');
+        const o = params.get('o'); // Notre paramètre personnalisé ajouté dans l'URL de redirection - PRIORITAIRE
+        const t = params.get('t'); // VivaWallet retourne 't' comme paramètre de transaction ID (fallback)
         
-        if (t || storedOrderNumber) {
-          // Utiliser l'ID de transaction pour vérifier le statut
-          if (t) {
+        console.log('Paramètres URL:', { o, t });
+        
+        if (o || t) {
+          // Priorité 1: Utiliser directement le paramètre 'o' s'il existe
+          if (o) {
+            setOrderNumber(o);
+          // Priorité 2: Utiliser l'ID de transaction 't' pour vérifier le statut
+          } else if (t) {
             try {
               // Appeler l'API pour vérifier la transaction
               const response = await fetch(`/api/payment/verify/${t}`);
@@ -47,25 +50,17 @@ export default function PaymentSuccessPage() {
                 }
               }
               
+              // Pas besoin de vérifier o ici car on l'a déjà vérifié en premier
+              
               if (orderCode) {
                 setOrderNumber(orderCode);
-              } else if (storedOrderNumber) {
-                setOrderNumber(storedOrderNumber);
               } else {
                 throw new Error('Référence de commande non trouvée dans la réponse');
               }
             } catch (error) {
               console.error('Erreur lors de la vérification du paiement:', error);
-              // Utiliser storedOrderNumber comme fallback en cas d'erreur API
-              if (storedOrderNumber) {
-                setOrderNumber(storedOrderNumber);
-                console.log('Utilisation du orderNumber stocké en fallback:', storedOrderNumber);
-              } else {
-                throw new Error('Impossible de vérifier le paiement');
-              }
+              throw new Error('Impossible de vérifier le paiement');
             }
-          } else {
-            setOrderNumber(storedOrderNumber);
           }
         } else {
           throw new Error('Informations de commande non trouvées');
