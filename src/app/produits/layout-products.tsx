@@ -17,10 +17,14 @@ interface ProductsLayoutProps {
   description?: string;
   activeCategory?: string;
   priceRange?: string;
+  pricePerGramSort?: string;
 }
 
 // Types pour les plages de prix
 type PriceRangeType = 'all' | 'under-20' | '20-to-50' | 'above-50';
+
+// Types pour le tri par prix par gramme
+type PricePerGramSortType = 'none' | 'asc' | 'desc';
 
 
 
@@ -34,13 +38,15 @@ export default function ProductsLayout({
   description,
   activeCategory,
   priceRange: initialPriceRange,
+  pricePerGramSort: initialPricePerGramSort,
 }: ProductsLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
-  // État local pour le filtre de prix
+  // États locaux pour les filtres
   const [priceRange, setPriceRange] = useState<PriceRangeType>(initialPriceRange as PriceRangeType || 'all');
+  const [pricePerGramSort, setPricePerGramSort] = useState<PricePerGramSortType>(initialPricePerGramSort as PricePerGramSortType || 'none');
   
   // Fonction pour mettre à jour les paramètres d'URL et naviguer
   const updateSearchParams = (name: string, value: string | null) => {
@@ -63,6 +69,12 @@ export default function ProductsLayout({
     setPriceRange(value);
     updateSearchParams('price', value === 'all' ? null : value);
   };
+
+  // Gestionnaire d'événement pour le changement de tri par prix par gramme
+  const handlePricePerGramSortChange = (value: PricePerGramSortType) => {
+    setPricePerGramSort(value);
+    updateSearchParams('pricePerGramSort', value === 'none' ? null : value);
+  };
   
   // Mettre à jour l'état local si initialPriceRange change
   useEffect(() => {
@@ -70,6 +82,13 @@ export default function ProductsLayout({
       setPriceRange(initialPriceRange as PriceRangeType);
     }
   }, [initialPriceRange]);
+
+  // Mettre à jour l'état local si initialPricePerGramSort change
+  useEffect(() => {
+    if (initialPricePerGramSort) {
+      setPricePerGramSort(initialPricePerGramSort as PricePerGramSortType);
+    }
+  }, [initialPricePerGramSort]);
   return (
     <div className="bg-neutral-50 dark:bg-neutral-950 min-h-screen py-8">
       <div className="container mx-auto px-4">
@@ -87,9 +106,10 @@ export default function ProductsLayout({
             <CategoryFilter categories={categories} activeCategory={activeCategory} />
             
             {/* Espace pour d'autres filtres */}
+            {/* Filtres de prix pour produits uniques */}
             <div className="mt-6 bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-md">
-              <h3 className="font-semibold text-lg mb-4 text-neutral-900 dark:text-white">Prix</h3>
-              {/* Placeholder pour les filtres de prix */}
+              <h3 className="font-semibold text-lg mb-2 text-neutral-900 dark:text-white">Prix</h3>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4 italic">Produits uniques</p>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <input
@@ -150,6 +170,59 @@ export default function ProductsLayout({
                     className="ml-2 text-sm text-neutral-700 dark:text-neutral-300"
                   >
                     Plus de 50€
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            {/* Tri pour produits variables par prix au gramme */}
+            <div className="mt-4 bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-md">
+              <h3 className="font-semibold text-lg mb-2 text-neutral-900 dark:text-white">Trier par</h3>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4 italic">Prix par gramme</p>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <input
+                    id="price-per-gram-none"
+                    type="radio"
+                    name="price-per-gram-sort"
+                    checked={pricePerGramSort === 'none'}
+                    onChange={() => handlePricePerGramSortChange('none')}
+                    className="h-4 w-4 text-primary"
+                  />
+                  <label htmlFor="price-per-gram-none" className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">
+                    Aucun tri
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="price-per-gram-asc"
+                    type="radio"
+                    name="price-per-gram-sort"
+                    checked={pricePerGramSort === 'asc'}
+                    onChange={() => handlePricePerGramSortChange('asc')}
+                    className="h-4 w-4 text-primary"
+                  />
+                  <label
+                    htmlFor="price-per-gram-asc"
+                    className="ml-2 text-sm text-neutral-700 dark:text-neutral-300"
+                  >
+                    Prix croissant
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="price-per-gram-desc"
+                    type="radio"
+                    name="price-per-gram-sort"
+                    checked={pricePerGramSort === 'desc'}
+                    onChange={() => handlePricePerGramSortChange('desc')}
+                    className="h-4 w-4 text-primary"
+                  />
+                  <label
+                    htmlFor="price-per-gram-desc"
+                    className="ml-2 text-sm text-neutral-700 dark:text-neutral-300"
+                  >
+                    Prix décroissant
                   </label>
                 </div>
               </div>
