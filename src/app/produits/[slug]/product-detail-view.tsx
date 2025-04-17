@@ -212,7 +212,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
               {/* Description courte */}
               {product.description && (
-                <div className="mb-6 text-neutral-700 dark:text-neutral-300">
+                <div className="prose dark:prose-invert mb-6 text-neutral-700 dark:text-neutral-300">
                   <RichTextRenderer content={product.description} />
                 </div>
               )}
