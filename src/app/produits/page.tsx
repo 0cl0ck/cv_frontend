@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import { getProducts, getCategories } from '@/services/api';
 import ProductsLayout from '@/app/produits/layout-products';
 import { Metadata } from 'next';
@@ -8,28 +7,36 @@ export const metadata: Metadata = {
   description: 'Découvrez notre gamme complète de produits CBD de haute qualité - fleurs, huiles, infusions et plus encore.',
 };
 
+type RawParams = {
+  page?: string | string[];
+  limit?: string | string[];
+  price?: string | string[];
+};
+
 export default async function ProductsPage(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  props: { searchParams?: Promise<URLSearchParams> }
+  props: { searchParams: Promise<RawParams> }
 ) {
-  // Récupérer les query params dynamiquement, en vérifiant si Next.js les fournit directement
-  const headersList = await headers();
-  const url = headersList.get('x-url') || '';
-  const parsedUrl = new URL(url, 'http://localhost:3000'); // ou ton vrai domaine
-  const searchParams = parsedUrl.searchParams;
+  // 1️⃣ On attend la Promise
+  const params = await props.searchParams;
 
-  const page = searchParams.get('page') || '1';
-  const limitStr = searchParams.get('limit') || '12';
-  const priceRange = searchParams.get('price') || 'all';
+  // 2️⃣ On extrait « brut » (peut être string | string[] | undefined)
+  const pageRaw  = params.page;
+  const limitRaw = params.limit;
+  const priceRaw = params.price;
 
-  const currentPage = parseInt(page);
-  const limit = parseInt(limitStr);
-  
-  // Configurer les filtres de prix en fonction de la plage sélectionnée
+  // 3️⃣ On normalise en string, avec fallback si besoin
+  const pageStr  = Array.isArray(pageRaw)  ? pageRaw[0]  : pageRaw  ?? '1';
+  const limitStr = Array.isArray(limitRaw) ? limitRaw[0] : limitRaw ?? '12';
+  const price    = Array.isArray(priceRaw) ? priceRaw[0] : priceRaw ?? 'all';
+
+  // 4️⃣ On parse en nombre
+  const currentPage = parseInt(pageStr, 10);
+  const limitNum    = parseInt(limitStr, 10);
+
+  // 5️⃣ On configure les filtres de prix
   let minPrice: number | undefined;
   let maxPrice: number | undefined;
-  
-  switch (priceRange) {
+  switch (price) {
     case 'under-20':
       maxPrice = 20;
       break;
@@ -40,17 +47,17 @@ export default async function ProductsPage(
     case 'above-50':
       minPrice = 50;
       break;
-    // Pour 'all', on ne met pas de filtre de prix
+    // 'all' => pas de filtre
   }
 
+  // 6️⃣ On récupère les données
   const productsData = await getProducts({
-    page: currentPage,
-    limit: limit,
-    sort: '-createdAt',
+    page:    currentPage,
+    limit:   limitNum,
+    sort:    '-createdAt',
     minPrice,
     maxPrice,
   });
-
   const categories = await getCategories();
 
   return (
@@ -62,7 +69,7 @@ export default async function ProductsPage(
       totalProducts={productsData.totalDocs}
       title="Tous nos produits CBD"
       description="Découvrez notre gamme complète de produits CBD de haute qualité"
-      priceRange={priceRange}
+      priceRange={price}
     />
   );
 }
