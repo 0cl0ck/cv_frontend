@@ -438,20 +438,31 @@ export default function CheckoutPage() {
       // 3. Initialiser le paiement avec VivaWallet
       console.log('Commande créée:', order.data);
       
-      // Construire l'objet de données de paiement selon le format API
+      // Construire l'objet de données de paiement selon le format API adapté à la nouvelle route
       const paymentData = {
         amount: localCart.total,
         customerEmail: formData.email,
-        customerTrns: `${formData.firstName} ${formData.lastName}`,
-        orderId: order.data.id,
-        orderCode: order.data.orderNumber,
-        merchantTrns: `Commande ${order.data.orderNumber}`
+        customerName: `${formData.firstName} ${formData.lastName}`,
+        customerPhone: formData.phone || 'Non fourni',
+        items: localCart.items.map(item => ({
+          product: {
+            id: item.productId || item.id,
+            name: item.name,
+            price: item.price
+          },
+          variation: item.variantId ? {
+            id: item.variantId,
+            name: item.variantName || 'Variation',
+            price: item.price
+          } : undefined,
+          quantity: item.quantity
+        }))
       };
       
       console.log('Initialisation du paiement VivaWallet...', paymentData);
       
-      // Appel à l'API pour initialiser le paiement et obtenir l'URL VivaWallet
-      const paymentResponse = await fetch('/api/payment/create', {
+      // Appel à la nouvelle API pour initialiser le paiement et obtenir l'URL VivaWallet
+      const paymentResponse = await fetch('/api/payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -471,18 +482,19 @@ export default function CheckoutPage() {
         throw new Error(`Erreur: ${paymentInfo.message || "Erreur lors de l'initialisation du paiement"}`);
       }
       
-      // Vérifier si l'URL de checkout est disponible
-      if (paymentInfo.data && paymentInfo.data.checkoutUrl) {
+      // Vérifier si l'URL de checkout est disponible (nouvelle structure de réponse)
+      if (paymentInfo.smartCheckoutUrl) {
         // Stocker l'ID de commande et l'orderCode dans sessionStorage pour vérification ultérieure
-        sessionStorage.setItem('lastOrderId', order.data.id);
-        sessionStorage.setItem('lastOrderNumber', order.data.orderNumber);
+        sessionStorage.setItem('lastOrderId', paymentInfo.orderId || order.data.id);
+        sessionStorage.setItem('lastOrderNumber', paymentInfo.orderCode || order.data.orderNumber);
         
         // Vider le panier après une redirection réussie
         clearCart();
         
         // Rediriger vers la passerelle de paiement VivaWallet
-        window.location.href = paymentInfo.data.checkoutUrl;
+        window.location.href = paymentInfo.smartCheckoutUrl;
       } else {
+        console.error('Réponse de paiement incomplète:', paymentInfo);
         throw new Error('Impossible d\'initialiser le paiement: URL de checkout manquante');
       }
     } catch (error) {
