@@ -1,39 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Mot de passe à changer (vous voudrez le mettre dans une variable d'environnement)
-const PASSWORD = 'cannabidiol';
-
+// Site maintenant ouvert à tous - pas de protection par mot de passe
 // Durée de validité du cookie (24 heures)
 const COOKIE_EXPIRATION = 24 * 60 * 60 * 1000;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { password } = body;
+    // Site maintenant ouvert à tous - autorisation automatique
+    // Créer la réponse
+    const response = NextResponse.json({ 
+      success: true,
+      message: 'Site ouvert à tous les visiteurs' 
+    });
+    
+    // Définir le cookie dans la réponse
+    response.cookies.set({
+      name: 'auth_token',
+      value: 'authenticated', // Simple valeur, on pourrait utiliser un JWT pour plus de sécurité
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: COOKIE_EXPIRATION,
+      sameSite: 'strict',
+    });
 
-    // Vérifier le mot de passe
-    if (password === PASSWORD) {
-      // Créer la réponse
-      const response = NextResponse.json({ success: true });
-      
-      // Définir le cookie dans la réponse
-      response.cookies.set({
-        name: 'auth_token',
-        value: 'authenticated', // Simple valeur, on pourrait utiliser un JWT pour plus de sécurité
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: COOKIE_EXPIRATION,
-        sameSite: 'strict',
-      });
-
-      return response;
-    } else {
-      return NextResponse.json(
-        { success: false, message: 'Mot de passe incorrect' },
-        { status: 401 }
-      );
-    }
+    return response;
   } catch (error) {
     console.error('Auth error:', error);
     return NextResponse.json(
