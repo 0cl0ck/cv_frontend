@@ -16,12 +16,20 @@ export default function CartView() {
     firstName: '',
     lastName: '',
     phone: '',
+    address: '',
+    addressLine2: '',
+    city: '',
+    postalCode: '',
+    country: 'France',
   });
   const [errors, setErrors] = useState<{
     email?: string;
     firstName?: string;
     lastName?: string;
     phone?: string;
+    address?: string;
+    city?: string;
+    postalCode?: string;
   }>({});
 
   // Gestion de la quantité
@@ -56,6 +64,9 @@ export default function CartView() {
       firstName?: string;
       lastName?: string;
       phone?: string;
+      address?: string;
+      city?: string;
+      postalCode?: string;
     } = {};
     let isValid = true;
 
@@ -79,6 +90,21 @@ export default function CartView() {
 
     if (!customerInfo.phone) {
       newErrors.phone = 'Le numéro de téléphone est requis';
+      isValid = false;
+    }
+
+    if (!customerInfo.address) {
+      newErrors.address = 'L\'adresse est requise';
+      isValid = false;
+    }
+
+    if (!customerInfo.city) {
+      newErrors.city = 'La ville est requise';
+      isValid = false;
+    }
+
+    if (!customerInfo.postalCode) {
+      newErrors.postalCode = 'Le code postal est requis';
       isValid = false;
     }
 
@@ -128,19 +154,19 @@ export default function CartView() {
         },
         billingAddress: {
           name: `${customerInfo.firstName} ${customerInfo.lastName}`,
-          line1: "Adresse non fournie", // Simplifié
-          line2: "",
-          city: "Ville non fournie",
-          postalCode: "00000",
-          country: "France"
+          line1: customerInfo.address,
+          line2: customerInfo.addressLine2 || "",
+          city: customerInfo.city,
+          postalCode: customerInfo.postalCode,
+          country: customerInfo.country
         },
         shippingAddress: {
           name: `${customerInfo.firstName} ${customerInfo.lastName}`,
-          line1: "Adresse non fournie", // Simplifié
-          line2: "",
-          city: "Ville non fournie",
-          postalCode: "00000",
-          country: "France"
+          line1: customerInfo.address,
+          line2: customerInfo.addressLine2 || "",
+          city: customerInfo.city,
+          postalCode: customerInfo.postalCode,
+          country: customerInfo.country
         },
         shipping: {
           method: "67fffcd911f3717499195edf", // ID livraison standard
@@ -435,6 +461,72 @@ export default function CartView() {
                     className={`w-full p-2 border rounded ${errors.phone ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
                   />
                   {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Adresse</label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={customerInfo.address}
+                    onChange={handleInputChange}
+                    className={`w-full p-2 border rounded ${errors.address ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    placeholder="Rue et numéro"
+                  />
+                  {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Complément d&rsquo;adresse <span className="text-xs text-neutral-500">(optionnel)</span></label>
+                  <input
+                    type="text"
+                    name="addressLine2"
+                    value={customerInfo.addressLine2}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                    placeholder="Appartement, bâtiment, etc."
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Code Postal</label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={customerInfo.postalCode}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border rounded ${errors.postalCode ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    />
+                    {errors.postalCode && <p className="text-red-500 text-xs mt-1">{errors.postalCode}</p>}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Ville</label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={customerInfo.city}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border rounded ${errors.city ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    />
+                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Pays</label>
+                  <select
+                    name="country"
+                    value={customerInfo.country}
+                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, country: e.target.value }))}
+                    className="w-full p-2 border rounded border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                  >
+                    <option value="France">France</option>
+                    <option value="Belgique">Belgique</option>
+                    <option value="Suisse">Suisse</option>
+                    <option value="Luxembourg">Luxembourg</option>
+                  </select>
                 </div>
                 
                 <div className="text-xs text-neutral-600 dark:text-neutral-400 mt-2">
