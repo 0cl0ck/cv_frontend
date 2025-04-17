@@ -51,7 +51,7 @@ export default function Header() {
             : 'relative bg-neutral-900 text-white shadow-md'
         }`}
       >
-        <div className="container mx-auto">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           {/* Desktop layout */}
           <div className="py-4 hidden md:flex justify-between items-center">
             <Link href="/">
