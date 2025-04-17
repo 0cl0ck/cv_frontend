@@ -89,11 +89,30 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
           ) : (
             <div className="flex items-center justify-between">
               <span className="text-lg font-bold text-primary">
-                {product.variants && product.variants.length > 0
-                  ? `À partir de ${formatPrice(
-                      Math.min(...product.variants.map((v) => v.price)),
-                    )}`
-                  : 'Prix sur demande'}
+                {product.variants && product.variants.length > 0 ? (
+                  /* Si pricePerGram est déjà défini dans les variants */
+                  product.variants.some(v => v.pricePerGram !== undefined) ? (
+                    `À partir de ${formatPrice(
+                      Math.min(...product.variants
+                        .filter(v => v.pricePerGram !== undefined)
+                        .map(v => v.pricePerGram!))
+                    )} le gramme`
+                  ) : (
+                    /* Si pricePerGram n'est pas défini mais weight l'est, on le calcule */
+                    product.variants.some(v => v.weight !== undefined) ? (
+                      `À partir de ${formatPrice(
+                        Math.min(...product.variants
+                          .filter(v => v.weight && v.weight > 0)
+                          .map(v => v.price / v.weight!))
+                      )} le gramme`
+                    ) : (
+                      /* Fallback vers l'ancien affichage si pas de poids disponible */
+                      `À partir de ${formatPrice(
+                        Math.min(...product.variants.map((v) => v.price))
+                      )}`
+                    )
+                  )
+                ) : 'Prix sur demande'}
               </span>
               {product.variants &&
                 product.variants.every((v) => typeof v.stock === 'number' && v.stock <= 0) && (
