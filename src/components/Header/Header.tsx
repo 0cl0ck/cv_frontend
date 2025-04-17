@@ -11,6 +11,7 @@ export default function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showAccountPopup, setShowAccountPopup] = useState(false);
   
   // Vérifier si nous sommes sur la page d'accueil
   const isHomePage = pathname === '/';
@@ -126,13 +127,13 @@ export default function Header() {
 
             {/* Connexion à droite */}
             <div className="flex items-center justify-end">
-              <Link
-                href="/login"
+              <button
+                onClick={() => setShowAccountPopup(true)}
                 className="p-2 mr-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="w-5 h-5" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -174,8 +175,8 @@ export default function Header() {
             className="flex items-center text-base font-medium hover:text-primary text-white py-2 transition-all duration-200 hover:translate-x-1"
             onClick={() => setMenuOpen(false)}
           >
-            <SearchIcon className="w-5 h-5 mr-3" />
-            Rechercher
+            {/* <SearchIcon className="w-5 h-5 mr-3" />
+            Rechercher */}
           </Link>
 
           {navItems.map((item, i) => (
@@ -191,6 +192,25 @@ export default function Header() {
         </nav>
       </div>
 
+      {/* Popup de compte client */}
+      {showAccountPopup && (
+        <div className="fixed inset-0 bg-black/50 z-[1001] flex items-center justify-center p-4" onClick={() => setShowAccountPopup(false)}>
+          <div 
+            className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full transform transition-all" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Comptes clients</h3>
+            <p className="text-gray-700 mb-4">Les comptes clients arrivent bientôt ! Vos commandes sont compatibilisées avec votre email. Vous ne perdez pas vos avantages! Vous pourrez suivre vos commandes et bénéficier d'offres personnalisées.</p>
+            <button
+              onClick={() => setShowAccountPopup(false)}
+              className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Pas besoin de spacer ici car nous utilisons position relative pour les pages autres que Home */}
     </>
   );
