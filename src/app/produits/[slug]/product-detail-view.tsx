@@ -8,6 +8,7 @@ import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
 import { useCartContext } from '@/context/CartContext';
 import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
+import { dirxml } from 'console';
 
 type Props = {
   product: Product;
@@ -136,7 +137,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
         </nav>
 
         <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-md overflow-hidden">
-          <div className="md:flex">
+          <div className="md:flex md:items-center ">
             {/* Galerie d'images */}
             <div className="md:w-1/2 p-6">
               <div className="relative aspect-square mb-4 rounded-lg overflow-hidden">
@@ -212,8 +213,11 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
               {/* Description courte */}
               {product.description && (
-                <div className="prose dark:prose-invert mb-6 text-neutral-700 dark:text-neutral-300">
+                <div className='mb-6 text-neutral-700 dark:text-neutral-300'>
+
+                <div className="prose dark:prose-invert ">
                   <RichTextRenderer content={product.description} />
+                </div>
                 </div>
               )}
 
