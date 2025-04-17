@@ -128,9 +128,7 @@ export default function CartView() {
       setIsCheckingOut(true);
       
       // Utilisation des valeurs en centimes déjà calculées
-      // TEMPORAIRE: Livraison gratuite pour les tests de paiement
-      const shippingCostCents = 0; // Modification temporaire: frais de livraison à 0€
-      // const shippingCostCents = cart.subtotalCents >= 4900 ? 0 : 495; // 4.95€ = 495 centimes
+      const shippingCostCents = cart.subtotalCents >= 4900 ? 0 : 495; // 4.95€ = 495 centimes
       const totalCents = cart.subtotalCents + shippingCostCents;
       
       // Valeurs formattées en euros pour l'affichage
