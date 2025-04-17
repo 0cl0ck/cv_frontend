@@ -138,8 +138,14 @@ export default function CheckoutPage() {
             setLocalCart({
               items: checkoutItems,
               subtotal: cartData.subtotal,
-              shipping: { cost: cartData.shipping?.cost || calcShipping },
-              total: cartData.total || (cartData.subtotal + calcShipping)
+              shipping: { 
+                cost: cartData.shipping?.cost || calcShipping,
+                method: cartData.shipping?.method || {
+                  id: '67fffcd911f3717499195edf',
+                  name: 'Livraison standard'
+                }
+              },
+              total: cartData.subtotal + (cartData.shipping?.cost || calcShipping) // Recalculer explicitement le total
             });
             
             // Marquer comme initialisé pour éviter de bloquer l'interface
@@ -218,6 +224,22 @@ export default function CheckoutPage() {
               setShippingMethods(methods);
               if (methods.length > 0) {
                 setSelectedShippingMethod(methods[0].id);
+                
+                // Appliquer immédiatement la méthode de livraison sélectionnée
+                const selectedMethod = methods[0];
+                setLocalCart(prev => ({
+                  ...prev,
+                  shipping: {
+                    ...prev.shipping,
+                    cost: selectedMethod.cost,
+                    method: {
+                      id: selectedMethod.id,
+                      name: selectedMethod.name
+                    }
+                  },
+                  total: prev.subtotal + selectedMethod.cost
+                }));
+                
                 console.log('Méthodes de livraison chargées depuis API:', methods[0].id);
                 return; // Sortir de la fonction si réussi
               }
@@ -229,25 +251,43 @@ export default function CheckoutPage() {
         
         // Fallback avec les méthodes codées en dur si l'API échoue
         console.log('Utilisation des méthodes de livraison par défaut');
-        setShippingMethods([
+        const defaultMethods = [
           {
             id: '67fffcd911f3717499195edf',
             name: 'Livraison standard',
-            description: 'Livraison en 1-2 jours ouvrés',
+            description: 'Livraison sous 1 à 2 jours ouvrés en France',
             cost: 4.95,
             deliveryTime: '1-2 jours'
           },
           {
             id: '6800056585f591e4d60bd924',
             name: 'Livraison sécurisée',
-            description: 'Livraison sécurisée en 1-2 jours ouvrés',
+            description: 'Livraison sécurisée sous 1 à 2 jours ouvrés en France',
             cost: 8.95,
             deliveryTime: '1-2 jours'
           }
-        ]);
+        ];
+        
+        setShippingMethods(defaultMethods);
         
         // Sélectionner la première méthode par défaut
         setSelectedShippingMethod('67fffcd911f3717499195edf');
+        
+        // Appliquer immédiatement la méthode de livraison sélectionnée
+        const defaultSelectedMethod = defaultMethods[0];
+        setLocalCart(prev => ({
+          ...prev,
+          shipping: {
+            ...prev.shipping,
+            cost: defaultSelectedMethod.cost,
+            method: {
+              id: defaultSelectedMethod.id,
+              name: defaultSelectedMethod.name
+            }
+          },
+          total: prev.subtotal + defaultSelectedMethod.cost
+        }));
+        
         console.log('Méthodes de livraison par défaut chargées:', '67fffcd911f3717499195edf');
         
       } catch (error) {
@@ -317,6 +357,13 @@ export default function CheckoutPage() {
         },
         total: prev.subtotal + newShippingCost
       }));
+      
+      console.log('Méthode de livraison modifiée:', {
+        id: selectedMethod.id,
+        name: selectedMethod.name,
+        cost: newShippingCost,
+        newTotal: localCart.subtotal + newShippingCost
+      });
     }
   };
   
@@ -445,13 +492,24 @@ export default function CheckoutPage() {
         shippingCost: localCart.shipping?.cost || 0,
         total: localCart.total
       });
+      
+      // Recalculer explicitement le total pour s'assurer qu'il est correct
+      const calculatedTotal = localCart.subtotal + localCart.shipping.cost;
+      
       const paymentData = {
-        amount: localCart.total, // Inclut frais de livraison
+        amount: calculatedTotal, // Utiliser le total recalculé pour garantir l'exactitude
         customerEmail: formData.email,
         customerName: `${formData.firstName} ${formData.lastName}`,
         customerPhone: formData.phone || 'Non fourni'
         // La route direct ne nécessite pas les items du panier
       };
+      
+      console.log('Montant FINAL vérifié envoyé à l\'API:', {
+        subtotal: localCart.subtotal,
+        shippingCost: localCart.shipping.cost,
+        calculatedTotal,
+        localCartTotal: localCart.total
+      });
       
       console.log('Initialisation du paiement VivaWallet...', paymentData);
       

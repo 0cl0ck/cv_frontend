@@ -195,14 +195,14 @@ export default function CartView() {
               Vider le panier
             </button>
             
-            {!cart.shipping && (
+            {/* {!cart.shipping && (
               <Link
                 href="/livraison"
                 className="bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 py-2 px-4 rounded-md transition-colors"
               >
                 Calculer les frais de livraison
               </Link>
-            )}
+            )} */}
           </div>
         </div>
       </div>
