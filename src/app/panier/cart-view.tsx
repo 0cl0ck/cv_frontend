@@ -127,12 +127,19 @@ export default function CartView() {
     try {
       setIsCheckingOut(true);
       
-      // Utilisation des valeurs en centimes déjà calculées
-      const shippingCostCents = cart.subtotalCents >= 4900 ? 0 : 495; // 4.95€ = 495 centimes
-      const totalCents = cart.subtotalCents + shippingCostCents;
+      // Calcul des frais de port selon le pays
+      const shippingCost = customerInfo.country === 'Belgique'
+        ? 10
+        : cart.subtotal >= 49
+          ? 0
+          : 4.95;
+      const shippingCostCents = customerInfo.country === 'Belgique'
+        ? 1000
+        : cart.subtotalCents >= 4900
+          ? 0
+          : 495;
       
-      // Valeurs formattées en euros pour l'affichage
-      const shippingCost = shippingCostCents / 100;
+      const totalCents = cart.subtotalCents + shippingCostCents;
       const total = totalCents / 100;
       
       // Créer l'objet commande
@@ -369,24 +376,22 @@ export default function CartView() {
                 <span className="text-neutral-900 dark:text-white">{formatPrice(cart.subtotal)}</span>
               </div>
               
-              {/* Calcul des frais de livraison (4.95€ si sous-total < 49€, sinon gratuit) */}
+              {/* Calcul des frais de livraison */}
               <div className="flex justify-between">
                 <span className="text-neutral-600 dark:text-neutral-400">Livraison</span>
                 <span className="text-neutral-900 dark:text-white">
-                  {cart.subtotal >= 49 
-                    ? 'Gratuit' 
-                    : formatPrice(4.95)}
+                  {customerInfo.country === 'Belgique' ? formatPrice(10) : cart.subtotal >= 49 ? 'Gratuit' : formatPrice(4.95)}
                 </span>
               </div>
               
               <div className="border-t border-neutral-200 dark:border-neutral-800 pt-3 flex justify-between">
                 <span className="font-bold text-neutral-900 dark:text-white">Total</span>
                 <span className="font-bold text-neutral-900 dark:text-white">
-                  {formatPrice(cart.subtotal >= 49 ? cart.subtotal : cart.subtotal + 4.95)}
+                  {formatPrice(cart.subtotal + (customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95))}
                 </span>
               </div>
               
-              {cart.subtotal < 49 && (
+              {customerInfo.country !== 'Belgique' && cart.subtotal < 49 && (
                 <div className="text-xs text-green-600 mt-1">
                   Plus que {formatPrice(49 - cart.subtotal)} pour bénéficier de la livraison gratuite
                 </div>
