@@ -18,13 +18,14 @@ type Props = {
 // Les fonctions extractDescription et extractTextFromRichTextNodes ont été remplacées par le composant RichTextRenderer
 
 export default function ProductDetailView({ product, relatedProducts, categories }: Props) {
-  const { addItem } = useCartContext();
+  const { addItem, updateQuantity, removeItem, cart } = useCartContext();
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
   const [mainImage, setMainImage] = useState<Media | string | undefined>(product.mainImage || (product.galleryImages && product.galleryImages.length > 0 ? product.galleryImages[0] : undefined));
   const [quantity, setQuantity] = useState(1);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   // Formater les catégories pour l'affichage
   const categoryDisplay: Category[] = [];
@@ -71,14 +72,40 @@ export default function ProductDetailView({ product, relatedProducts, categories
     }
   };
   
-  // Gérer l'ajout au panier
+  // Gérer l'ajout au panier - VERSION ULTRASIMPLE pour résoudre définitivement le problème
   const handleAddToCart = () => {
-    if (isInStock()) {
-      // Ajouter au panier avec la variation sélectionnée si disponible
-      addItem(product, quantity, selectedVariation || undefined);
+    // Sécurité de base : n'exécuter que si le bouton n'est pas déjà désactivé
+    if (!isInStock() || isAddingToCart) {
+      return;
+    }
+    
+    // Désactiver le bouton immédiatement pour éviter tout problème
+    setIsAddingToCart(true);
+    
+    try {
+      // Approche directe : trouver le produit existant ou ajouter un nouveau
+      const existingItemIndex = cart.items.findIndex(item => 
+        item.productId === product.id && 
+        (!selectedVariation || item.variantId === selectedVariation.id)
+      );
       
-      // Afficher un message de confirmation (temporaire)
+      // Utiliser directement updateQuantity ou addItem pour simplicité maximale
+      if (existingItemIndex !== -1) {
+        // Produit existant : mettre à jour la quantité
+        const currentQty = cart.items[existingItemIndex].quantity;
+        updateQuantity(existingItemIndex, currentQty + quantity);
+      } else {
+        // Nouveau produit : ajouter au panier avec quantité exacte
+        addItem(product, quantity, selectedVariation || undefined);
+      }
+      
+      // Confirmer visuellement l'action réussie
       setIsAddedToCart(true);
+    } catch (error) {
+      console.error("Erreur lors de l'ajout au panier:", error);
+    } finally {
+      // Toujours réactiver le bouton et masquer la confirmation après délai
+      setTimeout(() => setIsAddingToCart(false), 500);
       setTimeout(() => setIsAddedToCart(false), 2000);
     }
   };
@@ -270,15 +297,21 @@ export default function ProductDetailView({ product, relatedProducts, categories
                 </div>
 
                 <button
-                  disabled={!isInStock()}
-                  onClick={handleAddToCart}
+                  disabled={!isInStock() || isAddingToCart}
+                  onPointerDown={handleAddToCart} 
                   className={`flex-1 px-6 py-3 rounded-md font-medium text-white transition-colors ${
-                    isInStock()
+                    isInStock() && !isAddingToCart
                       ? 'bg-primary hover:bg-primary-dark'
                       : 'bg-neutral-400 cursor-not-allowed'
                   }`}
                 >
-                  {isAddedToCart ? 'Produit ajouté ✓' : isInStock() ? 'Ajouter au panier' : 'Produit épuisé'}
+                  {isAddedToCart 
+                    ? 'Produit ajouté ✓' 
+                    : isAddingToCart 
+                      ? 'Ajout en cours...' 
+                      : isInStock() 
+                        ? 'Ajouter au panier' 
+                        : 'Produit épuisé'}
                 </button>
               </div>
 

@@ -1,0 +1,42 @@
+/**
+ * Configuration des points d'entrée API selon l'environnement
+ */
+
+interface ApiConfig {
+  baseUrl: string;
+  endpoints: {
+    orders: string;
+    payment: string;
+    paymentVerify: string;
+  };
+}
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+
+// URL de base en fonction de l'environnement
+// En développement local, on doit pointer explicitement vers le backend (port 3000)
+const baseUrl = isDevelopment || isLocalhost
+  ? 'http://localhost:3000' // URL explicite vers le backend en développement local
+  : process.env.NEXT_PUBLIC_API_URL || ''; // URL déployée en production
+
+// Log pour débogage
+if (typeof window !== 'undefined') {
+  console.log('Configuration API initialisée:', {
+    isDevelopment,
+    isLocalhost,
+    baseUrl
+  });
+}
+
+const apiConfig: ApiConfig = {
+  baseUrl,
+  endpoints: {
+    // Endpoints pour gérer les commandes et paiements
+    orders: `${baseUrl}/api/orders`,
+    payment: `${baseUrl}/api/payment/create`,
+    paymentVerify: `${baseUrl}/api/payment/verify`,
+  }
+};
+
+export default apiConfig;

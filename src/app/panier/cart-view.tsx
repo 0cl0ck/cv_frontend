@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCartContext } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
+import apiConfig from '@/config/api';
 
 export default function CartView() {
   const { cart, updateQuantity, removeItem, clearCart } = useCartContext();
@@ -142,87 +143,68 @@ export default function CartView() {
       const totalCents = cart.subtotalCents + shippingCostCents;
       const total = totalCents / 100;
       
-      // Créer l'objet commande
-      const orderData = {
-        items: cart.items.map((item) => ({
-          productId: item.productId,
-          variantId: item.variantId,
-          title: item.name,
-          price: item.price, // Prix en euros pour l'affichage
-          priceCents: item.priceCents, // Prix en centimes pour les calculs
-          quantity: item.quantity,
-          attributes: {}
-        })),
-        guestInformation: {
-          email: customerInfo.email,
-          firstName: customerInfo.firstName,
-          lastName: customerInfo.lastName,
-          phone: customerInfo.phone
+      // Créer l'objet commande et paiement combiné
+      const checkoutData = {
+        order: {
+          items: cart.items.map((item) => ({
+            productId: item.productId,
+            variantId: item.variantId,
+            title: item.name,
+            price: item.price, // Prix en euros pour l'affichage
+            priceCents: item.priceCents, // Prix en centimes pour les calculs
+            quantity: item.quantity,
+            attributes: {}
+          })),
+          guestInformation: {
+            email: customerInfo.email,
+            firstName: customerInfo.firstName,
+            lastName: customerInfo.lastName,
+            phone: customerInfo.phone
+          },
+          billingAddress: {
+            name: `${customerInfo.firstName} ${customerInfo.lastName}`,
+            line1: customerInfo.address,
+            line2: customerInfo.addressLine2 || "",
+            city: customerInfo.city,
+            postalCode: customerInfo.postalCode,
+            country: customerInfo.country
+          },
+          shippingAddress: {
+            name: `${customerInfo.firstName} ${customerInfo.lastName}`,
+            line1: customerInfo.address,
+            line2: customerInfo.addressLine2 || "",
+            city: customerInfo.city,
+            postalCode: customerInfo.postalCode,
+            country: customerInfo.country
+          },
+          shipping: {
+            method: "67fffcd911f3717499195edf", // ID livraison standard
+            cost: shippingCost
+          },
+          notes: ""
         },
-        billingAddress: {
-          name: `${customerInfo.firstName} ${customerInfo.lastName}`,
-          line1: customerInfo.address,
-          line2: customerInfo.addressLine2 || "",
-          city: customerInfo.city,
-          postalCode: customerInfo.postalCode,
-          country: customerInfo.country
-        },
-        shippingAddress: {
-          name: `${customerInfo.firstName} ${customerInfo.lastName}`,
-          line1: customerInfo.address,
-          line2: customerInfo.addressLine2 || "",
-          city: customerInfo.city,
-          postalCode: customerInfo.postalCode,
-          country: customerInfo.country
-        },
-        shipping: {
-          method: "67fffcd911f3717499195edf", // ID livraison standard
-          cost: shippingCost
-        },
-        notes: ""
+        payment: {
+          amount: total,
+          amountCents: totalCents,
+          subtotal: cart.subtotal,
+          subtotalCents: cart.subtotalCents,
+          shippingCost: shippingCost,
+          shippingCostCents: shippingCostCents,
+          customerEmail: customerInfo.email,
+          customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
+          customerPhone: customerInfo.phone
+        }
       };
       
-      console.log('Création de la commande...', orderData);
+      console.log('Initialisation du checkout...', checkoutData);
       
-      // Créer la commande
-      const orderResponse = await fetch('/api/orders', {
+      // Utilisation du point d'entrée unifié pour la création de commande et l'initialisation du paiement
+      const paymentResponse = await fetch(apiConfig.endpoints.payment, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(orderData)
-      });
-      
-      const order = await orderResponse.json();
-      
-      if (!order.success) {
-        throw new Error(`Erreur: ${order.message || 'Erreur lors de la création de la commande'}`);
-      }
-      
-      console.log('Commande créée:', order.data);
-      
-      // Préparer les données de paiement
-      const paymentData = {
-        amount: total,
-        amountCents: totalCents,
-        subtotal: cart.subtotal,
-        subtotalCents: cart.subtotalCents,
-        shippingCost: shippingCost,
-        shippingCostCents: shippingCostCents,
-        customerEmail: customerInfo.email,
-        customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
-        customerPhone: customerInfo.phone
-      };
-      
-      console.log('Données de paiement:', paymentData);
-      
-      // Initialiser le paiement
-      const paymentResponse = await fetch('/api/payment/direct', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify(checkoutData)
       });
 
       if (!paymentResponse.ok) {
@@ -232,11 +214,15 @@ export default function CartView() {
       
       const paymentResult = await paymentResponse.json();
       
+      // Afficher l'URL complète pour débogage
+      console.log('PAYMENT URL RECEIVED:', paymentResult.smartCheckoutUrl);
+      
       if (paymentResult.smartCheckoutUrl) {
         // Vider le panier avant de rediriger
         clearCart();
         
-        // Rediriger vers la page de paiement
+        // Rediriger vers la page de paiement SANS forçage de demo
+        console.log('REDIRECTING TO PAYMENT:', paymentResult.smartCheckoutUrl);
         window.location.href = paymentResult.smartCheckoutUrl;
       } else {
         throw new Error("URL de paiement non reçue");

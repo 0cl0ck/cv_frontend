@@ -73,8 +73,27 @@ export const useCart = () => {
     }
   }, [cart, isLoading]);
 
-  // Ajouter un produit au panier
+  // Ajouter un produit au panier - Version simplifiée et robuste qui remplace toujours la quantité
   const addItem = (product: Product, quantity: number = 1, variant?: ProductVariation) => {
+    // Créer l'objet item pour le produit à ajouter
+    const price = variant?.price || product.price || 0;
+    const priceCents = eurosToCents(price);
+    
+    const newItem: CartItem = {
+      productId: product.id,
+      name: product.name,
+      price: price,
+      priceCents: priceCents,
+      quantity, // Utiliser directement la quantité spécifiée sans condition
+      weight: variant?.weight,
+      image: product.mainImage?.url,
+      slug: product.slug
+    };
+    
+    if (variant) {
+      newItem.variantId = variant.id;
+    }
+    
     setCart(prevCart => {
       // Vérifier si le produit est déjà dans le panier
       const existingItemIndex = prevCart.items.findIndex(item => 
@@ -82,40 +101,25 @@ export const useCart = () => {
         (!variant || item.variantId === variant.id)
       );
 
+      // Créer un nouveau tableau d'items
       let newItems;
-
+      
       if (existingItemIndex !== -1) {
-        // Mettre à jour la quantité si le produit existe déjà
+        // Si le produit existe déjà, créer une copie et remplacer l'item
         newItems = [...prevCart.items];
-        newItems[existingItemIndex].quantity += quantity;
+        newItems[existingItemIndex] = newItem;
       } else {
-        // Ajouter un nouveau produit
-        const price = variant?.price || product.price || 0;
-        const priceCents = eurosToCents(price);
-        
-        const newItem: CartItem = {
-          productId: product.id,
-          name: product.name,
-          price: price,
-          priceCents: priceCents,
-          quantity,
-          weight: variant?.weight,
-          image: product.mainImage?.url,
-          slug: product.slug
-        };
-
-        if (variant) {
-          newItem.variantId = variant.id;
-        }
-
+        // Si c'est un nouveau produit, l'ajouter au tableau
         newItems = [...prevCart.items, newItem];
       }
-
+      
+      // Calculer les totaux
       const subtotalCents = calculateSubtotalCents(newItems);
       const subtotal = centsToEuros(subtotalCents);
       const totalCents = calculateTotalCents(subtotalCents, prevCart.shipping);
       const total = centsToEuros(totalCents);
-
+      
+      // Retourner le panier mis à jour
       return {
         ...prevCart,
         items: newItems,
@@ -130,16 +134,26 @@ export const useCart = () => {
   // Mettre à jour la quantité d'un produit
   const updateQuantity = (index: number, quantity: number) => {
     if (quantity < 1) return;
-
+    
     setCart(prevCart => {
+      if (index < 0 || index >= prevCart.items.length) return prevCart;
+      
+      // Créer une copie du tableau d'items
       const newItems = [...prevCart.items];
-      newItems[index].quantity = quantity;
-
+      
+      // Mettre à jour la quantité
+      newItems[index] = {
+        ...newItems[index],
+        quantity: quantity
+      };
+      
+      // Calculer les totaux
       const subtotalCents = calculateSubtotalCents(newItems);
       const subtotal = centsToEuros(subtotalCents);
       const totalCents = calculateTotalCents(subtotalCents, prevCart.shipping);
       const total = centsToEuros(totalCents);
-
+      
+      // Retourner le panier mis à jour
       return {
         ...prevCart,
         items: newItems,

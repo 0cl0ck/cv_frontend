@@ -6,6 +6,7 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
+  // Réactivé après avoir résolu le problème d'ajout au panier
   reactStrictMode: true,
   images: {
     remotePatterns: [
