@@ -21,19 +21,22 @@ function PaymentContent() {
   useEffect(() => {
     async function verifyPayment() {
       try {
-        // Récupérer l'orderCode des paramètres d'URL
-        const orderCode = searchParams.get('orderCode') || searchParams.get('t');
+        // Récupérer le transactionId des paramètres d'URL (paramètre 't')
+        const transactionId = searchParams.get('t');
         
-        if (!orderCode) {
-          setError('Référence de commande manquante');
+        if (!transactionId) {
+          setError('Référence de transaction manquante');
           setIsLoading(false);
           return;
         }
 
-        // URL de l'API de vérification du paiement
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-        const response = await fetch(`${API_URL}/payment/verify/${orderCode}`, {
-          cache: 'no-store'
+        // URL de l'API de vérification du paiement - corriger le port et le chemin
+        // Attention : le chemin correct est /api/payment/verify
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        console.log(`Vérification du paiement avec l'URL: ${API_URL}/api/payment/verify/${transactionId}`);
+        const response = await fetch(`${API_URL}/api/payment/verify/${transactionId}`, {
+          cache: 'no-store',
+          mode: 'cors' // Explicitement demander le mode CORS
         });
 
         if (!response.ok) {
