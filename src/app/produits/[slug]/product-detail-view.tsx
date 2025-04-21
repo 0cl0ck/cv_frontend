@@ -18,7 +18,7 @@ type Props = {
 // Les fonctions extractDescription et extractTextFromRichTextNodes ont été remplacées par le composant RichTextRenderer
 
 export default function ProductDetailView({ product, relatedProducts, categories }: Props) {
-  const { addItem, updateQuantity, removeItem, cart } = useCartContext();
+  const { addItem, updateQuantity, cart } = useCartContext();
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
