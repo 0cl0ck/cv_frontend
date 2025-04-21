@@ -20,10 +20,8 @@ const baseUrl = isDevelopment || isLocalhost
   ? 'http://localhost:3000' // URL explicite vers le backend en développement local
   : process.env.NEXT_PUBLIC_API_URL || 'https://api.chanvre-vert.fr'; // URL déployée en production
 
-// Chemin de base pour les API endpoints - évite le double /api en production
-const apiBasePath = isDevelopment || isLocalhost
-  ? '/api' // En développement, on a besoin du préfixe /api
-  : ''; // En production avec api.chanvre-vert.fr, pas besoin de préfixer avec /api
+// Chemin de base pour les API endpoints - le préfixe /api/ est toujours nécessaire
+const apiBasePath = '/api'; // En production, les routes avec le préfixe /api/ sont attendues
 
 // Log pour débogage
 // if (typeof window !== 'undefined') {
