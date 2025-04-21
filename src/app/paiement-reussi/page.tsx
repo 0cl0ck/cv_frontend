@@ -79,7 +79,7 @@ function PaymentContent() {
           </div>
           
           <p className="text-gray-600 mb-8 text-center">
-            Merci d'avoir commandé chez Chanvre Vert! <br /> Vous recevrez votre commande dans les plus brefs délais.
+            Merci d&apos;avoir commandé chez Chanvre Vert! <br /> Vous recevrez votre commande dans les plus brefs délais.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
