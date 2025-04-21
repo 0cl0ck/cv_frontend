@@ -75,14 +75,11 @@ function PaymentContent() {
             {paymentInfo.orderNumber && (
               <p className="mt-2">Numéro de commande: <span className="font-bold">{paymentInfo.orderNumber}</span></p>
             )}
-            {paymentInfo.amount && (
-              <p className="mt-1">Montant payé: <span className="font-bold">{paymentInfo.amount.toFixed(2)} €</span></p>
-            )}
+          
           </div>
           
           <p className="text-gray-600 mb-8 text-center">
-            Nous avons envoyé un email de confirmation à l&apos;adresse fournie lors de votre commande.
-            Vous pouvez suivre l&apos;état de votre commande depuis votre compte client.
+            Merci d'avoir commandé chez Chanvre Vert! Vous recevrez votre commande dans les plus brefs délais.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
