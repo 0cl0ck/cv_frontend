@@ -50,7 +50,7 @@ function ForgotPasswordForm() {
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" role="alert">
           <p className="font-bold">Demande envoyée</p>
           <p className="text-sm">
-            Si un compte est associé à l'adresse <span className="font-semibold">{email}</span>, 
+            Si un compte est associé à l&apos;adresse <span className="font-semibold">{email}</span>, 
             vous recevrez un email avec les instructions pour réinitialiser votre mot de passe.
           </p>
           <p className="mt-4 text-center">

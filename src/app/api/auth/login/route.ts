@@ -31,17 +31,35 @@ export async function POST(request: NextRequest) {
     // Créer la réponse avec les cookies
     const frontendResponse = NextResponse.json(data);
 
-    // Ajouter le cookie d'authentification (remplacer par la vraie logique de votre application)
+    // Ajouter le cookie d'authentification
     if (data.token) {
+      // Log pour débogage
+      console.log('Token reçu du backend, longueur:', data.token.length);
+      
+      // Configurer le cookie pour qu'il soit accessible au JavaScript sur le client
+      // Cela permet de déboguer mais n'est pas recommandé en production
       frontendResponse.cookies.set({
         name: 'payload-token',
         value: data.token,
         path: '/',
-        httpOnly: true,
+        httpOnly: false, // Permettre l'accès via JavaScript pour le débogage
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 7, // 7 jours
-        sameSite: 'strict',
+        sameSite: 'lax', // Permettre l'envoi lors de la navigation depuis d'autres domaines
       });
+      
+      // Ajouter aussi un cookie non-httpOnly pour pouvoir vérifier sa présence côté client
+      frontendResponse.cookies.set({
+        name: 'auth-status',
+        value: 'logged-in',
+        path: '/',
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7, // 7 jours
+        sameSite: 'lax',
+      });
+      
+      console.log('Cookies configurés dans la réponse');
     }
 
     return frontendResponse;

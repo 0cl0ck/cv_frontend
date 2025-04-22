@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
     } catch (directApiError) {
       console.log('Tentative via API PayloadCMS directe');
       console.log('DIAGNOSTIC: Essai PayloadCMS avec des options de débogage');
+      console.log(directApiError);
       
       // Essayer directement l'API PayloadCMS pour customers avec des paramètres de débogage
       apiResponse = await fetch(`${backendUrl}/api/customers${testWithoutEmail ? '?draft=true' : ''}`, {
@@ -100,7 +101,8 @@ export async function POST(request: NextRequest) {
     interface PayloadError {
       message?: string;
       field?: string;
-      [key: string]: any;
+      // Remplacer any par un type union plus précis pour l'index signature
+      [key: string]: string | number | boolean | undefined | null | object;
     }
     
     // Analyse spécifique pour notre débogage

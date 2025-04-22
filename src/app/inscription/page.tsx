@@ -191,7 +191,7 @@ function RegisterForm() {
               required
             />
             <label htmlFor="termsAccepted" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-              J'accepte les <Link href="/conditions-generales" className="text-green-600 hover:text-green-500">conditions générales de vente</Link>
+              J&apos;accepte les <Link href="/conditions-generales" className="text-green-600 hover:text-green-500">conditions générales de vente</Link>
             </label>
           </div>
           
@@ -206,7 +206,7 @@ function RegisterForm() {
               required
             />
             <label htmlFor="privacyAccepted" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-              J'accepte la <Link href="/politique-confidentialite" className="text-green-600 hover:text-green-500">politique de confidentialité</Link>
+              J&apos;accepte la <Link href="/politique-confidentialite" className="text-green-600 hover:text-green-500">politique de confidentialité</Link>
             </label>
           </div>
         </div>

@@ -55,6 +55,8 @@ function LoginForm() {
     setIsLoading(true);
     setError('');
 
+
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -74,8 +76,8 @@ function LoginForm() {
         throw new Error(data.error || 'Erreur de connexion');
       }
 
-      // Connexion réussie, rediriger vers la page d'accueil
-      router.push('/');
+      // Connexion réussie, rediriger vers le tableau de bord client
+      router.push('/compte');
       router.refresh(); // Pour rafraîchir les données de session
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -152,7 +154,7 @@ function LoginForm() {
       
       <div className="mt-4 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Vous n'avez pas de compte ?
+          Vous n&apos;avez pas de compte ?
           <Link href="/inscription" className="ml-1 text-green-600 hover:text-green-500 font-medium">
             Créer un compte
           </Link>

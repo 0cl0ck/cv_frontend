@@ -1,6 +1,6 @@
 'use client';
 
-import { IconLogin, IconMenu2, IconX } from "@tabler/icons-react";
+import { IconLogin, IconMenu2, IconUser, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -86,14 +86,14 @@ export default function Header() {
                 </Link> */}
               </nav>
               {/* Login button */}
-              <Link
-                href="/connexion"
+              <button
+                onClick={() => setShowAccountPopup(true)}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="md:mr-2 w-5 h-5" />
                 <span className="hidden md:inline">Connexion</span>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -126,13 +126,13 @@ export default function Header() {
 
             {/* Connexion à droite */}
             <div className="flex items-center justify-end">
-              <Link
-                href="/connexion"
+              <button
+                onClick={() => setShowAccountPopup(true)}
                 className="p-2 mr-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="w-5 h-5" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -191,7 +191,47 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Popup de compte client - Désactivé car nous avons maintenant une page dédiée */}
+      {/* Popup d'information sur les comptes clients à venir */}
+      {showAccountPopup && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000] p-4">
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button 
+              onClick={() => setShowAccountPopup(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              aria-label="Fermer"
+            >
+              <IconX className="w-5 h-5" />
+            </button>
+            
+            <div className="text-center mb-6">
+              <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-3 inline-flex items-center justify-center mb-4">
+                <IconUser className="w-8 h-8 text-green-600 dark:text-green-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Comptes clients bientôt disponibles</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Nous travaillons actuellement sur la mise en place des comptes clients.
+                Nous gardons vos emails lors du paiement et toutes vos commandes feront partie de vos informations de compte.
+                Cette fonctionnalité sera disponible très prochainement !
+              </p>
+            </div>
+            
+            <div className="mt-6 flex flex-col space-y-3">
+              <button
+                onClick={() => setShowAccountPopup(false)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                J'ai compris
+              </button>
+              <button
+                onClick={() => setShowAccountPopup(false)}
+                className="w-full text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium py-2 transition-colors"
+              >
+                Continuer mes achats
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Pas besoin de spacer ici car nous utilisons position relative pour les pages autres que Home */}
     </>
