@@ -18,6 +18,7 @@ type Props = {
 // Les fonctions extractDescription et extractTextFromRichTextNodes ont été remplacées par le composant RichTextRenderer
 
 export default function ProductDetailView({ product, relatedProducts, categories }: Props) {
+
   const { addItem, updateQuantity, cart } = useCartContext();
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
@@ -346,6 +347,69 @@ export default function ProductDetailView({ product, relatedProducts, categories
                         .map((cat: Category) => cat.name)
                         .join(', ')}
                     </span>
+                  </div>
+                )}
+                
+                {/* Détails du produit (Taux CBD, THC, etc.) */}
+                {product.productDetails && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                    {/* Taux de CBD */}
+                    {product.productDetails && typeof product.productDetails.cbdContent === 'number' && (
+                      <div className="flex items-center">
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Taux de CBD:</span>
+                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                          {product.productDetails.cbdContent}%
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Taux de THC */}
+                    {product.productDetails && typeof product.productDetails.thcContent === 'number' && (
+                      <div className="flex items-center">
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Taux de THC:</span>
+                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                          {product.productDetails.thcContent}%
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Type de souche */}
+                    {product.productDetails && typeof product.productDetails.strain === 'string' && product.productDetails.strain !== 'na' && (
+                      <div className="flex items-center">
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Type de souche:</span>
+                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                          {({
+                            'sativa': 'Sativa',
+                            'indica': 'Indica',
+                            'hybrid': 'Hybride'
+                          } as Record<string, string>)[product.productDetails.strain] || product.productDetails.strain}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Origine */}
+                    {product.productDetails && typeof product.productDetails.origin === 'string' && (
+                      <div className="flex items-center">
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Origine:</span>
+                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                          {product.productDetails.origin}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Mode de culture */}
+                    {product.productDetails && typeof product.productDetails.cultivation === 'string' && (
+                      <div className="flex items-center">
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Mode de culture:</span>
+                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                          {({
+                            'indoor': 'Indoor',
+                            'outdoor': 'Outdoor',
+                            'greenhouse': 'Greenhouse'
+                          } as Record<string, string>)[product.productDetails.cultivation] || product.productDetails.cultivation}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
