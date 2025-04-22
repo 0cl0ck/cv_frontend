@@ -34,12 +34,21 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'https://cv-backend-ezur.onrender.com/api/:path*',
-      },
-    ];
+    // En développement, utiliser le backend local (port 3000)
+    // En production, utiliser le backend déployé
+    return process.env.NODE_ENV === 'development'
+      ? [
+          {
+            source: '/api/:path*',
+            destination: 'http://localhost:3000/api/:path*',
+          },
+        ]
+      : [
+          {
+            source: '/api/:path*',
+            destination: 'https://cv-backend-ezur.onrender.com/api/:path*',
+          },
+        ];
   },
 };
 

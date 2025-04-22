@@ -86,14 +86,14 @@ export default function Header() {
                 </Link> */}
               </nav>
               {/* Login button */}
-              {/* <Link
-                href="/login"
+              <Link
+                href="/connexion"
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="md:mr-2 w-5 h-5" />
                 <span className="hidden md:inline">Connexion</span>
-              </Link> */}
+              </Link>
             </div>
           </div>
 
@@ -126,13 +126,13 @@ export default function Header() {
 
             {/* Connexion à droite */}
             <div className="flex items-center justify-end">
-              <button
-                onClick={() => setShowAccountPopup(true)}
+              <Link
+                href="/connexion"
                 className="p-2 mr-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="w-5 h-5" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -191,24 +191,7 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Popup de compte client */}
-      {showAccountPopup && (
-        <div className="fixed inset-0 bg-black/50 z-[1001] flex items-center justify-center p-4" onClick={() => setShowAccountPopup(false)}>
-          <div 
-            className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full transform transition-all" 
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Comptes clients</h3>
-            <p className="text-gray-700 mb-4">Les comptes clients arrivent bientôt ! Vos commandes sont compatibilisées avec votre email. Vous ne perdez pas vos avantages! Vous pourrez suivre vos commandes et bénéficier d&apos;offres personnalisées.</p>
-            <button
-              onClick={() => setShowAccountPopup(false)}
-              className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Fermer
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Popup de compte client - Désactivé car nous avons maintenant une page dédiée */}
       
       {/* Pas besoin de spacer ici car nous utilisons position relative pour les pages autres que Home */}
     </>
