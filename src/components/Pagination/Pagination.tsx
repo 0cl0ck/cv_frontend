@@ -6,18 +6,40 @@ import React from 'react';
 type Props = {
   currentPage: number;
   totalPages: number;
+  onPageChange?: (page: number) => void;
 };
 
-export const Pagination: React.FC<Props> = ({ currentPage, totalPages }) => {
+
+
+export const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageChange }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const handlePageChange = (page: number) => {
+    // Si une fonction onPageChange est fournie, l'utiliser (pagination côté client)
+    if (onPageChange) {
+      onPageChange(page);
+      return;
+    }
+    
+    // Sinon, utiliser la navigation standard (pagination côté serveur)
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
-    router.push(`${pathname}?${params.toString()}`);
+    
+    // Construire la nouvelle URL
+    const newUrl = `${pathname}?${params.toString()}`;
+    
+    // Pour les pages de catégorie, forcer un rechargement complet avec window.location
+    // afin que les paramètres d'URL soient correctement transmis au serveur
+    if (pathname.includes('/produits/categorie/')) {
+      window.location.href = newUrl;
+    } else {
+      router.push(newUrl);
+    }
   };
+  
+
 
   // Ne pas afficher la pagination s'il n'y a qu'une seule page
   if (totalPages <= 1) return null;

@@ -220,7 +220,7 @@ export default function Header() {
                 onClick={() => setShowAccountPopup(false)}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
-                J'ai compris
+                J&apos;ai compris
               </button>
               <button
                 onClick={() => setShowAccountPopup(false)}

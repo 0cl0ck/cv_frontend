@@ -72,6 +72,8 @@ export type Product = {
   price?: number;
   stock?: number;
   sku?: string;
+  weight?: number; // Poids en grammes pour les produits simples
+  pricePerGram?: number; // Prix par gramme pour les produits simples (peut être calculé ou défini directement)
   createdAt?: string;
   updatedAt?: string;
   mainImage?: Media;
