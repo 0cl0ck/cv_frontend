@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -169,11 +169,23 @@ function LoginForm() {
   );
 }
 
+// Composant de chargement pour Suspense
+function LoginFormLoading() {
+  return (
+    <div className="w-full max-w-md bg-white dark:bg-neutral-800 rounded-lg shadow-md p-8 text-center">
+      <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      <p className="mt-4 text-gray-700 dark:text-gray-300">Chargement...</p>
+    </div>
+  );
+}
+
 // Main page component
 export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 px-4">
-      <LoginForm />
+      <Suspense fallback={<LoginFormLoading />}>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }

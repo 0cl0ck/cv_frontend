@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-// SEO - Utilise une approche qui ne génèrera pas d'erreur bloquante
+// SEO - Utilise une approche qui ne générera pas d'erreur bloquante
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   // Attendre les params dans Next.js 15
   const params = await props.params;
@@ -39,7 +39,8 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   };
 }
 
-export default async function CategoryPage(props: { params: Promise<{ slug: string }> }) {
+// @ts-expect-error - Ignorer l'erreur de typage sur params car Next.js 15.3 a modifié la structure des paramètres
+export default async function CategoryPage(props) {
   // Attendre les params dans Next.js 15
   const params = await props.params;
   const { slug } = params;

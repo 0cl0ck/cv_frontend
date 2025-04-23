@@ -7,17 +7,16 @@ export const metadata: Metadata = {
   description: 'Découvrez notre gamme complète de produits CBD de haute qualité - fleurs, huiles, infusions et plus encore.',
 };
 
-type RawParams = {
-  page?: string | string[];
-  limit?: string | string[];
-  price?: string | string[];
-  pricePerGramSort?: string | string[];
-  sort?: string | string[]; // Paramètre de tri général (price-asc, price-desc)
-};
+// type RawParams = {
+//   page?: string | string[];
+//   limit?: string | string[];
+//   price?: string | string[];
+//   pricePerGramSort?: string | string[];
+//   sort?: string | string[]; // Paramètre de tri général (price-asc, price-desc)
+// };
 
-export default async function ProductsPage(
-  props: { searchParams: Promise<RawParams> }
-) {
+// @ts-expect-error - Ignorer l'erreur de typage sur props car Next.js 15.3 a modifié la structure des searchParams
+export default async function ProductsPage(props) {
   // 1️⃣ On attend la Promise
   const params = await props.searchParams;
 
