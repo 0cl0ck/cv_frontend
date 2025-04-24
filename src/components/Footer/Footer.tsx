@@ -29,7 +29,7 @@ export default function Footer() {
   
   // Navigation items statiques
   const navItems = [
-    { label: 'À propos', url: '/about' },
+    { label: 'À propos', url: '/a-propos' },
     { label: 'Contact', url: '/contact' },
     { label: 'Mentions légales', url: '/legal' },
   ];
