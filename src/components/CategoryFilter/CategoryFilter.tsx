@@ -40,7 +40,6 @@ export const CategoryFilter: React.FC<Props> = ({ categories, activeCategory, is
 
   return (
     <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-md">
-      <h3 className="font-semibold text-lg mb-4 text-neutral-900 dark:text-white">Catégories</h3>
       <ul className="space-y-2">
         <li>
           <Link
