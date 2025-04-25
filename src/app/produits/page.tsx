@@ -75,11 +75,11 @@ export default async function ProductsPage(props) {
   // Vérification critique : s'assurer que shouldSortByPrice est bien détecté quand price-asc/price-desc est demandé
   console.log('DEBUG - shouldSortByPrice:', shouldSortByPrice, 'sortParam:', sortParam);
   
-  // TOUJOURS récupérer TOUS les produits quand on a besoin d'un tri par prix
-  // car notre logique de tri spéciale (avec prix au gramme en premier) n'est pas disponible côté serveur
+  // Récupérer TOUS les produits (en commençant par page 1) quand on a besoin d'un tri par prix
+  // Sinon utiliser la pagination normale avec currentPage
   const productsData = await getProducts({
-    page: 1, // Toujours commencer à la première page pour tout tri de prix
-    limit: shouldSortByPrice ? 1000 : limitNum, // Grande limite pour avoir TOUS les produits si tri par prix
+    page: needsGlobalSorting ? 1 : currentPage, // Utiliser currentPage pour la pagination standard, page 1 pour le tri global
+    limit: needsGlobalSorting ? 1000 : limitNum, // Grande limite pour avoir TOUS les produits si tri global
     sort: '-createdAt', // On ignore le tri serveur pour prix, on le fera en client
     minPrice,
     maxPrice,

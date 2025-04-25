@@ -30,9 +30,9 @@ export const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageCha
     // Construire la nouvelle URL
     const newUrl = `${pathname}?${params.toString()}`;
     
-    // Pour les pages de catégorie, forcer un rechargement complet avec window.location
-    // afin que les paramètres d'URL soient correctement transmis au serveur
-    if (pathname.includes('/produits/categorie/')) {
+    // Pour les pages de catégorie et la page principale de produits, forcer un rechargement complet
+    // avec window.location afin que les paramètres d'URL soient correctement transmis au serveur
+    if (pathname.includes('/produits/categorie/') || pathname === '/produits') {
       window.location.href = newUrl;
     } else {
       router.push(newUrl);
