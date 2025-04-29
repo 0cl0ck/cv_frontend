@@ -33,7 +33,8 @@ function PaymentContent() {
         // URL de l'API de vérification du paiement - corriger le port et le chemin
         // Attention : le chemin correct est /api/payment/verify
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        console.log(`Vérification du paiement avec l'URL: ${API_URL}/api/payment/verify/${transactionId}`);
+        console.log(`[TEST-PAIEMENT] URL API utilisée: ${API_URL}`);
+        console.log(`[TEST-PAIEMENT] Vérification complète: ${API_URL}/api/payment/verify/${transactionId}`);
         const response = await fetch(`${API_URL}/api/payment/verify/${transactionId}`, {
           cache: 'no-store',
           mode: 'cors' // Explicitement demander le mode CORS
@@ -44,6 +45,8 @@ function PaymentContent() {
         }
 
         const data = await response.json();
+        console.log('[TEST-PAIEMENT] Réponse API:', data);
+        console.log('[TEST-PAIEMENT] Statut reçu:', data.status);
         setPaymentInfo(data);
         setIsLoading(false);
       } catch (error) {
