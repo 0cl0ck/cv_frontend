@@ -39,16 +39,28 @@ const nextConfig = {
     // En production, utiliser le backend déployé
     return process.env.NODE_ENV === 'development'
       ? [
+          // Exclure la route /api/auth gérée par le frontend
+          {
+            source: '/api/auth',
+            destination: '/api/auth',
+          },
+          // Toutes les autres routes API sont redirigées vers le backend
           {
             source: '/api/:path*',
             destination: 'http://localhost:3000/api/:path*',
-          },
+          }
         ]
       : [
+          // Exclure la route /api/auth gérée par le frontend
+          {
+            source: '/api/auth',
+            destination: '/api/auth',
+          },
+          // Toutes les autres routes API sont redirigées vers le backend
           {
             source: '/api/:path*',
             destination: 'https://cv-backend-ezur.onrender.com/api/:path*',
-          },
+          }
         ];
   },
 };
