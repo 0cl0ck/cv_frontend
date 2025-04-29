@@ -26,17 +26,63 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        // Vérifier l'état de l'authentification
-        const response = await fetch('/api/auth/me');
+        // 1. D'abord vérifier si le cookie d'authentification existe
+        const cookies = document.cookie.split(';');
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
         
-        if (!response.ok) {
-          // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+        if (!authCookie) {
+          console.log('Aucun cookie d\'authentification trouvé');
           router.push('/connexion');
           return;
         }
         
-        const userData = await response.json();
-        setUser(userData.user);
+        // 2. Extraire le token JWT du cookie
+        const token = authCookie.split('=')[1]?.trim();
+        
+        // 3. Décoder le payload JWT (sans vérification de signature)
+        // Cette étape est utilisée pour récupérer l'ID et l'email en cas d'échec de l'API
+        const tokenParts = token.split('.');
+        if (tokenParts.length !== 3) {
+          console.error('Format de token JWT invalide');
+          router.push('/connexion');
+          return;
+        }
+        
+        // Décoder le payload (deuxième partie du token)
+        const payloadBase64 = tokenParts[1];
+        const decodedPayload = JSON.parse(atob(payloadBase64));
+        
+        // 4. Tenter de récupérer les vraies données utilisateur depuis le backend
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        const backendResponse = await fetch(`${backendUrl}/api/customers/${decodedPayload.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (backendResponse.ok) {
+          // Si l'appel au backend réussit, utiliser les données complètes
+          const backendData = await backendResponse.json();
+          setUser({
+            id: backendData.id,
+            email: backendData.email,
+            firstName: backendData.firstName,
+            lastName: backendData.lastName,
+            createdAt: backendData.createdAt
+          });
+        } else {
+          // Fallback: utiliser les données minimales du token
+          console.warn('Impossible de récupérer les données complètes du backend, utilisation des données décodées du token');
+          setUser({
+            id: decodedPayload.id,
+            email: decodedPayload.email,
+            firstName: 'Utilisateur',
+            lastName: 'Connecté',
+            createdAt: new Date().toISOString()
+          });
+        }
         
         // Charger les commandes de l'utilisateur (à implémenter plus tard)
         // const ordersResponse = await fetch('/api/orders/me');
@@ -46,6 +92,9 @@ export default function DashboardPage() {
         // }
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
+        setLoading(false);
+        router.push('/connexion');
+        return;
       } finally {
         setLoading(false);
       }
