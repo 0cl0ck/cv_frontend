@@ -140,7 +140,7 @@ export default function CartView() {
           ? 0
           : 495;
       
-      const totalCents = cart.subtotalCents + shippingCostCents;
+      const totalCents = cart.subtotalCents ;
       const total = totalCents / 100;
       
       // Créer l'objet commande et paiement combiné
