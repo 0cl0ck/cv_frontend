@@ -35,7 +35,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="mt-auto bg-gradient-to-r from-[#126D62] to-[#002D4C] text-white w-full">
+    <footer className="mt-auto bg-[#002830] text-white w-full">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8 gap-8 flex flex-col md:flex-row md:justify-between">
         <Link className="flex items-center" href="/">
           <div className="flex items-center">

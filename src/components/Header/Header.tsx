@@ -48,7 +48,7 @@ export default function Header() {
         className={`w-full z-50 transition-all duration-300 ${
           isHomePage
             ? `fixed top-0 left-0 ${isScrolled ? 'bg-background/70 backdrop-blur-lg shadow-md' : 'bg-transparent'}`
-            : 'relative bg-neutral-900 text-white shadow-md'
+            : 'relative bg-[#00343f] text-white shadow-md'
         }`}
       >
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -147,11 +147,11 @@ export default function Header() {
       />
 
       <div
-        className={`md:hidden fixed top-0 left-0 z-[1000] w-64 h-screen bg-neutral-900 shadow-lg transform transition-all duration-500 ease-in-out ${
+        className={`md:hidden fixed top-0 left-0 z-[1000] w-64 h-screen bg-[#00343f] shadow-lg transform transition-all duration-500 ease-in-out ${
           menuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex justify-between items-center p-4 border-b border-neutral-800">
+        <div className="flex justify-between items-center p-4 border-b border-[#004a59]">
           <Image 
             src="/logo.png" 
             alt="Chanvre Vert Logo" 
