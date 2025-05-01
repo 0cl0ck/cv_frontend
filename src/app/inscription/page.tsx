@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 // Formulaire d'inscription
 function RegisterForm() {
@@ -89,11 +90,11 @@ function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white dark:bg-neutral-800 rounded-lg shadow-md p-8">
-      <h1 className="text-2xl font-bold mb-6 text-center">Créer un compte</h1>
+    <div className="w-full max-w-md bg-[#002930] rounded-lg shadow-md p-8 border border-[#155757]">
+      <h1 className="text-2xl font-bold mb-6 text-center text-[#D1D5DB]">Créer un compte</h1>
       
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+        <div className="bg-red-900 bg-opacity-25 text-red-300 px-4 py-3 rounded mb-4" role="alert">
           <span className="block sm:inline">{error}</span>
         </div>
       )}
@@ -101,7 +102,7 @@ function RegisterForm() {
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="firstName" className="block text-sm font-medium text-[#BEC3CA] mb-1">
               Prénom
             </label>
             <input
@@ -110,12 +111,12 @@ function RegisterForm() {
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
               required
             />
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="lastName" className="block text-sm font-medium text-[#BEC3CA] mb-1">
               Nom
             </label>
             <input
@@ -124,14 +125,14 @@ function RegisterForm() {
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
               required
             />
           </div>
         </div>
         
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-[#BEC3CA] mb-1">
             Email
           </label>
           <input
@@ -140,13 +141,13 @@ function RegisterForm() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
+            className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
             required
           />
         </div>
         
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-[#BEC3CA] mb-1">
             Mot de passe
           </label>
           <input
@@ -155,17 +156,17 @@ function RegisterForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
+            className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
             required
             minLength={8}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-[#8B93A0]">
             8 caractères minimum, incluant lettres, chiffres et caractères spéciaux
           </p>
         </div>
         
         <div className="mb-6">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#BEC3CA] mb-1">
             Confirmer le mot de passe
           </label>
           <input
@@ -174,7 +175,7 @@ function RegisterForm() {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
+            className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
             required
           />
         </div>
@@ -187,11 +188,11 @@ function RegisterForm() {
               name="termsAccepted"
               checked={formData.gdprConsent.termsAccepted}
               onChange={handleChange}
-              className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              className="mt-1 h-4 w-4 text-[#10B981] focus:ring-[#10B981] bg-[#00424A] border-[#155757] rounded"
               required
             />
-            <label htmlFor="termsAccepted" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-              J&apos;accepte les <Link href="/conditions-generales" className="text-green-600 hover:text-green-500">conditions générales de vente</Link>
+            <label htmlFor="termsAccepted" className="ml-2 block text-sm text-[#BEC3CA]">
+              J&apos;accepte les <Link href="/conditions-generales" className="text-[#10B981] hover:text-[#34D399]">conditions générales de vente</Link>
             </label>
           </div>
           
@@ -202,11 +203,11 @@ function RegisterForm() {
               name="privacyAccepted"
               checked={formData.gdprConsent.privacyAccepted}
               onChange={handleChange}
-              className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+              className="mt-1 h-4 w-4 text-[#10B981] focus:ring-[#10B981] bg-[#00424A] border-[#155757] rounded"
               required
             />
-            <label htmlFor="privacyAccepted" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-              J&apos;accepte la <Link href="/politique-confidentialite" className="text-green-600 hover:text-green-500">politique de confidentialité</Link>
+            <label htmlFor="privacyAccepted" className="ml-2 block text-sm text-[#BEC3CA]">
+              J&apos;accepte la <Link href="/politique-confidentialite" className="text-[#10B981] hover:text-[#34D399]">politique de confidentialité</Link>
             </label>
           </div>
         </div>
@@ -214,14 +215,11 @@ function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+          className="w-full bg-[#007A72] hover:bg-[#059669] text-[#D1D5DB] font-medium py-2 px-4 rounded-md focus:outline-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+              <Loader2 size={20} className="animate-spin mr-2" />
               Inscription en cours...
             </span>
           ) : (
@@ -231,9 +229,9 @@ function RegisterForm() {
       </form>
       
       <div className="mt-4 text-center">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-[#BEC3CA]">
           Vous avez déjà un compte ?
-          <Link href="/connexion" className="ml-1 text-green-600 hover:text-green-500 font-medium">
+          <Link href="/connexion" className="ml-1 text-[#10B981] hover:text-[#34D399] font-medium">
             Se connecter
           </Link>
         </p>
@@ -245,7 +243,7 @@ function RegisterForm() {
 // Main page component
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#001A1F] px-4">
       <RegisterForm />
     </div>
   );
