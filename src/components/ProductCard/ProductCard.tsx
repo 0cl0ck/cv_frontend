@@ -5,7 +5,7 @@ import { Media, Product } from '@/types/product';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 
 type Props = {
   product: Product;
@@ -14,6 +14,8 @@ type Props = {
 };
 
 export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge = true }) => {
+  // État pour gérer le survol
+  const [isHovered, setIsHovered] = useState(false);
   // Log de débogage pour vérifier les propriétés du produit
   console.log(`ProductCard - Produit: ${product.name}`, {
     id: product.id,
@@ -141,52 +143,84 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   };
 
   return (
-    <motion.div
+    <motion.div 
+      className="group relative flex h-full flex-col overflow-hidden rounded-lg border dark:border-neutral-800 bg-background shadow-sm transition-all hover:shadow-md"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-      className="group relative flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-lg dark:bg-neutral-900"
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      whileHover={{ scale: 1.03 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
-      <Link href={`/produits/${product.slug}`} className="relative aspect-square overflow-hidden">
-        {mainImage && (
-          <>
-            <Image
-              src={getImageUrl(mainImage)}
-              alt={product.name}
-              fill
-              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              priority={index < 4}
-            />
-            {hoverImage && (
+      <Link 
+        href={`/produits/${product.slug}`} 
+        className="overflow-hidden relative aspect-square bg-neutral-100 dark:bg-neutral-800"
+      >
+        {/* Container de l'image avec animation d'échelle au survol */}
+        <motion.div 
+          className="w-full h-full"
+          animate={{ scale: isHovered ? 1.08 : 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          {mainImage && (
+            <>
               <Image
-                src={getImageUrl(hoverImage)}
-                alt={`${product.name} - Image secondaire`}
+                src={getImageUrl(mainImage)}
+                alt={product.name}
                 fill
-                sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                className="absolute inset-0 object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover object-center"
               />
-            )}
-          </>
-        )}
-        {product.isFeatured && showFeaturedBadge && (
-          <span className="absolute left-2 top-2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white">
-            Produit vedette
-          </span>
-        )}
+              {hoverImage && hoverImage.url && (
+                <Image
+                  src={getImageUrl(hoverImage)}
+                  alt={`${product.name} - image alternative`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover object-center opacity-0 transition-opacity group-hover:opacity-100"
+                />
+              )}
+            </>
+          )}
+        </motion.div>
+        
+        {/* Overlay qui apparaît au survol */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 0.7 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.div 
+            className="absolute bottom-4 left-0 right-0 text-center"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: isHovered ? 0 : 20, opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+          >
+            <span className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium">
+              Voir le produit
+            </span>
+          </motion.div>
+        </motion.div>
       </Link>
 
-      <div className="flex flex-1 flex-col p-4">
+      <motion.div 
+        className="flex flex-col flex-grow p-4 bg-[#004942] text-white"
+        animate={{ backgroundColor: isHovered ? '#005a57' : '#004942' }}
+        transition={{ duration: 0.3 }}
+      >
         <Link href={`/produits/${product.slug}`} className="mb-2 flex-1">
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">{product.name}</h3>
+          <motion.h3 
+            className="text-lg font-semibold text-white"
+            animate={{ color: isHovered ? 'rgb(16, 185, 129)' : '' }}
+            transition={{ duration: 0.2 }}
+          >
+            {product.name}
+          </motion.h3>
           {product.category && (
             <div className="mt-1 flex flex-wrap gap-1">
-              <span
-                className="text-sm text-neutral-600 dark:text-neutral-400"
-              >
-                {typeof product.category === 'string' 
-                  ? product.category 
-                  : product.category.name}
+              <span className="text-sm text-white/70">
+                {typeof product.category === 'string' ? product.category : product.category.name}
               </span>
             </div>
           )}
@@ -195,7 +229,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
         <div className="mt-2">
           {product.productType === 'simple' ? (
             <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-primary">
+              <span className="text-lg font-bold text-white">
                 {(() => {
                   const isWBC = isWeightBasedCategory();
                   const hasPPG = hasSimplePricePerGram();
@@ -224,7 +258,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             </div>
           ) : (
             <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-primary">
+              <span className="text-lg font-bold text-white">
                 {product.variants && product.variants.length > 0 ? (
                   isWeightBasedCategory() || product.variants.some(v => v.pricePerGram !== undefined || v.weight) ? (
                     /* Si pricePerGram est déjà défini dans les variants */
@@ -264,7 +298,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
