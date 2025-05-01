@@ -1,17 +1,40 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartContext } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import apiConfig from '@/config/api';
+import { MapPin, CheckCircle } from 'lucide-react';
+
+// Types pour les adresses
+type AddressType = 'shipping' | 'billing' | 'both';
+
+interface Address {
+  id?: string;
+  type: AddressType;
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+}
 
 export default function CartView() {
   const { cart, updateQuantity, removeItem, clearCart } = useCartContext();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutMode, setCheckoutMode] = useState(false);
   const isSubmitting = useRef(false);
+  
+  // État pour les adresses enregistrées
+  const [userAddresses, setUserAddresses] = useState<Address[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [customerInfo, setCustomerInfo] = useState({
     email: '',
     firstName: '',
@@ -42,6 +65,98 @@ export default function CartView() {
   // Supprimer un article
   const handleRemoveItem = (index: number) => {
     removeItem(index);
+  };
+
+  // Récupérer les adresses enregistrées du client s'il est connecté
+  useEffect(() => {
+    async function fetchUserAddresses() {
+      // Ne récupérer les adresses que si le mode checkout est activé
+      if (!checkoutMode) return;
+      
+      try {
+        setLoadingAddresses(true);
+        
+        // Vérifier si le cookie d'authentification existe
+        const cookies = document.cookie.split(';');
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
+        
+        if (!authCookie) {
+          // Utilisateur non connecté
+          setIsAuthenticated(false);
+          setLoadingAddresses(false);
+          return;
+        }
+        
+        // Extraire le token JWT du cookie
+        const token = authCookie.split('=')[1]?.trim();
+        
+        // Décoder le payload JWT (sans vérification de signature)
+        const tokenParts = token.split('.');
+        if (tokenParts.length !== 3) {
+          console.error('Format de token JWT invalide');
+          setLoadingAddresses(false);
+          return;
+        }
+        
+        // Décoder le payload (deuxième partie du token)
+        const payloadBase64 = tokenParts[1];
+        const decodedPayload = JSON.parse(atob(payloadBase64));
+        
+        // Récupérer les données utilisateur depuis le backend
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        const backendResponse = await fetch(`${backendUrl}/api/customers/${decodedPayload.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (backendResponse.ok) {
+          const backendData = await backendResponse.json();
+          
+          // Filtrer uniquement les adresses de type livraison
+          const shippingAddresses = backendData.addresses?.filter(
+            (addr: Address) => addr.type === 'shipping' || addr.type === 'both'
+          ) || [];
+          
+          setUserAddresses(shippingAddresses);
+          setIsAuthenticated(true);
+          
+          // Pré-remplir les infos de base du client (mais pas l'adresse automatiquement)
+          setCustomerInfo(prevInfo => ({
+            ...prevInfo,
+            email: backendData.email || '',
+            firstName: backendData.firstName || '',
+            lastName: backendData.lastName || '',
+            phone: backendData.phoneNumber || ''
+          }));
+        } else {
+          console.error('Erreur lors de la récupération des données utilisateur');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des adresses:', error);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    }
+    
+    fetchUserAddresses();
+  }, [checkoutMode]);
+
+  // Sélectionner une adresse et pré-remplir le formulaire
+  const handleSelectAddress = (address: Address) => {
+    setSelectedAddressId(address.id || null);
+    
+    // Pré-remplir le formulaire avec l'adresse sélectionnée
+    setCustomerInfo(prevInfo => ({
+      ...prevInfo,
+      address: address.line1,
+      addressLine2: address.line2 || '',
+      city: address.city,
+      postalCode: address.postalCode,
+      country: address.country || 'France'
+    }));
   };
 
   // Procéder au checkout
@@ -401,6 +516,45 @@ export default function CartView() {
                 </Link>
               </div>
             ) : (
+              <>
+                {isAuthenticated && userAddresses.length > 0 && (
+                <div className="mb-6 border-b border-neutral-200 dark:border-neutral-800 pb-6">
+                  <h3 className="text-base font-bold mb-3 text-neutral-800 dark:text-neutral-200">Vos adresses de livraison</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                    {userAddresses.map((address) => (
+                      <div 
+                        key={address.id} 
+                        className={`border rounded-lg p-3 cursor-pointer transition-colors ${selectedAddressId === address.id 
+                          ? 'border-primary bg-primary bg-opacity-5 dark:bg-opacity-10' 
+                          : 'border-neutral-300 dark:border-neutral-700 hover:border-primary'}`}
+                        onClick={() => handleSelectAddress(address)}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <div className="flex items-center">
+                            <MapPin size={14} className="text-primary mr-1" />
+                            <span className="text-sm font-medium">Adresse de livraison</span>
+                          </div>
+                          {address.isDefault && (
+                            <div className="bg-primary bg-opacity-10 text-primary text-xs rounded px-1.5 py-0.5 flex items-center">
+                              <CheckCircle size={10} className="mr-1" /> Par défaut
+                            </div>
+                          )}
+                        </div>
+                        <p className="font-medium text-sm">{address.name}</p>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{address.line1}</p>
+                        {address.line2 && <p className="text-xs text-neutral-600 dark:text-neutral-400">{address.line2}</p>}
+                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                          {address.postalCode} {address.city}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Sélectionnez une adresse ou remplissez le formulaire ci-dessous
+                  </div>
+                </div>
+              )}
+                
               <form onSubmit={handlePaymentSubmit} className="space-y-4">
                 <h3 className="font-medium text-lg text-neutral-900 dark:text-white">Informations de contact</h3>
                 
@@ -542,8 +696,26 @@ export default function CartView() {
                       Retour au panier
                     </button>
                   )}
+                  
+                  {/* Suggestion de création de compte pour clients invités */}
+                  {!isAuthenticated && !isCheckingOut && (
+                    <div className="mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                      <div className="text-center">
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                          Créez un compte pour sauvegarder vos adresses et suivre facilement vos commandes
+                        </p>
+                        <Link 
+                          href="/inscription"
+                          className="inline-block text-primary hover:text-primary-dark text-sm font-medium hover:underline"
+                        >
+                          Créer un compte en quelques secondes
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </form>
+              </>
             )}
           </div>
         </div>
