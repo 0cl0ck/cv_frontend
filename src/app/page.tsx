@@ -1,7 +1,7 @@
 import HomeHero from "@/components/Hero/HomeHero";
 import ImageHero from "@/components/Hero/ImageHero";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
-import CategoriesSection from "@/components/sections/CategoriesSection";
+import CategoryGrid from "@/components/sections/CategoryGrid";
 import { StatsWithGridBackground } from "@/components/StatsWithGridBackGround/StatsWithGridBackground";
 
 export default function Home() {
@@ -11,7 +11,7 @@ export default function Home() {
       {/* Ancien Hero préservé */}
       {/* <HomeHero /> */}
       <FeaturedProducts />
-      <CategoriesSection />
+      <CategoryGrid />
       <StatsWithGridBackground />
     </>
   );
