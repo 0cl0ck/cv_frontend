@@ -2,7 +2,7 @@ import HomeHero from "@/components/Hero/HomeHero";
 import ImageHero from "@/components/Hero/ImageHero";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
 import CategoryGrid from "@/components/sections/CategoryGrid";
-import { StatsWithGridBackground } from "@/components/StatsWithGridBackGround/StatsWithGridBackground";
+import FeaturesBanner from "@/components/sections/FeaturesBanner";
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
       {/* <HomeHero /> */}
       <FeaturedProducts />
       <CategoryGrid />
-      <StatsWithGridBackground />
+      <FeaturesBanner />
     </>
   );
 }
