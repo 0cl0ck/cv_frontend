@@ -128,7 +128,7 @@ export default function Header() {
             <div className="flex items-center justify-end">
               <button
                 onClick={() => setShowAccountPopup(true)}
-                className="p-2 mr-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
+                className="p-2 mr-1 text-sm font-medium text-black bg-[#EFC368] hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="w-5 h-5" />
