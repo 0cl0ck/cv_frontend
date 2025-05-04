@@ -27,11 +27,11 @@ export const CategoryFilter: React.FC<Props> = ({ categories, activeCategory, is
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-md">
-        <h3 className="font-semibold text-lg mb-4 text-neutral-900 dark:text-white">Catégories</h3>
+      <div className="bg-white dark:bg-[#00454f] p-6 rounded-lg shadow-lg border border-neutral-100 dark:border-[#005965]">
+        <h3 className="font-semibold text-lg mb-4 text-neutral-900 dark:text-white/90">Catégories</h3>
         <div className="animate-pulse">
           {[...Array(6)].map((_, index) => (
-            <div key={index} className="h-10 bg-neutral-200 dark:bg-neutral-800 rounded-md mb-2" />
+            <div key={index} className="h-10 bg-neutral-200 dark:bg-[#005965] rounded-md mb-2" />
           ))}
         </div>
       </div>
@@ -39,15 +39,15 @@ export const CategoryFilter: React.FC<Props> = ({ categories, activeCategory, is
   }
 
   return (
-    <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-md">
+    <div className="bg-white dark:bg-[#00454f] p-1 ">
       <ul className="space-y-2">
         <li>
           <Link
             href="/produits"
             className={`block w-full p-2 rounded-md transition-colors ${
               !activeCategory
-                ? 'bg-primary text-white font-medium'
-                : 'hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+                ? 'bg-[#00878a] text-white font-medium'
+                : 'hover:bg-neutral-100 dark:hover:bg-[#005965] text-neutral-700 dark:text-white/80'
             }`}
           >
             Tous les produits
@@ -59,8 +59,8 @@ export const CategoryFilter: React.FC<Props> = ({ categories, activeCategory, is
               href={`/produits/categorie/${category.slug}`}
               className={`block w-full p-2 rounded-md transition-colors ${
                 activeCategory === category.slug
-                  ? 'bg-primary text-white font-medium'
-                  : 'hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+                  ? 'bg-[#00878a] text-white font-medium'
+                  : 'hover:bg-neutral-100 dark:hover:bg-[#005965] text-neutral-700 dark:text-white/80'
               }`}
             >
               {category.name}

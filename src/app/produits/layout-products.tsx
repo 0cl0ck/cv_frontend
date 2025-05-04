@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import CategoryFilter from '@/components/CategoryFilter/CategoryFilter';
 import Pagination from '@/components/Pagination/Pagination';
 import { Product, Category } from '@/types/product';
+import { IconFilter, IconSortDescending, IconArrowDown, IconArrowUp } from '@tabler/icons-react';
 
 // Types pour les props du composant
 interface ProductsLayoutProps {
@@ -35,6 +37,29 @@ interface ProductsLayoutProps {
 // Types pour les options de tri simplifiées
 type PriceSortType = 'none' | 'price-asc' | 'price-desc';
 
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.43, 0.13, 0.23, 0.96]
+    }
+  }
+};
 
 export default function ProductsLayout({
   // Support pour les deux modes (côté serveur et côté client)
@@ -109,7 +134,6 @@ export default function ProductsLayout({
       // Sur la page principale, les produits sont chargés côté serveur
       // => Force un rechargement de page pour obtenir les produits triés depuis le serveur
       // => Réinitialiser la pagination à la page 1 pour le tri global
-      console.log('Rechargement de page pour tri avec données serveur');
       
       // Supprimer tout paramètre de pagination existant pour revenir à la page 1
       params.delete('page');
@@ -120,7 +144,6 @@ export default function ProductsLayout({
       // Sur les pages de catégorie, les produits sont déjà tous chargés
       // => Navigation client sans rechargement (SPA)
       // => Réinitialiser également la pagination pour cohérence
-      console.log('Navigation client pour tri avec données déjà présentes');
       
       // Réinitialiser la page en mémoire
       setCurrentClientPage(1);
@@ -170,11 +193,9 @@ export default function ProductsLayout({
         !(p.productType === 'variable' && p.variants?.some(v => v.pricePerGram))
       );
       
-      console.log(`Produits séparés: ${productsWithPricePerGram.length} avec prix/g, ${productsWithoutPricePerGram.length} sans prix/g`);
       
       // Afficher les produits avec prix au gramme (avant tri)
       if (productsWithPricePerGram.length > 0) {
-        console.log('PRODUITS AVEC PRIX AU GRAMME (avant tri):', 
           productsWithPricePerGram.map(p => ({
             name: p.name,
             pricePerGram: p.pricePerGram,
@@ -182,7 +203,6 @@ export default function ProductsLayout({
               Math.min(...p.variants.filter(v => v.pricePerGram).map(v => v.pricePerGram || Infinity)) :
               p.pricePerGram
           }))
-        );
       }
       
       // Tri des produits avec prix au gramme
@@ -221,8 +241,6 @@ export default function ProductsLayout({
       // Combiner les produits dans l'ordre souhaité: 
       // D'abord les produits avec prix au gramme, puis les produits sans prix au gramme
       filtered = [...productsWithPricePerGram, ...productsWithoutPricePerGram];
-      
-      console.log(`Après tri: ${filtered.length} produits au total`);
       
       // Afficher les 5 premiers produits après tri pour vérification
       if (filtered.length > 0) {
@@ -274,30 +292,62 @@ export default function ProductsLayout({
     params.set('page', page.toString());
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
-  
+
   return (
-    <div className="bg-neutral-50 dark:bg-neutral-950 min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        {/* Bannière/Header */}
-        <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-md p-8 mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-white mb-4">{title}</h1>
-          {description && (
-            <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">{description}</p>
-          )}
+    <div className="bg-[#001e27] dark:bg-[#001e27] min-h-screen">
+      {/* Header section avec fond dégradé */}
+      <motion.div 
+        className="bg-[#001e27] dark:bg-[#001e27] py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Éléments décoratifs */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full border border-white/20"></div>
+          <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full border border-white/20"></div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            className="text-center"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">{title}</h1>
+            {description && <p className="text-white/80 max-w-2xl mx-auto">{description}</p>}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <motion.div 
+          className="flex flex-col md:flex-row gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {/* Sidebar avec filtres simplifiés */}
-          <aside className="md:w-1/4">
-            {/* Catégories */}
-            <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-md p-6 mb-6">
-              <h2 className="font-bold text-xl mb-4 text-neutral-900 dark:text-white">Catégories</h2>
+          <motion.aside 
+            className="md:w-1/4 space-y-6"
+            variants={itemVariants}
+          >
+            {/* Filtre par catégorie */}
+            <div className="bg-white dark:bg-[#00454f] rounded-lg shadow-lg p-6 border border-gray-100 dark:border-[#005965]">
+              <div className="flex items-center mb-4">
+                <IconFilter className="mr-2 text-[#00878a] dark:text-green-300" size={20} />
+                <h2 className="font-bold text-xl text-neutral-900 dark:text-white">Catégories</h2>
+              </div>
               <CategoryFilter categories={categories} activeCategory={activeCategory} />
             </div>
-            
+
             {/* Tri par prix */}
-            <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-md p-6">
-              <h2 className="font-bold text-xl mb-4 text-neutral-900 dark:text-white">Tri par prix</h2>
+            <div className="bg-white dark:bg-[#00454f] rounded-lg shadow-lg p-6 border border-gray-100 dark:border-[#005965]">
+              <div className="flex items-center mb-4">
+                <IconSortDescending className="mr-2 text-[#00878a] dark:text-green-300" size={20} />
+                <h2 className="font-bold text-xl text-neutral-900 dark:text-white">Tri par prix</h2>
+              </div>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <input
@@ -306,9 +356,9 @@ export default function ProductsLayout({
                     name="price-sort"
                     checked={selectedPriceSort === 'none'}
                     onChange={() => handlePriceSortChange('none')}
-                    className="h-4 w-4 text-primary"
+                    className="h-4 w-4 text-[#00878a] focus:ring-[#00878a] dark:focus:ring-green-300"
                   />
-                  <label htmlFor="price-sort-none" className="ml-2 text-sm">Non trié</label>
+                  <label htmlFor="price-sort-none" className="ml-2 text-sm text-neutral-700 dark:text-white/90">Non trié</label>
                 </div>
                 <div className="flex items-center">
                   <input
@@ -317,9 +367,9 @@ export default function ProductsLayout({
                     name="price-sort"
                     checked={selectedPriceSort === 'price-asc'}
                     onChange={() => handlePriceSortChange('price-asc')}
-                    className="h-4 w-4 text-primary"
+                    className="h-4 w-4 text-[#00878a] focus:ring-[#00878a] dark:focus:ring-green-300"
                   />
-                  <label htmlFor="price-sort-asc" className="ml-2 text-sm">Du moins cher au plus cher</label>
+                  <label htmlFor="price-sort-asc" className="ml-2 text-sm text-neutral-700 dark:text-white/90 flex items-center">Du moins cher au plus cher <IconArrowUp size={14} className="ml-1 text-green-500" /></label>
                 </div>
                 <div className="flex items-center">
                   <input
@@ -328,53 +378,85 @@ export default function ProductsLayout({
                     name="price-sort"
                     checked={selectedPriceSort === 'price-desc'}
                     onChange={() => handlePriceSortChange('price-desc')}
-                    className="h-4 w-4 text-primary"
+                    className="h-4 w-4 text-[#00878a] focus:ring-[#00878a] dark:focus:ring-green-300"
                   />
-                  <label htmlFor="price-sort-desc" className="ml-2 text-sm">Du plus cher au moins cher</label>
+                  <label htmlFor="price-sort-desc" className="ml-2 text-sm text-neutral-700 dark:text-white/90 flex items-center">Du plus cher au moins cher <IconArrowDown size={14} className="ml-1 text-red-400" /></label>
                 </div>
               </div>
             </div>
-          </aside>
+          </motion.aside>
 
           {/* Produits et pagination */}
-          <main className="md:w-3/4">
+          <motion.section 
+            className="md:w-3/4"
+            variants={itemVariants}
+          >
             {/* Affichage des produits */}
             {displayedProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <motion.div 
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {displayedProducts.map((product: Product, index: number) => (
-                    <ProductCard key={product.id} product={product} index={index} />
+                    <motion.div 
+                      key={product.id}
+                      variants={itemVariants}
+                      whileHover={{ y: -5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <ProductCard product={product} index={index} />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
                 
                 {/* Affichage de la pagination */}
-                {isClientSidePagination ? (
-                  <Pagination 
-                    currentPage={currentClientPage} 
-                    totalPages={clientTotalPages}
-                    onPageChange={handleClientPageChange} 
-                  />
-                ) : (
-                  <Pagination 
-                    currentPage={currentPage || 1} 
-                    totalPages={totalPages || 1} 
-                  />
-                )}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.6 }}
+                  className="mt-8"
+                >
+                  {isClientSidePagination ? (
+                    <Pagination 
+                      currentPage={currentClientPage} 
+                      totalPages={clientTotalPages}
+                      onPageChange={handleClientPageChange} 
+                    />
+                  ) : (
+                    <Pagination 
+                      currentPage={currentPage || 1} 
+                      totalPages={totalPages || 1} 
+                    />
+                  )}
+                </motion.div>
                 
                 {/* Affichage du nombre total de produits */}
-                <div className="mt-4 text-sm text-center text-neutral-600 dark:text-neutral-400">
+                <motion.div 
+                  className="mt-4 text-sm text-center text-neutral-600 dark:text-neutral-400"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7, duration: 0.6 }}
+                >
                   {isClientSidePagination ? filteredTotal : totalProducts} produit{(isClientSidePagination ? filteredTotal : totalProducts) !== 1 ? 's' : ''} trouvé{(isClientSidePagination ? filteredTotal : totalProducts) !== 1 ? 's' : ''}
-                </div>
+                </motion.div>
               </>
             ) : (
-              <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-md p-8 text-center">
+              <motion.div 
+                className="bg-white dark:bg-[#00454f] rounded-lg shadow-lg p-8 text-center border border-gray-100 dark:border-[#005965]"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
                 <p className="text-neutral-600 dark:text-neutral-400">
                   Aucun produit ne correspond à vos critères. Essayez de modifier vos filtres.
                 </p>
-              </div>
+              </motion.div>
             )}
-          </main>
-        </div>
+          </motion.section>
+        </motion.div>
       </div>
     </div>
   );

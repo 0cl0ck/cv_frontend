@@ -69,11 +69,6 @@ export default async function ProductsPage(props) {
   // car nous voulons appliquer notre logique de tri personnalisée (qui met les produits
   // avec prix au gramme en premier)
   
-  // Récupérer tous les produits sans pagination si tri global requis
-  console.log(`Récupération des produits avec tri ${needsGlobalSorting ? 'global' : 'paginé'} et paramètre de tri: ${apiSortParam}`);
-  
-  // Vérification critique : s'assurer que shouldSortByPrice est bien détecté quand price-asc/price-desc est demandé
-  console.log('DEBUG - shouldSortByPrice:', shouldSortByPrice, 'sortParam:', sortParam);
   
   // Récupérer TOUS les produits (en commençant par page 1) quand on a besoin d'un tri par prix
   // Sinon utiliser la pagination normale avec currentPage
@@ -85,8 +80,6 @@ export default async function ProductsPage(props) {
     maxPrice,
   });
   
-  console.log(`Récupération terminée: ${productsData.docs.length} produits sur ${productsData.totalDocs} disponibles`);
-  console.log('Tri demandé:', sortParam);
 
   // 7️⃣ Traitement des produits pour le tri par prix par gramme
   if (shouldSortByPricePerGram) {

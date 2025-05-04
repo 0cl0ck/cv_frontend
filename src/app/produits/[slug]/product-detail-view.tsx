@@ -129,45 +129,45 @@ export default function ProductDetailView({ product, relatedProducts, categories
   };
 
   return (
-    <div className="bg-neutral-50 dark:bg-neutral-950 py-12">
+    <div className="bg-[#001E27] py-12">
       <div className="container mx-auto px-4">
         {/* Chemin de navigation */}
         <nav className="mb-8 text-sm">
           <ol className="flex items-center space-x-2">
             <li>
-              <Link href="/" className="text-neutral-600 hover:text-primary dark:text-neutral-400">
+              <Link href="/" className="text-[#F4F8F5] hover:text-[#EFC368]">
                 Accueil
               </Link>
             </li>
-            <li className="text-neutral-400 dark:text-neutral-600">/</li>
+            <li className="text-[#3A4A4F]">/</li>
             <li>
-              <Link href="/produits" className="text-neutral-600 hover:text-primary dark:text-neutral-400">
+              <Link href="/produits" className="text-[#F4F8F5] hover:text-[#EFC368]">
                 Produits
               </Link>
             </li>
             {categoryDisplay.length > 0 && (
               <>
-                <li className="text-neutral-400 dark:text-neutral-600">/</li>
+                <li className="text-[#3A4A4F]">/</li>
                 <li>
                   <Link
                     href={`/produits/categorie/${(categoryDisplay[0] as Category).slug}`}
-                    className="text-neutral-600 hover:text-primary dark:text-neutral-400"
+                    className="text-[#F4F8F5] hover:text-[#EFC368]"
                   >
                     {(categoryDisplay[0] as Category).name}
                   </Link>
                 </li>
               </>
             )}
-            <li className="text-neutral-400 dark:text-neutral-600">/</li>
-            <li className="text-primary font-medium">{product.name}</li>
+            <li className="text-[#3A4A4F]">/</li>
+            <li className="text-[#03745C] font-medium">{product.name}</li>
           </ol>
         </nav>
 
-        <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-md overflow-hidden">
+        <div className="bg-[#002935] rounded-xl shadow-md overflow-hidden border border-[#3A4A4F]">
           <div className="md:flex md:items-center ">
             {/* Galerie d'images */}
             <div className="md:w-1/2 p-6">
-              <div className="relative aspect-square mb-4 rounded-lg overflow-hidden">
+              <div className="relative aspect-square mb-4 rounded-lg overflow-hidden border border-[#3A4A4F]">
                 {mainImage && (
                   <Image
                     src={getImageUrl(mainImage)}
@@ -189,8 +189,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                       onClick={() => setMainImage(image)}
                       className={`relative w-20 h-20 rounded-md overflow-hidden border-2 ${
                         mainImage === image
-                          ? 'border-primary'
-                          : 'border-neutral-200 dark:border-neutral-700'
+                          ? 'border-[#03745C]'
+                          : 'border-[#3A4A4F]'
                       }`}
                     >
                       <Image
@@ -207,8 +207,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
             </div>
 
             {/* Informations produit */}
-            <div className="md:w-1/2 p-6 md:border-l border-neutral-200 dark:border-neutral-800">
-              <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-4">{product.name}</h1>
+            <div className="md:w-1/2 p-6 md:border-l border-[#3A4A4F]">
+              <h1 className="text-3xl font-bold text-[#F4F8F5] mb-4">{product.name}</h1>
 
               {/* Catégories */}
               {categoryDisplay.length > 0 && (
@@ -217,7 +217,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
                     <Link
                       key={index}
                       href={`/produits/categorie/${(cat as Category).slug}`}
-                      className="inline-block px-3 py-1 text-sm bg-neutral-100 dark:bg-neutral-800 rounded-full text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                      className="inline-block px-3 py-1 text-sm bg-[#3A4A4F] rounded-full text-[#F4F8F5] hover:bg-[#014842] transition-colors"
                     >
                       {(cat as Category).name}
                     </Link>
@@ -228,11 +228,11 @@ export default function ProductDetailView({ product, relatedProducts, categories
               {/* Prix */}
               <div className="mb-6">
                 {product.productType === 'variable' ? (
-                  <div className="text-2xl font-bold text-primary">
+                  <div className="text-2xl font-bold text-[#EFC368]">
                     {selectedVariation ? formatPrice(selectedVariation.price) : 'Sélectionnez une option'}
                   </div>
                 ) : (
-                  <div className="text-2xl font-bold text-primary">
+                  <div className="text-2xl font-bold text-[#EFC368]">
                     {product.price ? formatPrice(product.price) : 'Prix sur demande'}
                   </div>
                 )}
@@ -240,18 +240,17 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
               {/* Description courte */}
               {product.description && (
-                <div className='mb-6 text-neutral-700 dark:text-neutral-300'>
-
-                <div className="prose dark:prose-invert ">
-                  <RichTextRenderer content={product.description} />
-                </div>
+                <div className='mb-6 text-[#F4F8F5]'>
+                  <div className="prose prose-invert">
+                    <RichTextRenderer content={product.description} />
+                  </div>
                 </div>
               )}
 
               {/* Sélection de variation */}
               {product.productType === 'variable' && product.variants && product.variants.length > 0 && (
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  <label className="block text-sm font-medium text-[#F4F8F5] mb-2">
                     Options
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -261,8 +260,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                         onClick={() => handleVariationChange(variation)}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                           selectedVariation?.id === variation.id
-                            ? 'bg-primary text-white'
-                            : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                            ? 'bg-[#03745C] text-[#F4F8F5]'
+                            : 'bg-[#3A4A4F] text-[#F4F8F5] hover:bg-[#014842]'
                         } ${
                           variation.stock !== undefined && variation.stock <= 0
                             ? 'opacity-50 cursor-not-allowed'
@@ -280,18 +279,18 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
               {/* Sélection de quantité et ajout au panier */}
               <div className="flex items-center mb-6">
-                <div className="flex items-center border border-neutral-300 dark:border-neutral-700 rounded-md mr-4">
+                <div className="flex items-center border border-[#3A4A4F] rounded-md mr-4">
                   <button
                     onClick={() => handleQuantityChange(quantity - 1)}
                     disabled={quantity <= 1}
-                    className="px-3 py-2 text-neutral-700 dark:text-neutral-300 disabled:opacity-50"
+                    className="px-3 py-2 text-[#F4F8F5] disabled:opacity-50"
                   >
                     -
                   </button>
-                  <span className="px-3 py-2 text-neutral-900 dark:text-white">{quantity}</span>
+                  <span className="px-3 py-2 text-[#F4F8F5]">{quantity}</span>
                   <button
                     onClick={() => handleQuantityChange(quantity + 1)}
-                    className="px-3 py-2 text-neutral-700 dark:text-neutral-300"
+                    className="px-3 py-2 text-[#F4F8F5]"
                   >
                     +
                   </button>
@@ -300,10 +299,10 @@ export default function ProductDetailView({ product, relatedProducts, categories
                 <button
                   disabled={!isInStock() || isAddingToCart}
                   onPointerDown={handleAddToCart} 
-                  className={`flex-1 px-6 py-3 rounded-md font-medium text-white transition-colors ${
+                  className={`flex-1 px-6 py-3 rounded-md font-medium transition-colors ${
                     isInStock() && !isAddingToCart
-                      ? 'bg-primary hover:bg-primary-dark'
-                      : 'bg-neutral-400 cursor-not-allowed'
+                      ? 'bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27]'
+                      : 'bg-[#3A4A4F] text-[#F4F8F5] cursor-not-allowed'
                   }`}
                 >
                   {isAddedToCart 
@@ -317,13 +316,13 @@ export default function ProductDetailView({ product, relatedProducts, categories
               </div>
 
               {/* Informations supplémentaires */}
-              <div className="border-t border-neutral-200 dark:border-neutral-800 pt-6 mt-6">
-                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
+              <div className="border-t border-[#3A4A4F] pt-6 mt-6">
+                <h2 className="text-lg font-semibold text-[#03745C] mb-4">
                   Informations produit
                 </h2>
                 {product.productType === 'simple' && typeof product.stock === 'number' && (
                   <div className="mb-2 flex items-center">
-                    <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Disponibilité:</span>
+                    <span className="text-sm text-[#F4F8F5] mr-2">Disponibilité:</span>
                     <span
                       className={`text-sm font-medium ${
                         product.stock > 0 ? 'text-green-600' : 'text-red-500'
@@ -341,8 +340,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                 </div>
                 {product.category && Array.isArray(product.category) && product.category.length > 0 && (
                   <div className="mb-2 flex items-center">
-                    <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Catégorie:</span>
-                    <span className="text-sm text-neutral-900 dark:text-white">
+                    <span className="text-sm text-[#F4F8F5] mr-2">Catégorie:</span>
+                    <span className="text-sm text-[#F4F8F5]">
                       {categoryDisplay
                         .map((cat: Category) => cat.name)
                         .join(', ')}
@@ -356,8 +355,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                     {/* Taux de CBD */}
                     {product.productDetails && typeof product.productDetails.cbdContent === 'number' && (
                       <div className="flex items-center">
-                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Taux de CBD:</span>
-                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                        <span className="text-sm text-[#F4F8F5] mr-2">Taux de CBD:</span>
+                        <span className="text-sm font-medium text-[#F4F8F5]">
                           {product.productDetails.cbdContent}%
                         </span>
                       </div>
@@ -366,8 +365,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                     {/* Taux de THC */}
                     {product.productDetails && typeof product.productDetails.thcContent === 'number' && (
                       <div className="flex items-center">
-                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Taux de THC:</span>
-                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                        <span className="text-sm text-[#F4F8F5] mr-2">Taux de THC:</span>
+                        <span className="text-sm font-medium text-[#F4F8F5]">
                           {product.productDetails.thcContent}%
                         </span>
                       </div>
@@ -376,8 +375,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                     {/* Type de souche */}
                     {product.productDetails && typeof product.productDetails.strain === 'string' && product.productDetails.strain !== 'na' && (
                       <div className="flex items-center">
-                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Type de souche:</span>
-                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                        <span className="text-sm text-[#F4F8F5] mr-2">Type de souche:</span>
+                        <span className="text-sm font-medium text-[#F4F8F5]">
                           {({
                             'sativa': 'Sativa',
                             'indica': 'Indica',
@@ -390,8 +389,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                     {/* Origine */}
                     {product.productDetails && typeof product.productDetails.origin === 'string' && (
                       <div className="flex items-center">
-                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Origine:</span>
-                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                        <span className="text-sm text-[#F4F8F5] mr-2">Origine:</span>
+                        <span className="text-sm font-medium text-[#F4F8F5]">
                           {product.productDetails.origin}
                         </span>
                       </div>
@@ -400,8 +399,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
                     {/* Mode de culture */}
                     {product.productDetails && typeof product.productDetails.cultivation === 'string' && (
                       <div className="flex items-center">
-                        <span className="text-sm text-neutral-700 dark:text-neutral-300 mr-2">Mode de culture:</span>
-                        <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                        <span className="text-sm text-[#F4F8F5] mr-2">Mode de culture:</span>
+                        <span className="text-sm font-medium text-[#F4F8F5]">
                           {({
                             'indoor': 'Indoor',
                             'outdoor': 'Outdoor',
@@ -421,8 +420,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
         {/* Produits similaires */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-8">Produits similaires</h2>
+          <div className="mt-16 pt-12 border-t border-[#3A4A4F]">
+            <h2 className="text-2xl font-bold text-[#03745C] mb-8">Produits similaires</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct, index) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} index={index} />

@@ -6,8 +6,8 @@ export default function ProductsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-8">
+    <section className="flex-1 bg-neutral-50 dark:bg-neutral-950">
       {children}
-    </main>
+    </section>
   );
 }
