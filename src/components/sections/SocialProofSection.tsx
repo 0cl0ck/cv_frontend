@@ -92,7 +92,7 @@ const StoreCard = ({ store }: { store: StoreInfo }) => {
         
         {store.reviewText && (
           <div className="mt-4 bg-[#003945] p-4 rounded-lg">
-            <p className="text-white/90 italic text-sm">"{store.reviewText}"</p>
+            <p className="text-white/90 italic text-sm">&quot;{store.reviewText}&quot;</p>
             {store.reviewAuthor && (
               <p className="text-white/70 text-sm mt-2">- {store.reviewAuthor}</p>
             )}

@@ -165,7 +165,7 @@ export default function AddressesPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#00424A]">
         <div className="text-center">
-          <div className="text-2xl font-bold text-red-400 mb-4">Erreur d'authentification</div>
+          <div className="text-2xl font-bold text-red-400 mb-4">Erreur d&apos;authentification</div>
           <p className="text-[#D1D5DB] mb-6">Vous devez être connecté pour accéder à cette page.</p>
           <Link href="/connexion" className="px-4 py-2 bg-[#10B981] text-[#D1D5DB] rounded hover:bg-[#059669] transition-colors">
             Se connecter
@@ -474,7 +474,7 @@ export default function AddressesPage() {
             {addresses.length === 0 ? (
               <div className="text-center py-8 text-[#BEC3CA]">
                 <MapPin size={48} className="mx-auto mb-4 text-[#007A72]" />
-                <p>Vous n'avez pas encore d'adresse enregistrée.</p>
+                <p>Vous n&apos;avez pas encore d&apos;adresse enregistrée.</p>
                 <button 
                   onClick={() => initializeAddressForm()}
                   className="mt-4 px-4 py-2 bg-[#007A72] text-[#D1D5DB] rounded hover:bg-[#059669] transition-colors"
@@ -564,7 +564,7 @@ export default function AddressesPage() {
             <form onSubmit={saveAddress} className="space-y-4">
               {/* Type d'adresse */}
               <div>
-                <label htmlFor="type" className="block text-[#BEC3CA] mb-1">Type d'adresse</label>
+                <label htmlFor="type" className="block text-[#BEC3CA] mb-1">Type d&apos;adresse</label>
                 <select
                   id="type"
                   name="type"
@@ -613,7 +613,7 @@ export default function AddressesPage() {
               
               {/* Adresse ligne 2 */}
               <div>
-                <label htmlFor="line2" className="block text-[#BEC3CA] mb-1">Complément d'adresse</label>
+                <label htmlFor="line2" className="block text-[#BEC3CA] mb-1">Complément d&apos;adresse</label>
                 <input
                   type="text"
                   id="line2"

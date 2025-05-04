@@ -197,7 +197,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             animate={{ y: isHovered ? 0 : 20, opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <span className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium">
+            <span className="px-4 py-2 rounded-full bg-[#EFC368]/80 backdrop-blur-sm text-white text-sm font-medium">
               Voir le produit
             </span>
           </motion.div>

@@ -3,7 +3,9 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Package, MapPin, ShoppingCart, MessageCircle, Edit2, ChevronRight, X, Save, Loader2 } from 'lucide-react';
+import { Calendar, Package, MapPin, ShoppingCart, MessageCircle, Edit2, ChevronRight, X, Save, Loader2, Award, Gift, Truck, Zap, LogOut } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
+import { LoyaltyReward, LoyaltyRewardType } from '@/types/loyalty';
 
 // Type pour les informations de l'utilisateur
 type UserInfo = {
@@ -12,6 +14,11 @@ type UserInfo = {
   firstName: string;
   lastName: string;
   createdAt: string;
+  loyalty?: {
+    ordersCount: number;
+    currentReward: LoyaltyReward;
+    referralEnabled: boolean;
+  };
 };
 
 // Fonction pour formater la date
@@ -34,9 +41,11 @@ export default function DashboardPage() {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [updatedFields, setUpdatedFields] = useState<string[]>([]);
-
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orders, setOrders] = useState([]);
+  const [loyaltyLoading, setLoyaltyLoading] = useState(true);
+  const [loyaltyError, setLoyaltyError] = useState<string | null>(null);
   const router = useRouter();
 
   // Vérifier si l'utilisateur est connecté et récupérer les informations de l'utilisateur
@@ -165,6 +174,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchUserData() {
       try {
+        setLoyaltyLoading(true);
         // 1. D'abord vérifier si le cookie d'authentification existe
         const cookies = document.cookie.split(';');
         const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
@@ -201,34 +211,113 @@ export default function DashboardPage() {
           }
         });
         
+        let userData = null;
+        
         if (backendResponse.ok) {
           // Si l'appel au backend réussit, utiliser les données complètes
           const backendData = await backendResponse.json();
-          setUser({
+          userData = {
             id: backendData.id,
             email: backendData.email,
             firstName: backendData.firstName,
             lastName: backendData.lastName,
-            createdAt: backendData.createdAt
-          });
+            createdAt: backendData.createdAt,
+            // Récupérer les données de fidélité déjà présentes (le cas échéant)
+            loyalty: backendData.loyalty || undefined
+          };
+          setUser(userData);
         } else {
           // Fallback: utiliser les données minimales du token
           console.warn('Impossible de récupérer les données complètes du backend, utilisation des données décodées du token');
-          setUser({
+          userData = {
             id: decodedPayload.id,
             email: decodedPayload.email,
             firstName: 'Utilisateur',
             lastName: 'Connecté',
             createdAt: new Date().toISOString()
-          });
+          };
+          setUser(userData);
         }
         
-        // Charger les commandes de l'utilisateur (à implémenter plus tard)
-        // const ordersResponse = await fetch('/api/orders/me');
-        // if (ordersResponse.ok) {
-        //   const ordersData = await ordersResponse.json();
-        //   setOrders(ordersData.orders);
-        // }
+        // 5. Comme l'API de fidélité n'est pas encore accessible, utiliser les données des commandes directement
+        try {
+          const ordersResponse = await fetch(`${backendUrl}/api/orders/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (ordersResponse.ok) {
+            const ordersData = await ordersResponse.json();
+            const completedOrders = Array.isArray(ordersData.orders) 
+              ? ordersData.orders.filter((order: { status: string }) => 
+                  order.status === 'delivered' || order.status === 'shipped'
+                )
+              : [];
+            
+            const ordersCount = completedOrders.length;
+            
+            // Créer des données de fidélité simulées basées sur le nombre de commandes
+            // Déterminer la récompense en fonction du nombre de commandes
+            const determineReward = (count: number): LoyaltyReward => {
+              if (count === 2) {
+                return { 
+                  type: 'sample' as LoyaltyRewardType, 
+                  claimed: false, 
+                  description: 'Échantillon offert + Accès au programme de parrainage' 
+                };
+              }
+              if (count === 3) {
+                return { 
+                  type: 'freeShipping' as LoyaltyRewardType, 
+                  claimed: false, 
+                  value: 5, 
+                  description: 'Livraison offerte (5€ de remise)' 
+                };
+              }
+              if (count === 5) {
+                return { 
+                  type: 'freeProduct' as LoyaltyRewardType, 
+                  claimed: false, 
+                  value: 10, 
+                  description: 'Produit offert (valeur 10€)' 
+                };
+              }
+              if (count === 10) {
+                return { 
+                  type: 'discount' as LoyaltyRewardType, 
+                  claimed: false, 
+                  value: 20, 
+                  description: 'Réduction 20€ ou Produit offert' 
+                };
+              }
+              return { 
+                type: 'none' as LoyaltyRewardType, 
+                claimed: false, 
+                description: 'Aucune récompense disponible' 
+              };
+            };
+            
+            const loyaltyData = {
+              ordersCount,
+              currentReward: determineReward(ordersCount),
+              referralEnabled: ordersCount >= 2
+            };
+            
+            // Mettre à jour l'utilisateur avec les informations de fidélité
+            const updatedUserData = { ...userData, loyalty: loyaltyData };
+            setUser(updatedUserData);
+            setLoyaltyLoading(false);
+          } else {
+            console.error('Erreur lors de la récupération des commandes:', ordersResponse.status);
+            setLoyaltyError('Impossible de charger vos commandes');
+            setLoyaltyLoading(false);
+          }
+        } catch (loyaltyErr) {
+          console.error('Erreur lors de la récupération des informations de fidélité:', loyaltyErr);
+          setLoyaltyError('Impossible de charger votre programme de fidélité');
+          setLoyaltyLoading(false);
+        }
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
         setLoading(false);
@@ -236,11 +325,26 @@ export default function DashboardPage() {
         return;
       } finally {
         setLoading(false);
+        setLoyaltyLoading(false);
       }
     }
 
     fetchUserData();
   }, [router]);
+
+  // Fonction de déconnexion
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      // Supprimer le cookie d'authentification
+      document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      // Rediriger vers la page d'accueil
+      router.push('/');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      setIsLoggingOut(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -257,8 +361,8 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#00424A]">
         <div className="text-center">
-          <div className="text-2xl font-bold text-red-400 mb-4">Erreur d'authentification</div>
-          <p className="text-[#D1D5DB] mb-6">Vous devez être connecté pour accéder à cette page.</p>
+          <div className="text-2xl font-bold text-red-400 mb-4">Erreur d&apos;authentification</div>
+          <p className="text-white mb-6">Vous devez être connecté pour accéder à cette page.</p>
           <Link href="/connexion" className="px-4 py-2 bg-[#10B981] text-[#D1D5DB] rounded hover:bg-[#059669] transition-colors">
             Se connecter
           </Link>
@@ -272,8 +376,8 @@ export default function DashboardPage() {
       <div className="container mx-auto px-4 space-y-8 max-w-7xl">
         {/* Header - Bienvenue */}
         <div className="bg-[#002B33] rounded-lg p-6 shadow-md">
-          <h1 className="text-3xl font-bold mb-2 text-[#D1D5DB]">Bienvenue, {user.firstName} !</h1>
-          <p className="text-[#BEC3CA]">Votre espace personnel pour gérer vos commandes et vos informations</p>
+          <h1 className="text-3xl font-bold mb-2 text-white">Bienvenue, {user.firstName} !</h1>
+          <p className="text-white/80">Votre espace personnel pour gérer vos commandes et vos informations</p>
         </div>
         
         {/* Sections principales */}
@@ -332,7 +436,7 @@ export default function DashboardPage() {
                       <h3 className="font-medium text-[#D1D5DB]">Mes commandes</h3>
                       <ChevronRight size={16} className="text-[#10B981] opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <p className="text-sm text-[#BEC3CA] mt-1">Consultez l'historique de vos commandes</p>
+                    <p className="text-sm text-[#BEC3CA] mt-1">Consultez l&apos;historique de vos commandes</p>
                   </div>
                 </Link>
                 
@@ -371,48 +475,204 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-medium text-[#D1D5DB]">Besoin d'aide ?</h3>
+                      <h3 className="font-medium text-[#D1D5DB]">Besoin d&apos;aide ?</h3>
                       <ChevronRight size={16} className="text-[#10B981] opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <p className="text-sm text-[#BEC3CA] mt-1">Contactez notre service client</p>
                   </div>
                 </Link>
+
               </div>
             </div>
           </div>
         </div>
         
-        {/* Section Dernières commandes */}
+        {/* Section Programme de fidélité */}
         <div className="bg-[#002B33] rounded-lg p-6 shadow-md">
-          <h2 className="text-xl font-semibold mb-6 text-[#D1D5DB]">Mes dernières commandes</h2>
+          <h2 className="text-xl font-semibold mb-6 flex items-center text-[#D1D5DB]">
+            <Award className="text-[#10B981] mr-2" size={24} />
+            Programme Fidélité
+          </h2>
           
-          {orders.length > 0 ? (
-            <div className="overflow-x-auto rounded-lg">
-              <table className="min-w-full">
-                <thead className="bg-[#00424A]">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-[#BEC3CA] uppercase tracking-wider">Commande</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-[#BEC3CA] uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-[#BEC3CA] uppercase tracking-wider">Statut</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-[#BEC3CA] uppercase tracking-wider">Total</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-[#BEC3CA] uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-[#1D5754] divide-y divide-[#0A3A3A]">
-                  {/* Les commandes seront affichées ici lorsque l'API sera implémentée */}
-                </tbody>
-              </table>
+          {loyaltyLoading ? (
+            <div className="text-center py-8">
+              <Loader2 className="animate-spin h-8 w-8 text-[#10B981] mx-auto" />
+              <p className="text-[#BEC3CA] mt-2">Chargement de votre programme de fidélité...</p>
             </div>
-          ) : (
-            <div className="text-center py-12 bg-[#002B33] rounded-lg">
-              <Calendar size={48} className="text-[#10B981] mx-auto mb-4" />
-              <p className="text-[#BEC3CA] mb-6">Vous n'avez pas encore passé de commande.</p>
+          ) : loyaltyError ? (
+            <div className="text-center py-8 bg-[#003038] rounded-lg">
+              <p className="text-[#BEC3CA] mb-2">{loyaltyError}</p>
+              <button 
+                onClick={() => {
+                  setLoyaltyLoading(true);
+                  setLoyaltyError(null);
+                  // Recharger les données utilisateur
+                  const cookies = document.cookie.split(';');
+                  const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
+                  if (authCookie) {
+                    fetch('/api/user/loyalty', {
+                      headers: {
+                        'Authorization': `Bearer ${authCookie.split('=')[1]?.trim()}`
+                      }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.success && data.loyalty) {
+                        setUser(prev => prev ? { ...prev, loyalty: data.loyalty } : null);
+                      }
+                      setLoyaltyLoading(false);
+                    })
+                    .catch(() => {
+                      setLoyaltyError('Impossible de charger votre programme de fidélité');
+                      setLoyaltyLoading(false);
+                    });
+                  }
+                }}
+                className="text-[#10B981] hover:text-[#059669] underline"
+              >
+                Réessayer
+              </button>
+            </div>
+          ) : !user?.loyalty ? (
+            <div className="text-center py-8 bg-[#003038] rounded-lg">
+              <p className="text-[#BEC3CA] mb-4">Faites votre première commande pour rejoindre notre programme de fidélité !</p>
               <Link href="/produits" 
                 className="inline-block bg-[#007A72] hover:bg-[#059669] text-[#D1D5DB] font-medium py-2 px-6 rounded-md transition-colors">
                 Découvrir nos produits
               </Link>
             </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Résumé du programme */}
+              <div className="flex items-center justify-between bg-[#003038] p-4 rounded-lg">
+                <div>
+                  <p className="text-[#BEC3CA] text-sm">Commandes validées</p>
+                  <p className="text-2xl font-bold text-[#10B981]">{user.loyalty.ordersCount}</p>
+                </div>
+                
+                {user.loyalty.referralEnabled && (
+                  <div className="flex items-center bg-[#00434a] px-3 py-1 rounded-md">
+                    <Zap size={16} className="text-[#10B981] mr-1" />
+                    <span className="text-xs text-[#D1D5DB]">Parrainage actif</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Récompense actuelle */}
+              {user.loyalty.currentReward && user.loyalty.currentReward.type !== 'none' && !user.loyalty.currentReward.claimed && (
+                <div className="bg-[#155757] rounded-lg p-4">
+                  <div className="flex items-start">
+                    <div className="p-2 rounded-md bg-[#002B33] mr-3">
+                      {user.loyalty.currentReward.type === 'sample' && <Gift size={24} className="text-[#10B981]" />}
+                      {user.loyalty.currentReward.type === 'freeShipping' && <Truck size={24} className="text-[#10B981]" />}
+                      {user.loyalty.currentReward.type === 'freeProduct' && <Gift size={24} className="text-[#10B981]" />}
+                      {user.loyalty.currentReward.type === 'discount' && <Award size={24} className="text-[#10B981]" />}
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-[#D1D5DB] mb-1">Récompense disponible !</h3>
+                      <p className="text-sm text-[#BEC3CA] mb-3">{user.loyalty.currentReward.description}</p>
+                      <p className="text-xs text-[#10B981]">Sera automatiquement appliquée lors de votre prochaine commande</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Prochaines étapes */}
+              <div>
+                <h3 className="text-sm font-medium text-[#D1D5DB] mb-3">Progression</h3>
+                
+                {/* Déterminer la prochaine récompense */}
+                {(() => {
+                  const nextMilestone = (() => {
+                    const count = user.loyalty.ordersCount;
+                    if (count < 2) return { threshold: 2, description: "Échantillon offert + Parrainage" };
+                    if (count < 3) return { threshold: 3, description: "Livraison offerte" };
+                    if (count < 5) return { threshold: 5, description: "Produit offert (10€)" };
+                    if (count < 10) return { threshold: 10, description: "Réduction 20€" };
+                    return null; // Niveau max atteint
+                  })();
+                  
+                  if (!nextMilestone) {
+                    return (
+                      <div className="bg-[#003038] p-4 rounded-lg text-center">
+                        <Award size={28} className="text-[#E6C15A] mx-auto mb-2" />
+                        <p className="text-[#D1D5DB] font-medium">Félicitations !</p>
+                        <p className="text-sm text-[#BEC3CA] mt-1">Vous avez atteint le niveau maximum de notre programme.</p>
+                      </div>
+                    );
+                  }
+                  
+                  const progress = (user.loyalty.ordersCount / nextMilestone.threshold) * 100;
+                  
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs text-[#BEC3CA] mb-1">
+                        <span>Progression</span>
+                        <span>{user.loyalty.ordersCount} / {nextMilestone.threshold} commandes</span>
+                      </div>
+                      <div className="w-full bg-[#003038] rounded-full h-2.5">
+                        <div 
+                          className="bg-[#10B981] h-2.5 rounded-full transition-all duration-500" 
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-[#BEC3CA] mt-1">
+                        Prochaine récompense : <span className="text-[#10B981] font-medium">{nextMilestone.description}</span>
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+              
+              {/* Description du programme */}
+              <div className="mt-6 p-4 bg-[#003038] rounded-lg">
+                <h3 className="text-sm font-medium text-[#D1D5DB] mb-2">Notre programme de fidélité</h3>
+                <ul className="text-xs space-y-2 text-[#BEC3CA]">
+                  <li className="flex items-start">
+                    <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">2</span>
+                    <span>Échantillon offert + Accès au programme de parrainage</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">3</span>
+                    <span>Livraison offerte (5€ de remise)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">5</span>
+                    <span>Produit offert (valeur 10€)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">10</span>
+                    <span>Réduction 20€ ou Produit Offert</span>
+                  </li>
+                </ul>
+              </div>
+              
+
+            </div>
           )}
+        </div>
+      </div>
+      
+      {/* Bouton de déconnexion */}
+      <div className="mt-8 mb-12 container mx-auto px-4 max-w-3xl">
+        <div className="flex justify-center">
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-red-700 text-white hover:bg-red-700 transition-colors shadow-sm cursor-pointer"
+          >
+            {isLoggingOut ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Déconnexion en cours...
+              </>
+            ) : (
+              <>
+                <LogOut className="h-5 w-5" />
+                Se déconnecter
+              </>
+            )}
+          </button>
         </div>
       </div>
       
@@ -517,6 +777,27 @@ export default function DashboardPage() {
                 </button>
               </div>
             </form>
+          </div>
+          
+          {/* Bouton de déconnexion */}
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-red-300 bg-white text-red-600 hover:bg-red-50 transition-colors shadow-sm"
+            >
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Déconnexion en cours...
+                </>
+              ) : (
+                <>
+                  <LogOut className="h-4 w-4" />
+                  Se déconnecter
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}

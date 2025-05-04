@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, ChevronLeft, ExternalLink, Eye, Package, Loader2 } from 'lucide-react';
+import { Calendar, ChevronLeft, Package } from 'lucide-react';
 
 // Type pour les informations de commande
 type Order = {
@@ -288,7 +288,7 @@ export default function OrdersPage() {
           ) : (
             <div className="text-center py-16">
               <Calendar size={48} className="text-[#10B981] mx-auto mb-4" />
-              <p className="text-[#BEC3CA] mb-6">Vous n'avez pas encore passé de commande.</p>
+              <p className="text-[#BEC3CA] mb-6">Vous n&apos;avez pas encore passé de commande.</p>
               <Link href="/produits" 
                 className="inline-block bg-[#007A72] hover:bg-[#059669] text-[#D1D5DB] font-medium py-2 px-6 rounded-md transition-colors">
                 Découvrir nos produits
