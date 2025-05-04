@@ -91,7 +91,7 @@ function RegisterForm() {
 
   return (
     <div className="w-full max-w-md bg-[#002930] rounded-lg shadow-md p-8 border border-[#155757]">
-      <h1 className="text-2xl font-bold mb-6 text-center text-[#D1D5DB]">Créer un compte</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-white">Créer un compte</h1>
       
       {error && (
         <div className="bg-red-900 bg-opacity-25 text-red-300 px-4 py-3 rounded mb-4" role="alert">
@@ -215,7 +215,7 @@ function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-[#007A72] hover:bg-[#059669] text-[#D1D5DB] font-medium py-2 px-4 rounded-md focus:outline-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md focus:outline-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <span className="flex items-center justify-center">

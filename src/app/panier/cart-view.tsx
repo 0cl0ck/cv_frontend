@@ -354,41 +354,43 @@ export default function CartView() {
 
   if (cart.items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold mb-6 text-neutral-900 dark:text-white">Votre panier est vide</h1>
-        <p className="text-neutral-600 dark:text-neutral-400 mb-8">
-          Vous n&apos;avez aucun article dans votre panier.
-        </p>
-        <Link
-          href="/produits"
-          className="inline-block bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-md font-medium transition-colors"
-        >
-          Continuer mes achats
-        </Link>
+      <div className="container mx-auto flex flex-col items-center justify-center h-full min-h-[60vh] px-4 text-center bg-[#001E27]">
+        <div>
+          <h1 className="text-3xl font-bold mb-6 text-[#F4F8F5]">Votre panier est vide</h1>
+          <p className="text-[#F4F8F5] mb-8">
+            Vous n&apos;avez aucun article dans votre panier.
+          </p>
+          <Link
+            href="/produits"
+            className="inline-block bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] px-6 py-3 rounded-md font-medium transition-colors"
+          >
+            Continuer mes achats
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-neutral-900 dark:text-white">Votre panier</h1>
+    <div className="container mx-auto px-4 py-8 bg-[#001E27]">
+      <h1 className="text-3xl font-bold mb-8 text-[#F4F8F5]">Votre panier</h1>
 
       {/* En-tête du tableau (visible uniquement sur desktop) */}
-      <div className="hidden md:grid md:grid-cols-[3fr_1fr_1fr_1fr_auto] gap-4 mb-4 pb-4 border-b border-neutral-200 dark:border-neutral-800">
-        <div className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Produit</div>
-        <div className="text-sm font-medium text-neutral-600 dark:text-neutral-400 text-center">Prix</div>
-        <div className="text-sm font-medium text-neutral-600 dark:text-neutral-400 text-center">Quantité</div>
-        <div className="text-sm font-medium text-neutral-600 dark:text-neutral-400 text-center">Total</div>
+      <div className="hidden md:grid md:grid-cols-[3fr_1fr_1fr_1fr_auto] gap-4 mb-4 pb-4 border-b border-[#3A4A4F]">
+        <div className="text-sm font-medium text-[#F4F8F5]">Produit</div>
+        <div className="text-sm font-medium text-[#F4F8F5] text-center">Prix</div>
+        <div className="text-sm font-medium text-[#F4F8F5] text-center">Quantité</div>
+        <div className="text-sm font-medium text-[#F4F8F5] text-center">Total</div>
         <div></div>
       </div>
 
       {/* Liste des produits */}
       <div className="space-y-6 mb-8">
         {cart.items.map((item, index) => (
-          <div key={`${item.productId}-${item.variantId || ''}-${index}`} className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr_1fr_auto] gap-4 py-6 border-b border-neutral-200 dark:border-neutral-800">
+          <div key={`${item.productId}-${item.variantId || ''}-${index}`} className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr_1fr_auto] gap-4 py-6 border-b border-[#3A4A4F]">
             {/* Produit */}
             <div className="flex items-center">
-              <div className="w-20 h-20 flex-shrink-0 bg-neutral-100 dark:bg-neutral-800 rounded-md overflow-hidden relative">
+              <div className="w-20 h-20 flex-shrink-0 bg-[#002935] rounded-md overflow-hidden relative">
                 {item.image && (
                   <Image
                     src={item.image}
@@ -400,13 +402,13 @@ export default function CartView() {
                 )}
               </div>
               <div className="ml-4">
-                <h3 className="text-neutral-900 dark:text-white font-medium">
-                  <Link href={`/produits/${item.slug}`} className="hover:text-primary">
+                <h3 className="text-[#F4F8F5] font-medium">
+                  <Link href={`/produits/${item.slug}`} className="hover:text-[#D3A74F]">
                     {item.name}
                   </Link>
                 </h3>
                 {item.weight && (
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  <p className="text-sm text-[#F4F8F5]">
                     Poids: {item.weight}g
                   </p>
                 )}
@@ -415,25 +417,25 @@ export default function CartView() {
 
             {/* Prix */}
             <div className="flex md:justify-center items-center">
-              <span className="md:hidden text-sm text-neutral-600 dark:text-neutral-400 mr-2">Prix:</span>
-              <span className="text-neutral-900 dark:text-white">{formatPrice(item.price)}</span>
+              <span className="md:hidden text-sm text-[#F4F8F5] mr-2">Prix:</span>
+              <span className="text-[#F4F8F5]">{formatPrice(item.price)}</span>
             </div>
 
             {/* Quantité */}
             <div className="flex md:justify-center items-center">
-              <span className="md:hidden text-sm text-neutral-600 dark:text-neutral-400 mr-2">Quantité:</span>
-              <div className="flex items-center border border-neutral-200 dark:border-neutral-700 rounded-md">
+              <span className="md:hidden text-sm text-[#F4F8F5] mr-2">Quantité:</span>
+              <div className="flex items-center border border-[#3A4A4F] rounded-md">
                 <button
                   onClick={() => handleQuantityChange(index, item.quantity - 1)}
-                  className="w-8 h-8 flex items-center justify-center text-neutral-600 dark:text-neutral-400"
+                  className="w-8 h-8 flex items-center justify-center text-[#F4F8F5]"
                   aria-label="Diminuer la quantité"
                 >
                   -
                 </button>
-                <span className="w-10 text-center text-neutral-900 dark:text-white">{item.quantity}</span>
+                <span className="w-10 text-center text-[#F4F8F5]">{item.quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(index, item.quantity + 1)}
-                  className="w-8 h-8 flex items-center justify-center text-neutral-600 dark:text-neutral-400"
+                  className="w-8 h-8 flex items-center justify-center text-[#F4F8F5]"
                   aria-label="Augmenter la quantité"
                 >
                   +
@@ -443,8 +445,8 @@ export default function CartView() {
 
             {/* Total */}
             <div className="flex md:justify-center items-center">
-              <span className="md:hidden text-sm text-neutral-600 dark:text-neutral-400 mr-2">Total:</span>
-              <span className="text-neutral-900 dark:text-white font-medium">
+              <span className="md:hidden text-sm text-[#F4F8F5] mr-2">Total:</span>
+              <span className="text-[#F4F8F5] font-medium">
                 {formatPrice(item.price * item.quantity)}
               </span>
             </div>
@@ -468,26 +470,26 @@ export default function CartView() {
       {/* Récapitulatif et actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="lg:col-start-2">
-          <div className="bg-neutral-50 dark:bg-neutral-900 p-6 rounded-lg">
-            <h2 className="text-xl font-bold mb-4 text-neutral-900 dark:text-white">Récapitulatif</h2>
+          <div className="bg-[#002935] p-6 rounded-lg border border-[#3A4A4F]">
+            <h2 className="text-xl font-bold mb-4 text-[#F4F8F5]">Récapitulatif</h2>
             
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">Sous-total</span>
-                <span className="text-neutral-900 dark:text-white">{formatPrice(cart.subtotal)}</span>
+                <span className="text-[#F4F8F5]">Sous-total</span>
+                <span className="text-[#F4F8F5]">{formatPrice(cart.subtotal)}</span>
               </div>
               
               {/* Calcul des frais de livraison */}
               <div className="flex justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">Livraison</span>
-                <span className="text-neutral-900 dark:text-white">
+                <span className="text-[#F4F8F5]">Livraison</span>
+                <span className="text-[#F4F8F5]">
                   {customerInfo.country === 'Belgique' ? formatPrice(10) : cart.subtotal >= 49 ? 'Gratuit' : formatPrice(4.95)}
                 </span>
               </div>
               
-              <div className="border-t border-neutral-200 dark:border-neutral-800 pt-3 flex justify-between">
-                <span className="font-bold text-neutral-900 dark:text-white">Total</span>
-                <span className="font-bold text-neutral-900 dark:text-white">
+              <div className="border-t border-[#3A4A4F] pt-3 flex justify-between">
+                <span className="font-bold text-[#F4F8F5]">Total</span>
+                <span className="font-bold text-[#F4F8F5]">
                   {formatPrice(cart.subtotal + (customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95))}
                 </span>
               </div>
@@ -503,14 +505,14 @@ export default function CartView() {
               <div className="space-y-3">
                 <button
                   onClick={handleCheckout}
-                  className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-md font-medium transition-colors"
+                  className="w-full pointer bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] py-3 px-4 rounded-md font-medium transition-colors"
                 >
                   Procéder au paiement
                 </button>
                 
                 <Link
                   href="/produits"
-                  className="block text-center w-full text-primary hover:text-primary-dark py-2 transition-colors"
+                  className="block text-center w-full text-[#F4F8F5] hover:text-green-400 py-2 transition-colors"
                 >
                   Continuer mes achats
                 </Link>
@@ -518,15 +520,15 @@ export default function CartView() {
             ) : (
               <>
                 {isAuthenticated && userAddresses.length > 0 && (
-                <div className="mb-6 border-b border-neutral-200 dark:border-neutral-800 pb-6">
-                  <h3 className="text-base font-bold mb-3 text-neutral-800 dark:text-neutral-200">Vos adresses de livraison</h3>
+                <div className="mb-6 border-b border-[#3A4A4F] pb-6">
+                  <h3 className="text-base font-bold mb-3 text-[#F4F8F5]">Vos adresses de livraison</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     {userAddresses.map((address) => (
                       <div 
                         key={address.id} 
                         className={`border rounded-lg p-3 cursor-pointer transition-colors ${selectedAddressId === address.id 
-                          ? 'border-primary bg-primary bg-opacity-5 dark:bg-opacity-10' 
-                          : 'border-neutral-300 dark:border-neutral-700 hover:border-primary'}`}
+                          ? 'border-[#03745C] bg-[#03745C] bg-opacity-5' 
+                          : 'border-[#3A4A4F] hover:border-[#03745C]'}`}
                         onClick={() => handleSelectAddress(address)}
                       >
                         <div className="flex justify-between items-start mb-1">
@@ -541,9 +543,9 @@ export default function CartView() {
                           )}
                         </div>
                         <p className="font-medium text-sm">{address.name}</p>
-                        <p className="text-xs text-neutral-600 dark:text-neutral-400">{address.line1}</p>
-                        {address.line2 && <p className="text-xs text-neutral-600 dark:text-neutral-400">{address.line2}</p>}
-                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                        <p className="text-xs text-[#F4F8F5]">{address.line1}</p>
+                        {address.line2 && <p className="text-xs text-[#F4F8F5]">{address.line2}</p>}
+                        <p className="text-xs text-[#F4F8F5]">
                           {address.postalCode} {address.city}
                         </p>
                       </div>
@@ -556,116 +558,116 @@ export default function CartView() {
               )}
                 
               <form onSubmit={handlePaymentSubmit} className="space-y-4">
-                <h3 className="font-medium text-lg text-neutral-900 dark:text-white">Informations de contact</h3>
+                <h3 className="font-medium text-lg text-[#F4F8F5]">Informations de contact</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Prénom</label>
+                    <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Prénom</label>
                     <input
                       type="text"
                       name="firstName"
                       value={customerInfo.firstName}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.firstName ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                      className={`w-full p-2 border rounded ${errors.firstName ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
                     />
                     {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Nom</label>
+                    <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Nom</label>
                     <input
                       type="text"
                       name="lastName"
                       value={customerInfo.lastName}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.lastName ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                      className={`w-full p-2 border rounded ${errors.lastName ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
                     />
                     {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Email</label>
+                  <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Email</label>
                   <input
                     type="email"
                     name="email"
                     value={customerInfo.email}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
                   />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Téléphone</label>
+                  <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Téléphone</label>
                   <input
                     type="tel"
                     name="phone"
                     value={customerInfo.phone}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded ${errors.phone ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    className={`w-full p-2 border rounded ${errors.phone ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
                   />
                   {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Adresse</label>
+                  <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Adresse</label>
                   <input
                     type="text"
                     name="address"
                     value={customerInfo.address}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded ${errors.address ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                    className={`w-full p-2 border rounded ${errors.address ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
                     placeholder="Rue et numéro"
                   />
                   {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Complément d&rsquo;adresse <span className="text-xs text-neutral-500">(optionnel)</span></label>
+                  <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Complément d&rsquo;adresse <span className="text-xs text-neutral-500">(optionnel)</span></label>
                   <input
                     type="text"
                     name="addressLine2"
                     value={customerInfo.addressLine2}
                     onChange={handleInputChange}
-                    className="w-full p-2 border rounded border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                    className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935]"
                     placeholder="Appartement, bâtiment, etc."
                   />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Code Postal</label>
+                    <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Code Postal</label>
                     <input
                       type="text"
                       name="postalCode"
                       value={customerInfo.postalCode}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.postalCode ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                      className={`w-full p-2 border rounded ${errors.postalCode ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
                     />
                     {errors.postalCode && <p className="text-red-500 text-xs mt-1">{errors.postalCode}</p>}
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Ville</label>
+                    <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Ville</label>
                     <input
                       type="text"
                       name="city"
                       value={customerInfo.city}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.city ? 'border-red-500' : 'border-neutral-300 dark:border-neutral-700'} bg-white dark:bg-neutral-800`}
+                      className={`w-full p-2 border rounded ${errors.city ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
                     />
                     {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-neutral-700 dark:text-neutral-300">Pays</label>
+                  <label className="block text-sm font-medium mb-1 text-[#F4F8F5]">Pays</label>
                   <select
                     name="country"
                     value={customerInfo.country}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, country: e.target.value }))}
-                    className="w-full p-2 border rounded border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                    className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935]"
                   >
                     <option value="France">France</option>
                     <option value="Belgique">Belgique</option>
@@ -674,15 +676,15 @@ export default function CartView() {
                   </select>
                 </div>
                 
-                <div className="text-xs text-neutral-600 dark:text-neutral-400 mt-2">
-                  En passant commande, vous acceptez nos <Link href="/conditions-generales" className="text-primary hover:underline">conditions générales de vente</Link> et reconnaissez notre <Link href="/confidentialite" className="text-primary hover:underline">politique de confidentialité</Link>.
+                <div className="text-xs text-[#F4F8F5] mt-2">
+                  En passant commande, vous acceptez nos <Link href="/conditions-generales" className="text-[#03745C] hover:underline">conditions générales de vente</Link> et reconnaissez notre <Link href="/confidentialite" className="text-[#03745C] hover:underline">politique de confidentialité</Link>.
                 </div>
                 
                 <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isCheckingOut}
-                    className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-md font-medium transition-colors disabled:opacity-70"
+                    className="w-full bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] py-3 px-4 rounded-md font-medium transition-colors disabled:opacity-70"
                   >
                     {isCheckingOut ? 'Traitement en cours...' : 'Finaliser le paiement'}
                   </button>
@@ -691,7 +693,7 @@ export default function CartView() {
                     <button
                       type="button"
                       onClick={() => setCheckoutMode(false)}
-                      className="w-full text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 py-2 mt-2 transition-colors"
+                      className="w-full text-[#F4F8F5] hover:text-[#F4F8F5] py-2 mt-2 transition-colors"
                     >
                       Retour au panier
                     </button>
@@ -699,14 +701,14 @@ export default function CartView() {
                   
                   {/* Suggestion de création de compte pour clients invités */}
                   {!isAuthenticated && !isCheckingOut && (
-                    <div className="mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                    <div className="mt-6 pt-4 border-t border-[#3A4A4F]">
                       <div className="text-center">
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                        <p className="text-sm text-[#F4F8F5] mb-2">
                           Créez un compte pour sauvegarder vos adresses et suivre facilement vos commandes
                         </p>
                         <Link 
                           href="/inscription"
-                          className="inline-block text-primary hover:text-primary-dark text-sm font-medium hover:underline"
+                          className="inline-block text-[#03745C] hover:text-[#03745C] text-sm font-medium hover:underline"
                         >
                           Créer un compte en quelques secondes
                         </Link>
@@ -724,7 +726,7 @@ export default function CartView() {
           <div className="flex flex-wrap gap-4">
             <button
               onClick={clearCart}
-              className="bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 py-2 px-4 rounded-md transition-colors"
+              className="bg-[#002935] hover:bg-[#003a4d] border border-[#3A4A4F] text-[#F4F8F5] py-2 px-4 rounded-md transition-colors"
             >
               Vider le panier
             </button>
@@ -732,7 +734,7 @@ export default function CartView() {
             {/* {!cart.shipping && (
               <Link
                 href="/livraison"
-                className="bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 py-2 px-4 rounded-md transition-colors"
+                className="bg-[#002935] hover:bg-[#003a4d] border border-[#3A4A4F] text-[#F4F8F5] py-2 px-4 rounded-md transition-colors"
               >
                 Calculer les frais de livraison
               </Link>

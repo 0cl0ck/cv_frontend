@@ -10,7 +10,7 @@ export default function ImageHero() {
       {/* Image de fond */}
       <div className="absolute inset-0 overflow-hidden">
         <Image 
-          src="/Chanvre_Vert_Hero.png" 
+          src="/Chanvre_vert_Hero_2.png" 
           alt="Chanvre Vert CBD" 
           layout="fill"
           objectFit="cover"

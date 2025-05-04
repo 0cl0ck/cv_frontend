@@ -123,7 +123,7 @@ export const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageCha
                 onClick={() => handlePageChange(pageNumber)}
                 className={`px-3 py-2 rounded-md ${
                   currentPage === pageNumber
-                    ? 'bg-primary text-white font-medium'
+                    ? 'bg-[#00878a] text-white font-medium'
                     : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
                 }`}
                 aria-label={`Page ${pageNumber}`}

@@ -50,7 +50,7 @@ export default function RootLayout({
       >
         <CartProvider>
           <Header />
-          <main className="flex-grow">
+          <main className="flex-grow bg-[#001E27]">
             {children}
           </main>
           <Footer />

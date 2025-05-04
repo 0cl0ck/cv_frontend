@@ -88,7 +88,7 @@ export default function Header() {
               {/* Login button */}
               <button
                 onClick={() => setShowAccountPopup(true)}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-md transition-colors flex items-center"
+                className="px-4 py-2 text-sm font-medium text-black bg-[#EFC368] hover:bg-[#D3A74F] rounded-lg shadow-md transition-colors flex items-center"
                 aria-label="Connexion"
               >
                 <IconLogin className="md:mr-2 w-5 h-5" />

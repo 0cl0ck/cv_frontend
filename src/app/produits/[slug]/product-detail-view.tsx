@@ -317,7 +317,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
               {/* Informations supplémentaires */}
               <div className="border-t border-[#3A4A4F] pt-6 mt-6">
-                <h2 className="text-lg font-semibold text-[#03745C] mb-4">
+                <h2 className="text-lg font-semibold text-[#F4F8F5] mb-4">
                   Informations produit
                 </h2>
                 {product.productType === 'simple' && typeof product.stock === 'number' && (
@@ -421,7 +421,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
         {/* Produits similaires */}
         {relatedProducts.length > 0 && (
           <div className="mt-16 pt-12 border-t border-[#3A4A4F]">
-            <h2 className="text-2xl font-bold text-[#03745C] mb-8">Produits similaires</h2>
+            <h2 className="text-2xl font-bold text-[#F4F8F5] mb-8">Produits similaires</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct, index) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} index={index} />
