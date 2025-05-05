@@ -108,13 +108,15 @@ const StoreCard = ({ store }: { store: StoreInfo }) => {
           className="flex items-center justify-between text-white group"
         >
           <div className="flex items-center">
-            <Image 
-              src="/google-g-logo.png" 
-              alt="Google"
-              width={20}
-              height={20}
-              className="mr-2"
-            />
+            <div className="w-5 h-5 mr-2 relative">
+              <Image 
+                src="/google-g-logo.png" 
+                alt="Google"
+                fill
+                sizes="20px"
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
             <span>Voir tous les avis</span>
           </div>
           <motion.div

@@ -6,8 +6,7 @@ import {
   IconTruck, 
   IconShieldCheck, 
   IconPlant2, 
-  IconCertificate,
-  IconArrowNarrowRight
+  IconCertificate
 } from '@tabler/icons-react';
 
 // Type pour les avantages
@@ -31,7 +30,8 @@ const cardVariants = {
     }
   }),
   hover: {
-    y: -5,
+    y: -3,
+    boxShadow: '0 10px 20px rgba(0, 0, 0, 0.15)',
     transition: {
       duration: 0.3,
       ease: 'easeOut'
@@ -42,13 +42,12 @@ const cardVariants = {
 // Animation variants pour les icônes
 const iconVariants = {
   hover: {
-    scale: 1.2,
-    rotate: 5,
+    scale: 1.1,
     transition: {
       duration: 0.3,
       ease: 'easeOut',
       type: 'spring',
-      stiffness: 300
+      stiffness: 200
     }
   }
 };
@@ -76,7 +75,7 @@ const accentVariants = {
 const FeatureCard = ({ feature, index }: { feature: Feature; index: number }) => {
   return (
     <motion.div
-      className="relative flex flex-col overflow-hidden rounded-lg bg-[#023440] p-6 group"
+      className="relative flex flex-col overflow-hidden rounded-lg bg-[#023440] p-6 shadow-md border border-[#004942]/20 h-full"
       variants={cardVariants}
       custom={index}
       initial="hidden"
@@ -84,46 +83,24 @@ const FeatureCard = ({ feature, index }: { feature: Feature; index: number }) =>
       viewport={{ once: true, margin: "-50px" }}
       whileHover="hover"
     >
-      {/* Traits d'accent */}
+      {/* Trait d'accent supérieur */}
       <motion.div 
         className="absolute top-0 left-0 h-1 bg-[#004942] w-0"
         variants={accentVariants}
       />
-      <motion.div 
-        className="absolute bottom-0 right-0 h-1 bg-[#004942] w-0"
-        variants={accentVariants}
-      />
 
-      <div className="flex items-start mb-4">
-        {/* Icône avec animation */}
-        <motion.div 
-          className="mr-4 p-3 rounded-full bg-[#004942]/40 text-white"
-          variants={iconVariants}
-        >
-          {feature.icon}
-        </motion.div>
-        
-        <div className="flex-1">
-          <h3 className="text-xl font-semibold text-white mb-1">{feature.title}</h3>
-          <p className="text-white/80 text-sm">{feature.description}</p>
-        </div>
-      </div>
-      
-      {/* Lien fictif pour en savoir plus - s'anime au survol */}
+      {/* Icône avec animation */}
       <motion.div 
-        className="mt-auto pt-2 text-white/80 text-sm flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        initial={{ x: -10 }}
-        whileHover={{ x: 0 }}
+        className="mx-auto mb-4 p-4 rounded-full bg-[#004942]/40 text-white inline-flex items-center justify-center"
+        variants={iconVariants}
       >
-        <span className="mr-1">En savoir plus</span>
-        <motion.div
-          initial={{ x: 0 }}
-          whileHover={{ x: 5 }}
-          transition={{ duration: 0.2 }}
-        >
-          <IconArrowNarrowRight size={16} />
-        </motion.div>
+        {feature.icon}
       </motion.div>
+      
+      <div className="text-center">
+        <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+        <p className="text-white/80 text-sm">{feature.description}</p>
+      </div>
     </motion.div>
   );
 };

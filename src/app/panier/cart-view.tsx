@@ -176,14 +176,11 @@ export default function CartView() {
       try {
         // Vérifier si le cookie d'authentification existe
         const cookies = document.cookie.split(';');
-        console.log('Cookies disponibles:', cookies);
         
         const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-        console.log('Cookie d\'authentification trouvé:', authCookie ? 'Oui' : 'Non');
         
         if (!authCookie) {
           // Utilisateur non connecté
-          console.log('Aucun cookie d\'authentification - utilisateur non connecté');
           setIsAuthenticated(false);
           return;
         }
@@ -194,11 +191,9 @@ export default function CartView() {
         
         // Extraire le token JWT du cookie
         const token = authCookie.split('=')[1]?.trim();
-        console.log('Token JWT extrait (premiers caractères):', token ? token.substring(0, 20) + '...' : 'null');
         
         // Récupérer les informations du programme de fidélité
         const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        console.log('URL du backend:', backendUrl);
         
         // Détails de la requête
         const requestData = {
@@ -206,12 +201,6 @@ export default function CartView() {
           shippingCost: customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
           items: cart.items
         };
-        console.log('Données envoyées à l\'API de fidélité:', requestData);
-        
-        console.log('En-têtes de la requête:', {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token?.substring(0, 10)}...`
-        });
         
         const loyaltyResponse = await fetch(`${backendUrl}/api/cart/apply-loyalty`, {
           method: 'POST',
@@ -223,32 +212,14 @@ export default function CartView() {
           body: JSON.stringify(requestData)
         });
         
-        console.log('Réponse de l\'API de fidélité:', {
-          status: loyaltyResponse.status,
-          statusText: loyaltyResponse.statusText,
-          ok: loyaltyResponse.ok
-        });
+
         
         if (loyaltyResponse.ok) {
           const loyaltyData = await loyaltyResponse.json();
-          console.log('Données de réponse de fidélité:', loyaltyData);
-          
-          // Informations de débogage sur le nombre de commandes et les récompenses disponibles
-          if (loyaltyData.orderCount !== undefined) {
-            console.log(`Nombre de commandes validées selon l'API: ${loyaltyData.orderCount}`);
-          }
-          
-          if (loyaltyData.accountReward) {
-            console.log('Récompense du programme fidélité (page compte):', loyaltyData.accountReward);
-          }
           
           // Gestion des avantages de fidélité pour le panier actuel
           if (loyaltyData.reward && loyaltyData.reward.type !== 'none') {
-            console.log('Avantages de fidélité activés pour le panier:', {
-              message: loyaltyData.reward.message,
-              discount: loyaltyData.discount,
-              type: loyaltyData.reward.type
-            });
+
             
             setLoyaltyBenefits({
               active: true,

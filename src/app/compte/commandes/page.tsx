@@ -190,27 +190,49 @@ export default function OrdersPage() {
                   <div key={order.id} className="bg-[#00424c] rounded-lg overflow-hidden shadow-sm">
                     {/* En-tête de la commande */}
                     <div 
-                      className="p-4 cursor-pointer hover:bg-[#005866] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      className="p-4 cursor-pointer hover:bg-[#005866] transition-colors"
                       onClick={() => toggleOrderDetails(order.id)}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                        <div className="p-2 bg-[#002B33] rounded-md">
-                          <Package size={24} className="text-[#10B981]" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-[#D1D5DB]">Commande {order.orderNumber}</h3>
-                          <p className="text-sm text-[#BEC3CA]">{formatDate(order.date)}</p>
+                      {/* Mobile layout */}
+                      <div className="sm:hidden">
+                        <div className="flex items-start">
+                          <div className="p-2 mr-3 bg-[#002B33] rounded-md self-start">
+                            <Package size={20} className="text-[#10B981]" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-[#D1D5DB]">Commande {order.orderNumber}</h3>
+                            <p className="text-sm text-[#BEC3CA] mb-2">{formatDate(order.date)}</p>
+                            <div className="flex items-center justify-between mt-2">
+                              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium text-white ${statusInfo.color}`}>
+                                {statusInfo.text}
+                              </span>
+                              <span className="font-medium text-[#D1D5DB]">{formatPrice(order.total)}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium text-white ${statusInfo.color}`}>
-                            {statusInfo.text}
-                          </span>
+
+                      {/* Desktop layout */}
+                      <div className="hidden sm:flex sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex sm:flex-row sm:items-center gap-4">
+                          <div className="inline-flex p-2 bg-[#002B33] rounded-md">
+                            <Package size={20} className="text-[#10B981]" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-[#D1D5DB]">Commande {order.orderNumber}</h3>
+                            <p className="text-sm text-[#BEC3CA]">{formatDate(order.date)}</p>
+                          </div>
                         </div>
-                        <div className="font-medium text-[#D1D5DB]">
-                          {formatPrice(order.total)}
+                        
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium text-white ${statusInfo.color}`}>
+                              {statusInfo.text}
+                            </span>
+                          </div>
+                          <div className="font-medium text-[#D1D5DB]">
+                            {formatPrice(order.total)}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -219,8 +241,49 @@ export default function OrdersPage() {
                     {isExpanded && (
                       <div className="p-4 border-t border-[#1D5754] bg-[#002B33]">
                         <h4 className="text-sm font-medium text-[#BEC3CA] mb-3">Détails de la commande</h4>
-                        <div className="space-y-4">
-                          {/* Articles de la commande */}
+                        
+                        {/* Vue mobile */}
+                        <div className="sm:hidden space-y-6">
+                          {/* Articles de la commande en vue mobile */}
+                          {order.items.map((item, index) => (
+                            <div key={`${order.id}-item-mobile-${index}`} className="bg-[#1D5754] p-3 rounded-md">
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="font-medium text-[#D1D5DB] pr-2">{item.name}</div>
+                                <div className="text-[#D1D5DB] font-medium">
+                                  {formatPrice(item.price * item.quantity)}
+                                </div>
+                              </div>
+                              <div className="flex justify-between text-sm text-[#BEC3CA]">
+                                <div>Quantité: {item.quantity}</div>
+                                <div>Prix unitaire: {formatPrice(item.price)}</div>
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {/* Résumé financier en vue mobile */}
+                          <div className="bg-[#00424A] p-4 rounded-md mt-4 space-y-2">
+                            <div className="flex justify-between items-center py-1">
+                              <span className="text-sm text-[#BEC3CA]">Sous-total</span>
+                              <span className="text-sm text-[#D1D5DB]">{formatPrice(order.subtotal)}</span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center py-1">
+                              <span className="text-sm text-[#BEC3CA]">
+                                Frais de livraison
+                                {order.shipping?.cost === 0 && <span className="ml-1 text-[#10B981]">(Offerts)</span>}
+                              </span>
+                              <span className="text-sm text-[#D1D5DB]">{formatPrice(order.shipping?.cost || 0)}</span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center pt-3 border-t border-[#1D5754]">
+                              <span className="text-base font-bold text-[#BEC3CA]">Total</span>
+                              <span className="text-base font-bold text-[#D1D5DB]">{formatPrice(order.total)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Vue desktop avec tableau */}
+                        <div className="hidden sm:block">
                           <div className="rounded-md overflow-hidden">
                             <table className="min-w-full divide-y divide-[#0A3A3A]">
                               <thead className="bg-[#00424A]">
@@ -276,8 +339,6 @@ export default function OrdersPage() {
                               </tfoot>
                             </table>
                           </div>
-                          
-                          {/* Actions sur la commande - Bouton facture supprimé pour simplification */}
                         </div>
                       </div>
                     )}

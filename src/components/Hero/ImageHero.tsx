@@ -12,11 +12,11 @@ export default function ImageHero() {
         <Image 
           src="/Chanvre_vert_Hero_2.png" 
           alt="Chanvre Vert CBD" 
-          layout="fill"
-          objectFit="cover"
+          fill
+          sizes="100vw"
           priority
           quality={100}
-          className="w-full h-full"
+          className="object-cover w-full h-full"
         />
         {/* Overlay léger pour améliorer la lisibilité du texte */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#002830] via-[#002830]/70 to-transparent"></div>

@@ -54,7 +54,7 @@ const CategoryCard = ({ category, index }: { category: CategoryCard; index: numb
           {/* Image avec overlay */}
           <div className="relative aspect-[16/10] overflow-hidden">
             <motion.div
-              className="h-full w-full"
+              className="h-full w-full relative"
               animate={{ scale: isHovered ? 1.05 : 1 }}
               transition={{ duration: 0.4 }}
             >
