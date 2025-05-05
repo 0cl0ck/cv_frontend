@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { IconMapPin, IconStar, IconStarFilled, IconArrowUpRight, IconMessageCircle2 } from '@tabler/icons-react';
+import testimonialData from '@/data/testimonials.json';
 
 // Type pour les informations de boutique
 type StoreInfo = {
@@ -132,29 +133,24 @@ const StoreCard = ({ store }: { store: StoreInfo }) => {
 };
 
 export default function SocialProofSection() {
-  // Infos des boutiques
-  const stores: StoreInfo[] = [
-    {
-      id: '1',
-      name: 'Chanvre Vert Bergues',
-      location: 'Bergues, Nord',
-      rating: 4.7,
-      reviewCount: 98,
-      googleLink: 'https://www.google.com/search?sca_esv=219e40ae4658da95&sxsrf=AHTn8zrlYgsdKDJUa-p5Tio_mO2xfH1XJA:1746144203265&q=chanvre+vert+bergues',
-      reviewText: "Personnel très accueillant et très sympa. Produit de qualité. Je recommande les yeux fermés. Livraison très rapide et soignée avec un petit mot toujours agréable.",
-      reviewAuthor: "Marie L."
-    },
-    {
-      id: '2',
-      name: 'Chanvre Vert Wormhout',
-      location: 'Wormhout, Nord',
-      rating: 4.9,
-      reviewCount: 76,
-      googleLink: 'https://www.google.com/search?sca_esv=219e40ae4658da95&sxsrf=AHTn8zqQrMxFthf7Z4EL-QhVhPSgNZ8wYA:1746144242455&q=chanvre+vert+wormhout',
-      reviewText: "Boutique très propre et bien agencée, le personnel est à l'écoute et donne des conseils avisés. Les produits sont de qualité et l'accueil est chaleureux.",
-      reviewAuthor: "Thomas D."
-    }
-  ];
+  // État pour stocker les témoignages
+  const [stores, setStores] = useState<StoreInfo[]>([]);
+
+  // Charge un témoignage aléatoire pour chaque boutique
+  useEffect(() => {
+    const allTestimonials = testimonialData as StoreInfo[];
+    
+    // Séparer les témoignages par boutique
+    const berguesTestimonials = allTestimonials.filter(t => t.name === "Chanvre Vert Bergues");
+    const wormhoutTestimonials = allTestimonials.filter(t => t.name === "Chanvre Vert Wormhout");
+    
+    // Sélectionner un témoignage aléatoire pour chaque boutique
+    const randomBergues = berguesTestimonials[Math.floor(Math.random() * berguesTestimonials.length)];
+    const randomWormhout = wormhoutTestimonials[Math.floor(Math.random() * wormhoutTestimonials.length)];
+    
+    // Afficher les deux boutiques
+    setStores([randomBergues, randomWormhout]);
+  }, []);
 
   return (
     <section className="py-16 bg-[#00343f] relative overflow-hidden">

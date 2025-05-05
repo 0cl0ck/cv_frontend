@@ -86,8 +86,7 @@ export default async function CategoryPage(props) {
     console.error(`Erreur lors du parsing de l'URL ${url}:`, error);
   }
   
-  console.log(`[DEBUG] Catégorie ${slug} - URL détectée:`, url);
-  console.log(`[DEBUG] Catégorie ${slug} - Paramètres:`, Object.fromEntries(searchParams.entries()));
+  // Informations d'URL et paramètres (logs supprimés pour la production)
   
   const page = searchParams.get('page') || '1';
   const limitStr = searchParams.get('limit') || '12';
@@ -97,7 +96,7 @@ export default async function CategoryPage(props) {
   const currentPage = parseInt(page, 10);
   const limit = parseInt(limitStr, 10);
   
-  console.log(`[DEBUG] Catégorie ${slug} - Page demandée: ${currentPage}, Limite: ${limit}`);
+  // Informations de pagination (logs supprimés pour la production)
   
   // Configurer les filtres de prix en fonction de la plage sélectionnée
   let minPrice: number | undefined;
@@ -131,7 +130,7 @@ export default async function CategoryPage(props) {
     const weightBasedCategorySlugs = ['fleurs-cbd', 'resines-cbd', 'packs-cbd', 'fleurs%20CBD', 'résines%20CBD', 'packs%20CBD'];
     const isWeightBasedCategory = weightBasedCategorySlugs.some(weightSlug => slug.includes(weightSlug));
     
-    console.log(`[DEBUG] Catégorie ${slug} - Infos pagination: isWeightBasedCategory=${isWeightBasedCategory}, shouldSortByPricePerGram=${shouldSortByPricePerGram}`);
+    // Informations de catégorie et tri (logs supprimés pour la production)
     
     // Pour la pagination côté client, on récupère TOUS les produits en une seule requête
     // Limite élevée pour avoir tous les produits de la catégorie
@@ -144,7 +143,7 @@ export default async function CategoryPage(props) {
       maxPrice,
     });
     
-    console.log(`[DEBUG] Catégorie ${slug} - Récupération de tous les produits en une fois: ${productsData.docs.length} produits au total`);
+    // Informations sur les produits récupérés (logs supprimés pour la production)
 
     const categories = await getCategories();
 
@@ -208,7 +207,7 @@ export default async function CategoryPage(props) {
     // Calcul du nombre total de pages pour l'information
     const totalPages = Math.ceil(productsData.docs.length / limit);
     
-    console.log(`[DEBUG] Catégorie ${slug} - Pagination client: ${productsData.docs.length} produits, ${totalPages} pages théoriques`);
+    // Informations de pagination client (logs supprimés pour la production)
 
     // Fonction helper pour ajouter CBD uniquement si pas déjà présent
     const formatWithCBD = (text: string) => {
@@ -219,7 +218,7 @@ export default async function CategoryPage(props) {
     const title = formatWithCBD(category.name);
     const description = `Découvrez notre sélection de ${category.name.toLowerCase().replace(' cbd', '')} CBD de haute qualité`;
     
-    console.log(`[DEBUG] Catégorie ${slug} - Rendu final - Page demandée: ${currentPage}, Tous les produits récupérés: ${productsData.docs.length}`);
+    // Informations de rendu final (logs supprimés pour la production)
     
     return (
       <ProductsLayout

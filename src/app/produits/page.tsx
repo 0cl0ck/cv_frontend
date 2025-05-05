@@ -147,7 +147,7 @@ export default async function ProductsPage(props) {
   let totalPages = productsData.totalPages;
   
   if (needsGlobalSorting) {
-    console.log(`Tri global appliqué: ${productsData.docs.length} produits récupérés au total`);
+    // Tri global appliqué sans logging en production
     // Calcul de l'index de début et de fin pour la pagination manuelle
     const startIndex = (currentPage - 1) * limitNum;
     const endIndex = startIndex + limitNum;
@@ -157,7 +157,7 @@ export default async function ProductsPage(props) {
     
     // Recalcul du nombre total de pages
     totalPages = Math.ceil(productsData.docs.length / limitNum);
-    console.log(`Pagination manuelle: page ${currentPage}/${totalPages}, affichage de ${displayedProducts.length} produits`);
+    // Pagination manuelle appliquée sans logging en production
   }
 
   // CORRECTION: Passer TOUS les produits récupérés quand shouldSortByPrice est true

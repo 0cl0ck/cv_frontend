@@ -242,29 +242,7 @@ export default function ProductsLayout({
       // D'abord les produits avec prix au gramme, puis les produits sans prix au gramme
       filtered = [...productsWithPricePerGram, ...productsWithoutPricePerGram];
       
-      // Afficher les 5 premiers produits après tri pour vérification
-      if (filtered.length > 0) {
-        console.log('PRODUITS APRÈS TRI (5 premiers):', 
-          filtered.slice(0, 5).map(p => ({
-            name: p.name,
-            price: p.price,
-            pricePerGram: p.pricePerGram,
-            effectivePrice: p.pricePerGram || 
-              (p.productType === 'variable' && p.variants?.length ? 
-                Math.min(...p.variants.filter(v => v.pricePerGram).map(v => v.pricePerGram || Infinity)) : 
-                p.price)
-          }))
-        );
-
-        // Afficher aussi les produits correspondant aux extrêmes (moins cher et plus cher)
-        const cheapestProduct = filtered.find(p => p.name === 'Produit Test'); // Produit à 0,10€/g
-        const secondCheapestProduct = filtered.find(p => p.name === 'produit test fleurs'); // Produit à 0,83€/g
-        
-        console.log('Position du produit "Produit Test" (0,10€/g):', 
-          cheapestProduct ? filtered.indexOf(cheapestProduct) : 'Non trouvé');
-        console.log('Position du produit "produit test fleurs" (0,83€/g):', 
-          secondCheapestProduct ? filtered.indexOf(secondCheapestProduct) : 'Non trouvé');
-      }
+      // Version sans logging pour la production
     }
     
     // Calculer la pagination

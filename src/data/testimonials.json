@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "name": "Chanvre Vert Bergues",
+    "location": "Bergues, Nord",
+    "rating": 4.8,
+    "reviewCount": 123,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+bergues",
+    "reviewText": "Très belle boutique beaucoup de variétés et Clément est toujours de bon conseil. La qualité de ces produits est irréprochable et le rapport qualité prix est pour ma part le meilleur du dunkerquois. Je recommande. Essayer c'est l'adopter 😁",
+    "reviewAuthor": "Sandra V."
+  },
+  {
+    "id": "2",
+    "name": "Chanvre Vert Bergues",
+    "location": "Bergues, Nord",
+    "rating": 5.0,
+    "reviewCount": 123,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+bergues",
+    "reviewText": "Le suivi est impeccable, réactif et à l'écoute des demandes ! Les prix sont plus que corrects 👍 Plus qu'à tester le tout mais je recommande déjà pour son Service ainsi que pour sa bienveillance !",
+    "reviewAuthor": "Lou"
+  },
+  {
+    "id": "3",
+    "name": "Chanvre Vert Bergues",
+    "location": "Bergues, Nord",
+    "rating": 4.9,
+    "reviewCount": 123,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+bergues",
+    "reviewText": "Très bon shop, les prix et les produits sont très intéressants et Clément est vraiment top pour les conseils ainsi que son accueil.",
+    "reviewAuthor": "Just Me"
+  },
+  {
+    "id": "4",
+    "name": "Chanvre Vert Wormhout",
+    "location": "Wormhout, Nord",
+    "rating": 5.0,
+    "reviewCount": 55,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+wormhout",
+    "reviewText": "Bonne accueil, magasin propre et diverses choix. Merci pour vos conseils et votre bonne humeur. Je recommande",
+    "reviewAuthor": "Microblading Lille"
+  },
+  {
+    "id": "5",
+    "name": "Chanvre Vert Wormhout",
+    "location": "Wormhout, Nord",
+    "rating": 5.0,
+    "reviewCount": 55,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+wormhout",
+    "reviewText": "Tester pour la première fois aujourd'hui arrivé 5min avant la fermeture et malgré tout bien pris le temp de me conseiller et avec un sourire très accueillant et à ma grande surprise très grande qualité relation clientèle excellente je recommande",
+    "reviewAuthor": "Julien Saint-maxent"
+  },
+  {
+    "id": "6",
+    "name": "Chanvre Vert Wormhout",
+    "location": "Wormhout, Nord",
+    "rating": 5.0,
+    "reviewCount": 55,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+wormhout",
+    "reviewText": "Très bon accueil de Johanna. Très bon produits en plus de bons conseils. Je ne vais que là. Le top également est le E-shop. Je recommande à 100%. En plus de bons produits on s'y s'en bien et très bien accueilli.",
+    "reviewAuthor": "Annso"
+  },
+  {
+    "id": "7",
+    "name": "Chanvre Vert Wormhout",
+    "location": "Wormhout, Nord",
+    "rating": 5.0,
+    "reviewCount": 55,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+wormhout",
+    "reviewText": "Je recommande vivement cette boutique! J'ai très bien été accueilli avec une dame très gentille qui à bien prit le temps de m'expliquer le fonctionnement des différents produits et ce qui pourrait le mieux me convenir! De plus le produit à très bien fonctionné sur moi j'en suis très contente!",
+    "reviewAuthor": "Eloïne"
+  },
+  {
+    "id": "8",
+    "name": "Chanvre Vert Wormhout",
+    "location": "Wormhout, Nord",
+    "rating": 5.0,
+    "reviewCount": 55,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+wormhout",
+    "reviewText": "Première visite conseiller par un ami. J'ai tester 3 variétés de fleur, et une de résine. Toutes m'ont donné entière satisfaction, de plus personnel agréable, à l'écoute du client. Produit de très bonne qualité. Je recommande chanvre vert +++. Vous pouvez y allez les yeux fermés..",
+    "reviewAuthor": "Frederick Cornille"
+  },
+  {
+    "id": "9",
+    "name": "Chanvre Vert Wormhout",
+    "location": "Wormhout, Nord",
+    "rating": 5.0,
+    "reviewCount": 55,
+    "googleLink": "https://www.google.com/search?q=chanvre+vert+wormhout",
+    "reviewText": "En passant la porte du Chanvre Vert, vous êtes assuré d'être bien conseillé. Très professionnelle, expérimentée, connaissant parfaitement ses produits (qui sont de qualité) et pour couronner le tout, vous êtes toujours accueilli avec le sourire ! Je recommande à 100% !",
+    "reviewAuthor": "Cerbevikov"
+  }
+]
