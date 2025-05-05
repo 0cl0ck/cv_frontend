@@ -38,7 +38,7 @@ export default function ImageHero() {
             href="/produits" 
             className="btn px-6 py-3 rounded-lg inline-flex items-center justify-center bg-[#126E62] hover:bg-[#0d5c52] transition-colors text-white"
           >
-            Découvrir nos packs
+            Découvrir nos produits
           </Link>
         </div>
       </div>

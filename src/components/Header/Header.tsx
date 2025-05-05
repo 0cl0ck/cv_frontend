@@ -10,7 +10,6 @@ export default function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showAccountPopup, setShowAccountPopup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   
@@ -151,14 +150,14 @@ export default function Header() {
                   )}
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowAccountPopup(true)}
+                <Link
+                  href="/connexion"
                   className="px-4 py-2 text-sm font-medium text-black bg-[#EFC368] hover:bg-[#D3A74F] rounded-lg shadow-md transition-colors flex items-center"
                   aria-label="Connexion"
                 >
                   <IconLogin className="md:mr-2 w-5 h-5" />
                   <span className="hidden md:inline">Connexion</span>
-                </button>
+                </Link>
               )}
             </div>
           </div>
@@ -201,13 +200,13 @@ export default function Header() {
                   <IconUserCircle className="w-5 h-5" />
                 </Link>
               ) : (
-                <button
-                  onClick={() => setShowAccountPopup(true)}
+                <Link
+                  href="/connexion"
                   className="p-2 mr-1 text-sm font-medium text-black bg-[#EFC368] hover:bg-[#D3A74F] rounded-lg shadow-md transition-colors flex items-center"
                   aria-label="Connexion"
                 >
                   <IconLogin className="w-5 h-5" />
-                </button>
+                </Link>
               )}
             </div>
           </div>
@@ -303,12 +302,9 @@ export default function Header() {
             </>
           ) : (
             <Link
-              href="#"
+              href="/connexion"
               className="flex text-white items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1 mt-4"
-              onClick={() => {
-                setMenuOpen(false);
-                setShowAccountPopup(true);
-              }}
+              onClick={() => setMenuOpen(false)}
             >
               <IconLogin className="mr-3 w-5 h-5" />
               Connexion
@@ -318,53 +314,7 @@ export default function Header() {
       </div>
 
       {/* Popup d'information sur les comptes clients à venir */}
-      {/* Si l'utilisateur n'est pas connecté et clique sur connexion */}
-      {showAccountPopup && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000] p-4">
-          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
-            <button 
-              onClick={() => setShowAccountPopup(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              aria-label="Fermer"
-            >
-              <IconX className="w-5 h-5" />
-            </button>
-            
-            <div className="text-center mb-6">
-              <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-3 inline-flex items-center justify-center mb-4">
-                <IconUser className="w-8 h-8 text-green-600 dark:text-green-500" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Accès à votre compte client</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Connectez-vous pour accéder à votre compte client, suivre vos commandes et gérer vos informations personnelles.
-              </p>
-            </div>
-            
-            <div className="mt-6 flex flex-col space-y-3">
-              <Link
-                href="/connexion"
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-center"
-                onClick={() => setShowAccountPopup(false)}
-              >
-                Se connecter
-              </Link>
-              <Link
-                href="/inscription"
-                className="w-full border border-green-600 text-green-600 hover:bg-green-50 font-medium py-2 px-4 rounded-lg transition-colors text-center"
-                onClick={() => setShowAccountPopup(false)}
-              >
-                Créer un compte
-              </Link>
-              <button
-                onClick={() => setShowAccountPopup(false)}
-                className="w-full text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium py-2 transition-colors"
-              >
-                Continuer mes achats
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Popup supprimée - redirection directe vers /connexion */}
       
       {/* Pas besoin de spacer ici car nous utilisons position relative pour les pages autres que Home */}
     </>
