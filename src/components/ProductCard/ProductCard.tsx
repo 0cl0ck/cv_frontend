@@ -16,15 +16,6 @@ type Props = {
 export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge = true }) => {
   // État pour gérer le survol
   const [isHovered, setIsHovered] = useState(false);
-  // Log de débogage pour vérifier les propriétés du produit
-  console.log(`ProductCard - Produit: ${product.name}`, {
-    id: product.id,
-    type: product.productType,
-    category: product.category,
-    weight: product.weight,
-    price: product.price,
-    pricePerGram: product.pricePerGram
-  });
   
   // Utiliser mainImage comme image principale
   const mainImage = product.mainImage;
@@ -76,17 +67,6 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
     
     const isWeightBased = isFleurCategory || isResineCategory || isPackCategory;
     
-    // Log du slug de catégorie pour débogage
-    console.log(`IsWeightBasedCategory - Produit: ${product.name}`, {
-      categoryRaw: product.category,
-      categoryName,
-      categorySlug,
-      isFleurCategory,
-      isResineCategory,
-      isPackCategory,
-      isWeightBased
-    });
-    
     return isWeightBased;
   };
   
@@ -94,30 +74,13 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   const hasSimplePricePerGram = () => {
     // Si le produit a un prix par gramme déjà défini
     if (product.pricePerGram && product.pricePerGram > 0) {
-      const result = true;
-      console.log(`hasSimplePricePerGram (pricePerGram) - ${product.name}:`, { 
-        pricePerGram: product.pricePerGram, 
-        result 
-      });
-      return result;
+      return true;
     }
     // Sinon, si on peut calculer le prix par gramme
     if (product.weight && product.weight > 0 && product.price) {
-      const result = true;
-      console.log(`hasSimplePricePerGram (weight+price) - ${product.name}:`, { 
-        weight: product.weight, 
-        price: product.price, 
-        calculatedPrice: product.price / product.weight,
-        result 
-      });
-      return result;
+      return true;
     }
     // Sinon, on ne peut pas avoir de prix par gramme
-    console.log(`hasSimplePricePerGram (false) - ${product.name}:`, { 
-      pricePerGram: product.pricePerGram, 
-      weight: product.weight,
-      price: product.price
-    });
     return false;
   };
   
@@ -125,20 +88,13 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   const getSimplePricePerGram = () => {
     // Utiliser directement la propriété pricePerGram si disponible
     if (product.pricePerGram && product.pricePerGram > 0) {
-      console.log(`getSimplePricePerGram (from prop) - ${product.name}:`, product.pricePerGram);
       return product.pricePerGram;
     }
     // Sinon, le calculer si possible
     if (product.weight && product.weight > 0 && product.price) {
       const calculated = product.price / product.weight;
-      console.log(`getSimplePricePerGram (calculated) - ${product.name}:`, { 
-        weight: product.weight, 
-        price: product.price, 
-        calculated 
-      });
       return calculated;
     }
-    console.log(`getSimplePricePerGram (null) - ${product.name}`);
     return null;
   };
 
@@ -158,7 +114,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
       >
         {/* Container de l'image avec animation d'échelle au survol */}
         <motion.div 
-          className="w-full h-full"
+          className="w-full h-full relative"
           animate={{ scale: isHovered ? 1.08 : 1 }}
           transition={{ duration: 0.4 }}
         >
@@ -168,6 +124,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
                 src={getImageUrl(mainImage)}
                 alt={product.name}
                 fill
+                priority
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover object-center"
               />
@@ -212,7 +169,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
         <Link href={`/produits/${product.slug}`} className="mb-2 flex-1">
           <motion.h3 
             className="text-lg font-semibold text-white"
-            animate={{ color: isHovered ? 'rgb(16, 185, 129)' : '' }}
+            animate={{ color: isHovered ? 'rgb(16, 185, 129)' : 'rgb(255, 255, 255)' }}
             transition={{ duration: 0.2 }}
           >
             {product.name}
@@ -235,18 +192,10 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
                   const hasPPG = hasSimplePricePerGram();
                   const simplePrice = product.price ? formatPrice(product.price) : 'Prix sur demande';
                   
-                  console.log(`Pricing decision - ${product.name}:`, {
-                    isWeightBasedCategory: isWBC,
-                    hasSimplePricePerGram: hasPPG,
-                    productType: product.productType
-                  });
-                  
                   if (isWBC && hasPPG) {
-                    const ppg = getSimplePricePerGram();
-                    console.log(`Final: Price per gram - ${product.name}:`, ppg);
-                    return `À partir de ${formatPrice(ppg!)} le gramme`;
+                    const pricePerGram = getSimplePricePerGram();
+                    return `À partir de ${formatPrice(pricePerGram!)} le gramme`;
                   } else {
-                    console.log(`Final: Simple price - ${product.name}:`, product.price);
                     return simplePrice;
                   }
                 })()

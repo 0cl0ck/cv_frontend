@@ -36,8 +36,8 @@ export default function Footer() {
 
   return (
     <footer className="mt-auto bg-[#002830] text-white w-full">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8 gap-8 flex flex-col md:flex-row md:justify-between">
-        <Link className="flex items-center" href="/">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8 gap-8 flex flex-col items-center md:flex-row md:justify-between">
+        <Link className="flex items-center justify-center" href="/">
           <div className="flex items-center">
             <Image 
               src="/logo.png" 
@@ -52,7 +52,7 @@ export default function Footer() {
           </div>
         </Link>
 
-        <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
+        <div className="flex flex-col-reverse items-center md:flex-row gap-4 md:items-center">
           {/* Sélecteur de thème simplifié */}
           {/* <button 
             onClick={toggleTheme}
@@ -84,7 +84,7 @@ export default function Footer() {
       
       {/* Section des informations légales supplémentaires */}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-4 border-t border-white/20">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col items-center md:flex-row md:justify-between gap-4">
           <p className="text-sm text-white/70">
             &copy; {new Date().getFullYear()} Chanvre Vert - Tous droits réservés
           </p>

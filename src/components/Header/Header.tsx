@@ -62,6 +62,7 @@ export default function Header() {
                   width={70} 
                   height={70}
                   className="transition-transform duration-300 hover:scale-105"
+                  priority
                 />
                 <span className="ml-3 font-medium tracking-wide text-xl transition-transform duration-300 hover:scale-105 text-white">
                   Chanvre Vert
