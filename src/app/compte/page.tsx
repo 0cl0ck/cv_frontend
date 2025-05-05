@@ -239,9 +239,10 @@ export default function DashboardPage() {
           setUser(userData);
         }
         
-        // 5. Comme l'API de fidélité n'est pas encore accessible, utiliser les données des commandes directement
+        // 5. Comme l'API dédiée au programme de fidélité rencontre des problèmes, utiliser directement les données des commandes
         try {
-          const ordersResponse = await fetch(`${backendUrl}/api/orders/me`, {
+          // Récupérer les données de commandes directement
+          const ordersResponse = await fetch(`/api/orders/me`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -249,70 +250,39 @@ export default function DashboardPage() {
           
           if (ordersResponse.ok) {
             const ordersData = await ordersResponse.json();
+            
+            // Compter les commandes complétées (livrées ou expédiées)
             const completedOrders = Array.isArray(ordersData.orders) 
               ? ordersData.orders.filter((order: { status: string }) => 
                   order.status === 'delivered' || order.status === 'shipped'
                 )
               : [];
             
+            // Stocker les commandes pour l'historique si nécessaire
+            setOrders(ordersData.orders || []);
+            
+            // Calculer le nombre de commandes validées
             const ordersCount = completedOrders.length;
+            console.log(`Nombre de commandes validées: ${ordersCount}`);
             
-            // Créer des données de fidélité simulées basées sur le nombre de commandes
-            // Déterminer la récompense en fonction du nombre de commandes
-            const determineReward = (count: number): LoyaltyReward => {
-              if (count === 2) {
-                return { 
-                  type: 'sample' as LoyaltyRewardType, 
-                  claimed: false, 
-                  description: 'Échantillon offert + Accès au programme de parrainage' 
-                };
-              }
-              if (count === 3) {
-                return { 
-                  type: 'freeShipping' as LoyaltyRewardType, 
-                  claimed: false, 
-                  value: 5, 
-                  description: 'Livraison offerte (5€ de remise)' 
-                };
-              }
-              if (count === 5) {
-                return { 
-                  type: 'freeProduct' as LoyaltyRewardType, 
-                  claimed: false, 
-                  value: 10, 
-                  description: 'Produit offert (valeur 10€)' 
-                };
-              }
-              if (count === 10) {
-                return { 
-                  type: 'discount' as LoyaltyRewardType, 
-                  claimed: false, 
-                  value: 20, 
-                  description: 'Réduction 20€ ou Produit offert' 
-                };
-              }
-              return { 
-                type: 'none' as LoyaltyRewardType, 
-                claimed: false, 
-                description: 'Aucune récompense disponible' 
-              };
-            };
+            // Importer la fonction qui détermine la récompense
+            const { determineReward } = await import('@/lib/loyalty');
             
-            const loyaltyData = {
+            // Générer les données de fidélité
+            const loyaltyInfo = {
               ordersCount,
               currentReward: determineReward(ordersCount),
               referralEnabled: ordersCount >= 2
             };
             
-            // Mettre à jour l'utilisateur avec les informations de fidélité
-            const updatedUserData = { ...userData, loyalty: loyaltyData };
+            // Mettre à jour l'utilisateur avec les données de fidélité
+            const updatedUserData = { ...userData, loyalty: loyaltyInfo };
             setUser(updatedUserData);
-            setLoyaltyLoading(false);
           } else {
             console.error('Erreur lors de la récupération des commandes:', ordersResponse.status);
             setLoyaltyError('Impossible de charger vos commandes');
-            setLoyaltyLoading(false);
           }
+          setLoyaltyLoading(false);
         } catch (loyaltyErr) {
           console.error('Erreur lors de la récupération des informations de fidélité:', loyaltyErr);
           setLoyaltyError('Impossible de charger votre programme de fidélité');

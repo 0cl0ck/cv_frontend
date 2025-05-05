@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useCartContext } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import apiConfig from '@/config/api';
-import { MapPin, CheckCircle } from 'lucide-react';
+import { MapPin, CheckCircle, Gift, Truck, AlertCircle } from 'lucide-react';
 
 // Types pour les adresses
 type AddressType = 'shipping' | 'billing' | 'both';
@@ -29,6 +29,20 @@ export default function CartView() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutMode, setCheckoutMode] = useState(false);
   const isSubmitting = useRef(false);
+  
+  // État pour les avantages du programme de fidélité
+  const [loyaltyBenefits, setLoyaltyBenefits] = useState<{
+    active: boolean;
+    message: string;
+    discountAmount: number;
+    rewardType: 'none' | 'sample' | 'freeShipping' | 'freeProduct' | 'discount';
+  }>({ 
+    active: false, 
+    message: '', 
+    discountAmount: 0,
+    rewardType: 'none' 
+  });
+  const [loadingLoyalty, setLoadingLoyalty] = useState(false);
   
   // État pour les adresses enregistrées
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
@@ -67,6 +81,130 @@ export default function CartView() {
     removeItem(index);
   };
 
+  // Vérifier si l'utilisateur est authentifié et récupérer les avantages de fidélité
+  useEffect(() => {
+    async function checkLoyaltyBenefits() {
+      try {
+        // Vérifier si le cookie d'authentification existe
+        const cookies = document.cookie.split(';');
+        console.log('Cookies disponibles:', cookies);
+        
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
+        console.log('Cookie d\'authentification trouvé:', authCookie ? 'Oui' : 'Non');
+        
+        if (!authCookie) {
+          // Utilisateur non connecté
+          console.log('Aucun cookie d\'authentification - utilisateur non connecté');
+          setIsAuthenticated(false);
+          return;
+        }
+        
+        // Utilisateur connecté
+        setIsAuthenticated(true);
+        setLoadingLoyalty(true);
+        
+        // Extraire le token JWT du cookie
+        const token = authCookie.split('=')[1]?.trim();
+        console.log('Token JWT extrait (premiers caractères):', token ? token.substring(0, 20) + '...' : 'null');
+        
+        // Récupérer les informations du programme de fidélité
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        console.log('URL du backend:', backendUrl);
+        
+        // Détails de la requête
+        const requestData = {
+          cartTotal: cart.subtotal,
+          shippingCost: customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
+          items: cart.items
+        };
+        console.log('Données envoyées à l\'API de fidélité:', requestData);
+        
+        console.log('En-têtes de la requête:', {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token?.substring(0, 10)}...`
+        });
+        
+        const loyaltyResponse = await fetch(`${backendUrl}/api/cart/apply-loyalty`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include', // Inclure les cookies dans la requête
+          body: JSON.stringify(requestData)
+        });
+        
+        console.log('Réponse de l\'API de fidélité:', {
+          status: loyaltyResponse.status,
+          statusText: loyaltyResponse.statusText,
+          ok: loyaltyResponse.ok
+        });
+        
+        if (loyaltyResponse.ok) {
+          const loyaltyData = await loyaltyResponse.json();
+          console.log('Données de réponse de fidélité:', loyaltyData);
+          
+          // Informations de débogage sur le nombre de commandes et les récompenses disponibles
+          if (loyaltyData.orderCount !== undefined) {
+            console.log(`Nombre de commandes validées selon l'API: ${loyaltyData.orderCount}`);
+          }
+          
+          if (loyaltyData.accountReward) {
+            console.log('Récompense du programme fidélité (page compte):', loyaltyData.accountReward);
+          }
+          
+          // Gestion des avantages de fidélité pour le panier actuel
+          if (loyaltyData.reward && loyaltyData.reward.type !== 'none') {
+            console.log('Avantages de fidélité activés pour le panier:', {
+              message: loyaltyData.reward.message,
+              discount: loyaltyData.discount,
+              type: loyaltyData.reward.type
+            });
+            
+            setLoyaltyBenefits({
+              active: true,
+              message: loyaltyData.reward.message,
+              discountAmount: loyaltyData.discount || 0,
+              rewardType: loyaltyData.reward.type
+            });
+          } else {
+            console.log('Aucun avantage de fidélité applicable au panier');
+            
+            // Même si aucun avantage n'est applicable au panier,
+            // nous pouvons montrer le nombre de commandes validées
+            if (loyaltyData.orderCount) {
+              console.log(`Progression de fidélité: ${loyaltyData.orderCount} commande(s) validée(s)`);
+            }
+          }
+        } else {
+          // En cas d'erreur, tenter de lire le message d'erreur
+          try {
+            const errorData = await loyaltyResponse.json();
+            console.error('Erreur de fidélité:', errorData);
+          } catch (parseError) {
+            console.error('Impossible de parser la réponse d\'erreur:', parseError);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification des avantages de fidélité:', error);
+        if (error instanceof Error) {
+          console.error('Détails de l\'erreur:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          });
+        }
+      } finally {
+        setLoadingLoyalty(false);
+      }
+    }
+    
+    // N'exécuter que si le panier contient des articles
+    if (cart.items.length > 0) {
+      checkLoyaltyBenefits();
+    }
+  }, [cart.subtotal, cart.items, customerInfo.country]);
+  
   // Récupérer les adresses enregistrées du client s'il est connecté
   useEffect(() => {
     async function fetchUserAddresses() {
@@ -487,10 +625,49 @@ export default function CartView() {
                 </span>
               </div>
               
+              {/* Section Avantages Fidélité */}
+              {isAuthenticated && (
+                <div className="mt-3">
+                  {loadingLoyalty ? (
+                    <div className="text-sm text-[#F4F8F5] italic">Vérification du programme fidélité...</div>
+                  ) : loyaltyBenefits.active ? (
+                    <div className="bg-[#03745C] bg-opacity-20 border border-[#03745C] rounded-md p-3 mt-2">
+                      <div className="flex items-center text-[#10B981] font-medium mb-1">
+                        {loyaltyBenefits.rewardType === 'freeProduct' && <Gift size={18} className="mr-2" />}
+                        {loyaltyBenefits.rewardType === 'freeShipping' && <Truck size={18} className="mr-2" />}
+                        {(loyaltyBenefits.rewardType === 'discount' || loyaltyBenefits.rewardType === 'sample') && 
+                          <Gift size={18} className="mr-2" />}
+                        Avantage fidélité appliqué!
+                      </div>
+                      <p className="text-sm text-[#F4F8F5]">{loyaltyBenefits.message}</p>
+                      {loyaltyBenefits.discountAmount > 0 && (
+                        <div className="flex justify-between text-sm mt-1">
+                          <span className="text-[#F4F8F5]">Réduction</span>
+                          <span className="text-[#10B981]">-{formatPrice(loyaltyBenefits.discountAmount)}</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+              
+              {!isAuthenticated && (
+                <div className="mt-3 bg-[#002935] border border-[#3A4A4F] rounded-md p-3">
+                  <div className="flex items-center text-[#F4F8F5] mb-1">
+                    <AlertCircle size={16} className="mr-2 text-[#EFC368]" />
+                    <span className="font-medium">Programme de fidélité</span>
+                  </div>
+                  <p className="text-xs text-[#F4F8F5] mb-2">Connectez-vous pour bénéficier d'avantages exclusifs selon votre historique de commandes.</p>
+                  <Link href="/connexion" className="text-[#EFC368] text-xs hover:underline">
+                    Se connecter pour en profiter
+                  </Link>
+                </div>
+              )}
+              
               <div className="border-t border-[#3A4A4F] pt-3 flex justify-between">
                 <span className="font-bold text-[#F4F8F5]">Total</span>
                 <span className="font-bold text-[#F4F8F5]">
-                  {formatPrice(cart.subtotal + (customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95))}
+                  {formatPrice(cart.subtotal - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0) + (customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95))}
                 </span>
               </div>
               
