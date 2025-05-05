@@ -44,6 +44,23 @@ export default function CartView() {
   });
   const [loadingLoyalty, setLoadingLoyalty] = useState(false);
   
+  // État pour la gestion des codes promotionnels
+  const [promoCode, setPromoCode] = useState('');
+  const [promoResult, setPromoResult] = useState<{
+    applied: boolean;
+    code: string;
+    discount: number;
+    message: string;
+    type: 'percentage' | 'fixed' | 'free_shipping' | '';
+  }>({
+    applied: false,
+    code: '',
+    discount: 0,
+    message: '',
+    type: ''
+  });
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  
   // État pour les adresses enregistrées
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -79,6 +96,78 @@ export default function CartView() {
   // Supprimer un article
   const handleRemoveItem = (index: number) => {
     removeItem(index);
+  };
+
+  // Appliquer un code promo
+  const handleApplyPromoCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!promoCode.trim()) return;
+    
+    try {
+      setIsApplyingPromo(true);
+      
+      // Calcul des frais de livraison
+      const shippingCost = customerInfo.country === 'Belgique' 
+        ? 10 
+        : cart.subtotal >= 49 ? 0 : 4.95;
+      
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${backendUrl}/api/cart/apply-promo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          promoCode: promoCode.trim(),
+          cartTotal: cart.subtotal,
+          shippingCost
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success && result.valid) {
+        setPromoResult({
+          applied: true,
+          code: result.code,
+          discount: result.discount,
+          message: result.message,
+          type: result.type
+        });
+      } else {
+        setPromoResult({
+          applied: false,
+          code: '',
+          discount: 0,
+          message: result.message || 'Code promo invalide',
+          type: ''
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'application du code promo:', error);
+      setPromoResult({
+        applied: false,
+        code: '',
+        discount: 0,
+        message: 'Erreur technique lors de l\'application du code',
+        type: ''
+      });
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
+  
+  // Annuler un code promo appliqué
+  const handleCancelPromoCode = () => {
+    setPromoResult({
+      applied: false,
+      code: '',
+      discount: 0,
+      message: '',
+      type: ''
+    });
+    setPromoCode('');
   };
 
   // Vérifier si l'utilisateur est authentifié et récupérer les avantages de fidélité
@@ -437,15 +526,44 @@ export default function CartView() {
           notes: ""
         },
         payment: {
-          amount: total,
-          amountCents: totalCents,
+          amount: cart.subtotal 
+            - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
+            - (promoResult.applied ? promoResult.discount : 0)
+            + (customerInfo.country === 'Belgique' 
+                ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+                : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
+                  ? 0 
+                  : 4.95),
+          amountCents: Math.round(100 * (cart.subtotal 
+            - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
+            - (promoResult.applied ? promoResult.discount : 0)
+            + (customerInfo.country === 'Belgique' 
+                ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+                : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
+                  ? 0 
+                  : 4.95))),
           subtotal: cart.subtotal,
           subtotalCents: cart.subtotalCents,
-          shippingCost: shippingCost,
-          shippingCostCents: shippingCostCents,
+          shippingCost: customerInfo.country === 'Belgique' 
+            ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+            : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
+              ? 0
+              : 4.95,
+          shippingCostCents: customerInfo.country === 'Belgique' 
+            ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 1000) 
+            : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
+              ? 0
+              : 495,
           customerEmail: customerInfo.email,
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
-          customerPhone: customerInfo.phone
+          customerPhone: customerInfo.phone,
+          // Informations sur le code promo
+          promoCode: promoResult.applied ? promoResult.code : null,
+          promoDiscount: promoResult.applied ? promoResult.discount : 0,
+          promoDiscountCents: promoResult.applied ? Math.round(promoResult.discount * 100) : 0,
+          // Informations sur la fidélité
+          loyaltyDiscount: loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0,
+          loyaltyDiscountCents: loyaltyBenefits.active ? Math.round(loyaltyBenefits.discountAmount * 100) : 0
         }
       };
       
@@ -609,6 +727,54 @@ export default function CartView() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="lg:col-start-2">
           <div className="bg-[#002935] p-6 rounded-lg border border-[#3A4A4F]">
+            {/* Section Code Promo */}
+            <div className="mb-6 pb-6 border-b border-[#3A4A4F]">
+              <h2 className="text-lg font-bold mb-3 text-[#F4F8F5]">Code Promotionnel</h2>
+              
+              {!promoResult.applied ? (
+                <form onSubmit={handleApplyPromoCode} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    placeholder="Entrez votre code"
+                    className="flex-grow p-2 border rounded border-[#3A4A4F] bg-[#001E27] text-[#F4F8F5] text-sm"
+                    disabled={isApplyingPromo}
+                  />
+                  <button
+                    type="submit"
+                    disabled={isApplyingPromo || !promoCode.trim()}
+                    className="bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] px-3 py-2 rounded-md font-medium transition-colors disabled:opacity-70 text-sm whitespace-nowrap"
+                  >
+                    {isApplyingPromo ? 'Application...' : 'Appliquer'}
+                  </button>
+                </form>
+              ) : (
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="text-[#10B981] font-medium mr-2">✓</span>
+                      <span className="text-[#F4F8F5]">
+                        Code <span className="font-bold">{promoResult.code}</span> appliqué
+                      </span>
+                    </div>
+                    <button 
+                      onClick={handleCancelPromoCode}
+                      className="text-[#F4F8F5] hover:text-red-400 text-sm"
+                    >
+                      Retirer
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {promoResult.message && !promoResult.applied && (
+                <div className="mt-2 p-2 rounded text-sm bg-red-900 bg-opacity-20 text-red-400">
+                  {promoResult.message}
+                </div>
+              )}
+            </div>
+            
             <h2 className="text-xl font-bold mb-4 text-[#F4F8F5]">Récapitulatif</h2>
             
             <div className="space-y-3 mb-6">
@@ -651,6 +817,14 @@ export default function CartView() {
                 </div>
               )}
               
+              {/* Affichage de la réduction du code promo */}
+              {promoResult.applied && promoResult.discount > 0 && (
+                <div className="flex justify-between mt-3">
+                  <span className="text-[#F4F8F5]">Code promo ({promoResult.code})</span>
+                  <span className="text-[#10B981]">-{formatPrice(promoResult.discount)}</span>
+                </div>
+              )}
+              
               {!isAuthenticated && (
                 <div className="mt-3 bg-[#002935] border border-[#3A4A4F] rounded-md p-3">
                   <div className="flex items-center text-[#F4F8F5] mb-1">
@@ -667,7 +841,20 @@ export default function CartView() {
               <div className="border-t border-[#3A4A4F] pt-3 flex justify-between">
                 <span className="font-bold text-[#F4F8F5]">Total</span>
                 <span className="font-bold text-[#F4F8F5]">
-                  {formatPrice(cart.subtotal - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0) + (customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95))}
+                  {formatPrice(
+                    // Sous-total
+                    cart.subtotal 
+                    // Moins réduction fidélité
+                    - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
+                    // Moins réduction code promo
+                    - (promoResult.applied ? promoResult.discount : 0)
+                    // Plus frais de livraison (gratuit si code promo de type free_shipping ou si conditions remplies)
+                    + (customerInfo.country === 'Belgique' 
+                        ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+                        : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
+                          ? 0 
+                          : 4.95)
+                  )}
                 </span>
               </div>
               
