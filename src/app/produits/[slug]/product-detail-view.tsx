@@ -240,8 +240,8 @@ export default function ProductDetailView({ product, relatedProducts, categories
 
               {/* Description courte */}
               {product.description && (
-                <div className='mb-6 text-[#F4F8F5]'>
-                  <div className="prose prose-invert">
+                <div className='mb-6'>
+                  <div className="prose prose-invert !text-white prose-p:text-white prose-headings:text-white prose-li:text-white prose-strong:text-white">
                     <RichTextRenderer content={product.description} />
                   </div>
                 </div>

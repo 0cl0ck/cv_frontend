@@ -101,7 +101,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, // eslint-disable
 
   return (
     <motion.div 
-      className="group relative flex h-full flex-col overflow-hidden rounded-lg border dark:border-neutral-800 bg-background shadow-sm transition-all hover:shadow-md"
+      className="group relative flex h-full flex-col overflow-hidden rounded-lg bg-background shadow-sm transition-all hover:shadow-md"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}

@@ -312,19 +312,19 @@ export default function ProductsLayout({
             variants={itemVariants}
           >
             {/* Filtre par catégorie */}
-            <div className="bg-white dark:bg-[#00454f] rounded-lg shadow-lg p-6 border border-gray-100 dark:border-[#005965]">
+            <div className="bg-[#00454f] rounded-lg shadow-lg p-6 border border-[#005965]">
               <div className="flex items-center mb-4">
                 <IconFilter className="mr-2 text-[#00878a] dark:text-green-300" size={20} />
-                <h2 className="font-bold text-xl text-neutral-900 dark:text-white">Catégories</h2>
+                <h2 className="font-bold text-xl text-white">Catégories</h2>
               </div>
               <CategoryFilter categories={categories} activeCategory={activeCategory} />
             </div>
 
             {/* Tri par prix */}
-            <div className="bg-white dark:bg-[#00454f] rounded-lg shadow-lg p-6 border border-gray-100 dark:border-[#005965]">
+            <div className="bg-[#00454f] rounded-lg shadow-lg p-6 border border-[#005965]">
               <div className="flex items-center mb-4">
                 <IconSortDescending className="mr-2 text-[#00878a] dark:text-green-300" size={20} />
-                <h2 className="font-bold text-xl text-neutral-900 dark:text-white">Tri par prix</h2>
+                <h2 className="font-bold text-xl text-white">Tri par prix</h2>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -336,7 +336,7 @@ export default function ProductsLayout({
                     onChange={() => handlePriceSortChange('none')}
                     className="h-4 w-4 text-[#00878a] focus:ring-[#00878a] dark:focus:ring-green-300"
                   />
-                  <label htmlFor="price-sort-none" className="ml-2 text-sm text-neutral-700 dark:text-white/90">Non trié</label>
+                  <label htmlFor="price-sort-none" className="ml-2 text-sm text-white/90">Non trié</label>
                 </div>
                 <div className="flex items-center">
                   <input
@@ -347,7 +347,7 @@ export default function ProductsLayout({
                     onChange={() => handlePriceSortChange('price-asc')}
                     className="h-4 w-4 text-[#00878a] focus:ring-[#00878a] dark:focus:ring-green-300"
                   />
-                  <label htmlFor="price-sort-asc" className="ml-2 text-sm text-neutral-700 dark:text-white/90 flex items-center">Du moins cher au plus cher <IconArrowUp size={14} className="ml-1 text-green-500" /></label>
+                  <label htmlFor="price-sort-asc" className="ml-2 text-sm text-white/90 flex items-center">Du moins cher au plus cher <IconArrowUp size={14} className="ml-1 text-green-500" /></label>
                 </div>
                 <div className="flex items-center">
                   <input
@@ -358,7 +358,7 @@ export default function ProductsLayout({
                     onChange={() => handlePriceSortChange('price-desc')}
                     className="h-4 w-4 text-[#00878a] focus:ring-[#00878a] dark:focus:ring-green-300"
                   />
-                  <label htmlFor="price-sort-desc" className="ml-2 text-sm text-neutral-700 dark:text-white/90 flex items-center">Du plus cher au moins cher <IconArrowDown size={14} className="ml-1 text-red-400" /></label>
+                  <label htmlFor="price-sort-desc" className="ml-2 text-sm text-white/90 flex items-center">Du plus cher au moins cher <IconArrowDown size={14} className="ml-1 text-red-400" /></label>
                 </div>
               </div>
             </div>
@@ -413,7 +413,7 @@ export default function ProductsLayout({
                 
                 {/* Affichage du nombre total de produits */}
                 <motion.div 
-                  className="mt-4 text-sm text-center text-neutral-600 dark:text-neutral-400"
+                  className="mt-4 text-sm text-center text-white dark:text-neutral-400"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.7, duration: 0.6 }}
@@ -423,12 +423,12 @@ export default function ProductsLayout({
               </>
             ) : (
               <motion.div 
-                className="bg-white dark:bg-[#00454f] rounded-lg shadow-lg p-8 text-center border border-gray-100 dark:border-[#005965]"
+                className="bg-[#00454f] rounded-lg shadow-lg p-8 text-center border border-gray-100 dark:border-[#005965]"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                <p className="text-neutral-600 dark:text-neutral-400">
+                <p className="text-white dark:text-neutral-400">
                   Aucun produit ne correspond à vos critères. Essayez de modifier vos filtres.
                 </p>
               </motion.div>

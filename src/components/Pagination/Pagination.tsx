@@ -86,7 +86,7 @@ export const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageCha
             className={`px-3 py-2 rounded-md ${
               currentPage === 1
                 ? 'text-neutral-400 cursor-not-allowed'
-                : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                : 'text-white hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
             }`}
             aria-label="Page précédente"
           >
@@ -124,7 +124,7 @@ export const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageCha
                 className={`px-3 py-2 rounded-md ${
                   currentPage === pageNumber
                     ? 'bg-[#00878a] text-white font-medium'
-                    : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                    : 'text-white hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
                 }`}
                 aria-label={`Page ${pageNumber}`}
                 aria-current={currentPage === pageNumber ? 'page' : undefined}
@@ -143,7 +143,7 @@ export const Pagination: React.FC<Props> = ({ currentPage, totalPages, onPageCha
             className={`px-3 py-2 rounded-md ${
               currentPage === totalPages
                 ? 'text-neutral-400 cursor-not-allowed'
-                : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                : 'text-white hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
             }`}
             aria-label="Page suivante"
           >
