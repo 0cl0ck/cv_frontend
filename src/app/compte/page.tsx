@@ -747,26 +747,6 @@ export default function DashboardPage() {
             </form>
           </div>
           
-          {/* Bouton de déconnexion */}
-          <div className="mt-8 flex justify-center">
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-red-300 bg-white text-red-600 hover:bg-red-50 transition-colors shadow-sm"
-            >
-              {isLoggingOut ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Déconnexion en cours...
-                </>
-              ) : (
-                <>
-                  <LogOut className="h-4 w-4" />
-                  Se déconnecter
-                </>
-              )}
-            </button>
-          </div>
         </div>
       )}
     </div>
