@@ -457,7 +457,7 @@ export default function CartView() {
           ? 0
           : 495;
       
-      const totalCents = cart.subtotalCents ;
+      const totalCents = cart.subtotalCents + shippingCostCents;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const total = totalCents / 100;
       
