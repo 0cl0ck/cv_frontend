@@ -53,6 +53,8 @@ export default function CartView() {
     discount: number;
     message: string;
     type: 'percentage' | 'fixed' | 'free_shipping' | '';
+    categoryRestrictionType?: 'none' | 'exclude' | 'include';
+    restrictedCategories?: { id: string; name: string }[];
   }>({
     applied: false,
     code: '',
@@ -114,7 +116,38 @@ export default function CartView() {
         ? 10 
         : cart.subtotal >= 49 ? 0 : 4.95;
       
+      // Récupérer les informations de catégorie pour chaque produit du panier
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      
+      // Préparation des données des articles avec leurs catégories
+      // Pour chaque article du panier, nous devons récupérer sa catégorie
+      const cartItemsWithCategory = await Promise.all(cart.items.map(async (item) => {
+        try {
+          // Récupérer les détails du produit, y compris sa catégorie
+          const productResponse = await fetch(`${backendUrl}/api/products/${item.productId}`);
+          const productData = await productResponse.json();
+          
+          // Récupérer l'ID de la catégorie principale
+          const categoryId = productData?.category?.id || productData?.category || '';
+          
+          return {
+            productId: item.productId,
+            categoryId,
+            price: item.price,
+            quantity: item.quantity
+          };
+        } catch (error) {
+          console.error(`Erreur lors de la récupération des détails du produit ${item.productId}:`, error);
+          // En cas d'erreur, retourner un objet avec une catégorie vide
+          return {
+            productId: item.productId,
+            categoryId: '',
+            price: item.price,
+            quantity: item.quantity
+          };
+        }
+      }));
+      
       const response = await fetch(`${backendUrl}/api/cart/apply-promo`, {
         method: 'POST',
         headers: {
@@ -123,19 +156,36 @@ export default function CartView() {
         body: JSON.stringify({
           promoCode: promoCode.trim(),
           cartTotal: cart.subtotal,
-          shippingCost
+          shippingCost,
+          items: cartItemsWithCategory
         })
       });
       
       const result = await response.json();
       
       if (result.success && result.valid) {
+        // Construire un message personnalisé avec les informations sur les restrictions de catégories
+        let customMessage = result.message;
+        
+        // Ajouter des informations sur les catégories exclues ou incluses si nécessaire
+        if (result.categoryRestrictionType === 'exclude' && result.restrictedCategories?.length > 0) {
+          // Format pour exclusion: "Code SUN10 appliqué (hors Packs CBD)"
+          const excludedCategoriesNames = result.restrictedCategories.map((cat: { id: string; name: string }) => cat.name).join(', ');
+          customMessage = `Code "${result.code}" appliqué (hors ${excludedCategoriesNames})`;
+        } else if (result.categoryRestrictionType === 'include' && result.restrictedCategories?.length > 0) {
+          // Format pour inclusion: "Code SUN10 appliqué (uniquement sur Fleurs CBD)"
+          const includedCategoriesNames = result.restrictedCategories.map((cat: { id: string; name: string }) => cat.name).join(', ');
+          customMessage = `Code "${result.code}" appliqué (uniquement sur ${includedCategoriesNames})`;
+        }
+        
         setPromoResult({
           applied: true,
           code: result.code,
           discount: result.discount,
-          message: result.message,
-          type: result.type
+          message: customMessage,
+          type: result.type,
+          categoryRestrictionType: result.categoryRestrictionType,
+          restrictedCategories: result.restrictedCategories
         });
       } else {
         setPromoResult({
@@ -143,7 +193,9 @@ export default function CartView() {
           code: '',
           discount: 0,
           message: result.message || 'Code promo invalide',
-          type: ''
+          type: '',
+          categoryRestrictionType: undefined,
+          restrictedCategories: undefined
         });
       }
     } catch (error) {
@@ -153,7 +205,9 @@ export default function CartView() {
         code: '',
         discount: 0,
         message: 'Erreur technique lors de l\'application du code',
-        type: ''
+        type: '',
+        categoryRestrictionType: undefined,
+        restrictedCategories: undefined
       });
     } finally {
       setIsApplyingPromo(false);
@@ -836,7 +890,10 @@ export default function CartView() {
                     <div className="flex items-center">
                       <span className="text-[#10B981] font-medium mr-2">✓</span>
                       <span className="text-[#F4F8F5]">
-                        Code <span className="font-bold">{promoResult.code}</span> appliqué
+                        {/* Utiliser le message personnalisé qui inclut déjà les informations sur les catégories */}
+                        {promoResult.message && promoResult.message.includes(promoResult.code) 
+                          ? promoResult.message.replace(/^Code "(.+?)" /, 'Code $1 ')
+                          : `Code ${promoResult.code} appliqué`}
                       </span>
                     </div>
                     <button 
