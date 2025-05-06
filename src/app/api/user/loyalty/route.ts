@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LoyaltyReward } from '@/types/loyalty';
 import { determineReward } from '@/lib/loyalty';
 
 // La fonction determineReward est maintenant importée depuis @/lib/loyalty
@@ -16,7 +15,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Appeler l'API backend pour obtenir les commandes de l'utilisateur
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     
     console.info('Récupération des commandes pour le programme de fidélité');
     // Utiliser le rewrite configuré dans next.config.js qui redirige /api/* vers le backend

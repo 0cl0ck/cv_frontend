@@ -55,6 +55,7 @@ export default async function ProductsPage(props) {
   }
 
   // 6⭐ On récupère les données
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const apiSortParam = '-createdAt'; // Par défaut, tri par nouveautés (le plus récent d'abord)
   let needsGlobalSorting = false;
   

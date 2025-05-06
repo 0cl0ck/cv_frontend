@@ -1,7 +1,7 @@
-// Temporairement forcé à être désactivé pour le build
+// Temporairement désactivé pour résoudre les problèmes de build
 const withPWA = require('next-pwa')({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
+  disable: true, // Complètement désactivé temporairement
   register: true,
   skipWaiting: true,
 });

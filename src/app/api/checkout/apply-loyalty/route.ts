@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     
     // Compter uniquement les commandes complétées (livrées ou expédiées)
     const completedOrders = Array.isArray(ordersData.orders) 
-      ? ordersData.orders.filter((order: any) => 
+      ? ordersData.orders.filter((order: { status: string }) => 
           order.status === 'delivered' || order.status === 'shipped'
         )
       : [];

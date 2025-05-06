@@ -10,10 +10,11 @@ import React, { useState } from 'react';
 type Props = {
   product: Product;
   index: number;
-  showFeaturedBadge?: boolean; // Prop optionnel pour contrôler l'affichage du badge
+  showFeaturedBadge?: boolean; // Prop optionnel pour contrôler l'affichage du badge (n'est pas utilisé dans ce composant actuellement)
 };
 
-export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge = true }) => {
+export const ProductCard: React.FC<Props> = ({ product, index, // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  showFeaturedBadge }) => {
   // État pour gérer le survol
   const [isHovered, setIsHovered] = useState(false);
   

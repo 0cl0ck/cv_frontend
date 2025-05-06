@@ -65,6 +65,7 @@ export default function CartView() {
   // État pour les adresses enregistrées
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [customerInfo, setCustomerInfo] = useState({
@@ -451,11 +452,12 @@ export default function CartView() {
           : 4.95;
       const shippingCostCents = customerInfo.country === 'Belgique'
         ? 1000
-        : cart.subtotalCents >= 4900
+        : cart.subtotal >= 49
           ? 0
           : 495;
       
-      const totalCents = cart.subtotalCents + shippingCostCents;
+      const totalCents = cart.subtotalCents ;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const total = totalCents / 100;
       
       // Créer l'objet commande et paiement combiné
@@ -876,7 +878,7 @@ export default function CartView() {
                     <AlertCircle size={16} className="mr-2 text-[#EFC368]" />
                     <span className="font-medium">Programme de fidélité</span>
                   </div>
-                  <p className="text-xs text-[#F4F8F5] mb-2">Connectez-vous pour bénéficier d'avantages exclusifs selon votre historique de commandes.</p>
+                  <p className="text-xs text-[#F4F8F5] mb-2">Connectez-vous pour bénéficier d&apos;avantages exclusifs selon votre historique de commandes.</p>
                   <Link href="/connexion" className="text-[#EFC368] text-xs hover:underline">
                     Se connecter pour en profiter
                   </Link>

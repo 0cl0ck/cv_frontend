@@ -3,9 +3,8 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Package, MapPin, ShoppingCart, MessageCircle, Edit2, ChevronRight, X, Save, Loader2, Award, Gift, Truck, Zap, LogOut } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
-import { LoyaltyReward, LoyaltyRewardType } from '@/types/loyalty';
+import { Package, MapPin, ShoppingCart, MessageCircle, Edit2, ChevronRight, X, Save, Loader2, Award, Gift, Truck, Zap, LogOut } from 'lucide-react';
+import { LoyaltyReward } from '@/types/loyalty';
 
 // Type pour les informations de l'utilisateur
 type UserInfo = {

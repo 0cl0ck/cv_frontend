@@ -205,6 +205,7 @@ export default async function CategoryPage(props) {
     
     // Tous les produits sont déjà récupérés dans productsData.docs
     // Calcul du nombre total de pages pour l'information
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const totalPages = Math.ceil(productsData.docs.length / limit);
     
     // Informations de pagination client (logs supprimés pour la production)

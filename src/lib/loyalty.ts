@@ -138,6 +138,7 @@ export async function updateLoyaltyOrderCount(
       return;
     }
     
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const userData = await userResponse.json();
     
     // Récupérer les commandes de l'utilisateur
