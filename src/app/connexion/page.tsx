@@ -26,7 +26,7 @@ function LoginForm() {
     
     // Inscription réussie
     if (searchParams.get('registered') === 'true') {
-      setSuccess('Votre compte a été créé avec succès. Veuillez vérifier votre email pour activer votre compte.');
+      setSuccess('Votre compte a été créé avec succès.');
     }
     
     // Erreurs de vérification
