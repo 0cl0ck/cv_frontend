@@ -519,12 +519,12 @@ export default function DashboardPage() {
                   <p className="text-2xl font-bold text-[#10B981]">{user.loyalty.ordersCount}</p>
                 </div>
                 
-                {user.loyalty.referralEnabled && (
+                {/* {user.loyalty.referralEnabled && (
                   <div className="flex items-center bg-[#00434a] px-3 py-1 rounded-md">
                     <Zap size={16} className="text-[#10B981] mr-1" />
                     <span className="text-xs text-[#D1D5DB]">Parrainage actif</span>
                   </div>
-                )}
+                )} */}
               </div>
               
               {/* Récompense actuelle */}
@@ -554,7 +554,7 @@ export default function DashboardPage() {
                 {(() => {
                   const nextMilestone = (() => {
                     const count = user.loyalty.ordersCount;
-                    if (count < 2) return { threshold: 2, description: "Échantillon offert + Parrainage" };
+                    if (count < 2) return { threshold: 2, description: "Échantillon offert" };
                     if (count < 3) return { threshold: 3, description: "Livraison offerte" };
                     if (count < 5) return { threshold: 5, description: "Produit offert (10€)" };
                     if (count < 10) return { threshold: 10, description: "Réduction 20€" };
@@ -576,7 +576,6 @@ export default function DashboardPage() {
                   return (
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs text-[#BEC3CA] mb-1">
-                        <span>Progression</span>
                         <span>{user.loyalty.ordersCount} / {nextMilestone.threshold} commandes</span>
                       </div>
                       <div className="w-full bg-[#003038] rounded-full h-2.5">
@@ -599,7 +598,7 @@ export default function DashboardPage() {
                 <ul className="text-xs space-y-2 text-[#BEC3CA]">
                   <li className="flex items-start">
                     <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">2</span>
-                    <span>Échantillon offert + Accès au programme de parrainage</span>
+                    <span>Échantillon offert</span>
                   </li>
                   <li className="flex items-start">
                     <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">3</span>
