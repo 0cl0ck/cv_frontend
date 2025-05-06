@@ -444,17 +444,22 @@ export default function CartView() {
     try {
       setIsCheckingOut(true);
       
-      // Calcul des frais de port selon le pays
-      const shippingCost = customerInfo.country === 'Belgique'
-        ? 10
-        : cart.subtotal >= 49
-          ? 0
-          : 4.95;
-      const shippingCostCents = customerInfo.country === 'Belgique'
-        ? 1000
-        : cart.subtotal >= 49
-          ? 0
-          : 495;
+      // TEMPORAIRE: Frais de livraison désactivés pour les tests
+      // TODO: Réactiver les frais de livraison après les tests
+      const shippingCost = 0;
+      const shippingCostCents = 0;
+      
+      // Code original commenté:
+      // const shippingCost = customerInfo.country === 'Belgique'
+      //   ? 10
+      //   : cart.subtotal >= 49
+      //     ? 0
+      //     : 4.95;
+      // const shippingCostCents = customerInfo.country === 'Belgique'
+      //   ? 1000
+      //   : cart.subtotal >= 49
+      //     ? 0
+      //     : 495;
       
       const totalCents = cart.subtotalCents + shippingCostCents;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -535,34 +540,42 @@ export default function CartView() {
           notes: ""
         },
         payment: {
+          // TEMPORAIRE: Frais de livraison désactivés pour les tests
           amount: cart.subtotal 
             - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
-            - (promoResult.applied ? promoResult.discount : 0)
-            + (customerInfo.country === 'Belgique' 
-                ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
-                : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
-                  ? 0 
-                  : 4.95),
+            - (promoResult.applied ? promoResult.discount : 0),
+            // Code original commenté:
+            // + (customerInfo.country === 'Belgique' 
+            //     ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+            //     : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
+            //       ? 0 
+            //       : 4.95),
+          // TEMPORAIRE: Frais de livraison désactivés pour les tests
           amountCents: Math.round(100 * (cart.subtotal 
             - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
-            - (promoResult.applied ? promoResult.discount : 0)
-            + (customerInfo.country === 'Belgique' 
-                ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
-                : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
-                  ? 0 
-                  : 4.95))),
+            - (promoResult.applied ? promoResult.discount : 0))),
+            // Code original commenté:
+            // + (customerInfo.country === 'Belgique' 
+            //     ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+            //     : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
+            //       ? 0 
+            //       : 4.95))),
           subtotal: cart.subtotal,
           subtotalCents: cart.subtotalCents,
-          shippingCost: customerInfo.country === 'Belgique' 
-            ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
-            : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
-              ? 0
-              : 4.95,
-          shippingCostCents: customerInfo.country === 'Belgique' 
-            ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 1000) 
-            : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
-              ? 0
-              : 495,
+          // TEMPORAIRE: Frais de livraison désactivés pour les tests
+          shippingCost: 0,
+          shippingCostCents: 0,
+          // Code original commenté:
+          // shippingCost: customerInfo.country === 'Belgique' 
+          //   ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+          //   : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
+          //     ? 0
+          //     : 4.95,
+          // shippingCostCents: customerInfo.country === 'Belgique' 
+          //   ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 1000) 
+          //   : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
+          //     ? 0
+          //     : 495,
           customerEmail: customerInfo.email,
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
           customerPhone: customerInfo.phone,
