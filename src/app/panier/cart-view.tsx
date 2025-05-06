@@ -460,6 +460,37 @@ export default function CartView() {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const total = totalCents / 100;
       
+      // Vérifier si l'utilisateur est connecté
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('payload-token='))
+        ?.split('=')?.[1];
+      
+      // Décoder le token JWT pour obtenir l'ID et le type d'utilisateur
+      let userId = null;
+      let isCustomer = false;
+      
+      if (token) {
+        try {
+          // Décoder les informations de base du token
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            const payloadBase64 = tokenParts[1];
+            const jsonPayload = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+            const decodedToken = JSON.parse(jsonPayload);
+            
+            // Vérifier si c'est un client
+            if (decodedToken.collection === 'customers' && decodedToken.id) {
+              userId = decodedToken.id;
+              isCustomer = true;
+              console.log('Client connecté identifié:', userId);
+            }
+          }
+        } catch (error) {
+          console.error('Erreur lors du décodage du token:', error);
+        }
+      }
+      
       // Créer l'objet commande et paiement combiné
       const checkoutData = {
         order: {
@@ -472,6 +503,9 @@ export default function CartView() {
             quantity: item.quantity,
             attributes: {}
           })),
+          // Si c'est un client enregistré, associer son ID à la commande
+          ...(isCustomer && userId ? { customer: userId } : {}),
+          // Information client (toujours utile même si client enregistré pour les adresses)
           guestInformation: {
             email: customerInfo.email,
             firstName: customerInfo.firstName,
