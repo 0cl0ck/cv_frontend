@@ -450,7 +450,6 @@ export default function CartView() {
         : cart.subtotal >= 49
           ? 0
           : 4.95;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const shippingCostCents = customerInfo.country === 'Belgique'
         ? 1000
         : cart.subtotal >= 49
