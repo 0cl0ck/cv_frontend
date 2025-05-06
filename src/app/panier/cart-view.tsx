@@ -21,6 +21,7 @@ interface Address {
   state?: string;
   postalCode: string;
   country: string;
+  phone?: string;
   isDefault: boolean;
 }
 
@@ -353,7 +354,8 @@ export default function CartView() {
       addressLine2: address.line2 || '',
       city: address.city,
       postalCode: address.postalCode,
-      country: address.country || 'France'
+      country: address.country || 'France',
+      phone: address.phone || prevInfo.phone // Conserver le téléphone existant si l'adresse n'en a pas
     }));
   };
 
@@ -940,11 +942,11 @@ export default function CartView() {
                       >
                         <div className="flex justify-between items-start mb-1">
                           <div className="flex items-center">
-                            <MapPin size={14} className="text-primary mr-1" />
+                            <MapPin size={14} className="text-[#001E27] mr-1" />
                             <span className="text-sm font-medium">Adresse de livraison</span>
                           </div>
                           {address.isDefault && (
-                            <div className="bg-primary bg-opacity-10 text-primary text-xs rounded px-1.5 py-0.5 flex items-center">
+                            <div className="bg-[#001E27] bg-opacity-10 text-[#001E27] text-xs rounded px-1.5 py-0.5 flex items-center">
                               <CheckCircle size={10} className="mr-1" /> Par défaut
                             </div>
                           )}

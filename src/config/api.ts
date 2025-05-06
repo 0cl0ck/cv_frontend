@@ -42,9 +42,5 @@ const apiConfig: ApiConfig = {
   }
 };
 
-// Log de débogage pour le endpoint de paiement
-if (typeof window !== 'undefined') {
-  console.log('Payment endpoint:', apiConfig.endpoints.payment);
-}
 
 export default apiConfig;

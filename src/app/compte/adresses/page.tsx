@@ -18,6 +18,7 @@ interface Address {
   state?: string;
   postalCode: string;
   country: string;
+  phone?: string;
   isDefault: boolean;
 }
 
@@ -68,6 +69,7 @@ export default function AddressesPage() {
     state: '',
     postalCode: '',
     country: 'France',
+    phone: '',
     isDefault: false
   });
   
@@ -684,6 +686,22 @@ export default function AddressesPage() {
                   onChange={handleInputChange}
                   className="w-full bg-[#00424c] text-[#D1D5DB] border border-[#0A3A3A] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#007A72]"
                   placeholder="Pays"
+                  required
+                  disabled={isSaving}
+                />
+              </div>
+              
+              {/* Téléphone */}
+              <div>
+                <label htmlFor="phone" className="block text-[#BEC3CA] mb-1">Téléphone <span className="text-red-500">*</span></label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formAddress.phone || ''}
+                  onChange={handleInputChange}
+                  className="w-full bg-[#00424c] text-[#D1D5DB] border border-[#0A3A3A] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#007A72]"
+                  placeholder="Téléphone"
                   required
                   disabled={isSaving}
                 />
