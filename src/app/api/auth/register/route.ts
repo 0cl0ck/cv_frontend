@@ -18,19 +18,13 @@ export async function POST(request: NextRequest) {
     // Appeler le backend directement sans proxy Next.js
     // Le backend fonctionne sur le port 3000
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    console.log(`Tentative d'inscription au backend: ${backendUrl}/api/auth/register`);
     
     // Préparation des données pour PayloadCMS
-    // HYPOTHÈSE 2: Assurons-nous que les données sont dans le format attendu par PayloadCMS
-    console.log('DIAGNOSTIC: Vérification d\'une source possible d\'erreur - Format des données');
-    
-    // Pour déboguer, essayons un format plus complet avec des champs supplémentaires potentiellement nécessaires
     const payloadData = {
       firstName: body.firstName,
       lastName: body.lastName,
       email: body.email,
       password: body.password,
-      // Ajout de champs qui pourraient être obligatoires
       isEmailVerified: false, // Forcé à false initialement
       gdprConsent: {
         ...body.gdprConsent,
@@ -41,51 +35,32 @@ export async function POST(request: NextRequest) {
       }
     };
     
-    console.log('DIAGNOSTIC: Données formatées pour PayloadCMS:', {
-      ...payloadData,
-      password: '***********' // Masquer le mot de passe dans les logs
+    // 1. Créer l'utilisateur via l'API PayloadCMS directe
+    const apiResponse = await fetch(`${backendUrl}/api/customers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payloadData),
     });
     
-    let apiResponse;
-    
-    // Essayer d'abord l'API personalisée, puis directement l'API PayloadCMS si ça échoue
-    // HYPOTHÈSE 1: Vérifier si le problème est lié à l'envoi d'email
-    console.log('DIAGNOSTIC: Vérification d\'une source possible d\'erreur - Configuration de l\'email');
-    
-    // Ajouter un paramètre pour ne pas envoyer d'email (pour tester cette hypothèse)
-    const testWithoutEmail = true;
-    
-    try {
-      console.log('Tentative via API personalisée');
-      const customResponse = await fetch(`${backendUrl}/api/auth/register${testWithoutEmail ? '?skipVerification=true' : ''}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payloadData),
-      });
+    // 2. Si l'inscription réussit, envoyer un email de vérification
+    if (apiResponse.ok) {
+      const data = await apiResponse.json();
+      console.log('Inscription réussie, envoi de l\'email de vérification...');
       
-      // Si la requête échoue, on continue avec le code existant
-      if (!customResponse.ok) {
-        console.log(`API personalisée a échoué avec le statut ${customResponse.status}, essai via API PayloadCMS...`);
-        throw new Error('Tentative avec API directe de PayloadCMS');
+      // Récupérer l'ID du customer créé
+      const customerId = data.doc?.id;
+      
+      if (customerId) {
+        // L'email de vérification est maintenant envoyé automatiquement par le hook afterOperation
+        // dans la collection Customers.ts
+        console.log('L\'email de vérification est envoyé automatiquement par le backend.');
       }
       
-      apiResponse = customResponse;
-    } catch (directApiError) {
-      console.log('Tentative via API PayloadCMS directe');
-      console.log('DIAGNOSTIC: Essai PayloadCMS avec des options de débogage');
-      console.log(directApiError);
-      
-      // Essayer directement l'API PayloadCMS pour customers avec des paramètres de débogage
-      apiResponse = await fetch(`${backendUrl}/api/customers${testWithoutEmail ? '?draft=true' : ''}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payloadData),
-      });
+      return NextResponse.json(data);
     }
+
 
     // Journaliser la réponse du backend en détail
     console.log('Statut de la réponse du backend:', apiResponse.status);

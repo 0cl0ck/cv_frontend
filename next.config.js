@@ -9,6 +9,10 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   // Réactivé après avoir résolu le problème d'ajout au panier
   reactStrictMode: true,
+  // Configure les origines de développement autorisées (pour ngrok)
+  allowedDevOrigins: process.env.NODE_ENV === 'development' ? ['*'] : [],
+  // Forcer la détection des nouvelles pages
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   images: {
     remotePatterns: [
       {

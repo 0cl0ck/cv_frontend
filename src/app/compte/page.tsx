@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, MapPin, ShoppingCart, MessageCircle, Edit2, ChevronRight, X, Save, Loader2, Award, Gift, Truck, Zap, LogOut } from 'lucide-react';
+import { Package, MapPin, ShoppingCart, MessageCircle, Edit2, ChevronRight, X, Save, Loader2, Award, Gift, Truck, LogOut } from 'lucide-react';
 import { LoyaltyReward } from '@/types/loyalty';
 
 // Type pour les informations de l'utilisateur
