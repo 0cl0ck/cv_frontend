@@ -17,8 +17,9 @@ export async function GET(request: NextRequest) {
     // Appeler l'API backend pour obtenir les commandes de l'utilisateur
     
     console.info('Récupération des commandes pour le programme de fidélité');
-    // Utiliser le rewrite configuré dans next.config.js qui redirige /api/* vers le backend
-    const ordersResponse = await fetch(`/api/orders/me`, {
+    // Utiliser une URL absolue pour éviter les problèmes de parsing
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://www.chanvre-vert.fr';
+    const ordersResponse = await fetch(`${apiBaseUrl}/api/orders/me`, {
       headers: {
         'Authorization': authHeader
       }
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
     console.info(`Nombre de commandes validées: ${ordersCount}`);
 
     // Récupérer l'utilisateur pour voir si une récompense est déjà réclamée
-    const userResponse = await fetch(`/api/users/me`, {
+    const userResponse = await fetch(`${apiBaseUrl}/api/users/me`, {
       headers: {
         'Authorization': authHeader
       }
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
     // Sauvegarder les infos de fidélité dans le profil utilisateur si elles ont changé
     if (JSON.stringify(currentLoyalty) !== JSON.stringify(loyaltyInfo)) {
       console.info(`Mise à jour des informations de fidélité pour l'utilisateur ${userData.id}`);
-      await fetch(`/api/customers/${userData.id}`, {
+      await fetch(`${apiBaseUrl}/api/customers/${userData.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
