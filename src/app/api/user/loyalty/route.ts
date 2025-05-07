@@ -45,29 +45,68 @@ export async function GET(request: NextRequest) {
     console.info(`Nombre de commandes validées: ${ordersCount}`);
 
     // Récupérer l'utilisateur pour voir si une récompense est déjà réclamée
-    const userResponse = await fetch(`${apiBaseUrl}/api/users/me`, {
-      headers: {
-        'Authorization': authHeader
-      }
-    });
+    // Utiliser api/customers/me plutôt que api/users/me qui n'existe pas
+    console.info('Récupération des informations utilisateur pour le programme de fidélité');
+    
+    let userResponse;
+    try {
+      userResponse = await fetch(`${apiBaseUrl}/api/customers/me`, {
+        headers: {
+          'Authorization': authHeader
+        }
+      });
 
-    if (!userResponse.ok) {
-      console.error(`Erreur lors de la récupération des informations utilisateur: ${userResponse.status}`);
+      if (!userResponse.ok) {
+        console.error(`Erreur lors de la récupération des informations utilisateur: ${userResponse.status}`);
+        // Tenter de récupérer les détails de l'erreur
+        const errorDetails = await userResponse.text();
+        console.error('Détails de l\'erreur:', errorDetails);
+        
+        return NextResponse.json(
+          { message: 'Erreur lors de la récupération des informations utilisateur' },
+          { status: userResponse.status }
+        );
+      }
+    } catch (fetchError) {
+      console.error('Exception lors de la récupération des informations utilisateur:', fetchError);
       return NextResponse.json(
-        { message: 'Erreur lors de la récupération des informations utilisateur' },
-        { status: userResponse.status }
+        { message: 'Erreur de connexion lors de la récupération des informations utilisateur' },
+        { status: 500 }
       );
     }
 
-    const userData = await userResponse.json();
+    let userData;
+    try {
+      userData = await userResponse.json();
+      console.info('Données utilisateur récupérées avec succès');
+    } catch (jsonError) {
+      console.error('Erreur de parsing JSON des données utilisateur:', jsonError);
+      return NextResponse.json(
+        { message: 'Format de données utilisateur invalide' },
+        { status: 500 }
+      );
+    }
+    
+    if (!userData || typeof userData !== 'object') {
+      console.error('Les données utilisateur ne sont pas dans un format valide:', userData);
+      return NextResponse.json(
+        { message: 'Format de données utilisateur invalide' },
+        { status: 500 }
+      );
+    }
+    
     const currentLoyalty = userData.loyalty || {};
+    console.info('Programme de fidélité actuel:', currentLoyalty);
     
     // Déterminer la récompense actuelle
     const calculatedReward = determineReward(ordersCount);
+    console.info('Récompense calculée:', calculatedReward);
     
     // Si l'utilisateur a déjà une récompense réclamée, conserver cette information
-    if (currentLoyalty.currentReward && calculatedReward.type === currentLoyalty.currentReward.type) {
-      calculatedReward.claimed = currentLoyalty.currentReward.claimed;
+    if (currentLoyalty.currentReward && 
+        typeof currentLoyalty.currentReward === 'object' && 
+        calculatedReward.type === currentLoyalty.currentReward.type) {
+      calculatedReward.claimed = Boolean(currentLoyalty.currentReward.claimed);
     }
 
     // Construire l'objet de fidélité
@@ -76,20 +115,48 @@ export async function GET(request: NextRequest) {
       currentReward: calculatedReward,
       referralEnabled: ordersCount >= 2
     };
+    console.info('Nouvel objet de fidélité construit:', loyaltyInfo);
+
+    // Vérifier que l'ID utilisateur existe
+    if (!userData.id) {
+      console.error('ID utilisateur manquant dans les données utilisateur');
+      return NextResponse.json(
+        { 
+          success: true,
+          loyalty: loyaltyInfo,
+          warning: 'Mise à jour du profil impossible: ID utilisateur manquant'
+        }
+      );
+    }
 
     // Sauvegarder les infos de fidélité dans le profil utilisateur si elles ont changé
-    if (JSON.stringify(currentLoyalty) !== JSON.stringify(loyaltyInfo)) {
-      console.info(`Mise à jour des informations de fidélité pour l'utilisateur ${userData.id}`);
-      await fetch(`${apiBaseUrl}/api/customers/${userData.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': authHeader
-        },
-        body: JSON.stringify({
-          loyalty: loyaltyInfo
-        })
-      });
+    try {
+      if (JSON.stringify(currentLoyalty) !== JSON.stringify(loyaltyInfo)) {
+        console.info(`Mise à jour des informations de fidélité pour l'utilisateur ${userData.id}`);
+        const updateResponse = await fetch(`${apiBaseUrl}/api/customers/${userData.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader
+          },
+          body: JSON.stringify({
+            loyalty: loyaltyInfo
+          })
+        });
+        
+        if (!updateResponse.ok) {
+          console.warn(`Erreur lors de la mise à jour du profil utilisateur: ${updateResponse.status}`);
+          const errorDetails = await updateResponse.text();
+          console.warn('Détails de l\'erreur de mise à jour:', errorDetails);
+        } else {
+          console.info('Mise à jour des informations de fidélité réussie');
+        }
+      } else {
+        console.info('Aucune mise à jour nécessaire, les infos de fidélité sont identiques');
+      }
+    } catch (updateError) {
+      console.error('Exception lors de la mise à jour du profil:', updateError);
+      // On continue malgré l'erreur de mise à jour pour renvoyer les infos de fidélité
     }
 
     return NextResponse.json({
