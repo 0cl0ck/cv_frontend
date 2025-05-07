@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
-export default function VerifierEmailPage() {
+// Composant qui utilise useSearchParams avec Suspense boundary
+function VerifierEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -105,5 +106,22 @@ export default function VerifierEmailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Composant principal avec Suspense boundary
+export default function VerifierEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#001A1F] px-4">
+        <div className="w-full max-w-md bg-[#002930] rounded-lg shadow-md p-8 border border-[#155757] text-center">
+          <Loader2 size={60} className="animate-spin text-[#10B981] mx-auto mb-6" />
+          <h1 className="text-2xl font-bold mb-4 text-white">Chargement...</h1>
+          <p className="text-[#BEC3CA]">Préparation de la vérification...</p>
+        </div>
+      </div>
+    }>
+      <VerifierEmailContent />
+    </Suspense>
   );
 }
