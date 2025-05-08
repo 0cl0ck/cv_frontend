@@ -1,0 +1,21 @@
+/* CSS pour la grille de produits */
+.products-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* À partir de 320px (la plupart des mobiles), afficher 2 colonnes */
+@media (min-width: 320px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Sur grands écrans, afficher 3 colonnes */
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}

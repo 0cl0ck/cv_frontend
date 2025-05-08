@@ -240,8 +240,8 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
 
         {/* Affichage du prix par gramme pour les produits à base de poids */}
         {isWeightBasedCategory() && (
-          <div className="mb-2 text-sm font-medium">
-            <span className="inline-block rounded-full border bg-transparent px-4 py-1" style={{ borderColor: '#EFC368', color: '#EFC368' }}>
+          <div className="mb-2 text-sm font-medium text-center">
+            <span className="inline-block rounded-full border bg-transparent px-3 py-1 whitespace-nowrap text-xs md:text-sm md:px-4" style={{ borderColor: '#EFC368', color: '#EFC368' }}>
               À partir de {product.productType === 'simple' && product.pricePerGram 
                 ? formatPrice(product.pricePerGram) 
                 : product.variants && product.variants.length > 0
@@ -260,7 +260,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             <div ref={dropdownRef} className="relative mb-2" style={{ position: 'relative', zIndex: 40 }}>
               {/* Bouton pour ouvrir le dropdown */}
               <button
-                className="flex w-full items-center justify-between rounded-md border border-white/20 bg-[#00352f] p-2 text-white"
+                className="flex w-full items-center justify-between rounded-md border border-white/20 bg-[#00352f] p-2 text-white text-sm md:text-base"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <span>{selectedVariant ? formatVariantLabel(selectedVariant) : 'Choisir une option'}</span>
@@ -273,7 +273,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
                   {product.variants.map((variant, idx) => (
                     <button
                       key={idx}
-                      className={`flex w-full items-center justify-between p-2 text-left hover:bg-white/10 ${
+                      className={`flex w-full items-center justify-between p-2 text-left text-sm md:text-base hover:bg-white/10 ${
                         selectedVariant?.id === variant.id ? 'bg-white/20' : ''
                       }`}
                       onClick={() => {
@@ -311,7 +311,12 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             disabled={isOutOfStock()}
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            {isOutOfStock() ? 'Rupture de stock' : 'Ajouter au panier'}
+            {isOutOfStock() ? 'Rupture de stock' : (
+              <span>
+                <span className="hidden md:inline">Ajouter au panier</span>
+                <span className="inline md:hidden">Ajouter</span>
+              </span>
+            )}
           </button>
         </div>
       </motion.div>
