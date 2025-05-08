@@ -254,16 +254,6 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
           </div>
         )}
         
-        {/* Étoiles d'avis (Statique pour l'instant) */}
-        <div className="mb-3 flex items-center">
-          <div className="flex" style={{ color: '#EFC368' }}>
-            {'★★★★★'.split('').map((star, i) => (
-              <span key={i}>{star}</span>
-            ))}
-          </div>
-          <span className="ml-1 text-xs text-white/80">58 avis</span>
-        </div>
-
         {/* Dropdown des variantes et ajout au panier */}
         <div className="mt-auto">
           {product.productType === 'variable' && product.variants && product.variants.length > 0 ? (
