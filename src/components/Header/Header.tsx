@@ -25,9 +25,28 @@ export default function Header() {
     
     checkLoginStatus();
     
-    // Vérifier à nouveau en cas de changement de cookie
-    window.addEventListener('storage', checkLoginStatus);
-    return () => window.removeEventListener('storage', checkLoginStatus);
+    // Écouter l'événement personnalisé login-status-change
+    const handleLoginStatusChange = (event: CustomEvent) => {
+      const { isLoggedIn } = event.detail;
+      setIsLoggedIn(isLoggedIn);
+    };
+    
+    // Écouter les changements dans le localStorage
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'auth-status') {
+        checkLoginStatus();
+      }
+    };
+    
+    // Ajouter les écouteurs d'événements
+    window.addEventListener('login-status-change', handleLoginStatusChange as EventListener);
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Nettoyage lors du démontage du composant
+    return () => {
+      window.removeEventListener('login-status-change', handleLoginStatusChange as EventListener);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   // Navigation items
@@ -140,6 +159,14 @@ export default function Header() {
                           document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                           setIsLoggedIn(false);
                           setAccountMenuOpen(false);
+                          
+                          // Déclencher un événement personnalisé
+                          const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
+                          window.dispatchEvent(logoutEvent);
+                          
+                          // Mettre à jour localStorage pour déclencher l'événement storage
+                          localStorage.setItem('auth-status', Date.now().toString());
+                          
                           window.location.href = '/';
                         }}
                       >
@@ -292,6 +319,14 @@ export default function Header() {
                     document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                     setIsLoggedIn(false);
                     setMenuOpen(false);
+                    
+                    // Déclencher un événement personnalisé
+                    const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
+                    window.dispatchEvent(logoutEvent);
+                    
+                    // Mettre à jour localStorage pour déclencher l'événement storage
+                    localStorage.setItem('auth-status', Date.now().toString());
+                    
                     window.location.href = '/';
                   }}
                 >

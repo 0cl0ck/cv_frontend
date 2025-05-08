@@ -78,6 +78,14 @@ function LoginForm() {
       }
 
       // Connexion réussie, rediriger vers le tableau de bord client
+      
+      // Déclencher un événement personnalisé pour informer le Header
+      const loginEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: true } });
+      window.dispatchEvent(loginEvent);
+      
+      // Ajouter une entrée dans localStorage pour déclencher l'événement storage
+      localStorage.setItem('auth-status', Date.now().toString());
+      
       router.push('/compte');
       router.refresh(); // Pour rafraîchir les données de session
     } catch (err: unknown) {
