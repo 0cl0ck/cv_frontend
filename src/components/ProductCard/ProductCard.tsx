@@ -158,9 +158,9 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             BEST-SELLER
           </div>
         )}
-        {isWeightBasedCategory() && (
+        {isWeightBasedCategory() && product.productDetails && typeof product.productDetails === 'object' && 'cultivation' in product.productDetails && (
           <div className="px-3 py-1.5 text-sm font-medium text-black" style={{ backgroundColor: '#EFC368' }}>
-            Indoor
+            {String(product.productDetails.cultivation).charAt(0).toUpperCase() + String(product.productDetails.cultivation).slice(1)}
           </div>
         )}
       </div>
