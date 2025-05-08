@@ -216,7 +216,8 @@ export async function getProducts(params?: {
  */
 export async function getProductBySlug(slug: string): Promise<Product> {
   try {
-    const response = await fetch(`${API_URL}/api/products?where[slug][equals]=${slug}`, {
+    // Ajouter l'option depth pour récupérer toutes les relations, y compris les statistiques d'avis
+    const response = await fetch(`${API_URL}/api/products?where[slug][equals]=${slug}&depth=2`, {
       cache: 'no-store', // Utiliser uniquement no-store sans revalidate pour éviter les conflits
     });
 
@@ -228,6 +229,15 @@ export async function getProductBySlug(slug: string): Promise<Product> {
     if (!data.docs || data.docs.length === 0) {
       throw new Error('Product not found');
     }
+    
+    // Initialiser des statistiques d'avis par défaut si elles ne sont pas disponibles
+    if (!data.docs[0].reviewStats) {
+      data.docs[0].reviewStats = {
+        averageRating: 0,
+        totalReviews: 0,
+        distribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 }
+      };
+    }
 
     return data.docs[0];
   } catch (error) {
@@ -237,6 +247,15 @@ export async function getProductBySlug(slug: string): Promise<Product> {
     const product = fallbackProducts.find(p => p.slug === slug);
     if (!product) {
       throw new Error('Product not found');
+    }
+    
+    // Ajouter des statistiques d'avis par défaut pour les produits de secours
+    if (!product.reviewStats) {
+      product.reviewStats = {
+        averageRating: 0,
+        totalReviews: 0,
+        distribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 }
+      };
     }
     
     return product;

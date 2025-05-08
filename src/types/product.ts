@@ -53,6 +53,18 @@ export type MetaInfo = {
   certificates?: string[];
 };
 
+export type ReviewStats = {
+  averageRating: number;
+  totalReviews: number;
+  distribution: {
+    '1': number;
+    '2': number;
+    '3': number;
+    '4': number;
+    '5': number;
+  };
+};
+
 export type RichTextContent = {
   root: {
     children: Array<Record<string, unknown>>;
@@ -86,4 +98,5 @@ export type Product = {
   productDetails?: ProductDetails;
   tags?: string[];
   metaInfo?: MetaInfo;
+  reviewStats?: ReviewStats;
 };

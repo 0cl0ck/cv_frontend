@@ -8,6 +8,7 @@ import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
 import { useCartContext } from '@/context/CartContext';
 import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
+import { ProductReviews } from '@/components/Reviews';
 
 type Props = {
   product: Product;
@@ -418,6 +419,14 @@ export default function ProductDetailView({ product, relatedProducts, categories
           {/* La description détaillée a été retirée pour éviter la redondance */}
         </div>
 
+        {/* Section des avis clients */}
+        <div className="mt-16 pt-12 border-t border-[#3A4A4F]">
+          <ProductReviews 
+            productId={product.id} 
+            initialStats={product.reviewStats} 
+          />
+        </div>
+        
         {/* Produits similaires */}
         {relatedProducts.length > 0 && (
           <div className="mt-16 pt-12 border-t border-[#3A4A4F]">
