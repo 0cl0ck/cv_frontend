@@ -103,33 +103,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
     return isWeightBased;
   };
   
-  // Vérifie si un produit simple a un prix par gramme (déjà calculé ou manuellement défini)
-  const hasSimplePricePerGram = () => {
-    // Si le produit a un prix par gramme déjà défini
-    if (product.pricePerGram && product.pricePerGram > 0) {
-      return true;
-    }
-    // Sinon, si on peut calculer le prix par gramme
-    if (product.weight && product.weight > 0 && product.price) {
-      return true;
-    }
-    // Sinon, on ne peut pas avoir de prix par gramme
-    return false;
-  };
-  
-  // Obtient le prix par gramme pour un produit simple
-  const getSimplePricePerGram = () => {
-    // Utiliser directement la propriété pricePerGram si disponible
-    if (product.pricePerGram && product.pricePerGram > 0) {
-      return product.pricePerGram;
-    }
-    // Sinon, le calculer si possible
-    if (product.weight && product.weight > 0 && product.price) {
-      const calculated = product.price / product.weight;
-      return calculated;
-    }
-    return null;
-  };
+  // Le calcul du prix par gramme est directement intégré dans formatVariantLabel
 
   // Fonction pour formater l'affichage d'une variante
   const formatVariantLabel = (variant: ProductVariation) => {
