@@ -504,13 +504,13 @@ export default function CartView() {
         : cart.subtotal >= 49
           ? 0
           : 4.95;
-      // const shippingCostCents = customerInfo.country === 'Belgique'
-      //   ? 1000
-      //   : cart.subtotal >= 49
-      //     ? 0
-      //     : 495;
+      const shippingCostCents = customerInfo.country === 'Belgique'
+        ? 1000
+        : cart.subtotal >= 49
+          ? 0
+          : 495;
       
-      const totalCents = cart.subtotalCents ;
+      const totalCents = cart.subtotalCents + shippingCostCents;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const total = totalCents / 100;
       
