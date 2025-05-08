@@ -615,6 +615,40 @@ export default function DashboardPage() {
                 </ul>
               </div>
               
+              {/* Niveaux du programme de fidélité */}
+              <div className="mt-4 p-4 bg-[#003038] rounded-lg">
+                <h3 className="text-sm font-medium text-[#D1D5DB] mb-3">Niveaux de fidélité et avantages</h3>
+                <ul className="text-xs space-y-4 text-[#BEC3CA]">
+                  <li className="flex items-start">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#CD7F32] flex items-center justify-center mr-3 text-xs font-bold text-white">
+                      <Award size={14} />
+                    </span>
+                    <div>
+                      <span className="font-medium text-[#CD7F32]">BRONZE (3 commandes)</span>
+                      <p className="mt-1">5% de réduction sur chaque commande</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#C0C0C0] flex items-center justify-center mr-3 text-xs font-bold text-white">
+                      <Award size={14} />
+                    </span>
+                    <div>
+                      <span className="font-medium text-[#C0C0C0]">ARGENT (5 commandes)</span>
+                      <p className="mt-1">10% de réduction sur chaque commande</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#E6C15A] flex items-center justify-center mr-3 text-xs font-bold text-white">
+                      <Award size={14} />
+                    </span>
+                    <div>
+                      <span className="font-medium text-[#E6C15A]">OR (10 commandes)</span>
+                      <p className="mt-1">Offres spéciales en avant-première</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              
 
             </div>
           )}
