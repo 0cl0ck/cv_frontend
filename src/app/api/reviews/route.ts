@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { verifyJwtToken } from '@/lib/auth/jwt';
 
 export async function GET(req: NextRequest) {
   try {
@@ -54,7 +53,7 @@ export async function GET(req: NextRequest) {
         prenom?: string;
         nom?: string;
         email?: string;
-        [key: string]: any;
+        [key: string]: string | number | boolean | undefined;
       };
       createdAt: string;
       userDisplayName?: string;
@@ -117,7 +116,7 @@ export async function GET(req: NextRequest) {
     console.log('Informations utilisateur récupérées pour', userInfoMap.size, 'utilisateurs');
     
     // Conversion des données brutes en objet ReviewData typable
-    const processedReviews = data.docs.map((review: any) => {
+    const processedReviews = data.docs.map((review: Record<string, unknown>) => {
       // Log détaillé pour comprendre la structure des données reçues
       console.log(`Avis ID ${review.id}, userDisplayName=${review.userDisplayName}, user=${typeof review.user === 'string' ? review.user : 'objet'}`);
       
@@ -391,7 +390,7 @@ export async function POST(req: NextRequest) {
           product: productId,
           rating: parseInt(rating.toString()),
           reviewTitle: 'Avis', // Titre par défaut pour tous les avis
-          reviewContent: reviewContent,
+          reviewContent: reviewContent || " ", // Mettre un espace si vide (le backend exige une valeur)
           user: userId,
           isApproved: false, // Par défaut, les avis doivent être approuvés par un administrateur
           userDisplayName: userDisplayName // Ajouter le nom d'affichage formaté
@@ -480,7 +479,7 @@ export async function POST(req: NextRequest) {
         product: productId,
         rating: parseInt(rating.toString()),
         reviewTitle: 'Avis',
-        reviewContent: reviewContent,
+        reviewContent: reviewContent || " ", // Fournir un espace si vide pour satisfaire la validation
         user: userId,
         isApproved: false,
         userDisplayName: userName // Utiliser le nom récupéré ou 'Vous' comme fallback

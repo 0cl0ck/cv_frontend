@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import StarRating from './StarRating';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/lib/auth';
 
 type ReviewFormProps = {
   productId: string;
@@ -12,7 +10,6 @@ type ReviewFormProps = {
 };
 
 const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel }) => {
-  const { user } = useAuth();
   const [rating, setRating] = useState<number>(0);
   const [content, setContent] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -31,7 +28,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel 
       setIsSubmitting(true);
       setError(null);
       
-      console.log('Soumission d\'un avis:', { productId, rating, content });
+      // Le contenu est maintenant vraiment optionnel - aucune validation n'est nécessaire
+      console.log('Soumission d\'un avis:', { 
+        productId, 
+        rating, 
+        content: content || '(sans commentaire)' 
+      });
       
       const response = await fetch('/api/reviews', {
         method: 'POST',
@@ -41,13 +43,14 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel 
         body: JSON.stringify({
           productId,
           rating,
-          reviewContent: content
+          reviewContent: content // Le backend gèrera les valeurs vides
         }),
       });
       
       const data = await response.json();
       
       if (!response.ok) {
+        console.error('Erreur de soumission:', data);
         throw new Error(data.error || 'Erreur lors de la soumission de l\'avis');
       }
       
@@ -61,9 +64,9 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel 
       if (onSuccess) {
         onSuccess();
       }
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error('Erreur lors de la soumission:', err);
-      setError(err.message || 'Une erreur est survenue lors de la soumission de votre avis');
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la soumission de votre avis');
     } finally {
       setIsSubmitting(false);
     }

@@ -20,7 +20,7 @@ export type ReviewType = {
     nom?: string;
     // Information supplémentaire qui peut être utile
     email?: string;
-    [key: string]: any; // Pour gérer d'autres propriétés possibles
+    [key: string]: string | number | boolean | undefined; // Pour gérer d'autres propriétés possibles
   };
   createdAt: string;
   // Champs spécifiques pour transmettre les informations utilisateur 
@@ -127,7 +127,7 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review }) => {
         </div>
       </div>
       
-      {review.reviewContent && (
+      {review.reviewContent && review.reviewContent.trim() !== ' ' && review.reviewContent.trim() !== '' && (
         <div className="mb-4 text-sm text-white bg-[#003B36] p-4 rounded-md">
           {review.reviewContent}
         </div>
