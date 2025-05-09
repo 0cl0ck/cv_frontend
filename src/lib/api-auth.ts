@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { JWTPayload, verifyAuth } from './auth';
+import { JWTPayload, verifyAuth } from './server/auth';
 
 type ApiHandler = (
   req: NextRequest,

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { verifyAuth } from './lib/auth';
+import { verifyAuth } from './lib/server/auth';
 
 export async function middleware(request: NextRequest) {
   // Protection contre CVE-2025-29927 (contournement du middleware)

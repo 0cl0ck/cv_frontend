@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
+import { withApiAuth } from '@/lib/api-auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -280,7 +281,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+// POST sécurisé avec authentification JWT
+export const POST = withApiAuth(async (req: NextRequest) => {
   try {
     // Récupérer le token d'authentification
     const token = req.cookies.get('payload-token')?.value;
@@ -511,4 +513,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+}, { roles: ['customers'] });

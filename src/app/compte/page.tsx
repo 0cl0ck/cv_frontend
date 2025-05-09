@@ -301,17 +301,34 @@ export default function DashboardPage() {
     fetchUserData();
   }, [router]);
 
-  // Fonction de déconnexion
+  // Fonction de déconnexion sécurisée utilisant l'API dédiée
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      // Supprimer le cookie d'authentification
-      document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
+      // Utiliser l'API sécurisée de déconnexion
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // Inclure les cookies dans la requête pour l'authentification
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      
       // Rediriger vers la page d'accueil
       router.push('/');
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
       setIsLoggingOut(false);
+      
+      // Fallback en cas d'échec de l'API: supprimer manuellement le cookie
+      document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      router.push('/');
     }
   };
 
