@@ -3,6 +3,7 @@ import FeaturedProducts from "@/components/sections/FeaturedProducts";
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturesBanner from "@/components/sections/FeaturesBanner";
 import SocialProofSection from "@/components/sections/SocialProofSection";
+import ContactSection from "@/components/sections/ContactSection";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <CategoryGrid />
       <FeaturesBanner />
       <SocialProofSection />
+      <ContactSection />
     </>
   );
 }
