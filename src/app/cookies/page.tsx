@@ -9,13 +9,13 @@ export const metadata = {
 
 export default function CookiesPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-12 text-gray-50">
       <h1 className="text-3xl font-bold mb-6 text-center">Politique de Cookies</h1>
-      <p className="text-center text-sm mb-6 text-gray-500">
+      <p className="text-center text-sm mb-6 text-gray-400">
         Version 1.0 - Dernière mise à jour le 09/05/2025
       </p>
       
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Qu&apos;est-ce qu&apos;un cookie ?</h2>
         <p className="mb-4">
           Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) 
@@ -25,13 +25,13 @@ export default function CookiesPage() {
         <p className="mb-4">
           Les cookies peuvent être déposés par nous (cookies propriétaires) ou par des tiers (cookies tiers).
         </p>
-        <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded">
+        <div className="mt-4 p-4 bg-gray-700 rounded">
           <p className="font-medium">Vous pouvez à tout moment gérer vos préférences en matière de cookies en cliquant sur le bouton ci-dessous :</p>
           <CookieButton />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Les cookies que nous utilisons</h2>
         
         <div className="mb-6">
@@ -75,7 +75,7 @@ export default function CookiesPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Comment gérer vos cookies ?</h2>
         <p className="mb-4">
           Lors de votre première visite sur notre site, un bandeau vous informe de l&apos;utilisation des cookies et vous permet d&apos;exprimer vos choix :
@@ -102,7 +102,7 @@ export default function CookiesPage() {
         </ul>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">En savoir plus</h2>
         <p className="mb-4">
           Pour en savoir plus sur les cookies et la protection de vos données personnelles, vous pouvez consulter le site de la CNIL : {' '}

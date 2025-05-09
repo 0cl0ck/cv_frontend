@@ -8,13 +8,13 @@ export const metadata = {
 
 export default function ConfidentialitePage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-12 text-gray-50">
       <h1 className="text-3xl font-bold mb-6 text-center">Politique de Confidentialité</h1>
-      <p className="text-center text-sm mb-6 text-gray-500">
+      <p className="text-center text-sm mb-6 text-gray-400">
         Version 1.0 - Dernière mise à jour le 09/05/2025
       </p>
       
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Introduction</h2>
         <p className="mb-4">
           Chez Chanvre Vert, nous accordons une grande importance à la protection de vos données personnelles. 
@@ -26,7 +26,7 @@ export default function ConfidentialitePage() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Responsable du traitement</h2>
         <p className="mb-4">
           Le responsable du traitement des données personnelles collectées sur le site www.chanvre-vert.fr est :
@@ -39,51 +39,51 @@ export default function ConfidentialitePage() {
         </ul>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Données collectées et finalités</h2>
         <p className="mb-4">Le tableau ci-dessous précise les données que nous collectons, les finalités de leur traitement, la base légale et leur durée de conservation :</p>
         
         <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
-            <thead className="bg-gray-100 dark:bg-gray-800">
+          <table className="min-w-full border-collapse border border-gray-700">
+            <thead className="bg-gray-700">
               <tr>
-                <th className="border border-gray-300 dark:border-gray-700 p-2 text-left">Finalité</th>
-                <th className="border border-gray-300 dark:border-gray-700 p-2 text-left">Données collectées</th>
-                <th className="border border-gray-300 dark:border-gray-700 p-2 text-left">Base légale</th>
-                <th className="border border-gray-300 dark:border-gray-700 p-2 text-left">Durée de conservation</th>
+                <th className="border border-gray-700 p-2 text-left">Finalité</th>
+                <th className="border border-gray-700 p-2 text-left">Données collectées</th>
+                <th className="border border-gray-700 p-2 text-left">Base légale</th>
+                <th className="border border-gray-700 p-2 text-left">Durée de conservation</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Gestion des commandes</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Nom, prénom, adresse, email, téléphone, historique d&apos;achats</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Exécution contractuelle</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">5 ans après la dernière commande</td>
+                <td className="border border-gray-700 p-2">Gestion des commandes</td>
+                <td className="border border-gray-700 p-2">Nom, prénom, adresse, email, téléphone, historique d&apos;achats</td>
+                <td className="border border-gray-700 p-2">Exécution contractuelle</td>
+                <td className="border border-gray-700 p-2">5 ans après la dernière commande</td>
               </tr>
               <tr>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Compte client</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Nom, prénom, email, mot de passe</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Consentement</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Jusqu&apos;à suppression du compte</td>
+                <td className="border border-gray-700 p-2">Compte client</td>
+                <td className="border border-gray-700 p-2">Nom, prénom, email, mot de passe</td>
+                <td className="border border-gray-700 p-2">Consentement</td>
+                <td className="border border-gray-700 p-2">Jusqu&apos;à suppression du compte</td>
               </tr>
               <tr>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Mesures d&apos;audience</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Cookies, adresse IP, pages visitées</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Consentement</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">13 mois</td>
+                <td className="border border-gray-700 p-2">Mesures d&apos;audience</td>
+                <td className="border border-gray-700 p-2">Cookies, adresse IP, pages visitées</td>
+                <td className="border border-gray-700 p-2">Consentement</td>
+                <td className="border border-gray-700 p-2">13 mois</td>
               </tr>
               <tr>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Communication marketing</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Email</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">Consentement</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-2">3 ans après le dernier contact</td>
+                <td className="border border-gray-700 p-2">Communication marketing</td>
+                <td className="border border-gray-700 p-2">Email</td>
+                <td className="border border-gray-700 p-2">Consentement</td>
+                <td className="border border-gray-700 p-2">3 ans après le dernier contact</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Destinataires des données</h2>
         <p className="mb-4">Vos données personnelles peuvent être transmises aux destinataires suivants :</p>
         <ul className="list-disc pl-5 space-y-2">
@@ -98,7 +98,7 @@ export default function ConfidentialitePage() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Transferts hors Union Européenne</h2>
         <p className="mb-4">
           Vos données sont principalement traitées au sein de l&apos;Union Européenne. Notre activité étant limitée à la France et à la Belgique, nous ne transférons pas vos données en dehors de l&apos;Union Européenne, sauf si un sous-traitant utilise des serveurs situés en dehors de l&apos;UE.
@@ -108,7 +108,7 @@ export default function ConfidentialitePage() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Mesures de sécurité</h2>
         <p className="mb-4">
           Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données personnelles, notamment :
@@ -121,7 +121,7 @@ export default function ConfidentialitePage() {
         </ul>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Gestion des cookies</h2>
         <p className="mb-4">
           Notre site utilise des cookies pour améliorer votre expérience de navigation et assurer certaines fonctionnalités. Lors de votre première visite, un bandeau vous informe de l&apos;utilisation de ces cookies et vous permet d&apos;exprimer votre consentement.
@@ -131,7 +131,7 @@ export default function ConfidentialitePage() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Vos droits</h2>
         <p className="mb-4">
           Conformément à la réglementation, vous disposez des droits suivants :
@@ -150,7 +150,7 @@ export default function ConfidentialitePage() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Réclamation auprès de la CNIL</h2>
         <p className="mb-4">
           Si vous estimez, après nous avoir contactés, que vos droits ne sont pas respectés, vous pouvez adresser une réclamation (plainte) à la CNIL via leur site internet : {' '}

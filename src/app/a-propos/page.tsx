@@ -8,7 +8,7 @@ export const metadata = {
 
 const VideoCard = ({ src }: { src: string }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+    <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="aspect-video relative">
         <video
           className="w-full h-full object-cover"
@@ -26,7 +26,7 @@ const VideoCard = ({ src }: { src: string }) => {
 
 const ImageCard = ({ src, alt }: { src: string; alt: string }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+    <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="aspect-video relative">
         <Image
           src={src}
@@ -42,11 +42,11 @@ const ImageCard = ({ src, alt }: { src: string; alt: string }) => {
 
 export default function AboutPage() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
+    <div className="max-w-5xl mx-auto px-4 py-12 text-gray-50">
       <h1 className="text-3xl font-bold mb-8 text-center">À propos de Chanvre Vert</h1>
       
       {/* Section principale avec le texte de présentation */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-2xl font-semibold mb-4">Notre entreprise</h2>
         <p className="mb-4">
           Chanvre Vert est une entreprise française basée dans les Hauts de France, spécialisée dans la distribution de produits CBD de haute qualité.

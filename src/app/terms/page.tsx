@@ -100,7 +100,7 @@ export default function TermsPage() {
         <h2 className="text-xl font-semibold mb-4">Politique de confidentialité et cookies</h2>
         <p className="mb-4">
           Votre utilisation du site est également soumise à notre {' '}
-          <Link href="/privacy" className="text-green-600 hover:underline">Politique de confidentialité</Link>, 
+          <Link href="/confidentialite" className="text-green-600 hover:underline">Politique de confidentialité</Link>, 
           qui régit la collecte et le traitement de vos données personnelles.
         </p>
       </div>

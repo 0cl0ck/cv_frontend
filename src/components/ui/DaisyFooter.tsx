@@ -27,7 +27,7 @@ export default function DaisyFooter() {
       <nav>
         <h6 className="footer-title">Légal</h6> 
         <Link href="/terms" className="link link-hover">Conditions d&#39;utilisation</Link>
-        <Link href="/privacy" className="link link-hover">Politique de confidentialité</Link>
+        <Link href="/confidentialite" className="link link-hover">Politique de confidentialité</Link>
         <Link href="/cookies" className="link link-hover">Politique de cookies</Link>
       </nav>
       <div>
