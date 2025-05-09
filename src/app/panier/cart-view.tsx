@@ -1070,7 +1070,7 @@ export default function CartView() {
                       name="firstName"
                       value={customerInfo.firstName}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.firstName ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
+                      className={`w-full p-2 border rounded ${errors.firstName ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
                     />
                     {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
                   </div>
@@ -1082,7 +1082,7 @@ export default function CartView() {
                       name="lastName"
                       value={customerInfo.lastName}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.lastName ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
+                      className={`w-full p-2 border rounded ${errors.lastName ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
                     />
                     {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
                   </div>
@@ -1095,7 +1095,7 @@ export default function CartView() {
                     name="email"
                     value={customerInfo.email}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
+                    className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
                   />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
@@ -1107,7 +1107,7 @@ export default function CartView() {
                     name="phone"
                     value={customerInfo.phone}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded ${errors.phone ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
+                    className={`w-full p-2 border rounded ${errors.phone ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
                   />
                   {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
@@ -1119,7 +1119,7 @@ export default function CartView() {
                     name="address"
                     value={customerInfo.address}
                     onChange={handleInputChange}
-                    className={`w-full p-2 border rounded ${errors.address ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
+                    className={`w-full p-2 border rounded ${errors.address ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
                     placeholder="Rue et numéro"
                   />
                   {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
@@ -1132,7 +1132,7 @@ export default function CartView() {
                     name="addressLine2"
                     value={customerInfo.addressLine2}
                     onChange={handleInputChange}
-                    className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935]"
+                    className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935] text-[#F4F8F5]"
                     placeholder="Appartement, bâtiment, etc."
                   />
                 </div>
@@ -1145,7 +1145,7 @@ export default function CartView() {
                       name="postalCode"
                       value={customerInfo.postalCode}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.postalCode ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
+                      className={`w-full p-2 border rounded ${errors.postalCode ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
                     />
                     {errors.postalCode && <p className="text-red-500 text-xs mt-1">{errors.postalCode}</p>}
                   </div>
@@ -1157,7 +1157,7 @@ export default function CartView() {
                       name="city"
                       value={customerInfo.city}
                       onChange={handleInputChange}
-                      className={`w-full p-2 border rounded ${errors.city ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935]`}
+                      className={`w-full p-2 border rounded ${errors.city ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
                     />
                     {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                   </div>
@@ -1169,7 +1169,7 @@ export default function CartView() {
                     name="country"
                     value={customerInfo.country}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, country: e.target.value }))}
-                    className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935]"
+                    className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935] text-[#F4F8F5]"
                   >
                     <option value="France">France</option>
                     <option value="Belgique">Belgique</option>
