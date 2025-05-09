@@ -133,7 +133,7 @@ const ContactForm = () => {
           placeholder="Comment pouvons-nous vous aider ?"
           rows={4}
           maxLength={1000}
-          className="bg-[#003B36] text-white border border-[#2A4D44] placeholder-gray-400 focus:ring-2 focus:ring-[#EFC368] focus:border-transparent focus:outline-none transition-all duration-200 p-3"
+          className="w-full bg-[#003B36] text-white border border-[#2A4D44] placeholder-gray-400 focus:ring-2 focus:ring-[#EFC368] focus:border-transparent focus:outline-none transition-all duration-200 p-3"
           required
         />
         <p className="text-xs text-white/60 mt-2 flex justify-between items-center">

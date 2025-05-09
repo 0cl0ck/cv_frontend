@@ -5,7 +5,8 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 export const Textarea: React.FC<TextareaProps> = ({ className = '', ...props }) => {
-  const baseClasses = 'w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#1A3D34] focus:border-[#1A3D34]';
+  // Réduire les styles de base pour permettre la personnalisation complète
+  const baseClasses = 'w-full px-3 py-2 rounded-md';
   const textareaClasses = `${baseClasses} ${className}`;
   
   return <textarea className={textareaClasses} {...props} />;
