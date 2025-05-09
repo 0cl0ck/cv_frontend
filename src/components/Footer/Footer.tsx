@@ -89,12 +89,18 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Chanvre Vert - Tous droits réservés
           </p>
           
-          <div className="flex gap-4">
-            <Link href="/privacy" className="text-sm text-white/70 hover:text-white">
+          <div className="flex gap-4 flex-wrap justify-center md:justify-end">
+            <Link href="/confidentialite" className="text-sm text-white/70 hover:text-white">
               Politique de confidentialité
+            </Link>
+            <Link href="/cookies" className="text-sm text-white/70 hover:text-white">
+              Politique de cookies
             </Link>
             <Link href="/terms" className="text-sm text-white/70 hover:text-white">
               Conditions d&apos;utilisation
+            </Link>
+            <Link href="/cgv" className="text-sm text-white/70 hover:text-white">
+              CGV
             </Link>
           </div>
         </div>
