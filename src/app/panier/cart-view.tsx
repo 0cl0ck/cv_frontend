@@ -7,6 +7,7 @@ import { useCartContext } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import apiConfig from '@/config/api';
 import { MapPin, CheckCircle, Gift, Truck, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
 
 // Types pour les adresses
 type AddressType = 'shipping' | 'billing' | 'both';
@@ -37,11 +38,18 @@ export default function CartView() {
     message: string;
     discountAmount: number;
     rewardType: 'none' | 'sample' | 'freeShipping' | 'freeProduct' | 'discount';
+    orderCount: number;
+    nextLevel?: {
+      name: string;
+      ordersRequired: number;
+      remainingOrders: number;
+    };
   }>({ 
     active: false, 
     message: '', 
     discountAmount: 0,
-    rewardType: 'none' 
+    rewardType: 'none',
+    orderCount: 1
   });
   const [loadingLoyalty, setLoadingLoyalty] = useState(false);
   
@@ -66,7 +74,7 @@ export default function CartView() {
   
   // État pour les adresses enregistrées
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, user } = useAuth();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -230,23 +238,13 @@ export default function CartView() {
   useEffect(() => {
     async function checkLoyaltyBenefits() {
       try {
-        // Vérifier si le cookie d'authentification existe
-        const cookies = document.cookie.split(';');
-        
-        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-        
-        if (!authCookie) {
-          // Utilisateur non connecté
-          setIsAuthenticated(false);
+        // Si l'utilisateur n'est pas connecté, on s'arrête
+        if (!isAuthenticated || !user) {
           return;
         }
         
         // Utilisateur connecté
-        setIsAuthenticated(true);
         setLoadingLoyalty(true);
-        
-        // Extraire le token JWT du cookie
-        const token = authCookie.split('=')[1]?.trim();
         
         // Récupérer les informations du programme de fidélité
         const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -261,8 +259,7 @@ export default function CartView() {
         const loyaltyResponse = await fetch(`${backendUrl}/api/cart/apply-loyalty`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           credentials: 'include', // Inclure les cookies dans la requête
           body: JSON.stringify(requestData)
@@ -274,20 +271,41 @@ export default function CartView() {
           const loyaltyData = await loyaltyResponse.json();
           
           // Gestion des avantages de fidélité pour le panier actuel
+          // Stocker le nombre de commandes (même si aucun avantage n'est actif)
+          const orderCount = loyaltyData.orderCount || 1;
+          
+          // Déterminer le niveau suivant
+          let nextLevel: { name: string; ordersRequired: number; remainingOrders: number } | undefined = undefined;
+          if (orderCount < 2) {
+            nextLevel = { name: 'Échantillon offert', ordersRequired: 2, remainingOrders: 2 - orderCount };
+          } else if (orderCount < 3) {
+            nextLevel = { name: 'Bronze', ordersRequired: 3, remainingOrders: 3 - orderCount };
+          } else if (orderCount < 5) {
+            nextLevel = { name: 'Argent', ordersRequired: 5, remainingOrders: 5 - orderCount };
+          } else if (orderCount < 10) {
+            nextLevel = { name: 'Or', ordersRequired: 10, remainingOrders: 10 - orderCount };
+          }
+          
           if (loyaltyData.reward && loyaltyData.reward.type !== 'none') {
-
-            
             setLoyaltyBenefits({
               active: true,
               message: loyaltyData.reward.message,
               discountAmount: loyaltyData.discount || 0,
-              rewardType: loyaltyData.reward.type
+              rewardType: loyaltyData.reward.type,
+              orderCount,
+              nextLevel
             });
           } else {
             console.log('Aucun avantage de fidélité applicable au panier');
             
             // Même si aucun avantage n'est applicable au panier,
             // nous pouvons montrer le nombre de commandes validées
+            setLoyaltyBenefits(prev => ({
+              ...prev,
+              orderCount,
+              nextLevel
+            }));
+            
             if (loyaltyData.orderCount) {
               console.log(`Progression de fidélité: ${loyaltyData.orderCount} commande(s) validée(s)`);
             }
@@ -330,40 +348,21 @@ export default function CartView() {
       try {
         setLoadingAddresses(true);
         
-        // Vérifier si le cookie d'authentification existe
-        const cookies = document.cookie.split(';');
-        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-        
-        if (!authCookie) {
+        // Utiliser le hook useAuth pour vérifier l'authentification
+        if (!isAuthenticated || !user) {
           // Utilisateur non connecté
-          setIsAuthenticated(false);
           setLoadingAddresses(false);
           return;
         }
-        
-        // Extraire le token JWT du cookie
-        const token = authCookie.split('=')[1]?.trim();
-        
-        // Décoder le payload JWT (sans vérification de signature)
-        const tokenParts = token.split('.');
-        if (tokenParts.length !== 3) {
-          console.error('Format de token JWT invalide');
-          setLoadingAddresses(false);
-          return;
-        }
-        
-        // Décoder le payload (deuxième partie du token)
-        const payloadBase64 = tokenParts[1];
-        const decodedPayload = JSON.parse(atob(payloadBase64));
         
         // Récupérer les données utilisateur depuis le backend
         const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        const backendResponse = await fetch(`${backendUrl}/api/customers/${decodedPayload.id}`, {
+        const backendResponse = await fetch(`${backendUrl}/api/customers/${user.id}`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
         });
         
         if (backendResponse.ok) {
@@ -375,7 +374,6 @@ export default function CartView() {
           ) || [];
           
           setUserAddresses(shippingAddresses);
-          setIsAuthenticated(true);
           
           // Pré-remplir les infos de base du client (mais pas l'adresse automatiquement)
           setCustomerInfo(prevInfo => ({
@@ -973,6 +971,81 @@ export default function CartView() {
                   <Link href="/connexion" className="text-[#EFC368] text-xs hover:underline">
                     Se connecter pour en profiter
                   </Link>
+                </div>
+              )}
+              
+              {/* Programme de fidélité pour utilisateurs connectés */}
+              {isAuthenticated && (
+                <div className="mt-3 bg-[#001f29] border border-[#3A4A4F] rounded-md p-3">
+                  <div className="flex items-center text-[#F4F8F5] mb-2">
+                    <Gift size={18} className="mr-2 text-[#EFC368]" />
+                    <span className="font-medium">Programme de fidélité</span>
+                  </div>
+                  
+                  {/* Section 1: Niveau actuel et progression */}
+                  <div className="mb-3">
+                    <p className="text-xs text-[#F4F8F5] mb-1">
+                      <span className="text-[#EFC368]">Votre statut :</span> 
+                      {loyaltyBenefits.orderCount < 3 && <span className="font-medium">Nouveau client</span>}
+                      {loyaltyBenefits.orderCount >= 3 && loyaltyBenefits.orderCount < 5 && <span className="font-medium text-[#CD7F32]">Bronze</span>}
+                      {loyaltyBenefits.orderCount >= 5 && loyaltyBenefits.orderCount < 10 && <span className="font-medium text-[#C0C0C0]">Argent</span>}
+                      {loyaltyBenefits.orderCount >= 10 && <span className="font-medium text-[#FFD700]">Or</span>}
+                      <span className="ml-1 text-[#8A9EA5]">({loyaltyBenefits.orderCount || 1} commande{(loyaltyBenefits.orderCount || 1) > 1 ? "s" : ""})</span>
+                    </p>
+                    
+                    {/* Barre de progression visuelle */}
+                    <div className="w-full bg-[#002935] h-1.5 rounded-full overflow-hidden mt-2 mb-2">
+                      <div 
+                        className={`h-full rounded-full ${loyaltyBenefits.orderCount >= 10 ? "bg-[#FFD700]" : loyaltyBenefits.orderCount >= 5 ? "bg-[#C0C0C0]" : loyaltyBenefits.orderCount >= 3 ? "bg-[#CD7F32]" : "bg-[#EFC368]"}`}
+                        style={{ width: `${Math.min(Math.max((loyaltyBenefits.orderCount || 1) * 10, 10), 100)}%` }}
+                      ></div>
+                    </div>
+                    
+                    {/* Étapes de progression */}
+                    <div className="flex justify-between text-[9px] text-[#8A9EA5] px-1">
+                      <span>1</span>
+                      <span>3</span>
+                      <span>5</span>
+                      <span>10</span>
+                    </div>
+                  </div>
+                  
+                  {/* Section 2: Récompenses et niveaux */}
+                  <div className="flex flex-col gap-2">
+                    {/* Récompenses ponctuelles */}
+                    <div>
+                      <p className="text-xs text-[#EFC368] font-medium mb-1">Récompenses ponctuelles :</p>
+                      <ul className="text-[10px] text-[#F4F8F5] ml-4 list-disc">
+                        <li className={loyaltyBenefits.orderCount >= 2 ? "text-green-400" : ""}>2 commandes : Échantillon offert</li>
+                        <li className={loyaltyBenefits.orderCount >= 3 ? "text-green-400" : ""}>3 commandes : Livraison offerte (5€)</li>
+                        <li className={loyaltyBenefits.orderCount >= 5 ? "text-green-400" : ""}>5 commandes : Produit offert (10€)</li>
+                        <li className={loyaltyBenefits.orderCount >= 10 ? "text-green-400" : ""}>10 commandes : Réduction 20€ ou produit offert</li>
+                      </ul>
+                    </div>
+                    
+                    {/* Niveaux de fidélité */}
+                    <div>
+                      <p className="text-xs text-[#EFC368] font-medium mb-1">Niveaux de fidélité :</p>
+                      <ul className="text-[10px] text-[#F4F8F5] ml-4 list-disc">
+                        <li className={loyaltyBenefits.orderCount >= 3 ? "text-green-400" : ""}><span className="text-[#CD7F32] font-medium">Bronze</span> (3 commandes) : 5% de remise permanente</li>
+                        <li className={loyaltyBenefits.orderCount >= 5 ? "text-green-400" : ""}><span className="text-[#C0C0C0] font-medium">Argent</span> (5 commandes) : 10% de remise permanente</li>
+                        <li className={loyaltyBenefits.orderCount >= 10 ? "text-green-400" : ""}><span className="text-[#FFD700] font-medium">Or</span> (10 commandes) : Accès en avant-première aux promotions</li>
+                      </ul>
+                    </div>
+                    
+                    {/* Prochain palier */}
+                    {loyaltyBenefits.orderCount < 10 && (
+                      <p className="text-[11px] text-green-400 mt-1">
+                        {loyaltyBenefits.orderCount < 2 && `Plus que ${2 - (loyaltyBenefits.orderCount || 1)} commande(s) pour débloquer votre premier avantage !`}
+                        {loyaltyBenefits.orderCount >= 2 && loyaltyBenefits.orderCount < 3 && `Plus que ${3 - loyaltyBenefits.orderCount} commande(s) pour atteindre le niveau Bronze !`}
+                        {loyaltyBenefits.orderCount >= 3 && loyaltyBenefits.orderCount < 5 && `Plus que ${5 - loyaltyBenefits.orderCount} commande(s) pour atteindre le niveau Argent !`}
+                        {loyaltyBenefits.orderCount >= 5 && loyaltyBenefits.orderCount < 10 && `Plus que ${10 - loyaltyBenefits.orderCount} commande(s) pour atteindre le niveau Or !`}
+                      </p>
+                    )}
+                    {loyaltyBenefits.orderCount >= 10 && (
+                      <p className="text-[11px] text-green-400 mt-1">Félicitations ! Vous avez atteint le niveau de fidélité maximal !</p>
+                    )}
+                  </div>
                 </div>
               )}
               

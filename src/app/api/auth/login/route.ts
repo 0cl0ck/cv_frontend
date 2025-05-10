@@ -1,9 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
+// Schéma de validation Zod pour les requêtes de login
+const loginSchema = z.object({
+  email: z.string().email('Format d\'email invalide'),
+  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+  collection: z.enum(['customers', 'admins'], {
+    errorMap: () => ({ message: 'Collection doit être "customers" ou "admins"' })
+  })
+});
+
+// Fonction pour gérer la connexion
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, password, collection } = body;
+    // 1. Récupérer les informations de connexion depuis le corps de la requête
+    const body = await request.json().catch(() => ({}));
+    
+    // 2. Valider les entrées utilisateur avec Zod
+    const result = loginSchema.safeParse(body);
+    
+    if (!result.success) {
+      // Formater les erreurs de validation
+      const errorMessage = result.error.errors.map(e => 
+        `${e.path.join('.')}: ${e.message}`
+      ).join(', ');
+      
+      // Log simple pour le débogage
+      console.error('Validation login échouée:', result.error.errors);
+      
+      return NextResponse.json(
+        { error: 'Données de connexion invalides', details: errorMessage },
+        { status: 400 }
+      );
+    }
+    
+    // Extraction des données validées
+    const { email, password, collection } = result.data;
 
     // Appeler le backend
     // Le backend fonctionne sur le port 3000 tandis que le frontend est sur 3001
@@ -42,22 +74,13 @@ export async function POST(request: NextRequest) {
         name: 'payload-token',
         value: data.token,
         path: '/',
-        httpOnly: false, // Permettre l'accès via JavaScript pour le débogage
+        httpOnly: true, // Important: empecher l'accès depuis JavaScript
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 7 jours
-        sameSite: 'lax', // Permettre l'envoi lors de la navigation depuis d'autres domaines
+        maxAge: 60 * 60 * 24, // Réduit à 24h pour limiter le risque
+        sameSite: 'strict', // Protection CSRF plus stricte
       });
       
-      // Ajouter aussi un cookie non-httpOnly pour pouvoir vérifier sa présence côté client
-      frontendResponse.cookies.set({
-        name: 'auth-status',
-        value: 'logged-in',
-        path: '/',
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 7 jours
-        sameSite: 'lax',
-      });
+      // Nous n'utilisons plus le cookie auth-status - SWR vérifie directement /api/auth/me
       
       console.log('Cookies configurés dans la réponse');
     }
@@ -78,3 +101,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

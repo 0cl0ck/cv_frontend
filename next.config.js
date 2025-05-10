@@ -43,10 +43,22 @@ const nextConfig = {
     // En production, utiliser le backend déployé
     return process.env.NODE_ENV === 'development'
       ? [
-          // Exclure la route /api/auth gérée par le frontend
+          // Exclure les routes d'authentification gérées par le frontend
           {
-            source: '/api/auth',
-            destination: '/api/auth',
+            source: '/api/auth/me',
+            destination: '/api/auth/me',
+          },
+          {
+            source: '/api/auth/login',
+            destination: '/api/auth/login',
+          },
+          {
+            source: '/api/auth/logout',
+            destination: '/api/auth/logout',
+          },
+          {
+            source: '/api/auth/verify/:path*', 
+            destination: '/api/auth/verify/:path*',
           },
           // Toutes les autres routes API sont redirigées vers le backend
           {
@@ -55,10 +67,22 @@ const nextConfig = {
           }
         ]
       : [
-          // Exclure la route /api/auth gérée par le frontend
+          // Exclure les routes d'authentification gérées par le frontend
           {
-            source: '/api/auth',
-            destination: '/api/auth',
+            source: '/api/auth/me',
+            destination: '/api/auth/me',
+          },
+          {
+            source: '/api/auth/login',
+            destination: '/api/auth/login',
+          },
+          {
+            source: '/api/auth/logout',
+            destination: '/api/auth/logout',
+          },
+          {
+            source: '/api/auth/verify/:path*', 
+            destination: '/api/auth/verify/:path*',
           },
           // Toutes les autres routes API sont redirigées vers le backend
           {

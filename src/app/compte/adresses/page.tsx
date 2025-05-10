@@ -77,40 +77,82 @@ export default function AddressesPage() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        // 1. D'abord vérifier si le cookie d'authentification existe
-        const cookies = document.cookie.split(';');
-        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
+        // Diagnostic: Afficher les cookies disponibles
+        console.log('Cookies disponibles:', document.cookie);
         
-        if (!authCookie) {
-          console.log('Aucun cookie d\'authentification trouvé');
-          router.push('/connexion');
-          return;
-        }
+        // Diagnostic: Vérifier la configuration de l'API
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        console.log('API URL configurée:', apiUrl);
         
-        // 2. Extraire le token JWT du cookie
-        const token = authCookie.split('=')[1]?.trim();
-        
-        // 3. Décoder le payload JWT (sans vérification de signature)
-        const tokenParts = token.split('.');
-        if (tokenParts.length !== 3) {
-          console.error('Format de token JWT invalide');
-          router.push('/connexion');
-          return;
-        }
-        
-        // Décoder le payload (deuxième partie du token)
-        const payloadBase64 = tokenParts[1];
-        const decodedPayload = JSON.parse(atob(payloadBase64));
-        
-        // 4. Tenter de récupérer les vraies données utilisateur depuis le backend
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        const backendResponse = await fetch(`${backendUrl}/api/customers/${decodedPayload.id}`, {
+        // 1. Tenter de récupérer les données utilisateur depuis l'API me
+        // Le cookie httpOnly sera automatiquement inclus avec credentials: 'include'
+        console.log('Tentative de récupération des données utilisateur via /api/auth/me');
+        const meResponse = await fetch('/api/auth/me', {
           method: 'GET',
+          credentials: 'include',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           }
         });
+        
+        // Diagnostic: Examiner l'état de la réponse
+        console.log('Réponse /api/auth/me status:', meResponse.status, meResponse.statusText);
+        console.log('Headers de réponse:', Object.fromEntries(meResponse.headers));
+        
+        if (!meResponse.ok) {
+          console.error('Impossible de récupérer les données utilisateur');
+          router.push('/connexion');
+          return;
+        }
+        
+        const userData = await meResponse.json();
+        const userId = userData.user.id;
+        
+        // Obtenir le token JWT pour l'authentification vers le backend
+        let token = userData.token; // D'abord vérifier s'il est dans la réponse de l'API
+        
+        // Si aucun token n'est présent dans la réponse, on essaie de le récupérer des cookies client
+        // Note: Cela ne fonctionnera que pour les cookies non-HttpOnly
+        if (!token && typeof document !== 'undefined') {
+          const tokenCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('payload-token='));
+            
+          if (tokenCookie) {
+            token = tokenCookie.split('=')[1];
+            console.log('Token récupéré des cookies client, longueur:', token.length);
+          }
+        }
+        
+        if (!token) {
+          console.warn('Token d\'authentification non trouvé pour l\'appel au backend');
+          console.log('Continuation sans token explicite, en comptant sur credentials: include');
+        } else {
+          console.log('Token d\'authentification trouvé, longueur:', token.length);
+        }
+        
+        // 2. Récupérer les détails complets de l'utilisateur avec ses adresses
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        console.log(`Appel au backend: ${backendUrl}/api/customers/${userId}`);
+        
+        // Préparer les en-têtes avec authentification
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json'
+        };
+        
+        // Ajouter le token d'authentification s'il existe
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const backendResponse = await fetch(`${backendUrl}/api/customers/${userId}`, {
+          method: 'GET',
+          credentials: 'include', // Pour transmettre les cookies
+          headers
+        });
+        
+        // Diagnostic du résultat
+        console.log('Réponse du backend:', backendResponse.status, backendResponse.statusText);
         
         if (backendResponse.ok) {
           // Si l'appel au backend réussit, utiliser les données complètes
@@ -127,14 +169,14 @@ export default function AddressesPage() {
           setUser(userData);
           setAddresses(userData.addresses || []);
         } else {
-          // Fallback: utiliser les données minimales du token
-          console.warn('Impossible de récupérer les données complètes du backend, utilisation des données décodées du token');
+          // Fallback: utiliser les données minimales de l'API me
+          console.warn('Impossible de récupérer les données complètes du backend, utilisation des données basiques');
           setUser({
-            id: decodedPayload.id,
-            email: decodedPayload.email,
-            firstName: 'Utilisateur',
-            lastName: 'Connecté',
-            createdAt: new Date().toISOString(),
+            id: userData.user.id,
+            email: userData.user.email,
+            firstName: userData.user.firstName || 'Utilisateur',
+            lastName: userData.user.lastName || 'Connecté',
+            createdAt: userData.user.createdAt || new Date().toISOString(),
             addresses: []
           });
           setAddresses([]);
@@ -247,17 +289,51 @@ export default function AddressesPage() {
         return;
       }
       
-      // Récupérer le token d'authentification
-      const cookies = document.cookie.split(';');
-      const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-      
-      if (!authCookie || !user) {
+      // Vérifier que l'utilisateur est connecté
+      if (!user) {
         setError('Session expirée. Veuillez vous reconnecter.');
         setIsSaving(false);
         return;
       }
       
-      const token = authCookie.split('=')[1]?.trim();
+      // Récupérer le token d'authentification depuis l'API /api/auth/me
+      // Cette approche est plus fiable que d'essayer d'accéder aux cookies HttpOnly
+      console.log('Récupération du token frais pour la sauvegarde d\'adresse');
+      const meResponse = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!meResponse.ok) {
+        console.error('Erreur lors de la récupération du token pour la sauvegarde:', meResponse.status);
+        setError('Session expirée. Veuillez vous reconnecter.');
+        setIsSaving(false);
+        return;
+      }
+      
+      const meData = await meResponse.json();
+      let token = meData.token;
+      
+      // Fallback au cookie client si aucun token n'est retourné par l'API
+      if (!token) {
+        console.log('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
+        const cookies = document.cookie.split(';');
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
+        
+        if (!authCookie) {
+          console.error('Aucun token trouvé dans les cookies');  
+          setError('Session expirée. Veuillez vous reconnecter.');
+          setIsSaving(false);
+          return;
+        }
+        
+        token = authCookie.split('=')[1]?.trim();
+      }
+      
+      console.log('Token d\'authentification trouvé pour la sauvegarde, longueur:', token.length);
       
       // Gérer les adresses existantes
       let updatedAddresses = [...addresses];
@@ -328,17 +404,50 @@ export default function AddressesPage() {
     setSuccess(null);
     
     try {
-      // Récupérer le token d'authentification
-      const cookies = document.cookie.split(';');
-      const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-      
-      if (!authCookie || !user) {
+      // Vérifier que l'utilisateur est connecté
+      if (!user) {
         setError('Session expirée. Veuillez vous reconnecter.');
         setIsSaving(false);
         return;
       }
       
-      const token = authCookie.split('=')[1]?.trim();
+      // Récupérer le token d'authentification depuis l'API /api/auth/me
+      console.log('Récupération du token pour la suppression d\'adresse');
+      const meResponse = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!meResponse.ok) {
+        console.error('Erreur lors de la récupération du token pour la suppression:', meResponse.status);
+        setError('Session expirée. Veuillez vous reconnecter.');
+        setIsSaving(false);
+        return;
+      }
+      
+      const meData = await meResponse.json();
+      let token = meData.token;
+      
+      // Fallback au cookie client si aucun token n'est retourné par l'API
+      if (!token) {
+        console.log('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
+        const cookies = document.cookie.split(';');
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
+        
+        if (!authCookie) {
+          console.error('Aucun token trouvé dans les cookies');  
+          setError('Session expirée. Veuillez vous reconnecter.');
+          setIsSaving(false);
+          return;
+        }
+        
+        token = authCookie.split('=')[1]?.trim();
+      }
+      
+      console.log('Token d\'authentification trouvé pour la suppression, longueur:', token.length);
       
       // Filtrer les adresses pour retirer celle à supprimer
       const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
@@ -379,17 +488,49 @@ export default function AddressesPage() {
     setSuccess(null);
     
     try {
-      // Récupérer le token d'authentification
-      const cookies = document.cookie.split(';');
-      const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-      
-      if (!authCookie || !user) {
+      if (!user) {
         setError('Session expirée. Veuillez vous reconnecter.');
         setIsSaving(false);
         return;
       }
       
-      const token = authCookie.split('=')[1]?.trim();
+      // Récupérer le token d'authentification depuis l'API /api/auth/me
+      console.log('Récupération du token pour définir l\'adresse par défaut');
+      const meResponse = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!meResponse.ok) {
+        console.error('Erreur lors de la récupération du token:', meResponse.status);
+        setError('Session expirée. Veuillez vous reconnecter.');
+        setIsSaving(false);
+        return;
+      }
+      
+      const meData = await meResponse.json();
+      let token = meData.token;
+      
+      // Fallback au cookie client si aucun token n'est retourné par l'API
+      if (!token) {
+        console.log('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
+        const cookies = document.cookie.split(';');
+        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
+        
+        if (!authCookie) {
+          console.error('Aucun token trouvé dans les cookies');  
+          setError('Session expirée. Veuillez vous reconnecter.');
+          setIsSaving(false);
+          return;
+        }
+        
+        token = authCookie.split('=')[1]?.trim();
+      }
+      
+      console.log('Token d\'authentification trouvé, longueur:', token.length);
       
       // Mettre à jour les adresses pour changer celle qui est par défaut
       const updatedAddresses = addresses.map(addr => ({
@@ -401,6 +542,7 @@ export default function AddressesPage() {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const response = await fetch(`${backendUrl}/api/customers/${user.id}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -411,16 +553,13 @@ export default function AddressesPage() {
       });
       
       if (response.ok) {
-        // Mettre à jour les données locales
         setAddresses(updatedAddresses);
         setSuccess('Adresse par défaut mise à jour avec succès');
       } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Une erreur est survenue lors de la mise à jour');
+        setError(`Erreur: ${response.statusText}`);
       }
-    } catch (err) {
-      console.error('Erreur lors de la mise à jour de l\'adresse:', err);
-      setError('Une erreur est survenue lors de la mise à jour de l\'adresse');
+    } catch (error) {
+      setError('Une erreur est survenue lors de la mise à jour de l\'adresse par défaut');
     } finally {
       setIsSaving(false);
     }

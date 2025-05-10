@@ -1,37 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withApiAuth } from '@/lib/api-auth';
 
 /**
  * API de mise à jour des informations utilisateur
  * POST /api/user/update
  */
-export const POST = withApiAuth(
-  async (request: NextRequest, user) => {
+export async function POST
+(request: NextRequest) {
     try {
       // Récupérer les données à mettre à jour
       const body = await request.json();
       const { ...updateData } = body;
       
-      // Sécurité: vérifier que l'utilisateur ne peut modifier que son propre profil
-      // userId est maintenant directement disponible depuis le token JWT vérifié
-      const userId = user.id;
+      // Récupérer l'identifiant utilisateur depuis le backend
+      // Utiliser credentials: 'include' pour transmettre les cookies automatiquement
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const userResponse = await fetch(`${backendUrl}/api/auth/me`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
-      // Récupérer le token depuis les cookies pour l'authentification au backend
-      const token = request.cookies.get('payload-token')?.value;
-      if (!token) {
+      if (!userResponse.ok) {
         return NextResponse.json(
-          { message: 'Token d\'authentification manquant' },
+          { message: 'Erreur d\'authentification' },
           { status: 401 }
         );
       }
-
-      // Appeler l'API backend
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      
+      const userData = await userResponse.json();
+      const userId = userData.user?.id;
+      
+      if (!userId) {
+        return NextResponse.json(
+          { message: 'Impossible de récupérer l\'identifiant utilisateur' },
+          { status: 400 }
+        );
+      }
+      
+      // Appeler l'API backend avec credentials: 'include'
       const response = await fetch(`${backendUrl}/api/customers/${userId}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(updateData)
       });
@@ -55,7 +68,4 @@ export const POST = withApiAuth(
         { status: 500 }
       );
     }
-  },
-  // Options: Limiter l'accès aux clients uniquement
-  { roles: ['customers'] }
-);
+}

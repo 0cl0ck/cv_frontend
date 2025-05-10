@@ -79,24 +79,12 @@ export default function OrdersPage() {
       setError(null);
       
       try {
-        // Récupérer le token d'authentification
-        const cookies = document.cookie.split(';');
-        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-        
-        if (!authCookie) {
-          setError('Session expirée. Veuillez vous reconnecter.');
-          setLoading(false);
-          return;
-        }
-        
-        const token = authCookie.split('=')[1]?.trim();
-        
-        // Appel à l'API avec le token dans l'en-tête Authorization
+        // Appel à l'API avec credentials: 'include' pour envoyer automatiquement les cookies
         const response = await fetch('/api/orders/me', {
+          credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          credentials: 'include'  // Pour s'assurer que les cookies sont aussi envoyés
+            'Content-Type': 'application/json'
+          }
         });
         
         if (response.status === 401) {
