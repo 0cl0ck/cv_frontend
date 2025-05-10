@@ -16,19 +16,50 @@ export default function Header() {
   // Vérifier si nous sommes sur la page d'accueil
   const isHomePage = pathname === '/';
   
-  // Vérifier si l'utilisateur est connecté
+  // Vérifier si l'utilisateur est connecté avec une vérification robuste via API
   useEffect(() => {
-    const checkLoginStatus = () => {
-      const hasAuthToken = document.cookie.includes('payload-token=');
-      setIsLoggedIn(hasAuthToken);
+    // Fonction pour vérifier le statut d'authentification via l'API
+    const checkLoginStatus = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, must-revalidate'
+          },
+          credentials: 'include' // Important pour inclure les cookies
+        });
+
+        if (response.ok) {
+          // Utilisateur connecté
+          setIsLoggedIn(true);
+        } else {
+          // Utilisateur non connecté ou token expiré
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification du statut de connexion:', error);
+        setIsLoggedIn(false);
+      }
     };
     
+    // Vérification initiale
     checkLoginStatus();
+    
+    // Vérification périodique (toutes les 5 minutes)
+    const intervalId = setInterval(() => {
+      checkLoginStatus();
+    }, 5 * 60 * 1000);
     
     // Écouter l'événement personnalisé login-status-change
     const handleLoginStatusChange = (event: CustomEvent) => {
       const { isLoggedIn } = event.detail;
       setIsLoggedIn(isLoggedIn);
+      
+      // Si l'événement indique une déconnexion, on vérifie quand même via l'API pour confirmation
+      if (!isLoggedIn) {
+        checkLoginStatus();
+      }
     };
     
     // Écouter les changements dans le localStorage
@@ -41,11 +72,14 @@ export default function Header() {
     // Ajouter les écouteurs d'événements
     window.addEventListener('login-status-change', handleLoginStatusChange as EventListener);
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', checkLoginStatus); // Vérifier aussi quand l'onglet regagne le focus
     
     // Nettoyage lors du démontage du composant
     return () => {
+      clearInterval(intervalId);
       window.removeEventListener('login-status-change', handleLoginStatusChange as EventListener);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', checkLoginStatus);
     };
   }, []);
   
@@ -153,21 +187,42 @@ export default function Header() {
                         Mes commandes
                       </Link>
                       <button 
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-                        onClick={() => {
-                          // Supprimer le cookie d'authentification
-                          document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                          setIsLoggedIn(false);
-                          setAccountMenuOpen(false);
-                          
-                          // Déclencher un événement personnalisé
-                          const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
-                          window.dispatchEvent(logoutEvent);
-                          
-                          // Mettre à jour localStorage pour déclencher l'événement storage
-                          localStorage.setItem('auth-status', Date.now().toString());
-                          
-                          window.location.href = '/';
+                        className="flex items-center px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50/30 hover:text-red-600 rounded-lg w-full"
+                        onClick={async () => {
+                          // Déconnexion propre via l'API plutôt que juste supprimer le cookie
+                          try {
+                            const response = await fetch('/api/auth/logout', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json'
+                              },
+                              credentials: 'include'
+                            });
+                            
+                            if (response.ok) {
+                              // Déconnexion réussie
+                              setIsLoggedIn(false);
+                              setAccountMenuOpen(false);
+                              
+                              // Déclencher un événement personnalisé
+                              const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
+                              window.dispatchEvent(logoutEvent);
+                              
+                              // Mettre à jour localStorage pour déclencher l'événement storage
+                              localStorage.setItem('auth-status', Date.now().toString());
+                              
+                              window.location.href = '/';
+                            } else {
+                              console.error('Erreur lors de la déconnexion');
+                            }
+                          } catch (error) {
+                            console.error('Erreur lors de la déconnexion:', error);
+                            // Fallback: supprimer manuellement le cookie en cas d'échec de l'API
+                            document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                            setIsLoggedIn(false);
+                            setAccountMenuOpen(false);
+                            window.location.href = '/';
+                          }
                         }}
                       >
                         <IconLogout className="mr-2 w-4 h-4" />
@@ -314,20 +369,41 @@ export default function Header() {
                 </Link>
                 <button 
                   className="flex text-red-400 items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1 w-full text-left"
-                  onClick={() => {
-                    // Supprimer le cookie d'authentification
-                    document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                    setIsLoggedIn(false);
-                    setMenuOpen(false);
-                    
-                    // Déclencher un événement personnalisé
-                    const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
-                    window.dispatchEvent(logoutEvent);
-                    
-                    // Mettre à jour localStorage pour déclencher l'événement storage
-                    localStorage.setItem('auth-status', Date.now().toString());
-                    
-                    window.location.href = '/';
+                  onClick={async () => {
+                    // Déconnexion propre via l'API plutôt que juste supprimer le cookie
+                    try {
+                      const response = await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                      });
+                      
+                      if (response.ok) {
+                        // Déconnexion réussie
+                        setIsLoggedIn(false);
+                        setMenuOpen(false);
+                        
+                        // Déclencher un événement personnalisé
+                        const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
+                        window.dispatchEvent(logoutEvent);
+                        
+                        // Mettre à jour localStorage pour déclencher l'événement storage
+                        localStorage.setItem('auth-status', Date.now().toString());
+                        
+                        window.location.href = '/';
+                      } else {
+                        console.error('Erreur lors de la déconnexion');
+                      }
+                    } catch (error) {
+                      console.error('Erreur lors de la déconnexion:', error);
+                      // Fallback: supprimer manuellement le cookie en cas d'échec de l'API
+                      document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                      setIsLoggedIn(false);
+                      setMenuOpen(false);
+                      window.location.href = '/';
+                    }
                   }}
                 >
                   <IconLogout className="mr-3 w-5 h-5" />

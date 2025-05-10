@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MapPin, ShoppingCart, MessageCircle, Edit2, X, Save, Loader2, Award, Gift, Truck, LogOut, ChevronRight } from 'lucide-react';
+import { MapPin, ShoppingCart, Edit2, X, Save, Loader2, Award, Gift, Truck, LogOut, ChevronRight } from 'lucide-react';
 import { determineReward } from '@/lib/loyalty';
 import { LoyaltyReward } from '@/types/loyalty';
 import { User } from '@/lib/auth';
@@ -53,8 +53,12 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [updatedFields, setUpdatedFields] = useState<string[]>([]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  // Utilisé dans la fonction fetchUserData - prévu pour futures fonctionnalités
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orders, setOrders] = useState([]);
   const [loyaltyLoading, setLoyaltyLoading] = useState(true);
+  // Utilisé dans la gestion d'erreur de fetchUserData
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loyaltyError, setLoyaltyError] = useState<string | null>(null);
   const router = useRouter();
 

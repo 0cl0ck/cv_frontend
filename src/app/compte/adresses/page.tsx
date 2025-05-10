@@ -558,7 +558,7 @@ export default function AddressesPage() {
       } else {
         setError(`Erreur: ${response.statusText}`);
       }
-    } catch (error) {
+    } catch {
       setError('Une erreur est survenue lors de la mise à jour de l\'adresse par défaut');
     } finally {
       setIsSaving(false);

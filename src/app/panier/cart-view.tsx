@@ -337,7 +337,7 @@ export default function CartView() {
     if (cart.items.length > 0) {
       checkLoyaltyBenefits();
     }
-  }, [cart.subtotal, cart.items, customerInfo.country]);
+  }, [cart.subtotal, cart.items, customerInfo.country, isAuthenticated, user]);
   
   // Récupérer les adresses enregistrées du client s'il est connecté
   useEffect(() => {
@@ -394,7 +394,7 @@ export default function CartView() {
     }
     
     fetchUserAddresses();
-  }, [checkoutMode]);
+  }, [checkoutMode, isAuthenticated, user]);
 
   // Sélectionner une adresse et pré-remplir le formulaire
   const handleSelectAddress = (address: Address) => {
@@ -961,6 +961,19 @@ export default function CartView() {
                 </div>
               )}
               
+              {/* Affichage de la remise permanente liée au niveau de fidélité */}
+              {isAuthenticated && loyaltyBenefits.orderCount >= 3 && (
+                <div className="flex justify-between mt-3">
+                  <span className="text-[#F4F8F5] flex items-center">
+                    <span className={`inline-block w-2 h-2 rounded-full mr-2 ${loyaltyBenefits.orderCount >= 10 ? "bg-[#FFD700]" : loyaltyBenefits.orderCount >= 5 ? "bg-[#C0C0C0]" : "bg-[#CD7F32]"}`}></span>
+                    Remise {loyaltyBenefits.orderCount >= 10 ? "Or" : loyaltyBenefits.orderCount >= 5 ? "Argent (10%)" : "Bronze (5%)"}
+                  </span>
+                  <span className="text-[#10B981]">
+                    -{formatPrice(loyaltyBenefits.orderCount >= 10 ? 0 : loyaltyBenefits.orderCount >= 5 ? cart.subtotal * 0.1 : cart.subtotal * 0.05)}
+                  </span>
+                </div>
+              )}
+              
               {!isAuthenticated && (
                 <div className="mt-3 bg-[#002935] border border-[#3A4A4F] rounded-md p-3">
                   <div className="flex items-center text-[#F4F8F5] mb-1">
@@ -1053,18 +1066,47 @@ export default function CartView() {
                 <span className="font-bold text-[#F4F8F5]">Total</span>
                 <span className="font-bold text-[#F4F8F5]">
                   {formatPrice(
-                    // Sous-total
-                    cart.subtotal 
-                    // Moins réduction fidélité
-                    - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
-                    // Moins réduction code promo
-                    - (promoResult.applied ? promoResult.discount : 0)
-                    // Plus frais de livraison (gratuit si code promo de type free_shipping ou si conditions remplies)
-                    + (customerInfo.country === 'Belgique' 
-                        ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
-                        : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
-                          ? 0 
-                          : 4.95)
+                    (() => {
+                      // Calcul du sous-total
+                      let total = cart.subtotal;
+                      
+                      // Remises permanentes liées au niveau de fidélité
+                      if (isAuthenticated && loyaltyBenefits.orderCount >= 3) {
+                        // Ajout d'une ligne affichant la remise de fidélité permanente
+                        const remiseFidelitePermanente = loyaltyBenefits.orderCount >= 10 ? 0 : // Or - avantages non monétaires
+                                                         loyaltyBenefits.orderCount >= 5 ? cart.subtotal * 0.1 : // Argent - 10%
+                                                         cart.subtotal * 0.05; // Bronze - 5%
+                        
+                        // Appliquer la remise permanente
+                        if (remiseFidelitePermanente > 0) {
+                          total -= remiseFidelitePermanente;
+                        }
+                      }
+                      
+                      // Remise fidélité ponctuelle (échantillon, produit offert, etc.)
+                      if (loyaltyBenefits.active) {
+                        total -= loyaltyBenefits.discountAmount;
+                      }
+                      
+                      // Réduction code promo
+                      if (promoResult.applied) {
+                        total -= promoResult.discount;
+                      }
+                      
+                      // Frais de livraison
+                      if (customerInfo.country === 'Belgique') {
+                        if (!(promoResult.applied && promoResult.type === 'free_shipping') && 
+                            !(loyaltyBenefits.rewardType === 'freeShipping')) {
+                          total += 10;
+                        }
+                      } else if (!(cart.subtotal >= 49 || 
+                                 (promoResult.applied && promoResult.type === 'free_shipping') || 
+                                 loyaltyBenefits.rewardType === 'freeShipping')) {
+                        total += 4.95;
+                      }
+                      
+                      return total;
+                    })()
                   )}
                 </span>
               </div>
