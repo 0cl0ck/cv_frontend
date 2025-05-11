@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { fetchWithCsrf } from '@/utils/security/csrf';
 
 // Formulaire de connexion
 function LoginForm() {
@@ -56,10 +57,11 @@ function LoginForm() {
     setIsLoading(true);
     setError('');
 
-
-
     try {
-      const response = await fetch('/api/auth/login', {
+      console.log('[Login Debug] Tentative de connexion avec fetchWithCsrf');
+      
+      // Utiliser fetchWithCsrf au lieu de fetch standard pour inclure l'en-tête CSRF
+      const response = await fetchWithCsrf('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,6 +71,7 @@ function LoginForm() {
           password: formData.password,
           collection: 'customers'
         }),
+        credentials: 'include' // S'assurer que les cookies sont envoyés
       });
 
       const data = await response.json();
@@ -77,6 +80,7 @@ function LoginForm() {
         throw new Error(data.error || 'Erreur de connexion');
       }
 
+      console.log('[Login Debug] Connexion réussie');
       // Connexion réussie, rediriger vers le tableau de bord client
       
       // Déclencher un événement personnalisé pour informer le Header
@@ -86,9 +90,12 @@ function LoginForm() {
       // Ajouter une entrée dans localStorage pour déclencher l'événement storage
       localStorage.setItem('auth-status', Date.now().toString());
       
-      router.push('/compte');
+      // Récupérer la redirection si présente dans l'URL
+      const redirectPath = searchParams.get('redirect') || '/compte';
+      router.push(redirectPath);
       router.refresh(); // Pour rafraîchir les données de session
     } catch (err: unknown) {
+      console.error('[Login Debug] Erreur de connexion:', err);
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setIsLoading(false);

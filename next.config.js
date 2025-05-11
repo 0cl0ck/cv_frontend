@@ -13,6 +13,8 @@ const nextConfig = {
   allowedDevOrigins: process.env.NODE_ENV === 'development' ? ['*'] : [],
   // Forcer la détection des nouvelles pages
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  // Externaliser les modules problématiques pour la journalisation
+  serverExternalPackages: ['pino', 'thread-stream'],
   images: {
     remotePatterns: [
       {

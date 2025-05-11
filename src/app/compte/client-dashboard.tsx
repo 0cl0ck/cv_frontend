@@ -7,6 +7,7 @@ import { MapPin, ShoppingCart, Edit2, X, Save, Loader2, Award, Gift, Truck, LogO
 import { determineReward } from '@/lib/loyalty';
 import { LoyaltyReward } from '@/types/loyalty';
 import { User } from '@/lib/auth';
+import { fetchWithCsrf } from '@/utils/security/csrf';
 
 // Type pour les informations de l'utilisateur
 type UserInfo = {
@@ -221,30 +222,41 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      const response = await fetch('/api/auth/logout', {
+      // Utiliser fetchWithCsrf pour ajouter l'en-tête CSRF automatiquement
+      const response = await fetchWithCsrf('/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        // Ajouter le corps JSON avec la collection attendue par le backend
+        body: JSON.stringify({ collection: 'customers' }),
         credentials: 'include',
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la déconnexion');
+        console.error('Erreur serveur lors de la déconnexion, statut:', response.status);
+        // Supprimer manuellement le cookie même en cas d'erreur serveur
+        document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       }
 
-      // Déclencher l'événement personnalisé
+      // Déclencher l'événement personnalisé (même en cas d'erreur)
       const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
       window.dispatchEvent(logoutEvent);
       
       // Ajouter une entrée dans localStorage pour déclencher l'événement storage
       localStorage.setItem('auth-status', 'logged-out');
       
-      // Rediriger vers la page d'accueil
-      router.push('/');
-      router.refresh(); // Rafraîchir pour effacer les données de session
+      // Ajouter une courte pause pour laisser le temps aux cookies d'être effacés
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Rediriger vers la page d'accueil et forcer un rafraîchissement complet
+      // pour s'assurer que toutes les données de session sont effacées
+      window.location.href = '/'; // Utiliser window.location.href pour un rafraîchissement complet
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
+      // Supprimer manuellement le cookie en cas d'erreur
+      document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      router.push('/');
     } finally {
       setIsLoggingOut(false);
     }

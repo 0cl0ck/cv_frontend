@@ -18,13 +18,22 @@ export async function POST(req: NextRequest) {
     if (token) {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       try {
-        await fetch(`${backendUrl}/api/auth/logout`, {
+        const backendResponse = await fetch(`${backendUrl}/api/auth/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-          }
+          },
+          body: JSON.stringify({ collection: 'customers' }) // Ajout du body requis par le backend
         });
+        
+        // Vérifier la réponse du backend et logger plus d'informations
+        if (!backendResponse.ok) {
+          const errorText = await backendResponse.text().catch(() => 'Impossible de lire le corps de l\'erreur');
+          console.error(`Erreur backend (${backendResponse.status}):`, errorText);
+        } else {
+          console.log('Backend a confirmé la déconnexion avec succès');
+        }
         console.log('Notification de déconnexion envoyée au backend');
       } catch (error) {
         console.error('Erreur lors de la notification au backend:', error);

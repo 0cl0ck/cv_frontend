@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import useSWR, { SWRConfiguration, Revalidator } from 'swr';
+import { fetchWithCsrf } from '@/utils/security/csrf';
 
 export type User = {
   id: string;
@@ -116,7 +117,8 @@ export function useAuth() {
    */
   const logout = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      // Utiliser fetchWithCsrf pour ajouter l'en-tête CSRF automatiquement
+      const response = await fetchWithCsrf('/api/auth/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin'

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { fetchWithCsrf } from "@/utils/security/csrf";
 
 export default function Header() {
   const pathname = usePathname();
@@ -372,11 +373,15 @@ export default function Header() {
                   onClick={async () => {
                     // Déconnexion propre via l'API plutôt que juste supprimer le cookie
                     try {
-                      const response = await fetch('/api/auth/logout', {
+                      // Utiliser fetchWithCsrf pour ajouter automatiquement l'en-tête CSRF
+                      // ET envoyer la collection attendue par le backend
+                      const response = await fetchWithCsrf('/api/auth/logout', {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json'
                         },
+                        // Ajouter le corps JSON avec la collection attendue par le backend
+                        body: JSON.stringify({ collection: 'customers' }),
                         credentials: 'include'
                       });
                       
@@ -395,6 +400,11 @@ export default function Header() {
                         window.location.href = '/';
                       } else {
                         console.error('Erreur lors de la déconnexion');
+                        // Fallback même en cas d'erreur 4xx/5xx
+                        document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                        setIsLoggedIn(false);
+                        setMenuOpen(false);
+                        window.location.href = '/';
                       }
                     } catch (error) {
                       console.error('Erreur lors de la déconnexion:', error);
