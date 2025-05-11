@@ -19,6 +19,7 @@
     "crypto-browserify": "^3.12.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.6.5",
+    "isomorphic-dompurify": "^2.24.0",
     "jose": "^6.0.10",
     "lru-cache": "^11.1.0",
     "lucide-react": "^0.487.0",

@@ -21,21 +21,35 @@ function PaymentContent() {
   useEffect(() => {
     async function verifyPayment() {
       try {
-        // Récupérer le transactionId des paramètres d'URL (paramètre 't')
+        // Récupérer les paramètres des paramètres d'URL
         const transactionId = searchParams.get('t');
+        const orderCode = searchParams.get('s');
         
-        if (!transactionId) {
-          setError('Référence de transaction manquante');
+        if (!transactionId && !orderCode) {
+          setError('Références de transaction manquantes');
           setIsLoading(false);
           return;
         }
 
-        // URL de l'API de vérification du paiement - corriger le port et le chemin
-        // Attention : le chemin correct est /api/payment/verify
+        // URL de l'API de vérification du paiement - avec les paramètres en query string
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        
+        // Créer l'URL correcte avec :
+        // 1. Un paramètre de chemin (orderCode ou transactionId)
+        // 2. Les paramètres de query string pour la validation
+        
+        // Déterminer le segment de chemin à utiliser (préférer orderCode, sinon utiliser transactionId)
+        const pathSegment = orderCode || transactionId || 'default';
+        
+        // Construire l'URL avec la structure de route dynamique correcte
+        const verifyUrl = new URL(`${API_URL}/api/payment/verify/${pathSegment}`);
+        if (transactionId) verifyUrl.searchParams.append('t', transactionId);
+        if (orderCode) verifyUrl.searchParams.append('s', orderCode);
+        
         console.log(`[TEST-PAIEMENT] URL API utilisée: ${API_URL}`);
-        console.log(`[TEST-PAIEMENT] Vérification complète: ${API_URL}/api/payment/verify/${transactionId}`);
-        const response = await fetch(`${API_URL}/api/payment/verify/${transactionId}`, {
+        console.log(`[TEST-PAIEMENT] Vérification complète: ${verifyUrl.toString()}`);
+        
+        const response = await fetch(verifyUrl.toString(), {
           cache: 'no-store',
           mode: 'cors' // Explicitement demander le mode CORS
         });

@@ -543,9 +543,23 @@ export default function CartView() {
         }
       }
       
+      // Calculer le montant final de la commande
+      const finalAmount = cart.subtotal 
+        - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
+        - (promoResult.applied ? promoResult.discount : 0)
+        + (customerInfo.country === 'Belgique' 
+            ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
+            : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
+              ? 0 
+              : 4.95);
+      
       // Créer l'objet commande et paiement combiné
       const checkoutData = {
         order: {
+          // Ajout des champs obligatoires manquants
+          status: 'pending', // Statut initial de la commande (requis par le backend)
+          total: finalAmount, // Montant total de la commande (requis par le backend)
+          
           items: cart.items.map((item) => ({
             productId: item.productId,
             variantId: item.variantId,
@@ -587,44 +601,14 @@ export default function CartView() {
           notes: ""
         },
         payment: {
-          amount: cart.subtotal 
-            - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
-            - (promoResult.applied ? promoResult.discount : 0)
-            + (customerInfo.country === 'Belgique' 
-                ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
-                : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
-                  ? 0 
-                  : 4.95),
-          amountCents: Math.round(100 * (cart.subtotal 
-            - (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0)
-            - (promoResult.applied ? promoResult.discount : 0)
-            + (customerInfo.country === 'Belgique' 
-                ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
-                : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping')) 
-                  ? 0 
-                  : 4.95))),
-          subtotal: cart.subtotal,
-          subtotalCents: cart.subtotalCents,
-          shippingCost: customerInfo.country === 'Belgique' 
-            ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 10) 
-            : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
-              ? 0
-              : 4.95,
-          shippingCostCents: customerInfo.country === 'Belgique' 
-            ? (promoResult.applied && promoResult.type === 'free_shipping' ? 0 : 1000) 
-            : (cart.subtotal >= 49 || (promoResult.applied && promoResult.type === 'free_shipping'))
-              ? 0
-              : 495,
+          amount: finalAmount,
+          amountCents: Math.round(finalAmount * 100),
+          currency: "EUR",
           customerEmail: customerInfo.email,
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
-          customerPhone: customerInfo.phone,
-          // Informations sur le code promo
-          promoCode: promoResult.applied ? promoResult.code : null,
-          promoDiscount: promoResult.applied ? promoResult.discount : 0,
-          promoDiscountCents: promoResult.applied ? Math.round(promoResult.discount * 100) : 0,
-          // Informations sur la fidélité
-          loyaltyDiscount: loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0,
-          loyaltyDiscountCents: loyaltyBenefits.active ? Math.round(loyaltyBenefits.discountAmount * 100) : 0
+          promoCode: promoResult.applied ? promoResult.code : undefined,
+          discountAmount: (loyaltyBenefits.active ? loyaltyBenefits.discountAmount : 0) + 
+                          (promoResult.applied ? promoResult.discount : 0)
         }
       };
       

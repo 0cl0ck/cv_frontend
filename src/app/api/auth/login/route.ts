@@ -1,41 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-
-// Schéma de validation Zod pour les requêtes de login
-const loginSchema = z.object({
-  email: z.string().email('Format d\'email invalide'),
-  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
-  collection: z.enum(['customers', 'admins'], {
-    errorMap: () => ({ message: 'Collection doit être "customers" ou "admins"' })
-  })
-});
+import { validateRequest, sanitizeObject } from '@/utils/validation/validator';
+import { loginSchema } from '@/utils/validation/schemas';
 
 // Fonction pour gérer la connexion
 export async function POST(request: NextRequest) {
   try {
-    // 1. Récupérer les informations de connexion depuis le corps de la requête
-    const body = await request.json().catch(() => ({}));
+    // 1. Valider les entrées utilisateur avec notre utilitaire centralisé
+    const validation = await validateRequest(request, loginSchema, { verbose: true });
     
-    // 2. Valider les entrées utilisateur avec Zod
-    const result = loginSchema.safeParse(body);
-    
-    if (!result.success) {
-      // Formater les erreurs de validation
-      const errorMessage = result.error.errors.map(e => 
-        `${e.path.join('.')}: ${e.message}`
-      ).join(', ');
-      
-      // Log simple pour le débogage
-      console.error('Validation login échouée:', result.error.errors);
-      
-      return NextResponse.json(
-        { error: 'Données de connexion invalides', details: errorMessage },
-        { status: 400 }
-      );
+    // Si la validation échoue, retourner immédiatement la réponse d'erreur
+    if (!validation.success) {
+      return validation.response;
     }
     
-    // Extraction des données validées
-    const { email, password, collection } = result.data;
+    // Extraction des données validées et sanitisées pour prévenir XSS
+    const { email, password, collection } = sanitizeObject(validation.data);
 
     // Appeler le backend
     // Le backend fonctionne sur le port 3000 tandis que le frontend est sur 3001

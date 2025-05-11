@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateRequest, sanitizeObject } from '@/utils/validation/validator';
+import { registerSchema } from '@/utils/validation/schemas';
+import { secureLogger as logger } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {
   // Permettre les requêtes CORS provenant du frontend
@@ -7,12 +10,21 @@ export async function POST(request: NextRequest) {
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   try {
-    const body = await request.json();
+    // Validation des données d'inscription avec notre utilitaire centralisé
+    const validation = await validateRequest(request, registerSchema, { verbose: true });
     
-    // Journaliser les détails pour le débogage
-    console.log('Données d\'inscription:', {
-      ...body,
-      password: body.password ? '***********' : undefined, // Ne pas afficher le mot de passe
+    // Si la validation échoue, retourner immédiatement la réponse d'erreur
+    if (!validation.success) {
+      return validation.response;
+    }
+    
+    // Données validées et sanitisées
+    const sanitizedData = sanitizeObject(validation.data);
+    
+    // Journaliser les détails pour le débogage (données sécurisées par notre logger)
+    logger.debug('Données d\'inscription validées', {
+      ...sanitizedData,
+      password: '***********' // Masquer le mot de passe par sécurité supplémentaire
     });
     
     // Appeler le backend directement sans proxy Next.js
@@ -21,13 +33,13 @@ export async function POST(request: NextRequest) {
     
     // Préparation des données pour PayloadCMS
     const payloadData = {
-      firstName: body.firstName,
-      lastName: body.lastName,
-      email: body.email,
-      password: body.password,
+      firstName: sanitizedData.firstName,
+      lastName: sanitizedData.lastName,
+      email: sanitizedData.email,
+      password: sanitizedData.password,
       isEmailVerified: false, // Forcé à false initialement
       gdprConsent: {
-        ...body.gdprConsent,
+        ...sanitizedData.gdprConsent,
         termsAccepted: true,
         privacyAccepted: true,
         consentDate: new Date().toISOString(),
@@ -106,13 +118,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error: unknown) {
-    console.error('Erreur lors de l\'inscription:', error);
-    
-    // Journaliser plus d'informations pour le débogage
-    if (error instanceof Error) {
-      console.error('Détails de l\'erreur:', error.message);
-      console.error('Stack trace:', error.stack);
-    }
+    // Utilisation du logger sécurisé qui masque automatiquement les données sensibles
+    logger.error('Erreur lors de l\'inscription', { error });
     
     // Message d'erreur plus descriptif
     let errorMessage = 'Une erreur est survenue lors de l\'inscription.';
