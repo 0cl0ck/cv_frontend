@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Category, Media, Product, ProductVariation } from '@/types/product';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/utils/utils';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
 import Link from 'next/link';
 import { useCartContext } from '@/context/CartContext';

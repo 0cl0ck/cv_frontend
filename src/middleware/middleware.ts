@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { validateCsrfToken } from '@/utils/security/csrf';
+import { validateCsrfToken } from '@/lib/security/csrf';
 
 // Stockage des demandes pour le rate limiting (en production, utiliser Redis)
 type RequestRecord = { count: number; timestamps: number[] };
@@ -173,46 +173,19 @@ export async function middleware(request: NextRequest) {
     // Désactiver temporairement la validation CSRF pour les routes sensibles (débogage)
     if (request.nextUrl.pathname === '/api/auth/logout' || 
         request.nextUrl.pathname === '/api/auth/login') {
-      console.log({ path: request.nextUrl.pathname, method: request.method }, 
-                 'Validation CSRF ignorée temporairement pour débogage');
       return NextResponse.next();
     }
     
-    // Log des cookies pour le débogage
-    const cookieValue = request.cookies.get('csrf-token')?.value;
-    const csrfHeader = request.headers.get('X-CSRF-Token');
-    console.log(
-      { 
-        path: request.nextUrl.pathname, 
-        method: request.method,
-        cookieExists: !!cookieValue,
-        cookieLength: cookieValue?.length || 0,
-        headerExists: !!csrfHeader,
-        headerLength: csrfHeader?.length || 0,
-        cookieValuePrefix: cookieValue?.substring(0, 20) || 'N/A',
-        headerValuePrefix: csrfHeader?.substring(0, 20) || 'N/A'
-      }, 
-      'Détails CSRF')
-    
-    // Vérifier si l'en-tête contient notre token de débogage
-    if (csrfHeader && csrfHeader.startsWith('DEBUG_TOKEN_FOR_TESTING_AUTHENTICATION_')) {
-      console.log('Token de débogage détecté, validation CSRF ignorée');
-      return NextResponse.next();
-    }
+    // Cette partie a été supprimée car nous n'utilisons plus de token de débogage
+    // avec la nouvelle approche CSRF basée sur le serveur
     
     // Valider le token CSRF
-    const isValidCsrf = validateCsrfToken(request);
+    // Nous pouvons passer une chaîne vide comme deuxième paramètre puisque notre implémentation
+    // actualisée n'utilise pas réellement ce paramètre, mais le vérifie en interne
+    const isValidCsrf = await validateCsrfToken(request, '');
     
     // Si le token est invalide, bloquer la requête
     if (!isValidCsrf) {
-      // Afficher les 10 premiers caractères des valeurs réelles pour débogage
-      console.log({ 
-        path: request.nextUrl.pathname,
-        method: request.method,
-        cookieValue: cookieValue?.substring(0, 30),
-        headerValue: csrfHeader?.substring(0, 30)
-      }, 'Validation CSRF échouée: valeurs réelles des tokens');
-      
       return NextResponse.json(
         { 
           error: 'Protection CSRF: token invalide ou manquant', 
@@ -280,7 +253,9 @@ export async function middleware(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification admin:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erreur lors de la vérification admin:', error);
+      }
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
   }

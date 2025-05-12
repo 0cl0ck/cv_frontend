@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, ChevronLeft, Package } from 'lucide-react';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Type pour les informations de commande
 type Order = {
@@ -71,9 +72,21 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const router = useRouter();
+  
+  // Utiliser le contexte d'authentification global
+  const { isAuthenticated, loading: authLoading } = useAuthContext();
 
   // Chargement des commandes de l'utilisateur
   useEffect(() => {
+    // Attendre que la vérification d'authentification soit terminée
+    if (authLoading) return;
+    
+    // Rediriger si non authentifié
+    if (!isAuthenticated) {
+      router.push('/connexion');
+      return;
+    }
+    
     const fetchOrders = async () => {
       setLoading(true);
       setError(null);
@@ -115,7 +128,7 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, [router]);
+  }, [router, isAuthenticated, authLoading]);
 
   // Fonction pour basculer l'affichage des détails d'une commande
   const toggleOrderDetails = (orderId: string) => {

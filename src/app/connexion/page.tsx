@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { fetchWithCsrf } from '@/utils/security/csrf';
+import { fetchWithCsrf } from '@/lib/security/csrf';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Formulaire de connexion
 function LoginForm() {
@@ -17,7 +18,23 @@ function LoginForm() {
     email: '',
     password: '',
   });
+  
+  // Utiliser le contexte d'authentification global
+  const { isAuthenticated, loading: authLoading } = useAuthContext();
 
+  // Rediriger si l'utilisateur est déjà connecté
+  useEffect(() => {
+    // Ne rien faire si la vérification d'authentification est en cours
+    if (authLoading) return;
+    
+    // Si l'utilisateur est authentifié, le rediriger vers la page compte
+    if (isAuthenticated) {
+      console.log('[LoginPage] Utilisateur déjà authentifié, redirection vers /compte');
+      const redirectPath = searchParams.get('redirect') || '/compte';
+      router.replace(redirectPath);
+    }
+  }, [isAuthenticated, authLoading, router, searchParams]);
+  
   // Vérifier les paramètres d'URL pour les messages
   useEffect(() => {
     // Vérification d'email réussie
@@ -83,11 +100,16 @@ function LoginForm() {
       console.log('[Login Debug] Connexion réussie');
       // Connexion réussie, rediriger vers le tableau de bord client
       
-      // Déclencher un événement personnalisé pour informer le Header
+      // Déclencher un événement personnalisé pour informer le Header et autres composants
       const loginEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: true } });
       window.dispatchEvent(loginEvent);
       
+      // Également déclencher notre événement personnalisé auth-change pour le contexte
+      const authChangeEvent = new Event('auth-change');
+      window.dispatchEvent(authChangeEvent);
+      
       // Ajouter une entrée dans localStorage pour déclencher l'événement storage
+      localStorage.setItem('auth-token', 'true');
       localStorage.setItem('auth-status', Date.now().toString());
       
       // Récupérer la redirection si présente dans l'URL

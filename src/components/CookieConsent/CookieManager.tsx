@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useCookieConsent, CookieCategory } from '@/contexts/CookieConsentContext';
+import { useCookieConsent, CookieCategory } from '@/context/CookieConsentContext';
 import { IconX } from '@tabler/icons-react';
 
 export const CookieManager: React.FC = () => {

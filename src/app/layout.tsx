@@ -4,8 +4,9 @@ import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { ClientCookieManager } from "@/components/CookieConsent/ClientCookieManager";
-import CsrfProvider from "@/components/CsrfProvider";
+import CsrfInitializer from "@/components/CsrfInitializer";
 
 
 const geistSans = Geist({
@@ -51,14 +52,17 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-950 text-gray-50`}
       >
         <CartProvider>
-          <CsrfProvider>
-            <Header />
-            <main className="flex-grow bg-[#001E27]">
-              {children}
-            </main>
-            <Footer />
-            <ClientCookieManager />
-          </CsrfProvider>
+          <AuthProvider>
+            <>
+              <CsrfInitializer />
+              <Header />
+              <main className="flex-grow bg-[#001E27]">
+                {children}
+              </main>
+              <Footer />
+              <ClientCookieManager />
+            </>
+          </AuthProvider>
         </CartProvider>
       </body>
     </html>

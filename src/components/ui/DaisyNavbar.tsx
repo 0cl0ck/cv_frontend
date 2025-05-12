@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCartContext } from "@/context/CartContext";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/utils/utils";
 
 export default function DaisyNavbar() {
   const { cart } = useCartContext();

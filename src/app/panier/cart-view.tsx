@@ -4,10 +4,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartContext } from '@/context/CartContext';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/utils/utils';
 import apiConfig from '@/config/api';
 import { MapPin, CheckCircle, Gift, Truck, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Types pour les adresses
 type AddressType = 'shipping' | 'billing' | 'both';
@@ -74,7 +74,15 @@ export default function CartView() {
   
   // État pour les adresses enregistrées
   const [userAddresses, setUserAddresses] = useState<Address[]>([]);
-  const { isAuthenticated, user } = useAuth();
+  // Utiliser le contexte d'authentification global
+  const { isAuthenticated, user, loading: authLoading, refreshAuth } = useAuthContext();
+  // Force l'actualisation du statut d'authentification
+  useEffect(() => {
+    refreshAuth();
+    console.log('[CartView] Statut d\'authentification actuel:', isAuthenticated ? 'Connecté' : 'Non connecté');
+    // Si vous voulez vraiment que cet effet ne s'exécute qu'au montage (une seule fois),
+    // vous pouvez désactiver l'avertissement ESLint avec le commentaire ci-dessous
+  }, [isAuthenticated, refreshAuth]); // Ajout des dépendances requises par ESLint
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -234,12 +242,26 @@ export default function CartView() {
     setPromoCode('');
   };
 
-  // Vérifier si l'utilisateur est authentifié et récupérer les avantages de fidélité
+  // Note: Nous n'avons plus besoin de vérifier manuellement les cookies
+  // car le contexte d'authentification global s'en charge
+  
+  // Vérifier les avantages de fidélité
   useEffect(() => {
+    // Fonction pour vérifier les avantages de fidélité
     async function checkLoyaltyBenefits() {
       try {
-        // Si l'utilisateur n'est pas connecté, on s'arrête
-        if (!isAuthenticated || !user) {
+        // Si l'authentification est en cours, ne rien faire
+        if (authLoading) return;
+        
+        // Si l'utilisateur n'est pas connecté, réinitialiser les avantages
+        if (!isAuthenticated) {
+          setLoyaltyBenefits({
+            active: false,
+            message: '',
+            discountAmount: 0,
+            rewardType: 'none',
+            orderCount: 1
+          });
           return;
         }
         
@@ -337,8 +359,8 @@ export default function CartView() {
     if (cart.items.length > 0) {
       checkLoyaltyBenefits();
     }
-  }, [cart.subtotal, cart.items, customerInfo.country, isAuthenticated, user]);
-  
+  }, [cart.subtotal, cart.items, customerInfo.country, isAuthenticated, user, authLoading]);
+
   // Récupérer les adresses enregistrées du client s'il est connecté
   useEffect(() => {
     async function fetchUserAddresses() {
@@ -912,7 +934,7 @@ export default function CartView() {
               </div>
               
               {/* Section Avantages Fidélité */}
-              {isAuthenticated && (
+              {isAuthenticated && !authLoading && (
                 <div className="mt-3">
                   {loadingLoyalty ? (
                     <div className="text-sm text-[#F4F8F5] italic">Vérification du programme fidélité...</div>
@@ -958,21 +980,21 @@ export default function CartView() {
                 </div>
               )}
               
-              {!isAuthenticated && (
+              {!authLoading && !isAuthenticated && (
                 <div className="mt-3 bg-[#002935] border border-[#3A4A4F] rounded-md p-3">
                   <div className="flex items-center text-[#F4F8F5] mb-1">
                     <AlertCircle size={16} className="mr-2 text-[#EFC368]" />
                     <span className="font-medium">Programme de fidélité</span>
                   </div>
                   <p className="text-xs text-[#F4F8F5] mb-2">Connectez-vous pour bénéficier d&apos;avantages exclusifs selon votre historique de commandes.</p>
-                  <Link href="/connexion" className="text-[#EFC368] text-xs hover:underline">
+                  <Link href="/connexion?redirect=/panier" className="text-[#EFC368] text-xs hover:underline">
                     Se connecter pour en profiter
                   </Link>
                 </div>
               )}
               
               {/* Programme de fidélité pour utilisateurs connectés */}
-              {isAuthenticated && (
+              {!authLoading && isAuthenticated && (
                 <div className="mt-3 bg-[#001f29] border border-[#3A4A4F] rounded-md p-3">
                   <div className="flex items-center text-[#F4F8F5] mb-2">
                     <Gift size={18} className="mr-2 text-[#EFC368]" />

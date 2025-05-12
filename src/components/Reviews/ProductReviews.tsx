@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/lib/auth';
+import { useAuthContext } from '@/context/AuthContext';
 import ReviewsList from './ReviewsList';
 import ReviewForm from './ReviewForm';
 import StarRating from './StarRating';
@@ -24,7 +24,7 @@ type ProductReviewsProps = {
 };
 
 const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, initialStats }) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [reviews, setReviews] = useState<ReviewType[]>([]);
   const [stats, setStats] = useState<ReviewStats | undefined>(initialStats);
   const [loading, setLoading] = useState<boolean>(true);

@@ -1,7 +1,7 @@
 ﻿import { NextResponse, NextRequest } from 'next/server';
 import { validateRequest, sanitizeObject } from '@/utils/validation/validator';
 import { reviewSchema } from '@/utils/validation/schemas';
-import { sanitizeHtml, logInjectionAttempt } from '@/utils/security/sanitizer';
+import { sanitizeHtml, logInjectionAttempt } from '@/lib/security/sanitizer';
 import { secureLogger as logger } from '@/utils/logger';
 
 // DÃ©finir un type pour les avis

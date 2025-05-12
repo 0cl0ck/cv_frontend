@@ -5,84 +5,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { fetchWithCsrf } from "@/utils/security/csrf";
+import { useAuthContext } from "@/context/AuthContext";
 
 export default function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  
+  // Utiliser le contexte d'authentification global
+  const { isAuthenticated, logout } = useAuthContext();
   
   // Vérifier si nous sommes sur la page d'accueil
   const isHomePage = pathname === '/';
   
-  // Vérifier si l'utilisateur est connecté avec une vérification robuste via API
-  useEffect(() => {
-    // Fonction pour vérifier le statut d'authentification via l'API
-    const checkLoginStatus = async () => {
-      try {
-        const response = await fetch('/api/auth/me', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store, must-revalidate'
-          },
-          credentials: 'include' // Important pour inclure les cookies
-        });
-
-        if (response.ok) {
-          // Utilisateur connecté
-          setIsLoggedIn(true);
-        } else {
-          // Utilisateur non connecté ou token expiré
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error('Erreur lors de la vérification du statut de connexion:', error);
-        setIsLoggedIn(false);
-      }
-    };
-    
-    // Vérification initiale
-    checkLoginStatus();
-    
-    // Vérification périodique (toutes les 5 minutes)
-    const intervalId = setInterval(() => {
-      checkLoginStatus();
-    }, 5 * 60 * 1000);
-    
-    // Écouter l'événement personnalisé login-status-change
-    const handleLoginStatusChange = (event: CustomEvent) => {
-      const { isLoggedIn } = event.detail;
-      setIsLoggedIn(isLoggedIn);
-      
-      // Si l'événement indique une déconnexion, on vérifie quand même via l'API pour confirmation
-      if (!isLoggedIn) {
-        checkLoginStatus();
-      }
-    };
-    
-    // Écouter les changements dans le localStorage
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'auth-status') {
-        checkLoginStatus();
-      }
-    };
-    
-    // Ajouter les écouteurs d'événements
-    window.addEventListener('login-status-change', handleLoginStatusChange as EventListener);
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('focus', checkLoginStatus); // Vérifier aussi quand l'onglet regagne le focus
-    
-    // Nettoyage lors du démontage du composant
-    return () => {
-      clearInterval(intervalId);
-      window.removeEventListener('login-status-change', handleLoginStatusChange as EventListener);
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('focus', checkLoginStatus);
-    };
-  }, []);
+  // Nous n'avons plus besoin de vérifier manuellement l'authentification
+  // car le contexte d'authentification global s'en charge déjà
   
   // Navigation items
   const navItems = [
@@ -156,7 +94,7 @@ export default function Header() {
                 </Link> */}
               </nav>
               {/* Bouton Connexion ou Menu Compte */}
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <div className="relative">
                   <button
                     onClick={() => setAccountMenuOpen(!accountMenuOpen)}
@@ -170,11 +108,14 @@ export default function Header() {
                   
                   {/* Menu déroulant pour utilisateur connecté */}
                   {accountMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <div 
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+                      onMouseEnter={() => setAccountMenuOpen(true)}
+                      onMouseLeave={() => setAccountMenuOpen(false)}
+                    >
                       <Link 
                         href="/compte" 
                         className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                        onClick={() => setAccountMenuOpen(false)}
                       >
                         <IconUser className="mr-2 w-4 h-4" />
                         Mon profil
@@ -190,38 +131,13 @@ export default function Header() {
                       <button 
                         className="flex items-center px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50/30 hover:text-red-600 rounded-lg w-full"
                         onClick={async () => {
-                          // Déconnexion propre via l'API plutôt que juste supprimer le cookie
                           try {
-                            const response = await fetch('/api/auth/logout', {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json'
-                              },
-                              credentials: 'include'
-                            });
-                            
-                            if (response.ok) {
-                              // Déconnexion réussie
-                              setIsLoggedIn(false);
-                              setAccountMenuOpen(false);
-                              
-                              // Déclencher un événement personnalisé
-                              const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
-                              window.dispatchEvent(logoutEvent);
-                              
-                              // Mettre à jour localStorage pour déclencher l'événement storage
-                              localStorage.setItem('auth-status', Date.now().toString());
-                              
-                              window.location.href = '/';
-                            } else {
-                              console.error('Erreur lors de la déconnexion');
-                            }
+                            await logout();
+                            setAccountMenuOpen(false);
                           } catch (error) {
                             console.error('Erreur lors de la déconnexion:', error);
-                            // Fallback: supprimer manuellement le cookie en cas d'échec de l'API
-                            document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                            setIsLoggedIn(false);
                             setAccountMenuOpen(false);
+                            // En cas d'erreur, forcer la redirection
                             window.location.href = '/';
                           }
                         }}
@@ -274,7 +190,7 @@ export default function Header() {
 
             {/* Connexion ou Compte à droite */}
             <div className="flex items-center justify-end">
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <Link
                   href="/compte"
                   className="p-2 mr-1 text-sm font-medium text-black bg-[#EFC368] hover:bg-[#D3A74F] rounded-lg shadow-md transition-colors flex items-center"
@@ -348,7 +264,7 @@ export default function Header() {
           ))}
           
           {/* Menu compte utilisateur sur mobile */}
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <>
               <div className="mt-6 border-t border-[#004a59] pt-4">
                 <p className="text-white/70 text-sm mb-2">Mon compte</p>
@@ -371,48 +287,12 @@ export default function Header() {
                 <button 
                   className="flex text-red-400 items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1 w-full text-left"
                   onClick={async () => {
-                    // Déconnexion propre via l'API plutôt que juste supprimer le cookie
                     try {
-                      // Utiliser fetchWithCsrf pour ajouter automatiquement l'en-tête CSRF
-                      // ET envoyer la collection attendue par le backend
-                      const response = await fetchWithCsrf('/api/auth/logout', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json'
-                        },
-                        // Ajouter le corps JSON avec la collection attendue par le backend
-                        body: JSON.stringify({ collection: 'customers' }),
-                        credentials: 'include'
-                      });
-                      
-                      if (response.ok) {
-                        // Déconnexion réussie
-                        setIsLoggedIn(false);
-                        setMenuOpen(false);
-                        
-                        // Déclencher un événement personnalisé
-                        const logoutEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: false } });
-                        window.dispatchEvent(logoutEvent);
-                        
-                        // Mettre à jour localStorage pour déclencher l'événement storage
-                        localStorage.setItem('auth-status', Date.now().toString());
-                        
-                        window.location.href = '/';
-                      } else {
-                        console.error('Erreur lors de la déconnexion');
-                        // Fallback même en cas d'erreur 4xx/5xx
-                        document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                        setIsLoggedIn(false);
-                        setMenuOpen(false);
-                        window.location.href = '/';
-                      }
+                      // Utiliser la fonction de déconnexion du contexte d'authentification
+                      await logout();
+                      setMenuOpen(false);
                     } catch (error) {
                       console.error('Erreur lors de la déconnexion:', error);
-                      // Fallback: supprimer manuellement le cookie en cas d'échec de l'API
-                      document.cookie = 'payload-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                      setIsLoggedIn(false);
-                      setMenuOpen(false);
-                      window.location.href = '/';
                     }
                   }}
                 >

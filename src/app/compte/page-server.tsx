@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import ClientDashboard from '@/app/compte/client-dashboard'
-import { User } from '@/lib/auth';
+import { User } from '@/lib/auth/auth';
 
 // Fonction utilitaire pour décoder un JWT sans vérification
 const decodeJwt = (token: string) => {

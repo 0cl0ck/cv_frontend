@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 // Ces imports sont préparés pour une fonctionnalité future de thème dark/light
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/utils';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconSun, IconMoon } from '@tabler/icons-react';
 

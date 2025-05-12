@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, ChevronLeft, Plus, Edit2, Trash2, CheckCircle, X, Save, Loader2 } from 'lucide-react';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Types pour les adresses
 type AddressType = 'shipping' | 'billing' | 'both';
@@ -58,6 +59,9 @@ export default function AddressesPage() {
   const [success, setSuccess] = useState<string | null>(null);
   
   const router = useRouter();
+  
+  // Utiliser le contexte d'authentification global
+  const { isAuthenticated, user: authUser, loading: authLoading } = useAuthContext();
 
   // État pour le formulaire d'adresse
   const [formAddress, setFormAddress] = useState<Address>({
@@ -75,111 +79,55 @@ export default function AddressesPage() {
   
   // Récupérer les données de l'utilisateur au chargement de la page
   useEffect(() => {
+    // Attendre que la vérification d'authentification soit terminée
+    if (authLoading) {
+      return;
+    }
+    
+    // Rediriger si non authentifié
+    if (!isAuthenticated) {
+      router.push('/connexion');
+      return;
+    }
+    
     async function fetchUserData() {
       try {
-        // Diagnostic: Afficher les cookies disponibles
-        console.log('Cookies disponibles:', document.cookie);
-        
-        // Diagnostic: Vérifier la configuration de l'API
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        console.log('API URL configurée:', apiUrl);
-        
-        // 1. Tenter de récupérer les données utilisateur depuis l'API me
-        // Le cookie httpOnly sera automatiquement inclus avec credentials: 'include'
-        console.log('Tentative de récupération des données utilisateur via /api/auth/me');
-        const meResponse = await fetch('/api/auth/me', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
+        // Utiliser les données utilisateur du contexte d'authentification global
+        if (authUser && authUser.id) {
+          // Récupérer les adresses de l'utilisateur
+          const addressesResponse = await fetch(`/api/users/${authUser.id}/addresses`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          console.log('Réponse adresses status:', addressesResponse.status);
+          
+          if (!addressesResponse.ok) {
+            throw new Error(`Erreur lors de la récupération des adresses: ${addressesResponse.status}`);
           }
-        });
-        
-        // Diagnostic: Examiner l'état de la réponse
-        console.log('Réponse /api/auth/me status:', meResponse.status, meResponse.statusText);
-        console.log('Headers de réponse:', Object.fromEntries(meResponse.headers));
-        
-        if (!meResponse.ok) {
-          console.error('Impossible de récupérer les données utilisateur');
+          
+          const addressesData = await addressesResponse.json();
+          
+          // Mettre à jour les états avec les données récupérées
+          setUser({
+            id: authUser.id,
+            email: authUser.email,
+            firstName: authUser.firstName || '',
+            lastName: authUser.lastName || '',
+            createdAt: new Date().toISOString(), // Date actuelle si non disponible
+            addresses: addressesData.addresses || []
+          });
+          
+          setAddresses(addressesData.addresses || []);
+          setLoading(false);
+        } else {
+          // Fallback: rediriger vers la page de connexion si aucun utilisateur n'est authentifié
+          console.warn('Aucun utilisateur authentifié trouvé');
           router.push('/connexion');
           return;
-        }
-        
-        const userData = await meResponse.json();
-        const userId = userData.user.id;
-        
-        // Obtenir le token JWT pour l'authentification vers le backend
-        let token = userData.token; // D'abord vérifier s'il est dans la réponse de l'API
-        
-        // Si aucun token n'est présent dans la réponse, on essaie de le récupérer des cookies client
-        // Note: Cela ne fonctionnera que pour les cookies non-HttpOnly
-        if (!token && typeof document !== 'undefined') {
-          const tokenCookie = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('payload-token='));
-            
-          if (tokenCookie) {
-            token = tokenCookie.split('=')[1];
-            console.log('Token récupéré des cookies client, longueur:', token.length);
-          }
-        }
-        
-        if (!token) {
-          console.warn('Token d\'authentification non trouvé pour l\'appel au backend');
-          console.log('Continuation sans token explicite, en comptant sur credentials: include');
-        } else {
-          console.log('Token d\'authentification trouvé, longueur:', token.length);
-        }
-        
-        // 2. Récupérer les détails complets de l'utilisateur avec ses adresses
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        console.log(`Appel au backend: ${backendUrl}/api/customers/${userId}`);
-        
-        // Préparer les en-têtes avec authentification
-        const headers: HeadersInit = {
-          'Content-Type': 'application/json'
-        };
-        
-        // Ajouter le token d'authentification s'il existe
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-        
-        const backendResponse = await fetch(`${backendUrl}/api/customers/${userId}`, {
-          method: 'GET',
-          credentials: 'include', // Pour transmettre les cookies
-          headers
-        });
-        
-        // Diagnostic du résultat
-        console.log('Réponse du backend:', backendResponse.status, backendResponse.statusText);
-        
-        if (backendResponse.ok) {
-          // Si l'appel au backend réussit, utiliser les données complètes
-          const backendData = await backendResponse.json();
-          const userData = {
-            id: backendData.id,
-            email: backendData.email,
-            firstName: backendData.firstName,
-            lastName: backendData.lastName,
-            createdAt: backendData.createdAt,
-            addresses: backendData.addresses || []
-          };
-          
-          setUser(userData);
-          setAddresses(userData.addresses || []);
-        } else {
-          // Fallback: utiliser les données minimales de l'API me
-          console.warn('Impossible de récupérer les données complètes du backend, utilisation des données basiques');
-          setUser({
-            id: userData.user.id,
-            email: userData.user.email,
-            firstName: userData.user.firstName || 'Utilisateur',
-            lastName: userData.user.lastName || 'Connecté',
-            createdAt: userData.user.createdAt || new Date().toISOString(),
-            addresses: []
-          });
-          setAddresses([]);
         }
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
@@ -190,7 +138,7 @@ export default function AddressesPage() {
     }
 
     fetchUserData();
-  }, [router]);
+  }, [router, isAuthenticated, authLoading, authUser]);
   
   // Gérer l'affichage pendant le chargement
   if (loading) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/utils/utils';
 import { Media, Product, ProductVariation } from '@/types/product';
 import { motion } from 'framer-motion';
 import Image from 'next/image';

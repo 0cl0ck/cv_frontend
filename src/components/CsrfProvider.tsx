@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { generateCsrfToken } from '@/utils/security/csrf';
+import { generateCsrfToken } from '@/lib/security/csrf';
 
 /**
  * Composant pour initialiser et gérer le token CSRF

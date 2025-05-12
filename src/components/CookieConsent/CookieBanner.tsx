@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useCookieConsent } from '@/contexts/CookieConsentContext';
+import { useCookieConsent } from '@/context/CookieConsentContext';
 
 export const CookieBanner: React.FC = () => {
   const { acceptAll, rejectAll, setShowCookieManager, hasResponded } = useCookieConsent();

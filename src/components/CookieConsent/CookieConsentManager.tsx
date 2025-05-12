@@ -3,7 +3,7 @@
 import React from 'react';
 import { CookieBanner } from './CookieBanner';
 import { CookieManager } from './CookieManager';
-import { CookieConsentProvider } from '@/contexts/CookieConsentContext';
+import { CookieConsentProvider } from '@/context/CookieConsentContext';
 
 export const CookieConsentManager: React.FC = () => {
   return (
