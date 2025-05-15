@@ -94,10 +94,10 @@ export default function AddressesPage() {
       try {
         // Utiliser les données utilisateur du contexte d'authentification global
         if (authUser && authUser.id) {
-          // Récupérer les adresses de l'utilisateur
-          const addressesResponse = await fetch(`/api/users/${authUser.id}/addresses`, {
+          // Récupérer les adresses de l'utilisateur avec la nouvelle route API
+          const addressesResponse = await fetch(`/api/customers/addresses`, {
             method: 'GET',
-            credentials: 'include',
+            credentials: 'include', // Envoie automatiquement le cookie d'authentification
             headers: {
               'Content-Type': 'application/json'
             }
@@ -306,17 +306,34 @@ export default function AddressesPage() {
         updatedAddresses.push({ ...formAddress, id: newId });
       }
       
-      // Mettre à jour le backend
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${backendUrl}/api/customers/${user.id}`, {
-        method: 'PATCH',
+      // Déterminer l'URL et la méthode en fonction de l'opération
+      let url;
+      let method;
+      
+      if (editingAddress) {
+        // Cas de modification d'une adresse existante
+        // Trouver l'index de l'adresse à modifier
+        const addressIndex = addresses.findIndex(addr => addr.id === editingAddress.id);
+        if (addressIndex === -1) {
+          throw new Error('Adresse introuvable');
+        }
+        
+        url = `/api/customers/addresses/${addressIndex}`;
+        method = 'PUT';
+      } else {
+        // Cas d'ajout d'une nouvelle adresse
+        url = '/api/customers/addresses';
+        method = 'POST';
+      }
+      
+      // Appel API avec notre nouvelle route modulaire
+      const response = await fetch(url, {
+        method: method,
+        credentials: 'include', // Envoyer automatiquement les cookies d'authentification
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          addresses: updatedAddresses
-        })
+        body: JSON.stringify(formAddress)
       });
       
       if (response.ok) {
@@ -400,17 +417,19 @@ export default function AddressesPage() {
       // Filtrer les adresses pour retirer celle à supprimer
       const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
       
-      // Mettre à jour le backend
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${backendUrl}/api/customers/${user.id}`, {
-        method: 'PATCH',
+      // Trouver l'index de l'adresse à supprimer
+      const addressIndex = addresses.findIndex(addr => addr.id === addressId);
+      if (addressIndex === -1) {
+        throw new Error('Adresse introuvable');
+      }
+      
+      // Appel API pour supprimer l'adresse avec notre nouvelle route modulaire
+      const response = await fetch(`/api/customers/addresses/${addressIndex}`, {
+        method: 'DELETE',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          addresses: updatedAddresses
-        })
+          'Content-Type': 'application/json'
+        }
       });
       
       if (response.ok) {
@@ -486,18 +505,19 @@ export default function AddressesPage() {
         isDefault: addr.id === addressId
       }));
       
-      // Mettre à jour le backend
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${backendUrl}/api/customers/${user.id}`, {
-        method: 'PATCH',
+      // Trouver l'index de l'adresse à définir par défaut
+      const addressIndex = addresses.findIndex(addr => addr.id === addressId);
+      if (addressIndex === -1) {
+        throw new Error('Adresse introuvable');
+      }
+      
+      // Appel API pour définir l'adresse par défaut
+      const response = await fetch(`/api/customers/addresses/${addressIndex}/default`, {
+        method: 'POST',
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          addresses: updatedAddresses
-        })
+          'Content-Type': 'application/json'
+        }
       });
       
       if (response.ok) {
@@ -846,3 +866,4 @@ export default function AddressesPage() {
     </div>
   );
 }
+

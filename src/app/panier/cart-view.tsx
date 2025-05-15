@@ -1160,7 +1160,7 @@ export default function CartView() {
                             <span className="text-sm font-medium">Adresse de livraison</span>
                           </div>
                           {address.isDefault && (
-                            <div className="bg-[#001E27] bg-opacity-10 text-[#001E27] text-xs rounded px-1.5 py-0.5 flex items-center">
+                            <div className="bg-[#007A72] text-white text-xs rounded px-1.5 py-0.5 flex items-center">
                               <CheckCircle size={10} className="mr-1" /> Par défaut
                             </div>
                           )}
