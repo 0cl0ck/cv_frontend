@@ -278,10 +278,23 @@ export default function CartView() {
           items: cart.items
         };
         
+        // Garantir que nous avons tous les identifiants nécessaires
+        // Récupération du token d'authentification pour l'inclure dans les headers
+        let token = localStorage.getItem('authToken');
+        
+        // Si le token n'est pas dans localStorage, essayons de le récupérer depuis le contexte d'authentification
+        if (!token && (user as any)?.token) {
+          token = (user as any).token;
+        }
+        
+        console.log('Envoi de la requête de fidélité avec token:', token ? 'Token présent' : 'Token absent');
+        
         const loyaltyResponse = await fetch(`${backendUrl}/api/cart/apply-loyalty`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            // Inclure explicitement le token dans l'en-tête Authorization si disponible
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
           },
           credentials: 'include', // Inclure les cookies dans la requête
           body: JSON.stringify(requestData)
