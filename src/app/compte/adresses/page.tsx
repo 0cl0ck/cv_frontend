@@ -231,8 +231,16 @@ export default function AddressesPage() {
     
     try {
       // Valider les champs obligatoires
-      if (!formAddress.name || !formAddress.line1 || !formAddress.city || !formAddress.postalCode) {
-        setError('Veuillez remplir tous les champs obligatoires');
+      if (!formAddress.name || !formAddress.line1 || !formAddress.city || !formAddress.postalCode || !formAddress.phone) {
+        setError('Veuillez remplir tous les champs obligatoires, y compris le numéro de téléphone');
+        setIsSaving(false);
+        return;
+      }
+      
+      // S'assurer que le téléphone est dans un format valide (format français: 10 chiffres commençant par 0)
+      const phoneRegex = /^0\d{9}$/;
+      if (formAddress.phone && !phoneRegex.test(formAddress.phone.replace(/\D/g, ''))) {
+        setError('Le numéro de téléphone doit être au format français (10 chiffres commençant par 0)');
         setIsSaving(false);
         return;
       }

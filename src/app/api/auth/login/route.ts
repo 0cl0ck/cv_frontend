@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,8 +22,39 @@ export async function POST(request: NextRequest) {
     
     // Si la réponse n'est pas OK, renvoyer l'erreur
     if (!response.ok) {
+      // S'assurer que data.error est une chaîne formatée correctement
+      let errorMessage = 'Erreur d\'authentification';
+      
+      // Gérer les différents formats d'erreur possibles
+      if (typeof data.error === 'string') {
+        errorMessage = data.error;
+      } else if (data.error && typeof data.error === 'object') {
+        // Si l'erreur est un objet, essayer d'extraire un message
+        if (data.error.message) {
+          errorMessage = data.error.message;
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else {
+          // Dernière tentative : convertir l'objet en chaîne plus lisible
+          try {
+            errorMessage = JSON.stringify(data.error);
+          } catch (e) {
+            // Garder le message par défaut
+          }
+        }
+      } else if (data.message) {
+        errorMessage = data.message;
+      }
+      
+      // Pour les erreurs d'identifiants incorrects (401)
+      if (response.status === 401) {
+        errorMessage = 'Email ou mot de passe incorrect';
+      }
+      
+      console.log('[/api/auth/login] Erreur retournée au client:', errorMessage);
+      
       return NextResponse.json(
-        { error: data.error || 'Erreur d\'authentification' }, 
+        { error: errorMessage }, 
         { status: response.status }
       );
     }

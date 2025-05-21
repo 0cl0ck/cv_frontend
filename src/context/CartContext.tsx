@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { Product, ProductVariation } from '@/types/product';
-import { Cart } from '@/types/cart';
+import { Cart } from '@/app/panier/types';
 import CartNotification from '@/components/ui/CartNotification';
 
 interface CartContextType {
