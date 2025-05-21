@@ -218,7 +218,7 @@ export default function useCheckout(
           setFormErrors(generalError);
           if (setErrors) setErrors(generalError);
         }
-      } catch (parseError) {
+      } catch {
         // Erreur pendant l'analyse de l'erreur (ironiquement)
         const generalError = { general: "Erreur lors de l'initialisation du paiement." };
         setFormErrors(generalError);

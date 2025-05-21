@@ -31,7 +31,7 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
   }
 
   // Utilisateur authentifié
-  const { orderCount, active, message, discountAmount, rewardType, nextLevel } = loyaltyBenefits;
+  const { orderCount, active, rewardType, nextLevel } = loyaltyBenefits;
   const icon = rewardType === 'freeShipping' ? <Truck size={18} className="mr-2" /> : <Gift size={18} className="mr-2" />;
 
   return (
@@ -46,27 +46,25 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
       {/* Progression + barre */}
       <p className="text-xs text-[#F4F8F5] mb-1">
         <span className="text-[#EFC368]">Votre statut :</span>{' '}
-        {orderCount < 4 ? 'Nouveau client'
-          : orderCount < 6 ? 'Bronze'
-          : orderCount < 9 ? 'Argent'
-          : orderCount < 12 ? 'Or'
-          : 'Platine'
+        {orderCount < 3 ? 'Nouveau client'
+          : orderCount < 5 ? 'Bronze'
+          : orderCount < 10 ? 'Argent'
+          : 'Or'
         }
         <span className="ml-1 text-[#8A9EA5]">({orderCount} commande{orderCount>1?'s':''})</span>
       </p>
       <div className="w-full bg-[#002935] h-1.5 rounded-full overflow-hidden my-2">
         <div
           className={`h-full rounded-full ${
-            orderCount>=12?'bg-[#8e44ad]': /* Violet pour Platine */
-            orderCount>=9?'bg-[#FFD700]': /* Or */
-            orderCount>=6?'bg-[#C0C0C0]': /* Argent */
-            orderCount>=4?'bg-[#CD7F32]':'bg-[#EFC368]' /* Bronze ou Nouveau client */
+            orderCount>=10?'bg-[#FFD700]': /* Or */
+            orderCount>=5?'bg-[#C0C0C0]': /* Argent */
+            orderCount>=3?'bg-[#CD7F32]':'bg-[#EFC368]' /* Bronze ou Nouveau client */
           }`}
-          style={{ width: `${Math.min(orderCount*8.3,100)}%` }}
+          style={{ width: `${Math.min(orderCount*10,100)}%` }}
         />
       </div>
       <div className="flex justify-between text-[9px] text-[#8A9EA5] px-1">
-        <span>1</span><span>4</span><span>6</span><span>9</span><span>12</span>
+        <span>1</span><span>3</span><span>5</span><span>10</span>
       </div>
 
       {/* Liste des paliers */}
@@ -81,10 +79,9 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
 
         <p className="text-xs text-[#EFC368] font-medium mt-2 mb-1">Niveaux de fidélité :</p>
         <ul className="ml-4 list-disc text-[10px]">
-          <li className={orderCount>=4?'text-green-400':''}><strong className="text-[#CD7F32]">Bronze</strong> (4 commandes) : 5 % permanent</li>
-          <li className={orderCount>=6?'text-green-400':''}><strong className="text-[#C0C0C0]">Argent</strong> (6 commandes) : 10 % permanent</li>
-          <li className={orderCount>=9?'text-green-400':''}><strong className="text-[#FFD700]">Or</strong> (9 commandes) : 15 % permanent</li>
-          <li className={orderCount>=12?'text-green-400':''}><strong>Platine</strong> (12 commandes) : 20 % + livraison gratuite</li>
+          <li className={orderCount>=3?'text-green-400':''}><strong className="text-[#CD7F32]">Bronze</strong> (3 commandes) : 5 % permanent</li>
+          <li className={orderCount>=5?'text-green-400':''}><strong className="text-[#C0C0C0]">Argent</strong> (5 commandes) : 10 % permanent</li>
+          <li className={orderCount>=10?'text-green-400':''}><strong className="text-[#FFD700]">Or</strong> (10 commandes) : Accès en avant-première aux promotions et événements</li>
         </ul>
       </div>
 

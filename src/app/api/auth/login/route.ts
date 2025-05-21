@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
           // Dernière tentative : convertir l'objet en chaîne plus lisible
           try {
             errorMessage = JSON.stringify(data.error);
-          } catch (e) {
+          } catch {
             // Garder le message par défaut
           }
         }

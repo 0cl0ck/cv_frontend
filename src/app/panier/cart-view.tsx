@@ -8,16 +8,15 @@ import {
   CartItemList,
   CheckoutSidebar,
   OrderSummary,
-  LoyaltyBenefitsPanel,
-  GuestLoyaltyBanner
 } from './components';
+import Link from 'next/link';
 import {
   usePromoCode,
   useLoyaltyBenefits,
   useUserAddresses,
   useCheckout
 } from './hooks';
-import { CustomerInfo, FormErrors } from './types';
+import { CustomerInfo, FormErrors, Address } from './types';
 
 export default function CartView() {
   const { cart, clearCart } = useCartContext();
@@ -53,10 +52,7 @@ export default function CartView() {
     loading: loadingLoyalty
   } = useLoyaltyBenefits(cart, customerInfo.country);
 
-  const {
-    userAddresses,
-    loading: loadingAddr
-  } = useUserAddresses(checkoutMode);
+  const { userAddresses } = useUserAddresses(checkoutMode);
 
   const {
     isSubmitting,
@@ -75,7 +71,7 @@ export default function CartView() {
   const handleCheckout = () => setCheckoutMode(true);
   const handleBack     = () => setCheckoutMode(false);
 
-  const handleSelectAddress = (addr: any) => {
+  const handleSelectAddress = (addr: Address) => {
     // Extraire le prénom et le nom à partir du champ name de l'adresse
     let firstName = '';
     let lastName = '';
@@ -119,7 +115,7 @@ export default function CartView() {
       <div className="container mx-auto flex items-center justify-center h-[60vh] bg-[#001E27] text-center">
         <div>
           <h1 className="text-3xl font-bold text-[#F4F8F5] mb-6">Votre panier est vide</h1>
-          <a href="/produits" className="bg-[#EFC368] px-6 py-3 rounded-md text-[#001E27]">Continuer mes achats</a>
+          <Link href="/produits" className="bg-[#EFC368] px-6 py-3 rounded-md text-[#001E27]">Continuer mes achats</Link>
         </div>
       </div>
     );
@@ -172,8 +168,6 @@ export default function CartView() {
             onCheckout={handleCheckout}
             onBackToCart={handleBack}
             onPaymentSubmit={handlePaymentSubmit}
-            updateQuantity={() => {}}
-            removeItem={() => {}}
             clearCart={clearCart}
             isSubmitting={isSubmitting}
           />

@@ -6,7 +6,6 @@ import { PromoResult, LoyaltyBenefits, Cart } from '../types';
 
 interface Props {
   subtotal: number;
-  shippingCost: number;
   promoResult: PromoResult;
   loyaltyBenefits: LoyaltyBenefits;
   isAuthenticated: boolean;
@@ -19,7 +18,6 @@ interface Props {
 
 export default function OrderSummary({
   subtotal,
-  shippingCost,
   promoResult,
   loyaltyBenefits,
   isAuthenticated,

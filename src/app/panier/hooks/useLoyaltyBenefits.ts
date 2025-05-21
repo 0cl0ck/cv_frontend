@@ -28,7 +28,7 @@ export default function useLoyaltyBenefits(
         const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
         const token =
           localStorage.getItem('authToken') ||
-          (user as any)?.token ||
+          (user as { token?: string } | null)?.token ||
           null;
 
         const resp = await fetch(`${backendUrl}/api/cart/apply-loyalty`, {

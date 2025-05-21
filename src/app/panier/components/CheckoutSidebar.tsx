@@ -27,8 +27,6 @@ interface CheckoutSidebarProps {
     onCheckout: () => void;
     onBackToCart: () => void;      // Fonction pour revenir au panier
     onPaymentSubmit: (e: React.FormEvent) => Promise<void>;
-    updateQuantity: (i: number, q: number) => void;
-    removeItem: (i: number) => void;
     clearCart: () => void;
     isSubmitting?: boolean;        // Flag pour indiquer si le formulaire est en cours de soumission
   }
@@ -54,8 +52,6 @@ export default function CheckoutSidebar({
   onCheckout,
   onBackToCart,
   onPaymentSubmit,
-  updateQuantity,
-  removeItem,
   clearCart,
   isSubmitting = false,
 }: CheckoutSidebarProps) {
