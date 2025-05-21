@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { secureLogger as logger } from '@/utils/logger';
 
 /**
  * Route d'API qui sert d'intermédiaire entre le frontend et le backend
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
     // Récupérer le token depuis les cookies
     const token = request.cookies.get('payload-token')?.value;
     
-    console.log('[api/auth/me] Vérification présence token:', !!token);
+    logger.debug('[api/auth/me] Vérification présence token', { hasToken: !!token });
     
     if (!token) {
       return NextResponse.json(

@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { secureLogger as logger } from '@/utils/logger';
 
 interface PaymentStatus {
   status: string;
@@ -46,8 +47,8 @@ function PaymentContent() {
         if (transactionId) verifyUrl.searchParams.append('t', transactionId);
         if (orderCode) verifyUrl.searchParams.append('s', orderCode);
         
-        console.log(`[TEST-PAIEMENT] URL API utilisée: ${API_URL}`);
-        console.log(`[TEST-PAIEMENT] Vérification complète: ${verifyUrl.toString()}`);
+        logger.debug(`[TEST-PAIEMENT] URL API utilisée: ${API_URL}`);
+        logger.debug(`[TEST-PAIEMENT] Vérification complète: ${verifyUrl.toString()}`);
         
         const response = await fetch(verifyUrl.toString(), {
           cache: 'no-store',
@@ -59,8 +60,7 @@ function PaymentContent() {
         }
 
         const data = await response.json();
-        console.log('[TEST-PAIEMENT] Réponse API:', data);
-        console.log('[TEST-PAIEMENT] Statut reçu:', data.status);
+        logger.debug('[TEST-PAIEMENT] Statut reçu', { status: data.status });
         setPaymentInfo(data);
         setIsLoading(false);
       } catch (error) {

@@ -9,6 +9,7 @@ import {
   useCallback,
   useMemo,
 } from 'react';
+import { secureLogger as logger } from '@/utils/logger';
 
 // Type pour les utilisateurs connectés
 type User = {
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUser = useCallback(async () => {
     try {
-      console.log('[AuthContext] Tentative de récupération des informations utilisateur');
+      logger.debug('[AuthContext] Tentative de récupération des informations utilisateur');
       setLoading(true);
       setError(null);
 
@@ -64,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (!response.ok) {
-        console.log('[AuthContext] Réponse API non-OK:', response.status);
+        logger.warn('[AuthContext] Réponse API non-OK', { status: response.status });
         if (response.status === 401) {
           setIsAuthenticated(false);
           setUser(null);
@@ -75,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const data = await response.json();
-      console.log('[AuthContext] Données utilisateur reçues:', data);
+      logger.debug('[AuthContext] Données utilisateur reçues', { hasUser: !!data?.user });
 
       if (data?.user) {
         setIsAuthenticated(true);
@@ -121,7 +122,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchUser();
 
     const handleAuthChange = () => {
-      console.log('[AuthContext] Changement d\'authentification détecté');
+      logger.debug('[AuthContext] Changement d\'authentification détecté');
       fetchUser();
     };
 

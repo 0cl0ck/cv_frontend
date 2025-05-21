@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import ClientDashboard from '@/app/compte/client-dashboard'
 import { User } from '@/lib/auth/auth';
+import { secureLogger as logger } from '@/utils/logger';
 
 // Fonction utilitaire pour décoder un JWT sans vérification
 const decodeJwt = (token: string) => {
@@ -24,22 +25,20 @@ export default async function DashboardServerPage() {
   
   // Rediriger vers la page de connexion si aucun token n'est présent
   if (!token) {
-    console.log('[page-server] Aucun token trouvé dans les cookies');
+    logger.debug('[page-server] Aucun token trouvé dans les cookies');
     return redirect('/connexion');
   }
+
+  logger.debug('[page-server] Token trouvé', { length: token.length });
   
-  console.log('[page-server] Token trouvé, longueur:', token.length);
-  
-  // Décoder le JWT sans vérification pour voir son contenu
-  const decodedToken = decodeJwt(token);
-  console.log('[page-server] Contenu du token:', JSON.stringify(decodedToken).substring(0, 100) + '...');
+  // Décoder le JWT sans vérification (à des fins internes uniquement)
+  decodeJwt(token);
   
   // Configuration de l'URL du backend
   // Utiliser 127.0.0.1 au lieu de localhost pour éviter les problèmes de résolution DNS en environnement Node.js
   const rawBackendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
   const backendUrl = rawBackendUrl.replace('localhost', '127.0.0.1');
-  console.log('[page-server] URL du backend original:', rawBackendUrl);
-  console.log('[page-server] URL du backend utilisée:', backendUrl);
+  logger.debug('[page-server] URL du backend', { raw: rawBackendUrl, used: backendUrl });
   
   try {
     // Consigner tous les headers pour le débogage
@@ -47,7 +46,7 @@ export default async function DashboardServerPage() {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     };
-    console.log('[page-server] Headers de la requête:', JSON.stringify(requestHeaders));
+    logger.debug('[page-server] Headers de la requête', { headers: Object.keys(requestHeaders) });
     
     // Envoyer la requête avec les headers de débogage et un timeout
     const controller = new AbortController();
@@ -69,7 +68,7 @@ export default async function DashboardServerPage() {
     } catch (fetchError) {
       // Gérer spécifiquement les erreurs de connexion
       console.error('[page-server] Erreur lors de la connexion au backend:', fetchError);
-      console.log('[page-server] Tentative avec localhost au lieu de 127.0.0.1');
+      logger.debug('[page-server] Tentative avec localhost au lieu de 127.0.0.1');
       
       // Tentative de secours avec l'URL originale si la première tentative échoue
       try {

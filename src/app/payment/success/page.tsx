@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { secureLogger as logger } from '@/utils/logger';
 // import { useRouter } from 'next/navigation'; // Pas nécessaire pour le moment
 
 export default function PaymentSuccessPage() {
@@ -19,7 +20,7 @@ export default function PaymentSuccessPage() {
         const o = params.get('o'); // Notre paramètre personnalisé ajouté dans l'URL de redirection - PRIORITAIRE
         const t = params.get('t'); // VivaWallet retourne 't' comme paramètre de transaction ID (fallback)
         
-        console.log('Paramètres URL:', { o, t });
+        logger.debug('Paramètres URL', { o, t });
         
         if (o || t) {
           // Priorité 1: Utiliser directement le paramètre 'o' s'il existe
@@ -36,7 +37,7 @@ export default function PaymentSuccessPage() {
               }
               
               const data = await response.json();
-              console.log('Réponse API payment/verify:', data); // Pour débogage
+              logger.debug('Réponse API payment/verify', { success: data.success }); // Pour débogage
               
               // Extraire l'orderCode en fonction de la structure réelle renvoyée par l'API
               let orderCode = null;

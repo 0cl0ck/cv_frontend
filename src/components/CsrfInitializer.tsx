@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { secureLogger as logger } from '@/utils/logger';
 
 /**
  * Composant pour initialiser le token CSRF côté serveur
@@ -21,7 +22,7 @@ export default function CsrfInitializer() {
           return;
         }
         
-        console.log('[CSRF] Tokens CSRF côté serveur initialisés avec succès');
+        logger.info('[CSRF] Tokens CSRF côté serveur initialisés avec succès');
       } catch (error) {
         console.error('[CSRF] Erreur lors de l\'initialisation des tokens CSRF:', error);
       }
@@ -32,7 +33,7 @@ export default function CsrfInitializer() {
     
     // Réinitialiser également quand la fenêtre reprend le focus
     const handleFocus = () => {
-      console.log('[CSRF] Fenêtre a repris le focus, rafraîchissement des tokens CSRF');
+      logger.debug('[CSRF] Fenêtre a repris le focus, rafraîchissement des tokens CSRF');
       initCsrf();
     };
     

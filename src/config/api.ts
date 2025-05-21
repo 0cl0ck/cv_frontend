@@ -23,14 +23,6 @@ const baseUrl = isDevelopment || isLocalhost
 // Chemin de base pour les API endpoints - le préfixe /api/ est toujours nécessaire
 const apiBasePath = '/api'; // En production, les routes avec le préfixe /api/ sont attendues
 
-// Log pour débogage
-// if (typeof window !== 'undefined') {
-//   console.log('Configuration API initialisée:', {
-//     isDevelopment,
-//     isLocalhost,
-//     baseUrl
-//   });
-// }
 
 const apiConfig: ApiConfig = {
   baseUrl,

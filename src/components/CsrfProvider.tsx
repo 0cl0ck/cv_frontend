@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { generateCsrfToken } from '@/lib/security/csrf';
+import { secureLogger as logger } from '@/utils/logger';
 
 /**
  * Composant pour initialiser et gérer le token CSRF
@@ -29,9 +30,9 @@ export default function CsrfProvider({ children }: { children: React.ReactNode }
           // Définir le cookie avec les paramètres appropriés
           document.cookie = `csrf-token=${token}; expires=${expires.toUTCString()}; path=/; samesite=strict`;
           
-          console.log('[CSRF] Nouveau token CSRF généré et défini dans un cookie');
+          logger.debug('[CSRF] Nouveau token CSRF généré et défini dans un cookie');
         } else {
-          console.log('[CSRF] Token CSRF existant trouvé dans les cookies');
+          logger.debug('[CSRF] Token CSRF existant trouvé dans les cookies');
         }
       } catch (error) {
         console.error('[CSRF] Erreur lors de la définition du cookie CSRF:', error);
