@@ -843,7 +843,7 @@ export default function AddressesPage() {
                 <button
                   type="button"
                   onClick={cancelAddressForm}
-                  className="px-4 py-2 border border-[#BEC3CA] text-[#BEC3CA] rounded hover:bg-[#00585d] hover:text-[#D1D5DB] transition-colors"
+                  className="px-4 py-2 border border-[#BEC3CA] text-[#BEC3CA] rounded hover:bg-[#00585d] hover:text-[#D1D5DB] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#007A72]"
                   disabled={isSaving}
                 >
                   Annuler
@@ -851,7 +851,7 @@ export default function AddressesPage() {
                 
                 <button
                   type="submit"
-                  className="flex items-center px-4 py-2 bg-[#007A72] text-[#D1D5DB] rounded hover:bg-[#059669] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="flex items-center px-4 py-2 bg-[#007A72] text-[#D1D5DB] rounded hover:bg-[#059669] transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#007A72]"
                   disabled={isSaving}
                 >
                   {isSaving ? (

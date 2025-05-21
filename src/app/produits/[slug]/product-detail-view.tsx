@@ -284,14 +284,16 @@ export default function ProductDetailView({ product, relatedProducts, categories
                   <button
                     onClick={() => handleQuantityChange(quantity - 1)}
                     disabled={quantity <= 1}
-                    className="px-3 py-2 text-[#F4F8F5] disabled:opacity-50"
+                    aria-label="Diminuer la quantité"
+                    className="px-3 py-2 text-[#F4F8F5] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#EFC368]"
                   >
                     -
                   </button>
                   <span className="px-3 py-2 text-[#F4F8F5]">{quantity}</span>
                   <button
                     onClick={() => handleQuantityChange(quantity + 1)}
-                    className="px-3 py-2 text-[#F4F8F5]"
+                    aria-label="Augmenter la quantité"
+                    className="px-3 py-2 text-[#F4F8F5] focus:outline-none focus:ring-2 focus:ring-[#EFC368]"
                   >
                     +
                   </button>
