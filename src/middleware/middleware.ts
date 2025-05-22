@@ -236,7 +236,7 @@ export async function middleware(request: NextRequest) {
     
     // Vérifier avec le backend si l'utilisateur est un admin
     try {
-      const { data: payload } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+      const { data: payload } = await httpClient.get('/auth/me', {
         headers: {
           Authorization: `Bearer ${token}`
         }

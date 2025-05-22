@@ -112,7 +112,6 @@ export function applyLoyaltyBenefits(
     newTotal
   };
 }
-
 /**
  * Met à jour le compteur de commandes après une commande finalisée
  * @param userId ID de l'utilisateur
@@ -128,15 +127,14 @@ export async function updateLoyaltyOrderCount(
     logger.debug(`Mise à jour du compteur de fidélité pour l'utilisateur ${userId}, commande ${orderId}`);
     
     // Récupérer les informations utilisateur actuelles
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const { data: userData } = await httpClient.get(`${backendUrl}/users/me`, {
+    const { data: userData } = await httpClient.get('/users/me', {
       headers: {
         Authorization: `Bearer ${authToken}`
       }
     });
     
     // Récupérer les commandes de l'utilisateur
-    const { data: ordersData } = await httpClient.get(`${backendUrl}/orders/me`, {
+    const { data: ordersData } = await httpClient.get('/orders/me', {
       headers: {
         Authorization: `Bearer ${authToken}`
       }
@@ -159,7 +157,7 @@ export async function updateLoyaltyOrderCount(
     };
     
     // Mettre à jour le profil utilisateur
-    await httpClient.patch(`${backendUrl}/customers/${userId}`, {
+    await httpClient.patch(`/customers/${userId}`, {
       loyalty: loyaltyInfo
     }, {
       headers: {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { LoyaltyBenefits, NextLevel } from '../types';
 import { Cart } from '@/app/panier/types';
+import { httpClient } from '@/lib/httpClient';
 
 export default function useLoyaltyBenefits(
   cart: Cart,
@@ -25,27 +26,18 @@ export default function useLoyaltyBenefits(
     const fetchLoyalty = async () => {
       setLoading(true);
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
         const token =
           localStorage.getItem('authToken') ||
           (user as { token?: string } | null)?.token ||
           null;
 
-        const resp = await fetch(`${backendUrl}/api/cart/apply-loyalty`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            cartTotal: cart.subtotal,
-            shippingCost: country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
-            items: cart.items
-          })
-        });
-        if (!resp.ok) throw new Error();
-        const data = await resp.json();
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const { data } = await httpClient.post('/cart/apply-loyalty', {
+          cartTotal: cart.subtotal,
+          shippingCost: country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
+          items: cart.items
+        }, { headers });
 
         const orderCount: number = data.orderCount || 1;
         let nextLevel: NextLevel | undefined;
