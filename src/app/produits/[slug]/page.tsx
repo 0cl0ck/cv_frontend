@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: descriptionText,
     openGraph: {
       title:     `${product.name} | Chanvre Vert`,
-      description,
+      description: descriptionText,
       images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630, alt: product.name }] : []
     },
     twitter: {
@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       "@type":        "Offer",
       priceCurrency: config.payment.currency,
       price:         product.price ?? 0,
-      availability:  product.stock > 0 ? "http://schema.org/InStock" : "http://schema.org/OutOfStock"
+      availability:  (product.stock ?? 0) > 0 ? "http://schema.org/InStock" : "http://schema.org/OutOfStock"
     },
     aggregateRating: {
       "@type":       "AggregateRating",
@@ -72,9 +72,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       />
       <ProductPageClient
         slug={slug}
-        fallback={{ product, categories, relatedProducts }}
       />
     </>
   )
 }
-
