@@ -28,13 +28,13 @@ export default function PromoCodeForm({
             value={promoCode}
             onChange={e => setPromoCode(e.target.value)}
             placeholder="Entrez votre code"
-            className="flex-grow p-2 border rounded border-[#3A4A4F] bg-[#001E27] text-[#F4F8F5] text-sm"
+            className="flex-grow p-2 border rounded border-[#3A4A4F] bg-[#001E27] text-[#F4F8F5] text-sm focus:outline-none focus:ring-2 focus:ring-[#EFC368] focus:border-transparent"
             disabled={isApplying}
           />
           <button
             type="submit"
             disabled={isApplying || !promoCode.trim()}
-            className="bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] px-3 py-2 rounded-md font-medium transition-colors disabled:opacity-70 text-sm"
+            className="bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] px-3 py-2 rounded-md font-medium transition-colors disabled:opacity-70 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EFC368]"
           >
             {isApplying ? 'Application...' : 'Appliquer'}
           </button>
@@ -42,7 +42,12 @@ export default function PromoCodeForm({
       ) : (
         <div className="flex items-center justify-between">
           <span className="text-[#10B981] font-medium">✓ {promoResult.message.replace(/^Code "(.+?)" /, 'Code $1 ')}</span>
-          <button onClick={onCancel} className="text-[#F4F8F5] hover:text-red-400 text-sm">Retirer</button>
+          <button
+            onClick={onCancel}
+            className="text-[#F4F8F5] hover:text-red-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#EFC368]"
+          >
+            Retirer
+          </button>
         </div>
       )}
       {promoResult.message && !promoResult.applied && (
