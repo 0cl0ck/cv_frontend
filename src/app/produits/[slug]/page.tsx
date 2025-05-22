@@ -1,8 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { getProductBySlug, getRelatedProducts, getCategories } from '@/services/api';
-import { notFound } from 'next/navigation';
-import ProductDetailView from '@/app/produits/[slug]/product-detail-view';
+import { getProductBySlug } from '@/services/api';
+import ProductPageClient from '@/app/produits/[slug]/product-page-client';
 // Importation nécessaire pour les types mais elle n'est pas utilisée directement
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RichTextContent } from '@/types/product';
@@ -56,43 +55,7 @@ export async function generateMetadata({
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
-  try {
-    // Attendre les paramètres avant d'utiliser leurs propriétés (Next.js 15)
-    const paramsResolved = await params;
-    const slug = paramsResolved.slug;
-    
-    // Récupérer les informations du produit
-    const product = await getProductBySlug(slug);
-    
-    // Récupérer les catégories
-    const categories = await getCategories();
-    
-    // Récupérer les produits associés
-    // Gérer correctement la catégorie qui peut être un objet ou une chaîne
-    let categoryIds: string[] = [];
-    if (product.category) {
-      if (Array.isArray(product.category)) {
-        // Si c'est un tableau de catégories
-        categoryIds = product.category.map(cat => 
-          typeof cat === 'string' ? cat : cat.id
-        );
-      } else {
-        // Si c'est une seule catégorie (objet ou chaîne)
-        categoryIds = [typeof product.category === 'string' ? product.category : product.category.id];
-      }
-    }
-    
-    const relatedProducts = await getRelatedProducts(product.id, categoryIds, 4);
-    
-    return (
-      <ProductDetailView 
-        product={product} 
-        relatedProducts={relatedProducts}
-        categories={categories} 
-      />
-    );
-  } catch  {
-    // Si le produit n'est pas trouvé, renvoyer une page 404
-    notFound();
-  }
+  const paramsResolved = await params;
+  const slug = paramsResolved.slug;
+  return <ProductPageClient slug={slug} />;
 }
