@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { httpClient } from '@/lib/httpClient';
 
 const ContactForm = () => {
   const [name, setName] = useState('');
@@ -32,24 +33,11 @@ const ContactForm = () => {
       setIsSubmitting(true);
       setError(null);
       
-      // Utiliser l'API de contact
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          message
-        }),
+      await httpClient.post('/contact', {
+        name,
+        email,
+        message
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de l\'envoi du message');
-      }
       
       // Réinitialiser le formulaire après envoi réussi
       setName('');

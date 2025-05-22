@@ -3,6 +3,7 @@ import StarRating from './StarRating';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { secureLogger as logger } from '@/utils/logger';
+import { httpClient } from '@/lib/httpClient';
 
 type ReviewFormProps = {
   productId: string;
@@ -35,24 +36,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel 
         rating
       });
       
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId,
-          rating,
-          reviewContent: content // Le backend gèrera les valeurs vides
-        }),
+      await httpClient.post('/reviews', {
+        productId,
+        rating,
+        reviewContent: content // Le backend gèrera les valeurs vides
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('Erreur de soumission:', data);
-        throw new Error(data.error || 'Erreur lors de la soumission de l\'avis');
-      }
       
       logger.debug('Avis soumis avec succès');
       
