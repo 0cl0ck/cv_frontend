@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import httpClient from '@/lib/httpClient';
 import StarRating from './StarRating';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,21 +36,16 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel 
         content: content || '(sans commentaire)' 
       });
       
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const data = await httpClient.post<{ success: boolean; error?: string }>(
+        '/api/reviews',
+        {
           productId,
           rating,
-          reviewContent: content // Le backend gèrera les valeurs vides
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
+          reviewContent: content, // Le backend gèrera les valeurs vides
+        }
+      );
+
+      if (!data.success) {
         console.error('Erreur de soumission:', data);
         throw new Error(data.error || 'Erreur lors de la soumission de l\'avis');
       }

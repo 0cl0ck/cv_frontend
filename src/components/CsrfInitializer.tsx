@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import httpClient from '@/lib/httpClient';
 
 /**
  * Composant pour initialiser le token CSRF côté serveur
@@ -11,16 +12,7 @@ export default function CsrfInitializer() {
     const initCsrf = async () => {
       try {
         // Appel à l'API CSRF pour générer/renouveler les tokens
-        const response = await fetch('/api/csrf', { 
-          credentials: 'include',
-          cache: 'no-store'
-        });
-        
-        if (!response.ok) {
-          console.error(`Erreur lors de l'initialisation CSRF: ${response.status}`);
-          return;
-        }
-        
+        await httpClient.get('/api/csrf', { cache: 'no-store' });
         console.log('[CSRF] Tokens CSRF côté serveur initialisés avec succès');
       } catch (error) {
         console.error('[CSRF] Erreur lors de l\'initialisation des tokens CSRF:', error);

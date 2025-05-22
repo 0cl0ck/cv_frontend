@@ -1,7 +1,5 @@
 import { Category, Product } from '@/types/product';
-
-// URL de base de l'API PayloadCMS
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+import httpClient from '@/lib/httpClient';
 
 // Données de secours pour les produits en cas d'erreur API
 const fallbackProducts: Product[] = [
@@ -149,16 +147,14 @@ export async function getProducts(params?: {
     if (params?.maxPrice) queryParams.append('where[price][less_than_equal]', params.maxPrice.toString());
 
     // Tentative de récupération depuis l'API
-    const response = await fetch(`${API_URL}/api/products?${queryParams.toString()}`, {
+    const data = await httpClient.get<{
+      docs: Product[];
+      totalDocs: number;
+      totalPages: number;
+      page: number;
+    }>(`/api/products?${queryParams.toString()}`, {
       cache: 'no-store', // Utiliser uniquement no-store sans revalidate pour éviter les conflits
     });
-
-    if (!response.ok) {
-      // Si l'API ne répond pas correctement, utiliser les données de secours
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-
-    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -217,15 +213,12 @@ export async function getProducts(params?: {
 export async function getProductBySlug(slug: string): Promise<Product> {
   try {
     // Ajouter l'option depth pour récupérer toutes les relations, y compris les statistiques d'avis
-    const response = await fetch(`${API_URL}/api/products?where[slug][equals]=${slug}&depth=2`, {
-      cache: 'no-store', // Utiliser uniquement no-store sans revalidate pour éviter les conflits
-    });
-
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await httpClient.get<{ docs: Product[] }>(
+      `/api/products?where[slug][equals]=${slug}&depth=2`,
+      {
+        cache: 'no-store', // Utiliser uniquement no-store sans revalidate pour éviter les conflits
+      }
+    );
     if (!data.docs || data.docs.length === 0) {
       throw new Error('Product not found');
     }
@@ -267,15 +260,9 @@ export async function getProductBySlug(slug: string): Promise<Product> {
  */
 export async function getCategories(): Promise<Category[]> {
   try {
-    const response = await fetch(`${API_URL}/api/categories`, {
+    const data = await httpClient.get<{ docs: Category[] }>(`/api/categories`, {
       cache: 'no-store', // Utiliser uniquement no-store sans revalidate pour éviter les conflits
     });
-
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-
-    const data = await response.json();
     return data.docs;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -290,15 +277,12 @@ export async function getCategories(): Promise<Category[]> {
  */
 export async function getCategoryBySlug(slug: string): Promise<Category> {
   try {
-    const response = await fetch(`${API_URL}/api/categories?where[slug][equals]=${slug}`, {
-      cache: 'no-store', // Utiliser uniquement no-store sans revalidate pour éviter les conflits
-    });
-
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await httpClient.get<{ docs: Category[] }>(
+      `/api/categories?where[slug][equals]=${slug}`,
+      {
+        cache: 'no-store',
+      }
+    );
     if (!data.docs || data.docs.length === 0) {
       throw new Error('Category not found');
     }
@@ -336,15 +320,12 @@ export async function getRelatedProducts(productId: string, categoryIds: string[
       });
     }
     
-    const response = await fetch(`${API_URL}/api/products?${queryParams.toString()}`, {
-      cache: 'no-store', // Utiliser uniquement no-store sans revalidate pour éviter les conflits
-    });
-
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await httpClient.get<{ docs: Product[] }>(
+      `/api/products?${queryParams.toString()}`,
+      {
+        cache: 'no-store',
+      }
+    );
     return data.docs;
   } catch (error) {
     console.error('Error fetching related products:', error);

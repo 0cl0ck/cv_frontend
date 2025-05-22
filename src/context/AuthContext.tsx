@@ -9,6 +9,7 @@ import {
   useCallback,
   useMemo,
 } from 'react';
+import httpClient from '@/lib/httpClient';
 
 // Type pour les utilisateurs connectés
 type User = {
@@ -54,35 +55,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store',
-          'X-Auth-Timestamp': Date.now().toString(),
-        },
-      });
-
-      if (!response.ok) {
-        console.log('[AuthContext] Réponse API non-OK:', response.status);
-        if (response.status === 401) {
-          setIsAuthenticated(false);
-          setUser(null);
-        } else {
-          throw new Error(`Erreur lors de la récupération des données: ${response.status}`);
+      const data = await httpClient.get<{ user?: User }>(
+        '/api/auth/me',
+        {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store',
+            'X-Auth-Timestamp': Date.now().toString(),
+          },
         }
+      );
+
+      if (!data) {
+        console.log('[AuthContext] Réponse API non-OK: pas de données');
+        setIsAuthenticated(false);
+        setUser(null);
         return;
       }
 
-      const data = await response.json();
-      console.log('[AuthContext] Données utilisateur reçues:', data);
-
-      if (data?.user) {
+      if (!data.user) {
+        console.log('[AuthContext] Utilisateur non authentifié');
+          setIsAuthenticated(false);
+          setUser(null);
+      } else {
+        console.log('[AuthContext] Données utilisateur reçues:', data);
         setIsAuthenticated(true);
         setUser(data.user);
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
       }
     } catch (err) {
       console.error('[AuthContext] Erreur fetchUser:', err);
@@ -101,11 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = useCallback(async () => {
     try {
       setLoading(true);
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-      });
+      await httpClient.post('/api/auth/logout', {});
       setIsAuthenticated(false);
       setUser(null);
       window.dispatchEvent(new CustomEvent('auth-change', { detail: { isLoggedIn: false } }));

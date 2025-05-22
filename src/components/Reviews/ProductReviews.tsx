@@ -5,6 +5,7 @@ import ReviewForm from './ReviewForm';
 import StarRating from './StarRating';
 import { Button } from '@/components/ui/button';
 import { ReviewType } from './ReviewItem';
+import httpClient from '@/lib/httpClient';
 
 interface ReviewStats {
   averageRating: number;
@@ -34,11 +35,10 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, initialStats
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/reviews?productId=${productId}`);
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await httpClient.get<{
+        reviews: ReviewType[];
+        stats: ReviewStats;
+      }>(`/api/reviews?productId=${productId}`);
       console.log('Données détaillées des avis:', data.reviews?.[0]);
       
       // Utiliser les avis traités avec userDisplayName

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import httpClient from '@/lib/httpClient';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -33,21 +34,16 @@ const ContactForm = () => {
       setError(null);
       
       // Utiliser l'API de contact
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const data = await httpClient.post<{ success: boolean; error?: string }>(
+        '/api/contact',
+        {
           name,
           email,
-          message
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
+          message,
+        }
+      );
+
+      if (!data.success) {
         throw new Error(data.error || 'Erreur lors de l\'envoi du message');
       }
       
