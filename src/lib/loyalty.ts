@@ -1,4 +1,5 @@
 import { LoyaltyReward } from '@/types/loyalty';
+import { secureLogger as logger } from '@/utils/logger';
 
 /**
  * Détermine la récompense en fonction du nombre de commandes
@@ -123,7 +124,7 @@ export async function updateLoyaltyOrderCount(
   orderId: string
 ): Promise<void> {
   try {
-    console.log(`Mise à jour du compteur de fidélité pour l'utilisateur ${userId}, commande ${orderId}`);
+    logger.debug(`Mise à jour du compteur de fidélité pour l'utilisateur ${userId}, commande ${orderId}`);
     
     // Récupérer les informations utilisateur actuelles
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -188,7 +189,7 @@ export async function updateLoyaltyOrderCount(
       return;
     }
     
-    console.log(`Programme de fidélité mis à jour pour l'utilisateur ${userId}: ${ordersCount} commandes`);
+    logger.info(`Programme de fidélité mis à jour pour l'utilisateur ${userId}: ${ordersCount} commandes`);
   } catch (error) {
     console.error('Erreur lors de la mise à jour du compteur de fidélité:', error);
   }
