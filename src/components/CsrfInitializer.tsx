@@ -12,8 +12,15 @@ export default function CsrfInitializer() {
   useEffect(() => {
     const initCsrf = async () => {
       try {
-        // Appel à l'API CSRF pour générer/renouveler les tokens
-        await httpClient.get('/csrf');
+        const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3001';
+        const response = await fetch(`${frontendUrl}/api/csrf`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         logger.info('[CSRF] Tokens CSRF côté serveur initialisés avec succès');
       } catch (error) {
         console.error('[CSRF] Erreur lors de l\'initialisation des tokens CSRF:', error);
