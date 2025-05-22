@@ -3,6 +3,7 @@
  */
 
 // Nous n'utilisons pas jose pour vérifier mais juste pour décoder
+import { secureLogger as logger } from '@/utils/logger';
 
 // Type pour les données utilisateur stockées dans le JWT de Payload CMS
 export interface JwtPayload {
@@ -45,20 +46,20 @@ export async function verifyJwtToken(token: string): Promise<JwtPayload | null> 
     const payloadBase64 = parts[1];
     const decodedPayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
     
-    console.log('Payload décodé:', decodedPayload);
+    logger.debug('Payload décodé');
     const payload = decodedPayload;
     
     // Vérifier l'expiration
     const currentTime = Math.floor(Date.now() / 1000);
     if (payload.exp && payload.exp < currentTime) {
-      console.log('Token expiré', { exp: payload.exp, now: currentTime });
+      logger.debug('Token expiré', { exp: payload.exp, now: currentTime });
       return null; // Token expiré
     }
     
     // Vérifier si nous avons les informations essentielles
     if (!payload.id && payload.sub) {
       // Payload CMS stocke parfois l'ID utilisateur dans sub
-      console.log('Utilisation du sub comme ID utilisateur');
+      logger.debug('Utilisation du sub comme ID utilisateur');
       payload.id = payload.sub;
     }
     
@@ -70,12 +71,12 @@ export async function verifyJwtToken(token: string): Promise<JwtPayload | null> 
     
     // Ajouter des valeurs par défaut si nécessaire
     if (!payload.email) {
-      console.log('Email manquant dans le payload JWT');
+      logger.debug('Email manquant dans le payload JWT');
       payload.email = 'utilisateur@exemple.com';
     }
     
     if (!payload.collection) {
-      console.log('Collection manquante dans le payload JWT, utilisation de "customers" par défaut');
+      logger.debug('Collection manquante dans le payload JWT, utilisation de "customers" par défaut');
       payload.collection = 'customers';
     }
     

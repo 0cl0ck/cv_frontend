@@ -5,6 +5,7 @@ import { Cart } from '@/app/panier/types';
 import { PromoResult, LoyaltyBenefits, CustomerInfo } from '../types';
 import apiConfig from '@/config/api';
 import { calculateTotalPrice } from '@/utils/priceCalculations';
+import { secureLogger as logger } from '@/utils/logger';
 
 interface UseCheckoutReturn {
   isSubmitting: boolean;
@@ -106,12 +107,9 @@ export default function useCheckout(
       const finalAmount = Math.max(0.01, priceDetails.total);
       
       // Log pour vérifier les données avant envoi
-      console.log("Données de paiement à envoyer:", {
+      logger.debug('Données de paiement à envoyer', {
         finalAmount,
-        customerInfo: {
-          ...customerInfo,
-          email: customerInfo.email || ""
-        }
+        customerId: userId || null
       });
 
       const checkoutData = {

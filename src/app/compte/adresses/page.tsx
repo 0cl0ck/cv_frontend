@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, ChevronLeft, Plus, Edit2, Trash2, CheckCircle, X, Save, Loader2 } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
+import { secureLogger as logger } from '@/utils/logger';
 
 // Types pour les adresses
 type AddressType = 'shipping' | 'billing' | 'both';
@@ -103,7 +104,7 @@ export default function AddressesPage() {
             }
           });
           
-          console.log('Réponse adresses status:', addressesResponse.status);
+          logger.debug('Réponse adresses status', { status: addressesResponse.status });
           
           if (!addressesResponse.ok) {
             throw new Error(`Erreur lors de la récupération des adresses: ${addressesResponse.status}`);
@@ -254,7 +255,7 @@ export default function AddressesPage() {
       
       // Récupérer le token d'authentification depuis l'API /api/auth/me
       // Cette approche est plus fiable que d'essayer d'accéder aux cookies HttpOnly
-      console.log('Récupération du token frais pour la sauvegarde d\'adresse');
+      logger.debug('Récupération du token frais pour la sauvegarde d\'adresse');
       const meResponse = await fetch('/api/auth/me', {
         method: 'GET',
         credentials: 'include',
@@ -275,7 +276,7 @@ export default function AddressesPage() {
       
       // Fallback au cookie client si aucun token n'est retourné par l'API
       if (!token) {
-        console.log('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
+        logger.debug('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
         const cookies = document.cookie.split(';');
         const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
         
@@ -289,7 +290,7 @@ export default function AddressesPage() {
         token = authCookie.split('=')[1]?.trim();
       }
       
-      console.log('Token d\'authentification trouvé pour la sauvegarde, longueur:', token.length);
+      logger.debug('Token d\'authentification trouvé pour la sauvegarde', { length: token.length });
       
       // Gérer les adresses existantes
       let updatedAddresses = [...addresses];
@@ -385,7 +386,7 @@ export default function AddressesPage() {
       }
       
       // Récupérer le token d'authentification depuis l'API /api/auth/me
-      console.log('Récupération du token pour la suppression d\'adresse');
+      logger.debug('Récupération du token pour la suppression d\'adresse');
       const meResponse = await fetch('/api/auth/me', {
         method: 'GET',
         credentials: 'include',
@@ -406,7 +407,7 @@ export default function AddressesPage() {
       
       // Fallback au cookie client si aucun token n'est retourné par l'API
       if (!token) {
-        console.log('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
+        logger.debug('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
         const cookies = document.cookie.split(';');
         const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
         
@@ -420,7 +421,7 @@ export default function AddressesPage() {
         token = authCookie.split('=')[1]?.trim();
       }
       
-      console.log('Token d\'authentification trouvé pour la suppression, longueur:', token.length);
+      logger.debug('Token d\'authentification trouvé pour la suppression', { length: token.length });
       
       // Filtrer les adresses pour retirer celle à supprimer
       const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
@@ -470,7 +471,7 @@ export default function AddressesPage() {
       }
       
       // Récupérer le token d'authentification depuis l'API /api/auth/me
-      console.log('Récupération du token pour définir l\'adresse par défaut');
+      logger.debug('Récupération du token pour définir l\'adresse par défaut');
       const meResponse = await fetch('/api/auth/me', {
         method: 'GET',
         credentials: 'include',
@@ -491,7 +492,7 @@ export default function AddressesPage() {
       
       // Fallback au cookie client si aucun token n'est retourné par l'API
       if (!token) {
-        console.log('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
+        logger.debug('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
         const cookies = document.cookie.split(';');
         const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
         
@@ -505,7 +506,7 @@ export default function AddressesPage() {
         token = authCookie.split('=')[1]?.trim();
       }
       
-      console.log('Token d\'authentification trouvé, longueur:', token.length);
+      logger.debug('Token d\'authentification trouvé', { length: token.length });
       
       // Mettre à jour les adresses pour changer celle qui est par défaut
       const updatedAddresses = addresses.map(addr => ({
@@ -843,7 +844,7 @@ export default function AddressesPage() {
                 <button
                   type="button"
                   onClick={cancelAddressForm}
-                  className="px-4 py-2 border border-[#BEC3CA] text-[#BEC3CA] rounded hover:bg-[#00585d] hover:text-[#D1D5DB] transition-colors"
+                  className="px-4 py-2 border border-[#BEC3CA] text-[#BEC3CA] rounded hover:bg-[#00585d] hover:text-[#D1D5DB] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#007A72]"
                   disabled={isSaving}
                 >
                   Annuler
@@ -851,7 +852,7 @@ export default function AddressesPage() {
                 
                 <button
                   type="submit"
-                  className="flex items-center px-4 py-2 bg-[#007A72] text-[#D1D5DB] rounded hover:bg-[#059669] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="flex items-center px-4 py-2 bg-[#007A72] text-[#D1D5DB] rounded hover:bg-[#059669] transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#007A72]"
                   disabled={isSaving}
                 >
                   {isSaving ? (

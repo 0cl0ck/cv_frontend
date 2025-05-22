@@ -3,6 +3,7 @@ import { getProducts, getCategories, getCategoryBySlug } from '@/services/api';
 import { notFound } from 'next/navigation';
 import ProductsLayout from '@/app/produits/layout-products';
 import { headers } from 'next/headers';
+import { secureLogger as logger } from '@/utils/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -152,7 +153,7 @@ export default async function CategoryPage(props) {
       // On a déjà vérifié si c'est une catégorie basée sur le poids plus haut
       // Si ce n'est pas une catégorie qui utilise le poids, on ne fait pas le tri par prix au gramme
       if (!isWeightBasedCategory) {
-        console.log(`[DEBUG] Catégorie ${slug} - Catégorie non basée sur le poids, tri par prix par gramme ignoré`);
+        logger.debug(`[DEBUG] Catégorie ${slug} - Catégorie non basée sur le poids, tri par prix par gramme ignoré`);
         return;
       }
       

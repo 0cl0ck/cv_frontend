@@ -73,9 +73,9 @@ function VerifierEmailContent() {
             <p className="text-[#BEC3CA] mb-6">{message}</p>
             <p className="text-[#BEC3CA]">Vous allez être redirigé vers la page de connexion...</p>
             <div className="mt-6">
-              <Link 
-                href="/connexion" 
-                className="bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md focus:outline-none transition-colors"
+              <Link
+                href="/connexion"
+                className="bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981] transition-colors"
               >
                 Se connecter maintenant
               </Link>
@@ -89,15 +89,15 @@ function VerifierEmailContent() {
             <h1 className="text-2xl font-bold mb-4 text-white">Vérification échouée</h1>
             <p className="text-[#BEC3CA] mb-6">{message}</p>
             <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-              <Link 
-                href="/connexion" 
-                className="bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md focus:outline-none transition-colors"
+              <Link
+                href="/connexion"
+                className="bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981] transition-colors"
               >
                 Se connecter
               </Link>
-              <Link 
-                href="/" 
-                className="border border-[#155757] hover:border-[#10B981] text-[#BEC3CA] font-medium py-2 px-4 rounded-md focus:outline-none transition-colors"
+              <Link
+                href="/"
+                className="border border-[#155757] hover:border-[#10B981] text-[#BEC3CA] font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981] transition-colors"
               >
                 Retour à l&apos;accueil
               </Link>

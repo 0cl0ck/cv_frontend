@@ -2,6 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale/fr';
 import StarRating from './StarRating';
+import { secureLogger as logger } from '@/utils/logger';
 
 export type ReviewType = {
   id: string;
@@ -38,14 +39,6 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review }) => {
     locale: fr 
   });
   
-  // Déboguer les données de l'utilisateur de manière détaillée
-  console.log('=============================');
-  console.log(`\u{1F464} DONNÉES AVIS ${review.id}:`);
-  console.log(`Date: ${review.createdAt}`);
-  console.log(`User: ${typeof review.user === 'string' ? review.user : JSON.stringify(review.user, null, 2)}`);
-  console.log(`UserDisplayName: "${review.userDisplayName || 'NON DÉFINI'}"`);
-  console.log(`Content: ${review.reviewContent?.substring(0, 30)}...`);
-  console.log('=============================');
   
   // Identifier si l'avis appartient à l'utilisateur connecté
   const isCurrentUserReview = () => {
@@ -55,17 +48,7 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review }) => {
   
   // Déterminer le nom d'affichage de l'utilisateur
   const getUserIdentifier = () => {
-    // IMPORTANT: Déboguer toutes les valeurs qui pourraient contenir le nom
-    console.log('Détail des données utilisateur pour l\'avis', review.id, {
-      userDisplayName: review.userDisplayName,
-      userId: typeof review.user === 'string' ? review.user : review.user?.id,
-      userObject: typeof review.user !== 'string' ? {
-        firstName: review.user?.firstName,
-        lastName: review.user?.lastName,
-        prenom: review.user?.prenom,
-        nom: review.user?.nom
-      } : 'N/A'
-    });
+    // IMPORTANT: informations utilisateur uniquement à des fins internes
     
     // 1. PRIORITÉ ABSOLUE: Si c'est l'avis de l'utilisateur connecté, toujours afficher "Vous"
     if (isCurrentUserReview()) {
@@ -98,7 +81,7 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review }) => {
   const userName = getUserIdentifier();
   
   // Log final pour vérifier quel nom sera affiché
-  console.log(`\u{1F4AC} AFFICHAGE FINAL pour l'avis ${review.id}: "${userName}"`);
+  logger.debug(`\u{1F4AC} Affichage final pour l'avis ${review.id}`);
 
   // Force directement userDisplayName s'il existe, pour contourner tout problème dans getUserIdentifier
   const forceDisplayName = review.userDisplayName === 'Vous' ? 'Vous' : 
