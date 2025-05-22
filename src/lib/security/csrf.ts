@@ -64,6 +64,7 @@ import { NextRequest } from 'next/server';
 import { secureLogger as logger } from '@/utils/logger';
 import { httpClient } from '@/lib/httpClient';
 import type { AxiosResponse } from 'axios';
+import type { AxiosRequestConfig } from 'axios';
 
 // Durée de validité des tokens CSRF (en secondes)
 const CSRF_TOKEN_EXPIRY = 3600; // 1 heure
@@ -271,7 +272,7 @@ export function getCsrfHeader(): { [key: string]: string } {
 // Variable pour suivre si le token CSRF a déjà été récupéré
 let csrfFetched = false;
 
-export async function fetchWithCsrf(url: string, options: RequestInit = {}): Promise<AxiosResponse> {
+export async function fetchWithCsrf<T = any>(url: string, options: RequestInit = {}): Promise<T> {
   // Fonction pour s'assurer que le token CSRF est présent
   const ensureCsrf = async () => {
     if (typeof window === 'undefined') return;
@@ -306,10 +307,13 @@ export async function fetchWithCsrf(url: string, options: RequestInit = {}): Pro
   };
   
   // Effectuer la requête avec l'en-tête CSRF
-  return httpClient({
+  const config: AxiosRequestConfig = {
     url,
-    method: options.method as any,
-    headers,
+    method: options.method as AxiosRequestConfig['method'],
+    headers: headers as Record<string, string>,
     data: options.body
-  });
+  };
+
+  const response = await httpClient.request<T>(config);
+  return response.data;
 }
