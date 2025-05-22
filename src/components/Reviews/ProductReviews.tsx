@@ -5,6 +5,7 @@ import ReviewForm from './ReviewForm';
 import StarRating from './StarRating';
 import { Button } from '@/components/ui/button';
 import { ReviewType } from './ReviewItem';
+import { secureLogger as logger } from '@/utils/logger';
 
 interface ReviewStats {
   averageRating: number;
@@ -39,7 +40,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, initialStats
         throw new Error(`Erreur HTTP: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Données détaillées des avis:', data.reviews?.[0]);
+      logger.debug('Données détaillées des avis récupérées');
       
       // Utiliser les avis traités avec userDisplayName
       setReviews(data.reviews || []);
@@ -66,7 +67,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, initialStats
   const handleReviewSuccess = () => {
     setShowReviewForm(false);
     // Recharger les avis après soumission réussie
-    console.log('Avis soumis avec succès, rechargement des avis...');
+    logger.debug('Avis soumis avec succès, rechargement des avis...');
     // Léger délai pour permettre au backend de traiter la requête
     setTimeout(() => {
       fetchReviews();

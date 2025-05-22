@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import StarRating from './StarRating';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { secureLogger as logger } from '@/utils/logger';
 
 type ReviewFormProps = {
   productId: string;
@@ -29,10 +30,9 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel 
       setError(null);
       
       // Le contenu est maintenant vraiment optionnel - aucune validation n'est nécessaire
-      console.log('Soumission d\'un avis:', { 
-        productId, 
-        rating, 
-        content: content || '(sans commentaire)' 
+      logger.debug('Soumission d\'un avis', {
+        productId,
+        rating
       });
       
       const response = await fetch('/api/reviews', {
@@ -54,7 +54,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onSuccess, onCancel 
         throw new Error(data.error || 'Erreur lors de la soumission de l\'avis');
       }
       
-      console.log('Avis soumis avec succès:', data);
+      logger.debug('Avis soumis avec succès');
       
       // Après soumission réussie, réinitialiser le formulaire et notifier le parent
       setRating(0);

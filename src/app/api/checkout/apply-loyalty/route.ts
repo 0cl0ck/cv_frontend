@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applyLoyaltyBenefits, determineReward } from '@/lib/loyalty';
+import { secureLogger as logger } from '@/utils/logger';
 
 // Interface pour le corps de la requête
 interface ApplyLoyaltyRequest {
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
       body.shippingCost
     );
     
-    console.log(`Application des avantages fidélité: ${loyaltyBenefits.message}`);
+    logger.info(`Application des avantages fidélité: ${loyaltyBenefits.message}`);
     
     // Préparer la réponse avec les modifications appliquées en utilisant les données de loyaltyBenefits
     const response = {
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
       nextOrderReward: determineReward(ordersCount + 2) // La récompense pour la commande suivante
     };
 
-    console.info(`Récompense de fidélité appliquée: ${loyaltyBenefits.message} [Commandes: ${ordersCount}]`);
+    logger.info(`Récompense de fidélité appliquée: ${loyaltyBenefits.message} [Commandes: ${ordersCount}]`);
     
     return NextResponse.json(response);
     

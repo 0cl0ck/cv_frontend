@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { secureLogger as logger } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
         errorMessage = 'Email ou mot de passe incorrect';
       }
       
-      console.log('[/api/auth/login] Erreur retournée au client:', errorMessage);
+      logger.error('[/api/auth/login] Erreur retournée au client', { errorMessage });
       
       return NextResponse.json(
         { error: errorMessage }, 
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log('[/api/auth/login] Token reçu du backend, longueur:', token.length);
+    logger.debug('[/api/auth/login] Token reçu du backend', { length: token.length });
     
     // Créer une réponse avec les données
     const jsonResponse = NextResponse.json(

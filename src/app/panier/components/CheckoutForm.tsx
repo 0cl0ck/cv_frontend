@@ -22,7 +22,7 @@ export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit,
               type="text"
               value={customerInfo[field]}
               onChange={e => onChange(field, e.target.value)}
-              className={`w-full p-2 border rounded ${errors[field] ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
+              className={`w-full p-2 border rounded ${errors[field] ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5] focus:outline-none focus:ring-2 focus:ring-[#EFC368] focus:border-transparent`}
             />
             {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
           </div>
@@ -37,7 +37,7 @@ export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit,
             type={field === 'email' ? 'email' : 'text'}
             value={customerInfo[field]}
             onChange={e => onChange(field, e.target.value)}
-            className={`w-full p-2 border rounded ${errors[field] ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5]`}
+            className={`w-full p-2 border rounded ${errors[field] ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5] focus:outline-none focus:ring-2 focus:ring-[#EFC368] focus:border-transparent`}
           />
           {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
         </div>
@@ -48,7 +48,7 @@ export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit,
           type="text"
           value={customerInfo.addressLine2}
           onChange={e => onChange('addressLine2', e.target.value)}
-          className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935] text-[#F4F8F5]"
+          className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935] text-[#F4F8F5] focus:outline-none focus:ring-2 focus:ring-[#EFC368] focus:border-transparent"
         />
       </div>
       <div>
@@ -56,7 +56,7 @@ export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit,
         <select
           value={customerInfo.country}
           onChange={e => onChange('country', e.target.value)}
-          className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935] text-[#F4F8F5]"
+          className="w-full p-2 border rounded border-[#3A4A4F] bg-[#002935] text-[#F4F8F5] focus:outline-none focus:ring-2 focus:ring-[#EFC368]"
         >
           <option>France</option>
           <option>Belgique</option>
@@ -74,7 +74,7 @@ export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit,
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] py-3 rounded-md disabled:opacity-70"
+        className="w-full bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] py-3 rounded-md disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EFC368]"
       >
         {isSubmitting ? 'Traitement en cours...' : 'Finaliser le paiement'}
       </button>

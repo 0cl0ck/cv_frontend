@@ -3,6 +3,15 @@ import { Category, Product } from '@/types/product';
 // URL de base de l'API PayloadCMS
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
+// Generic fetcher used with SWR
+export async function fetcher<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, { cache: 'no-store', ...init });
+  if (!res.ok) {
+    throw new Error(`API responded with status: ${res.status}`);
+  }
+  return res.json();
+}
+
 // Données de secours pour les produits en cas d'erreur API
 const fallbackProducts: Product[] = [
   {

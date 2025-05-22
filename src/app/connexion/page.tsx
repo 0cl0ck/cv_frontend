@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { fetchWithCsrf } from '@/lib/security/csrf';
 import { useAuthContext } from '@/context/AuthContext';
+import { secureLogger as logger } from '@/utils/logger';
 
 // Formulaire de connexion
 function LoginForm() {
@@ -29,7 +30,7 @@ function LoginForm() {
     
     // Si l'utilisateur est authentifié, le rediriger vers la page compte
     if (isAuthenticated) {
-      console.log('[LoginPage] Utilisateur déjà authentifié, redirection vers /compte');
+      logger.info('[LoginPage] Utilisateur déjà authentifié, redirection vers /compte');
       const redirectPath = searchParams.get('redirect') || '/compte';
       router.replace(redirectPath);
     }
@@ -75,7 +76,7 @@ function LoginForm() {
     setError('');
 
     try {
-      console.log('[Login Debug] Tentative de connexion avec fetchWithCsrf');
+      logger.debug('[Login Debug] Tentative de connexion avec fetchWithCsrf');
       
       // Utiliser fetchWithCsrf au lieu de fetch standard pour inclure l'en-tête CSRF
       const response = await fetchWithCsrf('/api/auth/login', {
@@ -97,7 +98,7 @@ function LoginForm() {
         throw new Error(data.error || 'Erreur de connexion');
       }
 
-      console.log('[Login Debug] Connexion réussie');
+      logger.debug('[Login Debug] Connexion réussie');
       // Connexion réussie, rediriger vers le tableau de bord client
       
       // Déclencher un événement personnalisé pour informer le Header et autres composants
@@ -174,7 +175,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md focus:outline-none transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <span className="flex items-center justify-center">
