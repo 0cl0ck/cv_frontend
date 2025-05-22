@@ -79,22 +79,19 @@ function LoginForm() {
       logger.debug('[Login Debug] Tentative de connexion avec fetchWithCsrf');
       
       // Utiliser fetchWithCsrf au lieu de fetch standard pour inclure l'en-tête CSRF
-      const response = await fetchWithCsrf('/api/auth/login', {
+      const { data } = await fetchWithCsrf('/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
           collection: 'customers'
-        }),
-        credentials: 'include' // S'assurer que les cookies sont envoyés
+        })
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (data.error) {
         throw new Error(data.error || 'Erreur de connexion');
       }
 

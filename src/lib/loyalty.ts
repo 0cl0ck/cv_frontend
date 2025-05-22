@@ -1,5 +1,6 @@
 import { LoyaltyReward } from '@/types/loyalty';
 import { secureLogger as logger } from '@/utils/logger';
+import { httpClient } from '@/lib/httpClient';
 
 /**
  * Détermine la récompense en fonction du nombre de commandes
@@ -128,33 +129,18 @@ export async function updateLoyaltyOrderCount(
     
     // Récupérer les informations utilisateur actuelles
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const userResponse = await fetch(`${backendUrl}/api/users/me`, {
+    const { data: userData } = await httpClient.get(`${backendUrl}/users/me`, {
       headers: {
-        'Authorization': `Bearer ${authToken}`
+        Authorization: `Bearer ${authToken}`
       }
     });
-    
-    if (!userResponse.ok) {
-      console.error(`Erreur lors de la récupération des informations utilisateur: ${userResponse.status}`);
-      return;
-    }
-    
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const userData = await userResponse.json();
     
     // Récupérer les commandes de l'utilisateur
-    const ordersResponse = await fetch(`${backendUrl}/api/orders/me`, {
+    const { data: ordersData } = await httpClient.get(`${backendUrl}/orders/me`, {
       headers: {
-        'Authorization': `Bearer ${authToken}`
+        Authorization: `Bearer ${authToken}`
       }
     });
-    
-    if (!ordersResponse.ok) {
-      console.error(`Erreur lors de la récupération des commandes: ${ordersResponse.status}`);
-      return;
-    }
-    
-    const ordersData = await ordersResponse.json();
     
     // Compter les commandes complétées (livrées ou expédiées)
     const completedOrders = Array.isArray(ordersData.orders) 
@@ -173,21 +159,14 @@ export async function updateLoyaltyOrderCount(
     };
     
     // Mettre à jour le profil utilisateur
-    const updateResponse = await fetch(`${backendUrl}/api/customers/${userId}`, {
-      method: 'PATCH',
+    await httpClient.patch(`${backendUrl}/customers/${userId}`, {
+      loyalty: loyaltyInfo
+    }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`
-      },
-      body: JSON.stringify({
-        loyalty: loyaltyInfo
-      })
+        Authorization: `Bearer ${authToken}`
+      }
     });
-    
-    if (!updateResponse.ok) {
-      console.error(`Erreur lors de la mise à jour du profil utilisateur: ${updateResponse.status}`);
-      return;
-    }
     
     logger.info(`Programme de fidélité mis à jour pour l'utilisateur ${userId}: ${ordersCount} commandes`);
   } catch (error) {

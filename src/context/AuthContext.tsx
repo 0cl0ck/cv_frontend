@@ -10,6 +10,7 @@ import {
   useMemo,
 } from 'react';
 import { secureLogger as logger } from '@/utils/logger';
+import { httpClient } from '@/lib/httpClient';
 
 // Type pour les utilisateurs connectés
 type User = {
@@ -55,27 +56,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store',
-          'X-Auth-Timestamp': Date.now().toString(),
-        },
-      });
+      const { data, status } = await httpClient.get('/auth/me');
 
-      if (!response.ok) {
-        logger.warn('[AuthContext] Réponse API non-OK', { status: response.status });
-        if (response.status === 401) {
-          setIsAuthenticated(false);
-          setUser(null);
-        } else {
-          throw new Error(`Erreur lors de la récupération des données: ${response.status}`);
-        }
+      if (status === 401) {
+        setIsAuthenticated(false);
+        setUser(null);
         return;
       }
-
-      const data = await response.json();
       logger.debug('[AuthContext] Données utilisateur reçues', { hasUser: !!data?.user });
 
       if (data?.user) {
@@ -102,11 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = useCallback(async () => {
     try {
       setLoading(true);
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-      });
+      await httpClient.post('/auth/logout');
       setIsAuthenticated(false);
       setUser(null);
       window.dispatchEvent(new CustomEvent('auth-change', { detail: { isLoggedIn: false } }));

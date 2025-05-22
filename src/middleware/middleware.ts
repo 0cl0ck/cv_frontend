@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { validateCsrfToken } from '@/lib/security/csrf';
+import { httpClient } from '@/lib/httpClient';
 
 // Stockage des demandes pour le rate limiting (en production, utiliser Redis)
 type RequestRecord = { count: number; timestamps: number[] };
@@ -235,20 +236,11 @@ export async function middleware(request: NextRequest) {
     
     // Vérifier avec le backend si l'utilisateur est un admin
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
-        { 
-          headers: { 
-            'Authorization': `Bearer ${token}` 
-          } 
+      const { data: payload } = await httpClient.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
-      
-      if (!response.ok) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-      }
-      
-      const payload = await response.json();
+      });
       if (!payload?.user || payload.user.collection !== 'admins') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }

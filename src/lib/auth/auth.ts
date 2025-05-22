@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
+import { httpClient } from '@/lib/httpClient';
 
 export type User = {
   id: string;
@@ -27,26 +28,9 @@ export const authFetcher = async (url: string) => {
   const timeoutId = setTimeout(() => controller.abort(), 10000);
   
   try {
-    const response = await fetch(url, { 
-      credentials: 'include', // Utiliser 'include' pour transmettre les cookies même en cross-origin
-      cache: 'no-store',
-      signal 
-    });
-    
-    // Nettoyer le timeout
+    const { data } = await httpClient.get(url, { signal });
     clearTimeout(timeoutId);
-    
-    // Gérer les erreurs HTTP
-    if (!response.ok) {
-      const error: AuthError = { 
-        status: response.status,
-        message: response.statusText || `Erreur HTTP ${response.status}`,
-        type: response.status === 401 ? 'unauthorized' : 'server'
-      };
-      throw error;
-    }
-    
-    return response.json();
+    return data;
   } catch (err) {
     // Nettoyer le timeout en cas d'erreur
     clearTimeout(timeoutId);
@@ -64,7 +48,7 @@ export const authFetcher = async (url: string) => {
       if (err.name === 'AbortError') {
         error.type = 'timeout';
         error.message = 'La requête a pris trop de temps';
-      } else if (err.message.includes('fetch')) {
+      } else if (err.message.includes('Network')) {
         error.type = 'network';
         error.message = 'Impossible de se connecter au serveur';
       }

@@ -62,6 +62,8 @@ function constantTimeEqual(a: string, b: string): boolean {
 }
 import { NextRequest } from 'next/server';
 import { secureLogger as logger } from '@/utils/logger';
+import { httpClient } from '@/lib/httpClient';
+import type { AxiosResponse } from 'axios';
 
 // Durée de validité des tokens CSRF (en secondes)
 const CSRF_TOKEN_EXPIRY = 3600; // 1 heure
@@ -269,7 +271,7 @@ export function getCsrfHeader(): { [key: string]: string } {
 // Variable pour suivre si le token CSRF a déjà été récupéré
 let csrfFetched = false;
 
-export async function fetchWithCsrf(url: string, options: RequestInit = {}): Promise<Response> {
+export async function fetchWithCsrf(url: string, options: RequestInit = {}): Promise<AxiosResponse> {
   // Fonction pour s'assurer que le token CSRF est présent
   const ensureCsrf = async () => {
     if (typeof window === 'undefined') return;
@@ -282,15 +284,7 @@ export async function fetchWithCsrf(url: string, options: RequestInit = {}): Pro
     if (!csrfCookie || !csrfFetched) {
       try {
         // Appel à l'API pour générer/récupérer un token CSRF
-        const response = await fetch('/api/csrf', { 
-          credentials: 'include',
-          cache: 'no-store' // Éviter la mise en cache de cette requête
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Erreur lors de la génération du token CSRF: ${response.status}`);
-        }
-        
+        await httpClient.get('/csrf');
         csrfFetched = true;
       } catch (error) {
         console.error('Erreur lors de la génération du token CSRF:', error);
@@ -312,9 +306,10 @@ export async function fetchWithCsrf(url: string, options: RequestInit = {}): Pro
   };
   
   // Effectuer la requête avec l'en-tête CSRF
-  return fetch(url, {
-    ...options,
+  return httpClient({
+    url,
+    method: options.method as any,
     headers,
-    credentials: 'include' // S'assurer que les cookies sont envoyés avec la requête
+    data: options.body
   });
 }
