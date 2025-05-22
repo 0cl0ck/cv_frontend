@@ -1,16 +1,13 @@
-/** @type {import('jest').Config} */
-const config = {
-  preset: 'ts-jest',
+const nextJest = require('next/jest');
+
+const createJestConfig = nextJest({ dir: './' });
+
+const customJestConfig = {
+  setupFilesAfterEnv: ['./jest.setup.js'],
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.json',
-    }],
-  },
-  setupFilesAfterEnv: ['./jest.setup.js'],
   testMatch: ['**/__tests__/**/*.test.(ts|tsx)'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
@@ -20,4 +17,4 @@ const config = {
   ],
 };
 
-module.exports = config;
+module.exports = createJestConfig(customJestConfig);

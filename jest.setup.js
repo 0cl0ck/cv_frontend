@@ -1,4 +1,5 @@
 // Global setup and mocks for Jest tests
+import '@testing-library/jest-dom/extend-expect';
 
 // Mocking fetch API
 global.fetch = jest.fn();
