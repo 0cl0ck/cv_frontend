@@ -131,22 +131,7 @@ export default function CartView() {
       {/* Sidebar unique */}
       <div className="mt-8 lg:mt-0 lg:grid lg:grid-cols-2 lg:gap-8">
         <div className="lg:col-start-2">
-        {!checkoutMode && (
-          <OrderSummary
-            subtotal={cart.subtotal}
-            shippingCost={cart.shipping?.cost || 0}
-            promoResult={promoResult}
-            loyaltyBenefits={loyaltyBenefits}
-            isAuthenticated={isAuthenticated}
-            onCheckout={handleCheckout}
-            checkoutMode={checkoutMode}
-            onBackToCart={handleBack}
-            onClearCart={clearCart}
-            country={customerInfo.country}
-          />
-        )}
         
-        {checkoutMode && (
           <CheckoutSidebar
             isAuthenticated={isAuthenticated}
             loyaltyBenefits={loyaltyBenefits}
@@ -171,7 +156,7 @@ export default function CartView() {
             clearCart={clearCart}
             isSubmitting={isSubmitting}
           />
-        )}
+        
 
         </div>
       </div>

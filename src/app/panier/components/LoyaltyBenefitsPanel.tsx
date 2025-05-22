@@ -64,7 +64,7 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
         />
       </div>
       <div className="flex justify-between text-[9px] text-[#8A9EA5] px-1">
-        <span>1</span><span>3</span><span>5</span><span>10</span>
+        <span>1</span><span>5</span><span>10</span>
       </div>
 
       {/* Liste des paliers */}

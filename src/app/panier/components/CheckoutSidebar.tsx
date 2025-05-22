@@ -83,7 +83,6 @@ export default function CheckoutSidebar({
         {/* 3) Récapitulatif & checkout */}
         <OrderSummary
           subtotal={cart.subtotal}
-          shippingCost={cart.shipping?.cost || 0}
           promoResult={promoResult}
           loyaltyBenefits={loyaltyBenefits}
           isAuthenticated={isAuthenticated}
