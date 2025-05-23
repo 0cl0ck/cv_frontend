@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { Cart } from '@/app/panier/types';
 import { PromoResult, LoyaltyBenefits, CustomerInfo } from '../types';
-import apiConfig from '@/config/api';
+import { httpClient } from '@/lib/httpClient';
 import { calculateTotalPrice } from '@/utils/priceCalculations';
 import { secureLogger as logger } from '@/utils/logger';
 
@@ -165,21 +165,14 @@ export default function useCheckout(
         }
       };
 
-      const resp = await fetch(apiConfig.endpoints.payment, {
-        method: 'POST',
+      const resp = await httpClient.post('/payment/create', checkoutData, {
         headers: {
-          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        credentials: 'include',
-        body: JSON.stringify(checkoutData)
+        }
       });
-      if (!resp.ok) {
-        const errorText = await resp.text();
-        console.error("Erreur détaillée du serveur:", errorText);
-        throw new Error(errorText);
-      }
-      const data = await resp.json();
+      
+      // Avec axios, les données sont dans resp.data
+      const data = resp.data;
       if (data.smartCheckoutUrl) {
         clearCart();
         window.location.href = data.smartCheckoutUrl;
@@ -189,13 +182,16 @@ export default function useCheckout(
     } catch (err) {
       console.error('Checkout error:', err);
       
-      // Analyser l'erreur pour voir si c'est un problème de validation de téléphone
+      // Analyser l'erreur pour voir si c'est un problème de validation
       try {
-        if (err instanceof Error && err.message) {
-          const errorObj = JSON.parse(err.message);
-          if (errorObj.details && errorObj.details['order.guestInformation.phone']) {
+        // Avec axios, les erreurs HTTP sont dans err.response.data
+        if (err && typeof err === 'object' && 'response' in err) {
+          const axiosError = err as any;
+          const errorData = axiosError.response?.data;
+          
+          if (errorData?.details && errorData.details['order.guestInformation.phone']) {
             // Erreur spécifique de validation de téléphone
-            const phoneError = { phone: errorObj.details['order.guestInformation.phone'] };
+            const phoneError = { phone: errorData.details['order.guestInformation.phone'] };
             setFormErrors(phoneError);
             if (setErrors) setErrors(phoneError);
             
@@ -204,20 +200,25 @@ export default function useCheckout(
             if (phoneField) {
               phoneField.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+          } else if (errorData?.message) {
+            // Autres erreurs du serveur avec message
+            const generalError = { general: errorData.message };
+            setFormErrors(generalError);
+            if (setErrors) setErrors(generalError);
           } else {
-            // Autres erreurs du serveur
+            // Erreur générique
             const generalError = { general: "Erreur lors de l'initialisation du paiement." };
             setFormErrors(generalError);
             if (setErrors) setErrors(generalError);
           }
         } else {
-          // Erreur générique
-          const generalError = { general: "Erreur lors de l'initialisation du paiement." };
+          // Erreur non-axios (réseau, etc.)
+          const generalError = { general: "Erreur de connexion au serveur." };
           setFormErrors(generalError);
           if (setErrors) setErrors(generalError);
         }
       } catch {
-        // Erreur pendant l'analyse de l'erreur (ironiquement)
+        // Erreur pendant l'analyse de l'erreur
         const generalError = { general: "Erreur lors de l'initialisation du paiement." };
         setFormErrors(generalError);
         if (setErrors) setErrors(generalError);

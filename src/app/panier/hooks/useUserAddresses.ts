@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { Address } from '../types';
+import { httpClient } from '@/lib/httpClient';
 
 export default function useUserAddresses(
   checkoutMode: boolean
@@ -17,12 +18,8 @@ export default function useUserAddresses(
     const fetchAddresses = async () => {
       setLoading(true);
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        const resp = await fetch(`${backendUrl}/api/customers/${user.id}`, {
-          credentials: 'include'
-        });
-        if (!resp.ok) throw new Error();
-        const data = await resp.json();
+        // Utiliser l'endpoint /me au lieu de l'ID direct pour éviter les problèmes de permissions
+        const { data } = await httpClient.get('/customers/me');
         const shipping = (data.addresses as Address[] || []).filter(
           addr => addr.type === 'shipping' || addr.type === 'both'
         );

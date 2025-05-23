@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { secureLogger as logger } from '@/utils/logger';
+import { httpClient } from '@/lib/httpClient';
 
 interface PaymentStatus {
   status: string;
@@ -32,34 +33,22 @@ function PaymentContent() {
           return;
         }
 
-        // URL de l'API de vérification du paiement - avec les paramètres en query string
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        
-        // Créer l'URL correcte avec :
-        // 1. Un paramètre de chemin (orderCode ou transactionId)
-        // 2. Les paramètres de query string pour la validation
-        
         // Déterminer le segment de chemin à utiliser (préférer orderCode, sinon utiliser transactionId)
         const pathSegment = orderCode || transactionId || 'default';
         
-        // Construire l'URL avec la structure de route dynamique correcte
-        const verifyUrl = new URL(`${API_URL}/api/payment/verify/${pathSegment}`);
-        if (transactionId) verifyUrl.searchParams.append('t', transactionId);
-        if (orderCode) verifyUrl.searchParams.append('s', orderCode);
+        // Paramètres pour la requête
+        const params: Record<string, string> = {};
+        if (transactionId) params.t = transactionId;
+        if (orderCode) params.s = orderCode;
         
-        logger.debug(`[TEST-PAIEMENT] URL API utilisée: ${API_URL}`);
-        logger.debug(`[TEST-PAIEMENT] Vérification complète: ${verifyUrl.toString()}`);
+        logger.debug(`[TEST-PAIEMENT] Vérification de paiement pour: ${pathSegment}`);
         
-        const response = await fetch(verifyUrl.toString(), {
-          cache: 'no-store',
-          mode: 'cors' // Explicitement demander le mode CORS
+        const response = await httpClient.get(`/payment/verify/${pathSegment}`, {
+          params
         });
 
-        if (!response.ok) {
-          throw new Error(`Erreur de vérification: ${response.status}`);
-        }
-
-        const data = await response.json();
+        // Avec axios/httpClient, les données sont déjà dans response.data
+        const data = response.data;
         logger.debug('[TEST-PAIEMENT] Statut reçu', { status: data.status });
         setPaymentInfo(data);
         setIsLoading(false);

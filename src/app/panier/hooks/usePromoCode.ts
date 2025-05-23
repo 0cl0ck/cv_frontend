@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { PromoResult, RestrictedCategory } from '../types';
 import { Cart } from '@/app/panier/types';
 import { CustomerInfo } from '../types';
+import { httpClient } from '@/lib/httpClient';
 
 interface UsePromoCodeReturn {
   promoCode: string;
@@ -41,13 +42,11 @@ export default function usePromoCode(
           ? 0
           : 4.95;
 
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       // Récupération des catégories
       const itemsWithCat = await Promise.all(
         cart.items.map(async (item) => {
           try {
-            const resp = await fetch(`${backendUrl}/api/products/${item.productId}`);
-            const data = await resp.json();
+            const { data } = await httpClient.get(`/products/${item.productId}`);
             const categoryId = data?.category?.id || data?.category || '';
             return { productId: item.productId, categoryId, price: item.price, quantity: item.quantity };
           } catch {
@@ -56,17 +55,12 @@ export default function usePromoCode(
         })
       );
 
-      const res = await fetch(`${backendUrl}/api/cart/apply-promo`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          promoCode: promoCode.trim(),
-          cartTotal: cart.subtotal,
-          shippingCost,
-          items: itemsWithCat
-        })
+      const { data: result } = await httpClient.post('/cart/apply-promo', {
+        promoCode: promoCode.trim(),
+        cartTotal: cart.subtotal,
+        shippingCost,
+        items: itemsWithCat
       });
-      const result = await res.json();
 
       if (result.success && result.valid) {
         let message = result.message;
