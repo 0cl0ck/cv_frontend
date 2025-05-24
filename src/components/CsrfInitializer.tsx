@@ -35,12 +35,20 @@ export default function CsrfInitializer() {
       logger.debug('[CSRF] Fenêtre a repris le focus, rafraîchissement des tokens CSRF');
       initCsrf();
     };
-    
+
+    // Regénérer les tokens lorsque l'état de connexion change
+    const handleLoginStatusChange = () => {
+      logger.debug('[CSRF] Changement de statut de connexion, rafraîchissement des tokens CSRF');
+      initCsrf();
+    };
+
     window.addEventListener('focus', handleFocus);
-    
+    window.addEventListener('login-status-change', handleLoginStatusChange);
+
     // Nettoyage
     return () => {
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('login-status-change', handleLoginStatusChange);
     };
   }, []);
   

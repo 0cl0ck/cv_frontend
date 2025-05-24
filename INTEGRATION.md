@@ -67,6 +67,9 @@ Ce document reflète l’état actuel de l’intégration entre le frontend et l
   httpClient.get('/csrf', { withCredentials: true });
   ```
   → installe les cookies `csrf-token` et `csrf-sign`
+  
+  Ce composant remplace l'ancien `CsrfProvider`, supprimé pour éviter la
+  redondance côté client.
 
 - Sur chaque appel mutatif :
   ```ts
@@ -85,5 +88,6 @@ Ce document reflète l’état actuel de l’intégration entre le frontend et l
 ## 8. Points d’action
 
 - Ajouter `/api/admins/login` et `/api/admins/logout` à `EXEMPT_ROUTES` dans `csrf.middleware.ts`
-- (Optionnel) Simplifier ou retirer la logique CSRF redondante côté frontend
+- La logique CSRF côté frontend est désormais centralisée dans `CsrfInitializer`.
+  L'ancien composant `CsrfProvider` a été supprimé.
 - Mettre à jour ce document à chaque évolution de l’interface

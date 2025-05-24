@@ -1,10 +1,25 @@
 // Global setup and mocks for Jest tests
 import '@testing-library/jest-dom';
+
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 
+
 // Mocking fetch API
 global.fetch = jest.fn();
+
+
+// Ensure Fetch API classes exist for packages depending on them
+if (typeof global.Request === 'undefined') {
+  global.Request = class {};
+}
+if (typeof global.Headers === 'undefined') {
+  global.Headers = class { constructor() {} get() {} append() {} };
+}
+if (typeof global.Response === 'undefined') {
+  global.Response = class {};
+}
+
 
 // Simulate environment variables
 process.env = {
@@ -46,6 +61,9 @@ global.NextResponse = {
     cookies: mockCookies,
   })),
 };
+
+// Polyfill scrollIntoView for jsdom environment
+Element.prototype.scrollIntoView = jest.fn();
 
 // Cleanup after each test
 const server = setupServer(
