@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { validateCsrfToken } from '@/lib/security/csrf';
 import { httpClient } from '@/lib/httpClient';
 
 // Stockage des demandes pour le rate limiting (en production, utiliser Redis)
@@ -164,39 +163,7 @@ export async function middleware(request: NextRequest) {
       return rateLimitResponse;
     }
   }
-  
-  // Vérifier la protection CSRF pour les méthodes POST, PUT, DELETE, PATCH
-  // Ceci s'applique uniquement aux routes API qui ne sont pas des webhooks
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method) && 
-      request.nextUrl.pathname.startsWith('/api') && 
-      !request.nextUrl.pathname.startsWith('/api/webhooks')) {
-    
-    // Désactiver temporairement la validation CSRF pour les routes sensibles (débogage)
-    if (request.nextUrl.pathname === '/api/auth/logout' || 
-        request.nextUrl.pathname === '/api/auth/login') {
-      return NextResponse.next();
-    }
-    
-    // Cette partie a été supprimée car nous n'utilisons plus de token de débogage
-    // avec la nouvelle approche CSRF basée sur le serveur
-    
-    // Valider le token CSRF
-    // Nous pouvons passer une chaîne vide comme deuxième paramètre puisque notre implémentation
-    // actualisée n'utilise pas réellement ce paramètre, mais le vérifie en interne
-    const isValidCsrf = await validateCsrfToken(request, '');
-    
-    // Si le token est invalide, bloquer la requête
-    if (!isValidCsrf) {
-      return NextResponse.json(
-        { 
-          error: 'Protection CSRF: token invalide ou manquant', 
-          details: 'Pour des raisons de sécurité, cette requête a été bloquée. Veuillez recharger la page et réessayer.'
-        },
-        { status: 403 }
-      );
-    }
-  }
-  
+
   // Routes protégées nécessitant une authentification
   const protectedPaths = [
     '/compte',
