@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { secureLogger as logger } from '@/utils/logger';
+import { httpClient } from '@/lib/httpClient';
+import type { AxiosError, AxiosResponse } from 'axios';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,20 +11,26 @@ export async function POST(request: NextRequest) {
     // Récupérer le corps de la requête
     const body = await request.json();
     
-    // Transmettre la requête au backend
-    const response = await fetch(`${backendUrl}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    
-    // Récupérer les données de la réponse
-    const data = await response.json();
+    // Transmettre la requête au backend via httpClient
+    const sendRequest = async () =>
+      httpClient.post(`${backendUrl}/api/auth/login`, body, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+    let response: AxiosResponse | undefined;
+    try {
+      response = await sendRequest();
+    } catch (err: unknown) {
+      const axiosErr = err as AxiosError;
+      response = axiosErr.response;
+    }
+
+    const data = response?.data;
     
     // Si la réponse n'est pas OK, renvoyer l'erreur
-    if (!response.ok) {
+    if (!response || response.status < 200 || response.status >= 300) {
       // S'assurer que data.error est une chaîne formatée correctement
       let errorMessage = 'Erreur d\'authentification';
       
