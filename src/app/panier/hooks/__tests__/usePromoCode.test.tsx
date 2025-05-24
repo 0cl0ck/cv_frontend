@@ -8,6 +8,11 @@ jest.mock('@/lib/security/csrf', () => ({
   fetchWithCsrf: jest.fn(),
 }));
 
+// Mock fetchWithCsrf to use global fetch for tests
+jest.mock('@/lib/security/csrf', () => ({
+  fetchWithCsrf: (...args: any[]) => fetch(...args).then(res => res.json()),
+}));
+
 function Wrapper({ cart, customerInfo }: { cart: Cart; customerInfo: CustomerInfo }) {
   const { promoCode, setPromoCode, promoResult, applyPromo } = usePromoCode(cart, customerInfo);
 
