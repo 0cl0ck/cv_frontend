@@ -3,9 +3,9 @@
 import { useRef, useState } from 'react';
 import { Cart } from '@/app/panier/types';
 import { PromoResult, LoyaltyBenefits, CustomerInfo } from '../types';
-import { httpClient } from '@/lib/httpClient';
 import { calculateTotalPrice } from '@/utils/priceCalculations';
 import { secureLogger as logger } from '@/utils/logger';
+import { fetchWithCsrf } from '@/lib/security/csrf';
 
 interface UseCheckoutReturn {
   isSubmitting: boolean;
@@ -165,17 +165,19 @@ export default function useCheckout(
         }
       };
 
-      const resp = await httpClient.post('/payment/create', checkoutData, {
+      const resp = await fetchWithCsrf('/payment/create', {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
+        } as HeadersInit,
+        body: JSON.stringify(checkoutData)
       });
       
-      // Avec axios, les données sont dans resp.data
-      const data = resp.data;
-      if (data.smartCheckoutUrl) {
+      // fetchWithCsrf retourne directement les données parsées
+      if (resp.smartCheckoutUrl) {
         clearCart();
-        window.location.href = data.smartCheckoutUrl;
+        window.location.href = resp.smartCheckoutUrl;
       } else {
         throw new Error('URL de paiement non reçue');
       }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { LoyaltyBenefits, NextLevel } from '../types';
 import { Cart } from '@/app/panier/types';
-import { httpClient } from '@/lib/httpClient';
+import { fetchWithCsrf } from '@/lib/security/csrf';
 
 export default function useLoyaltyBenefits(
   cart: Cart,
@@ -33,11 +33,18 @@ export default function useLoyaltyBenefits(
 
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
-        const { data } = await httpClient.post('/cart/apply-loyalty', {
-          cartTotal: cart.subtotal,
-          shippingCost: country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
-          items: cart.items
-        }, { headers });
+        const data = await fetchWithCsrf('/cart/apply-loyalty', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...headers
+          } as HeadersInit,
+          body: JSON.stringify({
+            cartTotal: cart.subtotal,
+            shippingCost: country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
+            items: cart.items
+          })
+        });
 
         const orderCount: number = data.orderCount || 1;
         let nextLevel: NextLevel | undefined;

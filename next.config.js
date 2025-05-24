@@ -44,9 +44,7 @@ const nextConfig = {
         ? 'http://localhost:3000'
         : 'https://api.chanvre-vert.fr';
     return [
-      // Exclure l'endpoint CSRF de la redirection
-      { source: '/api/csrf', destination: '/api/csrf' },
-      // Redirection des autres requêtes API vers le backend
+      // Redirection de toutes les requêtes API vers le backend
       { source: '/api/:path*', destination: `${baseUrl}/api/:path*` },
     ];
   },

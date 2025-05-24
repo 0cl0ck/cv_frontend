@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { PromoResult, RestrictedCategory } from '../types';
 import { Cart } from '@/app/panier/types';
 import { CustomerInfo } from '../types';
-import { httpClient } from '@/lib/httpClient';
+import { fetchWithCsrf } from '@/lib/security/csrf';
 
 interface UsePromoCodeReturn {
   promoCode: string;
@@ -46,7 +46,9 @@ export default function usePromoCode(
       const itemsWithCat = await Promise.all(
         cart.items.map(async (item) => {
           try {
-            const { data } = await httpClient.get(`/products/${item.productId}`);
+            const data = await fetchWithCsrf(`/products/${item.productId}`, {
+              method: 'GET'
+            });
             const categoryId = data?.category?.id || data?.category || '';
             return { productId: item.productId, categoryId, price: item.price, quantity: item.quantity };
           } catch {
@@ -55,11 +57,17 @@ export default function usePromoCode(
         })
       );
 
-      const { data: result } = await httpClient.post('/cart/apply-promo', {
-        promoCode: promoCode.trim(),
-        cartTotal: cart.subtotal,
-        shippingCost,
-        items: itemsWithCat
+      const result = await fetchWithCsrf('/cart/apply-promo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        } as HeadersInit,
+        body: JSON.stringify({
+          promoCode: promoCode.trim(),
+          cartTotal: cart.subtotal,
+          shippingCost,
+          items: itemsWithCat
+        })
       });
 
       if (result.success && result.valid) {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { Address } from '../types';
-import { httpClient } from '@/lib/httpClient';
+import { fetchWithCsrf } from '@/lib/security/csrf';
 
 export default function useUserAddresses(
   checkoutMode: boolean
@@ -19,7 +19,9 @@ export default function useUserAddresses(
       setLoading(true);
       try {
         // Utiliser l'endpoint /me au lieu de l'ID direct pour éviter les problèmes de permissions
-        const { data } = await httpClient.get('/customers/me');
+        const data = await fetchWithCsrf('/customers/me', {
+          method: 'GET'
+        });
         const shipping = (data.addresses as Address[] || []).filter(
           addr => addr.type === 'shipping' || addr.type === 'both'
         );

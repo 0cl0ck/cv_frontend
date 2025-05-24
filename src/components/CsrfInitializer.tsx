@@ -12,12 +12,12 @@ export default function CsrfInitializer() {
   useEffect(() => {
     const initCsrf = async () => {
       try {
-        const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3001';
-        const response = await fetch(`${frontendUrl}/api/csrf`, {
-          method: 'GET',
-          credentials: 'include',
+        // Utiliser httpClient qui pointe déjà vers le backend
+        const response = await httpClient.get('/csrf', {
+          withCredentials: true // S'assurer que les cookies sont inclus
         });
-        if (!response.ok) {
+        
+        if (response.status !== 200) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
