@@ -1,5 +1,7 @@
 // Global setup and mocks for Jest tests
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
+import { setupServer } from 'msw/node';
+import { rest } from 'msw';
 
 // Mocking fetch API
 global.fetch = jest.fn();
@@ -46,6 +48,25 @@ global.NextResponse = {
 };
 
 // Cleanup after each test
+const server = setupServer(
+  rest.get('http://localhost:3000/api/csrf', (_req, res, ctx) =>
+    res(ctx.status(200), ctx.cookie('csrf-token', 'test-csrf'), ctx.json({ success: true }))
+  ),
+  rest.post('http://localhost:3000/api/auth/login', (_req, res, ctx) =>
+    res(ctx.status(200), ctx.cookie('payload-token', 'test-token'), ctx.json({ loggedIn: true }))
+  ),
+  rest.post('http://localhost:3000/api/protected', (req, res, ctx) => {
+    const csrf = req.headers.get('x-csrf-token');
+    if (csrf === 'test-csrf') {
+      return res(ctx.status(200), ctx.json({ ok: true }));
+    }
+    return res(ctx.status(403));
+  })
+);
+
+beforeAll(() => server.listen());
 afterEach(() => {
   jest.clearAllMocks();
+  server.resetHandlers();
 });
+afterAll(() => server.close());
