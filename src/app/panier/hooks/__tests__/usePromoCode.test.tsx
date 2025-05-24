@@ -2,6 +2,11 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import usePromoCode from '../usePromoCode';
 import { Cart, CustomerInfo } from '@/app/panier/types';
+import { fetchWithCsrf } from '@/lib/security/csrf';
+
+jest.mock('@/lib/security/csrf', () => ({
+  fetchWithCsrf: jest.fn(),
+}));
 
 // Mock fetchWithCsrf to use global fetch for tests
 jest.mock('@/lib/security/csrf', () => ({
@@ -26,7 +31,7 @@ function Wrapper({ cart, customerInfo }: { cart: Cart; customerInfo: CustomerInf
 
 describe('usePromoCode', () => {
   beforeEach(() => {
-    (fetch as jest.Mock).mockReset();
+    (fetchWithCsrf as jest.Mock).mockReset();
   });
 
   it('does not call API when code is empty', () => {
@@ -45,7 +50,7 @@ describe('usePromoCode', () => {
 
     render(<Wrapper cart={cart} customerInfo={customerInfo} />);
     fireEvent.submit(screen.getByTestId('form'));
-    expect(fetch).not.toHaveBeenCalled();
+    expect(fetchWithCsrf).not.toHaveBeenCalled();
   });
 
   it('shows message when promo code is invalid', async () => {
@@ -62,9 +67,7 @@ describe('usePromoCode', () => {
       country: 'France',
     };
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      json: async () => ({ success: false, valid: false, message: 'Code invalide' }),
-    });
+    (fetchWithCsrf as jest.Mock).mockResolvedValueOnce({ success: false, valid: false, message: 'Code invalide' });
 
     render(<Wrapper cart={cart} customerInfo={customerInfo} />);
     fireEvent.change(screen.getByTestId('promo-input'), { target: { value: 'BAD' } });
@@ -73,6 +76,6 @@ describe('usePromoCode', () => {
     await waitFor(() => {
       expect(screen.getByTestId('message').textContent).toBe('Code invalide');
     });
-    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetchWithCsrf).toHaveBeenCalledTimes(1);
   });
 });

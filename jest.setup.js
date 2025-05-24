@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 // Mocking fetch API
 global.fetch = jest.fn();
 
+
 // Ensure Fetch API classes exist for packages depending on them
 if (typeof global.Request === 'undefined') {
   global.Request = class {};
@@ -14,6 +15,7 @@ if (typeof global.Headers === 'undefined') {
 if (typeof global.Response === 'undefined') {
   global.Response = class {};
 }
+
 
 // Simulate environment variables
 process.env = {
