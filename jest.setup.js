@@ -1,8 +1,11 @@
 // Global setup and mocks for Jest tests
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 // Mocking fetch API
 global.fetch = jest.fn();
+
+// Mock scrollIntoView which is not implemented in jsdom
+window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
 // Simulate environment variables
 process.env = {
