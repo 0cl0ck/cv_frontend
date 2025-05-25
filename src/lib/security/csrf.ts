@@ -65,6 +65,11 @@ import { secureLogger as logger } from '@/utils/logger';
 import { httpClient } from '@/lib/httpClient';
 import type { AxiosRequestConfig } from 'axios';
 
+// CSRF PROTECTION TEMPORAIREMENT DÉSACTIVÉE
+// La protection CSRF a été désactivée car elle causait des problèmes en production
+// avec l'authentification cross-domain.
+
+// Ces constantes sont conservées pour référence future
 // Durée de validité des tokens CSRF (en secondes)
 const CSRF_TOKEN_EXPIRY = 3600; // 1 heure
 
@@ -233,83 +238,33 @@ export async function validateCsrfToken(
 }
 
 /**
- * Fonction à utiliser côté client pour obtenir l'en-tête CSRF
- * @returns En-tête à inclure dans les requêtes fetch
+ * Fonction simplifiée qui ne vérifie plus le CSRF
+ * @returns Un objet vide (protection CSRF désactivée)
  */
 export function getCsrfHeader(): { [key: string]: string } {
-  // Fonction à appeler côté client uniquement
-  if (typeof document === 'undefined') {
-    return {};
-  }
-  
-  // Récupérer le token depuis les cookies
-  const cookies = document.cookie.split(';');
-  const csrfCookie = cookies.find(cookie => cookie.trim().startsWith('csrf-token='));
-  
-  if (!csrfCookie) {
-    console.warn('Aucun token CSRF trouvé dans les cookies');
-    return {};
-  }
-  
-  // Extraire la valeur du token
-  const token = csrfCookie.split('=')[1];
-  
-  // Retourner l'en-tête
-  return { [CSRF_HEADER_NAME]: token };
+  // Protection CSRF désactivée, retourne un objet vide
+  return {};
 }
 
 /**
- * Ajoute automatiquement l'en-tête CSRF à une requête fetch
+ * Version simplifiée qui n'ajoute plus de protection CSRF
  * 
- * Exemple d'utilisation:
+ * Exemple d'utilisation (inchangé):
  * const response = await fetchWithCsrf('/api/user', {
  *   method: 'POST',
  *   body: JSON.stringify(data)
  * });
  */
 
-// Variable pour suivre si le token CSRF a déjà été récupéré
-let csrfFetched = false;
-
 export async function fetchWithCsrf<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
-  // Fonction pour s'assurer que le token CSRF est présent
-  const ensureCsrf = async () => {
-    if (typeof window === 'undefined') return;
-    
-    // Vérifier si le cookie CSRF existe
-    const cookies = document.cookie.split(';');
-    const csrfCookie = cookies.find(cookie => cookie.trim().startsWith(`${CSRF_COOKIE_NAME}=`));
-    
-    // Si le cookie n'existe pas ou si on n'a pas encore appelé l'API CSRF, on fait l'appel
-    if (!csrfCookie || !csrfFetched) {
-      try {
-        // Appel à l'API pour générer/récupérer un token CSRF
-        await httpClient.get('/csrf');
-        csrfFetched = true;
-      } catch (error) {
-        console.error('Erreur lors de la génération du token CSRF:', error);
-        throw new Error('Impossible de sécuriser la requête: erreur CSRF');
-      }
-    }
-  };
+  // Protection CSRF désactivée - passage direct à httpClient
+  logger.debug('[CSRF] Protection CSRF désactivée - utilisation directe de httpClient');
   
-  // S'assurer que le token CSRF est présent
-  await ensureCsrf();
-  
-  // Récupérer l'en-tête CSRF
-  const csrfHeader = getCsrfHeader();
-  
-  // Fusionner les en-têtes existants avec l'en-tête CSRF
-  const headers = {
-    ...(options.headers || {}),
-    ...csrfHeader
-  };
-  
-  // Effectuer la requête avec l'en-tête CSRF
+  // Effectuer la requête sans CSRF
   const config: AxiosRequestConfig = {
     url,
     method: options.method as AxiosRequestConfig['method'],
-    headers: headers as Record<string, string>,
+    headers: options.headers as Record<string, string>,
     data: options.body
   };
 
