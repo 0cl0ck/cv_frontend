@@ -72,7 +72,7 @@ function LoginForm() {
       // Ignorer les erreurs de sessionStorage (mode privé, etc.)
       console.error('Erreur lors de l\'accès à sessionStorage:', e);
     }
-  }, []);
+  }, [REDIRECT_RESET_TIME]);
 
   // Gérer la redirection si l'utilisateur est authentifié
   useEffect(() => {

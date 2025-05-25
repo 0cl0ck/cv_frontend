@@ -111,7 +111,7 @@ export default async function DashboardServerPage() {
         logger.debug('[page-server] Détails de l\'erreur', { 
           errorData: errorData.substring(0, 200) // Limiter la taille
         });
-      } catch (e) {
+      } catch {
         logger.debug('[page-server] Impossible de lire les détails de l\'erreur');
       }
       
