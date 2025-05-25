@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { secureLogger as logger } from '@/utils/logger';
 
 export async function GET() {
   try {
