@@ -1,5 +1,6 @@
-import {  NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { secureLogger as logger } from '@/utils/logger';
 
 export async function GET() {
   try {
@@ -58,6 +59,7 @@ export async function GET() {
             authMeTest.hasData = !!data.user;
             authMeTest.userEmail = data.user?.email || 'No email';
           } catch (error) {
+            console.error('[AuthDebug] Erreur de parsing JSON:', error);
             authMeTest.error = 'JSON parse error';
           }
         }
