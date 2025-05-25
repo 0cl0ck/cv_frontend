@@ -35,16 +35,22 @@ export default async function DashboardServerPage() {
   decodeJwt(token);
   
   // Configuration de l'URL du backend
-  // Utiliser 127.0.0.1 au lieu de localhost pour éviter les problèmes de résolution DNS en environnement Node.js
+  // Déterminer si nous sommes en production ou en développement
+  const isProduction = process.env.NODE_ENV === 'production';
   const rawBackendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  const backendUrl = rawBackendUrl.replace('localhost', '127.0.0.1');
-  logger.debug('[page-server] URL du backend', { raw: rawBackendUrl, used: backendUrl });
+  
+  // En production, utiliser une requête API directe au backend
+  // En développement, faire une requête locale (éviter les problèmes CORS)
+  const backendUrl = isProduction ? rawBackendUrl : rawBackendUrl.replace('localhost', '127.0.0.1');
+  logger.debug('[page-server] URL du backend', { raw: rawBackendUrl, used: backendUrl, isProduction });
   
   try {
     // Consigner tous les headers pour le débogage
     const requestHeaders = {
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      // Ajouter les cookies nécessaires pour maintenir l'état d'authentification
+      'Cookie': `payload-token=${token}`
     };
     logger.debug('[page-server] Headers de la requête', { headers: Object.keys(requestHeaders) });
     
@@ -54,10 +60,12 @@ export default async function DashboardServerPage() {
     
     let response;
     try {
+      logger.debug('[page-server] Tentative d\'appel à /api/auth/me', { url: `${backendUrl}/api/auth/me` });
       response = await fetch(`${backendUrl}/api/auth/me`, {
         method: 'GET',
         headers: requestHeaders,
         cache: 'no-store',
+        credentials: 'include', // Important: inclure les cookies dans la requête
         signal: controller.signal,
         // Augmenter les options de stabilité réseau
         keepalive: true
@@ -75,7 +83,8 @@ export default async function DashboardServerPage() {
         response = await fetch(`${rawBackendUrl}/api/auth/me`, {
           method: 'GET',
           headers: requestHeaders,
-          cache: 'no-store'
+          cache: 'no-store',
+          credentials: 'include' // Important: inclure les cookies dans la requête
         });
       } catch (retryError) {
         console.error('[page-server] Échec de la seconde tentative:', retryError);
@@ -85,11 +94,15 @@ export default async function DashboardServerPage() {
     
     // Si la réponse n'est pas OK, rediriger vers la page de connexion
     if (!response.ok) {
+      logger.debug('[page-server] Réponse non OK', { status: response.status, statusText: response.statusText });
       return redirect('/connexion');
     }
     
+    logger.debug('[page-server] Réponse OK de /api/auth/me');
+    
     // Récupérer les informations de l'utilisateur
     const data = await response.json();
+    logger.debug('[page-server] Données reçues', { hasUser: !!data?.user });
     const user = data.user as User;
     
     // Vérifier si l'utilisateur existe
