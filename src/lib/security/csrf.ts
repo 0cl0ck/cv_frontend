@@ -73,8 +73,6 @@ import type { AxiosRequestConfig } from 'axios';
 // Durée de validité des tokens CSRF (en secondes)
 const CSRF_TOKEN_EXPIRY = 3600; // 1 heure
 
-// Nom du cookie qui stockera le token
-const CSRF_COOKIE_NAME = 'csrf-token';
 
 // Nom de l'en-tête qui contiendra le token
 const CSRF_HEADER_NAME = 'X-CSRF-Token';
