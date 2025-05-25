@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('payload-token')?.value;
@@ -12,11 +12,25 @@ export async function GET() {
       tokenLength: token?.length || 0,
       tokenPreview: token ? `${token.substring(0, 20)}...` : 'None',
       cookies: Object.fromEntries(
-        Array.from(cookieStore.getAll().map(cookie => [cookie.name, !!cookie.value]))
+        Array.from(cookieStore.getAll().map(cookie => [cookie.name, {
+          exists: !!cookie.value,
+          length: cookie.value?.length || 0,
+          preview: cookie.value ? `${cookie.value.substring(0, 10)}...` : 'None'
+        }]))
       ),
       environment: {
         NODE_ENV: process.env.NODE_ENV,
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+        NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL,
+        hasTrailingSlash: process.env.NEXT_PUBLIC_API_URL?.endsWith('/') || false,
+        hostname: request.headers.get('host') || 'unknown',
+      },
+      request: {
+        headers: Object.fromEntries(
+          Array.from(request.headers.entries())
+            .filter(([key]) => !['cookie', 'authorization'].includes(key.toLowerCase()))
+        ),
+        url: request.url || 'unknown',
       },
       timestamp: new Date().toISOString()
     };

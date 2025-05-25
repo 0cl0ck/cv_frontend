@@ -23,35 +23,104 @@ function LoginForm() {
   // Utiliser le contexte d'authentification global
   const { isAuthenticated, loading: authLoading } = useAuthContext();
 
-  // Protection contre les boucles de redirection
-  const [redirectAttempts, setRedirectAttempts] = useState(0);
+  // Stockage local pour suivre les tentatives de redirection
+  const redirectAttemptKey = 'loginRedirectAttempts';
+  const redirectTimestampKey = 'loginRedirectTimestamp';
   const MAX_REDIRECT_ATTEMPTS = 3;
+  const REDIRECT_RESET_TIME = 30 * 60 * 1000; // 30 minutes en millisecondes
+  
+  // Récupérer l'état depuis sessionStorage au chargement de la page
+  const [redirectState, setRedirectState] = useState<{
+    attempts: number;
+    timestamp: number;
+    showError: boolean;
+  }>({ attempts: 0, timestamp: 0, showError: false });
 
-  // Rediriger si l'utilisateur est déjà connecté
+  // Initialiser l'état depuis sessionStorage
   useEffect(() => {
-    // Ne rien faire si la vérification d'authentification est en cours
-    if (authLoading) return;
-    
-    // Protection contre les boucles : limiter le nombre de tentatives de redirection
-    if (redirectAttempts >= MAX_REDIRECT_ATTEMPTS) {
-      logger.warn('[LoginPage] Trop de tentatives de redirection, possible boucle détectée');
-      setError('Problème de redirection détecté. Veuillez essayer de vous reconnecter ou accéder manuellement à votre compte.');
+    try {
+      const storedAttempts = sessionStorage.getItem(redirectAttemptKey);
+      const storedTimestamp = sessionStorage.getItem(redirectTimestampKey);
+      
+      if (storedAttempts && storedTimestamp) {
+        const attempts = parseInt(storedAttempts, 10);
+        const timestamp = parseInt(storedTimestamp, 10);
+        const now = Date.now();
+        
+        // Réinitialiser si trop ancien
+        if (now - timestamp > REDIRECT_RESET_TIME) {
+          sessionStorage.setItem(redirectAttemptKey, '0');
+          sessionStorage.setItem(redirectTimestampKey, now.toString());
+          setRedirectState({ attempts: 0, timestamp: now, showError: false });
+        } else {
+          const showError = attempts >= MAX_REDIRECT_ATTEMPTS;
+          setRedirectState({ attempts, timestamp, showError });
+          
+          if (showError) {
+            logger.warn('[LoginPage] Trop de tentatives de redirection, possible boucle détectée');
+            setError('Problème de redirection détecté. Veuillez essayer de vous reconnecter ou accéder manuellement à votre compte.');
+          }
+        }
+      } else {
+        // Première visite
+        const now = Date.now();
+        sessionStorage.setItem(redirectAttemptKey, '0');
+        sessionStorage.setItem(redirectTimestampKey, now.toString());
+        setRedirectState({ attempts: 0, timestamp: now, showError: false });
+      }
+    } catch (e) {
+      // Ignorer les erreurs de sessionStorage (mode privé, etc.)
+      console.error('Erreur lors de l\'accès à sessionStorage:', e);
+    }
+  }, []);
+
+  // Gérer la redirection si l'utilisateur est authentifié
+  useEffect(() => {
+    // Ne rien faire si les cas suivants :
+    if (authLoading || // Chargement en cours
+        redirectState.showError || // Erreur déjà affichée
+        !isAuthenticated) { // Non authentifié
       return;
     }
     
-    // Si l'utilisateur est authentifié, le rediriger vers la page compte
-    if (isAuthenticated) {
-      logger.info('[LoginPage] Utilisateur déjà authentifié, redirection vers /compte');
-      const redirectPath = searchParams.get('redirect') || '/compte';
-      
-      // Éviter la boucle de redirection en vérifiant que nous ne sommes pas déjà en train de rediriger
-      const currentPath = window.location.pathname;
-      if (currentPath !== redirectPath) {
-        setRedirectAttempts(prev => prev + 1);
-        router.replace(redirectPath);
+    // Récupérer les paramètres d'URL
+    const reason = searchParams.get('reason');
+    const status = searchParams.get('status');
+    
+    // Si nous sommes redirigés depuis /compte avec une erreur d'auth, ne pas rediriger à nouveau
+    if (reason === 'auth-failed' || reason === 'no-token') {
+      logger.warn(`[LoginPage] Redirection bloquée : échec d'authentification détecté (${status || 'unknown'})`);
+      setError(`L'authentification a échoué côté serveur. Veuillez vous reconnecter. ${status ? `(Code: ${status})` : ''}`);
+      return;
+    }
+    
+    // Vérifier le chemin actuel pour éviter les redirections inutiles
+    const redirectPath = searchParams.get('redirect') || '/compte';
+    const currentPath = window.location.pathname;
+    
+    if (currentPath !== redirectPath) {
+      try {
+        // Incrémenter le compteur d'essais
+        const newAttempts = redirectState.attempts + 1;
+        const now = Date.now();
+        
+        sessionStorage.setItem(redirectAttemptKey, newAttempts.toString());
+        sessionStorage.setItem(redirectTimestampKey, now.toString());
+        
+        if (newAttempts >= MAX_REDIRECT_ATTEMPTS) {
+          logger.warn('[LoginPage] Trop de tentatives de redirection, possible boucle détectée');
+          setError('Problème de redirection détecté. Veuillez essayer de vous reconnecter ou accéder manuellement à votre compte.');
+          setRedirectState(prev => ({ ...prev, attempts: newAttempts, showError: true }));
+        } else {
+          logger.info(`[LoginPage] Utilisateur authentifié, redirection vers ${redirectPath} (tentative ${newAttempts}/${MAX_REDIRECT_ATTEMPTS})`);
+          setRedirectState(prev => ({ ...prev, attempts: newAttempts }));
+          router.replace(redirectPath);
+        }
+      } catch (e) {
+        console.error('Erreur lors de la mise à jour des tentatives:', e);
       }
     }
-  }, [isAuthenticated, authLoading, router, searchParams, redirectAttempts]);
+  }, [isAuthenticated, authLoading, router, searchParams, redirectState.attempts, redirectState.showError]);
   
   // Vérifier les paramètres d'URL pour les messages
   useEffect(() => {
@@ -216,10 +285,10 @@ function LoginForm() {
         </p>
         
         {/* Bouton de diagnostic en cas de problème de boucle */}
-        {redirectAttempts > 0 && (
+        {redirectState.attempts > 0 && (
           <div className="mt-4 p-3 bg-yellow-900 bg-opacity-25 border border-yellow-600 rounded">
             <p className="text-sm text-yellow-300 mb-2">
-              Problème de redirection détecté ({redirectAttempts}/{MAX_REDIRECT_ATTEMPTS})
+              Problème de redirection détecté ({redirectState.attempts}/{MAX_REDIRECT_ATTEMPTS})
             </p>
             <div className="space-y-2">
               <Link 

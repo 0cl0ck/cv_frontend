@@ -25,8 +25,12 @@ export default async function DashboardServerPage() {
   
   // Rediriger vers la page de connexion si aucun token n'est présent
   if (!token) {
-    logger.debug('[page-server] Aucun token trouvé dans les cookies');
-    return redirect('/connexion');
+    logger.debug('[page-server] Aucun token trouvé dans les cookies', {
+      allCookies: Array.from(cookieStore.getAll()).map(c => c.name),
+      environment: process.env.NODE_ENV,
+      apiUrl: process.env.NEXT_PUBLIC_API_URL
+    });
+    return redirect('/connexion?reason=no-token');
   }
 
   logger.debug('[page-server] Token trouvé', { length: token.length });
@@ -94,8 +98,24 @@ export default async function DashboardServerPage() {
     
     // Si la réponse n'est pas OK, rediriger vers la page de connexion
     if (!response.ok) {
-      logger.debug('[page-server] Réponse non OK', { status: response.status, statusText: response.statusText });
-      return redirect('/connexion');
+      logger.debug('[page-server] Réponse non OK', { 
+        status: response.status, 
+        statusText: response.statusText,
+        apiUrl: backendUrl,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      // Essayer d'extraire plus d'informations de l'erreur
+      try {
+        const errorData = await response.text();
+        logger.debug('[page-server] Détails de l\'erreur', { 
+          errorData: errorData.substring(0, 200) // Limiter la taille
+        });
+      } catch (e) {
+        logger.debug('[page-server] Impossible de lire les détails de l\'erreur');
+      }
+      
+      return redirect(`/connexion?reason=auth-failed&status=${response.status}`);
     }
     
     logger.debug('[page-server] Réponse OK de /api/auth/me');
