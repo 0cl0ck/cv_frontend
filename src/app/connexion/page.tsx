@@ -23,18 +23,35 @@ function LoginForm() {
   // Utiliser le contexte d'authentification global
   const { isAuthenticated, loading: authLoading } = useAuthContext();
 
+  // Protection contre les boucles de redirection
+  const [redirectAttempts, setRedirectAttempts] = useState(0);
+  const MAX_REDIRECT_ATTEMPTS = 3;
+
   // Rediriger si l'utilisateur est déjà connecté
   useEffect(() => {
     // Ne rien faire si la vérification d'authentification est en cours
     if (authLoading) return;
     
+    // Protection contre les boucles : limiter le nombre de tentatives de redirection
+    if (redirectAttempts >= MAX_REDIRECT_ATTEMPTS) {
+      logger.warn('[LoginPage] Trop de tentatives de redirection, possible boucle détectée');
+      setError('Problème de redirection détecté. Veuillez essayer de vous reconnecter ou accéder manuellement à votre compte.');
+      return;
+    }
+    
     // Si l'utilisateur est authentifié, le rediriger vers la page compte
     if (isAuthenticated) {
       logger.info('[LoginPage] Utilisateur déjà authentifié, redirection vers /compte');
       const redirectPath = searchParams.get('redirect') || '/compte';
-      router.replace(redirectPath);
+      
+      // Éviter la boucle de redirection en vérifiant que nous ne sommes pas déjà en train de rediriger
+      const currentPath = window.location.pathname;
+      if (currentPath !== redirectPath) {
+        setRedirectAttempts(prev => prev + 1);
+        router.replace(redirectPath);
+      }
     }
-  }, [isAuthenticated, authLoading, router, searchParams]);
+  }, [isAuthenticated, authLoading, router, searchParams, redirectAttempts]);
   
   // Vérifier les paramètres d'URL pour les messages
   useEffect(() => {
@@ -197,6 +214,30 @@ function LoginForm() {
             Mot de passe oublié ?
           </Link>
         </p>
+        
+        {/* Bouton de diagnostic en cas de problème de boucle */}
+        {redirectAttempts > 0 && (
+          <div className="mt-4 p-3 bg-yellow-900 bg-opacity-25 border border-yellow-600 rounded">
+            <p className="text-sm text-yellow-300 mb-2">
+              Problème de redirection détecté ({redirectAttempts}/{MAX_REDIRECT_ATTEMPTS})
+            </p>
+            <div className="space-y-2">
+              <Link 
+                href="/compte" 
+                className="block text-sm text-[#10B981] hover:text-[#34D399] font-medium"
+              >
+                Accéder manuellement au compte →
+              </Link>
+              <Link 
+                href="/api/auth/debug" 
+                target="_blank"
+                className="block text-sm text-blue-300 hover:text-blue-200 font-medium"
+              >
+                Diagnostic technique ↗
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
