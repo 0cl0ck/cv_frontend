@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {  NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('payload-token')?.value;
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
             const data = await authResponse.json();
             authMeTest.hasData = !!data.user;
             authMeTest.userEmail = data.user?.email || 'No email';
-          } catch (e) {
+          } catch (error) {
             authMeTest.error = 'JSON parse error';
           }
         }
