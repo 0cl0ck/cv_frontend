@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       }
       
       // Pour les erreurs d'identifiants incorrects (401)
-      if (response.status === 401) {
+      if (response && response.status === 401) {
         errorMessage = 'Email ou mot de passe incorrect';
       }
       
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       
       return NextResponse.json(
         { error: errorMessage }, 
-        { status: response.status }
+        { status: response?.status || 500 }
       );
     }
     

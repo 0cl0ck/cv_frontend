@@ -2,9 +2,7 @@ import React from 'react'
 import { Metadata } from 'next'
 import Script from 'next/script'
 import {
-  getProductBySlug,
-  getRelatedProducts,
-  getCategories
+  getProductBySlug
 } from '@/services/api'
 import ProductPageClient from '@/app/produits/[slug]/product-page-client'
 import { config } from '@/config/site'
@@ -44,8 +42,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   // --- fetch server side pour le fallback SWR
   const product         = await getProductBySlug(slug)
-  const categories      = await getCategories()
-  const relatedProducts = await getRelatedProducts(product.id, /* ids */ [], 4)
 
   const jsonLd = {
     "@context": "https://schema.org/",

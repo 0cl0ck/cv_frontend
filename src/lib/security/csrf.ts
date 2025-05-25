@@ -63,7 +63,6 @@ function constantTimeEqual(a: string, b: string): boolean {
 import { NextRequest } from 'next/server';
 import { secureLogger as logger } from '@/utils/logger';
 import { httpClient } from '@/lib/httpClient';
-import type { AxiosResponse } from 'axios';
 import type { AxiosRequestConfig } from 'axios';
 
 // Durée de validité des tokens CSRF (en secondes)
@@ -272,7 +271,7 @@ export function getCsrfHeader(): { [key: string]: string } {
 // Variable pour suivre si le token CSRF a déjà été récupéré
 let csrfFetched = false;
 
-export async function fetchWithCsrf<T = any>(url: string, options: RequestInit = {}): Promise<T> {
+export async function fetchWithCsrf<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
   // Fonction pour s'assurer que le token CSRF est présent
   const ensureCsrf = async () => {
     if (typeof window === 'undefined') return;

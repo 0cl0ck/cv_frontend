@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
-import { LoyaltyBenefits, NextLevel } from '../types';
+import { LoyaltyBenefits, NextLevel, RewardType } from '../types';
 import { Cart } from '@/app/panier/types';
 import { fetchWithCsrf } from '@/lib/security/csrf';
 
@@ -33,7 +33,16 @@ export default function useLoyaltyBenefits(
 
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
-        const data = await fetchWithCsrf('/cart/apply-loyalty', {
+        interface LoyaltyResponseData {
+          orderCount?: number;
+          reward?: { 
+            type: RewardType;
+            message: string;
+          };
+          discount?: number;
+        }
+        
+        const data = await fetchWithCsrf<LoyaltyResponseData>('/cart/apply-loyalty', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -46,19 +55,19 @@ export default function useLoyaltyBenefits(
           })
         });
 
-        const orderCount: number = data.orderCount || 1;
+        const orderCount: number = data?.orderCount || 1;
         let nextLevel: NextLevel | undefined;
         if (orderCount < 2) nextLevel = { name: 'Échantillon offert', ordersRequired: 2, remainingOrders: 2 - orderCount };
         else if (orderCount < 3) nextLevel = { name: 'Bronze', ordersRequired: 3, remainingOrders: 3 - orderCount };
         else if (orderCount < 5) nextLevel = { name: 'Argent', ordersRequired: 5, remainingOrders: 5 - orderCount };
         else if (orderCount < 10) nextLevel = { name: 'Or', ordersRequired: 10, remainingOrders: 10 - orderCount };
 
-        if (data.reward && data.reward.type !== 'none') {
+        if (data?.reward && data.reward.type !== 'none') {
           setLoyaltyBenefits({
             active: true,
-            message: data.reward.message,
+            message: data.reward?.message || '',
             discountAmount: data.discount || 0,
-            rewardType: data.reward.type,
+            rewardType: data.reward?.type || 'none',
             orderCount,
             nextLevel
           });

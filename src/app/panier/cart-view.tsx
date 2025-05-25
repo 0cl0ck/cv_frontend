@@ -7,7 +7,6 @@ import { useAuthContext } from '@/context/AuthContext';
 import {
   CartItemList,
   CheckoutSidebar,
-  OrderSummary,
 } from './components';
 import Link from 'next/link';
 import {

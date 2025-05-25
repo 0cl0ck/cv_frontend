@@ -127,7 +127,7 @@ export async function updateLoyaltyOrderCount(
     logger.debug(`Mise à jour du compteur de fidélité pour l'utilisateur ${userId}, commande ${orderId}`);
     
     // Récupérer les informations utilisateur actuelles
-    const { data: userData } = await httpClient.get('/users/me', {
+    await httpClient.get('/users/me', {
       headers: {
         Authorization: `Bearer ${authToken}`
       }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Cart, CartItem, ShippingMethod } from '@/types/cart';
-import { Product, ProductVariation } from '@/types/product';
+import { Cart, CartItem, ShippingMethod } from '../types/cart';
+import { Product, ProductVariation } from '../types/product';
 
 // Panier initial vide
 const initialCart: Cart = {
@@ -94,9 +94,9 @@ export const useCart = () => {
       newItem.variantId = variant.id;
     }
     
-    setCart(prevCart => {
+    setCart((prevCart: Cart) => {
       // Vérifier si le produit est déjà dans le panier
-      const existingItemIndex = prevCart.items.findIndex(item => 
+      const existingItemIndex = prevCart.items.findIndex((item: CartItem) => 
         item.productId === product.id && 
         (!variant || item.variantId === variant.id)
       );
@@ -135,7 +135,7 @@ export const useCart = () => {
   const updateQuantity = (index: number, quantity: number) => {
     if (quantity < 1) return;
     
-    setCart(prevCart => {
+    setCart((prevCart: Cart) => {
       if (index < 0 || index >= prevCart.items.length) return prevCart;
       
       // Créer une copie du tableau d'items
@@ -167,7 +167,7 @@ export const useCart = () => {
 
   // Supprimer un produit du panier
   const removeItem = (index: number) => {
-    setCart(prevCart => {
+    setCart((prevCart: Cart) => {
       const newItems = [...prevCart.items];
       newItems.splice(index, 1);
 
@@ -194,7 +194,7 @@ export const useCart = () => {
 
   // Définir la méthode de livraison
   const setShippingMethod = (methodId: string, cost: number, methodName: string = 'Standard') => {
-    setCart(prevCart => {
+    setCart((prevCart: Cart) => {
       const costCents = eurosToCents(cost);
       
       const shipping: ShippingMethod = {
@@ -218,7 +218,7 @@ export const useCart = () => {
 
   // Forcer une mise à jour du panier (utile après des modifications externes)
   const forceUpdateCart = () => {
-    setCart(prevCart => {
+    setCart((prevCart: Cart) => {
       const subtotalCents = calculateSubtotalCents(prevCart.items);
       const subtotal = centsToEuros(subtotalCents);
       const totalCents = calculateTotalCents(subtotalCents, prevCart.shipping);

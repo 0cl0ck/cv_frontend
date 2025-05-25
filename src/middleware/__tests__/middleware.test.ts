@@ -1,4 +1,5 @@
 import { validateCsrfToken } from '@/lib/security/csrf';
+import { NextRequest } from 'next/server';
 
 jest.mock('next/server', () => ({
   NextResponse: {
@@ -22,7 +23,7 @@ describe('middleware CSRF logic removed', () => {
       nextUrl: new URL('http://localhost/api/test'),
       url: 'http://localhost/api/test',
       method: 'POST',
-    } as any;
+    } as unknown as NextRequest;
 
     await middleware(request);
 

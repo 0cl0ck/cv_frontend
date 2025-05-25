@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PromoResult, RestrictedCategory } from '../types';
+import { PromoResult, RestrictedCategory, PromoType, CategoryRestrictionType } from '../types';
 import { Cart } from '@/app/panier/types';
 import { CustomerInfo } from '../types';
 import { fetchWithCsrf } from '@/lib/security/csrf';
@@ -26,7 +26,7 @@ export default function usePromoCode(
     code: '',
     discount: 0,
     message: '',
-    type: ''
+    type: '' as PromoType
   });
 
   const applyPromo = async (e: React.FormEvent) => {
@@ -46,10 +46,19 @@ export default function usePromoCode(
       const itemsWithCat = await Promise.all(
         cart.items.map(async (item) => {
           try {
-            const data = await fetchWithCsrf(`/products/${item.productId}`, {
+            const data = await fetchWithCsrf<{
+              category?: {
+                id?: string;
+              } | string;
+            }>(`/products/${item.productId}`, {
               method: 'GET'
             });
-            const categoryId = data?.category?.id || data?.category || '';
+            let categoryId = '';
+            if (typeof data?.category === 'string') {
+              categoryId = data.category;
+            } else if (data?.category && typeof data.category === 'object') {
+              categoryId = data.category.id || '';
+            }
             return { productId: item.productId, categoryId, price: item.price, quantity: item.quantity };
           } catch {
             return { productId: item.productId, categoryId: '', price: item.price, quantity: item.quantity };
@@ -57,7 +66,18 @@ export default function usePromoCode(
         })
       );
 
-      const result = await fetchWithCsrf('/cart/apply-promo', {
+      interface PromoCodeResponse {
+        success: boolean;
+        valid: boolean;
+        message?: string;
+        code?: string;
+        discount?: number;
+        type?: PromoType;
+        categoryRestrictionType?: CategoryRestrictionType;
+        restrictedCategories?: RestrictedCategory[];
+      }
+
+      const result = await fetchWithCsrf<PromoCodeResponse>('/cart/apply-promo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -71,7 +91,7 @@ export default function usePromoCode(
       });
 
       if (result.success && result.valid) {
-        let message = result.message;
+        let message: string = result.message || '';
         if (result.categoryRestrictionType === 'exclude' && result.restrictedCategories?.length) {
           const names = (result.restrictedCategories as RestrictedCategory[])
             .map(c => c.name)
@@ -83,19 +103,25 @@ export default function usePromoCode(
             .join(', ');
           message = `Code "${result.code}" appliqué (uniquement sur ${names})`;
         }
-        setPromoResult({ applied: true, code: result.code, discount: result.discount, message, type: result.type });
+        setPromoResult({ 
+          applied: true, 
+          code: result.code || '', 
+          discount: result.discount || 0, 
+          message, 
+          type: result.type as PromoType 
+        });
       } else {
-        setPromoResult({ applied: false, code: '', discount: 0, message: result.message || 'Code promo invalide', type: '' });
+        setPromoResult({ applied: false, code: '', discount: 0, message: result.message || 'Code promo invalide', type: '' as PromoType });
       }
     } catch {
-      setPromoResult({ applied: false, code: '', discount: 0, message: 'Erreur technique lors de l’application', type: '' });
+      setPromoResult({ applied: false, code: '', discount: 0, message: 'Erreur technique lors de l’application', type: '' as PromoType });
     } finally {
       setIsApplying(false);
     }
   };
 
   const cancelPromo = () => {
-    setPromoResult({ applied: false, code: '', discount: 0, message: '', type: '' });
+    setPromoResult({ applied: false, code: '', discount: 0, message: '', type: '' as PromoType });
     setPromoCode('');
   };
 

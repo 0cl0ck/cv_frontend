@@ -10,7 +10,7 @@ jest.mock('@/lib/security/csrf', () => ({
 
 // Mock fetchWithCsrf to use global fetch for tests
 jest.mock('@/lib/security/csrf', () => ({
-  fetchWithCsrf: (...args: any[]) => fetch(...args).then(res => res.json()),
+  fetchWithCsrf: (url: string, options?: RequestInit) => fetch(url, options).then(res => res.json()),
 }));
 
 function Wrapper({ cart, customerInfo }: { cart: Cart; customerInfo: CustomerInfo }) {

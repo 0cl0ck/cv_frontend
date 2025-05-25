@@ -19,10 +19,14 @@ export default function useUserAddresses(
       setLoading(true);
       try {
         // Utiliser l'endpoint /me au lieu de l'ID direct pour éviter les problèmes de permissions
-        const data = await fetchWithCsrf('/customers/me', {
+        interface CustomerData {
+          addresses?: Address[];
+        }
+        
+        const data = await fetchWithCsrf<CustomerData>('/customers/me', {
           method: 'GET'
         });
-        const shipping = (data.addresses as Address[] || []).filter(
+        const shipping = (data.addresses || []).filter(
           addr => addr.type === 'shipping' || addr.type === 'both'
         );
         setUserAddresses(shipping);

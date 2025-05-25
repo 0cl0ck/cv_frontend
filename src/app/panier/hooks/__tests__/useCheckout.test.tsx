@@ -1,8 +1,7 @@
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import useCheckout from '../useCheckout';
-import { Cart } from '@/app/panier/types';
-import { PromoResult, LoyaltyBenefits, CustomerInfo } from '../types';
+import { Cart, PromoResult, LoyaltyBenefits, CustomerInfo } from '@/app/panier/types';
 
 function Wrapper({ customerInfo }: { customerInfo: CustomerInfo }) {
   const cart: Cart = { items: [], subtotal: 0, subtotalCents: 0, total: 0, totalCents: 0 };

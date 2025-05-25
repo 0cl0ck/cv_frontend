@@ -19,7 +19,7 @@ httpClient.interceptors.request.use(config => {
     if (typeof document !== 'undefined') {
       const match = document.cookie.match(/(?:^|; )csrf-token=([^;]+)/);
       if (match) {
-        if (!config.headers) config.headers = {};
+        if (!config.headers) config.headers = new axios.AxiosHeaders();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (config.headers as any)['X-CSRF-Token'] = decodeURIComponent(match[1]);
       }

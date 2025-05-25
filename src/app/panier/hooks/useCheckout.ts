@@ -175,9 +175,10 @@ export default function useCheckout(
       });
       
       // fetchWithCsrf retourne directement les données parsées
-      if (resp.smartCheckoutUrl) {
+      const paymentResponse = resp as { smartCheckoutUrl?: string };
+      if (paymentResponse.smartCheckoutUrl) {
         clearCart();
-        window.location.href = resp.smartCheckoutUrl;
+        window.location.href = paymentResponse.smartCheckoutUrl;
       } else {
         throw new Error('URL de paiement non reçue');
       }
@@ -188,7 +189,7 @@ export default function useCheckout(
       try {
         // Avec axios, les erreurs HTTP sont dans err.response.data
         if (err && typeof err === 'object' && 'response' in err) {
-          const axiosError = err as any;
+          const axiosError = err as { response?: { data?: { details?: Record<string, string>, message?: string } } };
           const errorData = axiosError.response?.data;
           
           if (errorData?.details && errorData.details['order.guestInformation.phone']) {
