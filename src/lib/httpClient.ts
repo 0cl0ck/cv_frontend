@@ -12,6 +12,11 @@ httpClient.interceptors.request.use(config => {
   config.withCredentials = true;
 
   const method = config.method?.toLowerCase();
+  const needsCsrf =
+  (method && ['post', 'put', 'patch', 'delete'].includes(method)) ||
+  (config as { withCsrf?: boolean }).withCsrf === true;
+
+if (needsCsrf) {
   if (method && ['post', 'put', 'patch', 'delete'].includes(method)) {
     if (typeof document !== 'undefined') {
       const match = document.cookie.match(/(?:^|; )csrf-token=([^;]+)/);
@@ -22,6 +27,6 @@ httpClient.interceptors.request.use(config => {
       }
     }
   }
-
+}
   return config;
 });
