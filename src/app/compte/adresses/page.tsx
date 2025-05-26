@@ -261,7 +261,8 @@ export default function AddressesPage() {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        withCsrf: true
       });
       
       if (!meResponse.ok) {
@@ -342,7 +343,8 @@ export default function AddressesPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formAddress)
+        body: JSON.stringify(formAddress),
+        withCsrf: true
       });
       
       if (response.ok) {
@@ -392,7 +394,8 @@ export default function AddressesPage() {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        withCsrf: true
       });
       
       if (!meResponse.ok) {
@@ -438,7 +441,8 @@ export default function AddressesPage() {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        withCsrf: true
       });
       
       if (response.ok) {
@@ -477,7 +481,8 @@ export default function AddressesPage() {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        withCsrf: true
       });
       
       if (!meResponse.ok) {
@@ -526,7 +531,8 @@ export default function AddressesPage() {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        withCsrf: true
       });
       
       if (response.ok) {

@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await httpClient.get('/auth/me');
+      const { data, status } = await httpClient.get('/auth/me', { withCsrf: true });
 
       if (status === 401) {
         setIsAuthenticated(false);
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = useCallback(async () => {
     try {
       setLoading(true);
-      await httpClient.post('/auth/logout');
+      await httpClient.post('/auth/logout', undefined, { withCsrf: true });
       setIsAuthenticated(false);
       setUser(null);
       window.dispatchEvent(new CustomEvent('auth-change', { detail: { isLoggedIn: false } }));

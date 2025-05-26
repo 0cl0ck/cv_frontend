@@ -24,7 +24,7 @@ interface Address {
 export async function GET(request: NextRequest) {
   try {
     // 1. Authentifier l'utilisateur
-    const authResponse = await fetch('/api/auth/me', {
+    const authResponse = await fetch(`${process.env.BACKEND_INTERNAL_URL}/api/auth/me`, {
       headers: {
         'Cookie': request.headers.get('cookie') || ''
       }
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     const addressData = sanitizeObject(validation.data);
     
     // 3. Authentifier l'utilisateur et récupérer le token
-    const authResponse = await fetch('/api/auth/me', {
+    const authResponse = await fetch(`${process.env.BACKEND_INTERNAL_URL}/api/auth/me`, {
       headers: {
         'Cookie': request.headers.get('cookie') || ''
       }
@@ -269,7 +269,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     // 3. Authentifier l'utilisateur et récupérer le token
-    const authResponse = await fetch('/api/auth/me', {
+    const authResponse = await fetch(`${process.env.BACKEND_INTERNAL_URL}/api/auth/me`, {
       headers: {
         'Cookie': request.headers.get('cookie') || ''
       }
@@ -429,7 +429,7 @@ export async function DELETE(request: NextRequest) {
     }
     
     // 2. Authentifier l'utilisateur et récupérer le token
-    const authResponse = await fetch('/api/auth/me', {
+    const authResponse = await fetch(`${process.env.BACKEND_INTERNAL_URL}/api/auth/me`, {
       headers: {
         'Cookie': request.headers.get('cookie') || ''
       }

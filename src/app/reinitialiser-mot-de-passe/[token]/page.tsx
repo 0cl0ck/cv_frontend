@@ -86,6 +86,7 @@ export default function ResetPasswordPage() {
           newPassword: password,
           collection: 'customers'
         }),
+        withCsrf: true
       });
 
       const data = await response.json();
