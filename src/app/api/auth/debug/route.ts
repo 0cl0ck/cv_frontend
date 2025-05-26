@@ -1,6 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 
+const BACKEND_INTERNAL_URL = process.env.BACKEND_INTERNAL_URL;
+
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
@@ -20,9 +22,9 @@ export async function GET(request: NextRequest) {
       ),
       environment: {
         NODE_ENV: process.env.NODE_ENV,
-        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+        NEXT_PUBLIC_API_URL: BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL,
         NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL,
-        hasTrailingSlash: process.env.NEXT_PUBLIC_API_URL?.endsWith('/') || false,
+        hasTrailingSlash: (BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL)?.endsWith('/') || false,
         hostname: request.headers.get('host') || 'unknown',
       },
       request: {
@@ -47,7 +49,7 @@ export async function GET(request: NextRequest) {
     
     if (token) {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        const backendUrl = BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
         const authResponse = await fetch(`${backendUrl}/api/auth/me`, {
           method: 'GET',
           headers: {

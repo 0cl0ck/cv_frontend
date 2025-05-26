@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { Address } from '../types';
-import { fetchWithCsrf } from '@/lib/security/csrf';
+import { httpClient } from '@/lib/httpClient';
 
 export default function useUserAddresses(
   checkoutMode: boolean
@@ -23,9 +23,7 @@ export default function useUserAddresses(
           addresses?: Address[];
         }
         
-        const data = await fetchWithCsrf<CustomerData>('/customers/me', {
-          method: 'GET'
-        });
+        const { data } = await httpClient.get<CustomerData>('/customers/me');
         const shipping = (data.addresses || []).filter(
           addr => addr.type === 'shipping' || addr.type === 'both'
         );

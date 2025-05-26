@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { fetchWithCsrf } from '@/lib/security/csrf';
+import { httpClient } from '@/lib/httpClient';
 import { useAuthContext } from '@/context/AuthContext';
 import { secureLogger as logger } from '@/utils/logger';
 
@@ -162,20 +162,16 @@ function LoginForm() {
     setError('');
 
     try {
-      logger.debug('[Login Debug] Tentative de connexion avec fetchWithCsrf');
+      logger.debug('[Login Debug] Tentative de connexion avec httpClient');
       
-      // Utiliser fetchWithCsrf au lieu de fetch standard pour inclure l'en-tête CSRF
-      const data = await fetchWithCsrf<{ error?: string, message?: string }>('/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          collection: 'customers'
-        })
+      // Utiliser httpClient au lieu de fetch standard pour éviter les problèmes CORS
+      const response = await httpClient.post<{ error?: string, message?: string }>('/auth/login', {
+        email: formData.email,
+        password: formData.password,
+        collection: 'customers'
       });
+      
+      const data = response.data;
 
       if (data && data.error) {
         throw new Error(data.error || 'Erreur de connexion');

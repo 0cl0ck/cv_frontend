@@ -16,7 +16,7 @@ export const config = {
   
   // Configuration pour l'API backend
   api: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://chanvre-vert.fr',
+    baseUrl: '/api',
   },
   
   // Configuration des réseaux sociaux

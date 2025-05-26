@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Configuration de l'URL du backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     
     // Tenter de valider le token avec le backend
     const response = await fetch(`${backendUrl}/api/auth/me`, {

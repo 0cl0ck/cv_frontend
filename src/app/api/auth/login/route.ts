@@ -6,7 +6,7 @@ import type { AxiosError, AxiosResponse } from 'axios';
 export async function POST(request: NextRequest) {
   try {
     // Configuration de l'URL du backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     
     // Récupérer le corps de la requête
     const body = await request.json();

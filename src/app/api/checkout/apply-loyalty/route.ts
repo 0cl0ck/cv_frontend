@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Récupérer les informations utilisateur et l'historique des commandes
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     
     // Récupérer les commandes passées de l'utilisateur
     const ordersResponse = await fetch(`${backendUrl}/api/orders/me`, {

@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   
   try {
     // Construction de l'URL du backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const metricsUrl = `${backendUrl}/api/metrics`;
     
     // Log simple en mode développement

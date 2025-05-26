@@ -13,7 +13,7 @@ export async function POST
       
       // Récupérer l'identifiant utilisateur depuis le backend
       // Utiliser credentials: 'include' pour transmettre les cookies automatiquement
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       const userResponse = await fetch(`${backendUrl}/api/auth/me`, {
         method: 'GET',
         credentials: 'include',

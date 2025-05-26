@@ -5,7 +5,7 @@ import { Cart } from '@/app/panier/types';
 import { PromoResult, LoyaltyBenefits, CustomerInfo } from '../types';
 import { calculateTotalPrice } from '@/utils/priceCalculations';
 import { secureLogger as logger } from '@/utils/logger';
-import { fetchWithCsrf } from '@/lib/security/csrf';
+import { httpClient } from '@/lib/httpClient';
 
 interface UseCheckoutReturn {
   isSubmitting: boolean;
@@ -165,17 +165,15 @@ export default function useCheckout(
         }
       };
 
-      const resp = await fetchWithCsrf('/payment/create', {
-        method: 'POST',
+      // Faire la requête via httpClient pour éviter les problèmes CORS
+      const response = await httpClient.post('/payment/create', checkoutData, {
         headers: {
-          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
-        } as HeadersInit,
-        body: JSON.stringify(checkoutData)
+        }
       });
       
-      // fetchWithCsrf retourne directement les données parsées
-      const paymentResponse = resp as { smartCheckoutUrl?: string };
+      // httpClient retourne la réponse axios, donc nous avons besoin de response.data
+      const paymentResponse = response.data as { smartCheckoutUrl?: string };
       if (paymentResponse.smartCheckoutUrl) {
         clearCart();
         window.location.href = paymentResponse.smartCheckoutUrl;

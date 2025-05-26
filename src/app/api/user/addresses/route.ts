@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Récupérer les adresses depuis le backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const apiResponse = await fetch(`${backendUrl}/api/customers/${userId}`, {
       method: 'GET',
       headers: {
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Récupérer les adresses existantes
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const userResponse = await fetch(`${backendUrl}/api/customers/${userId}`, {
       method: 'GET',
       headers: {
@@ -305,7 +305,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // 5. Récupérer les adresses existantes
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const userResponse = await fetch(`${backendUrl}/api/customers/${userId}`, {
       method: 'GET',
       headers: {
@@ -465,7 +465,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 4. Récupérer les adresses existantes
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const userResponse = await fetch(`${backendUrl}/api/customers/${userId}`, {
       method: 'GET',
       headers: {

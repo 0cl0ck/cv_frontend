@@ -28,7 +28,7 @@ export default async function DashboardServerPage() {
     logger.debug('[page-server] Aucun token trouvé dans les cookies', {
       allCookies: Array.from(cookieStore.getAll()).map(c => c.name),
       environment: process.env.NODE_ENV,
-      apiUrl: process.env.NEXT_PUBLIC_API_URL
+      apiUrl: process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
     });
     return redirect('/connexion?reason=no-token');
   }
@@ -41,7 +41,7 @@ export default async function DashboardServerPage() {
   // Configuration de l'URL du backend
   // Déterminer si nous sommes en production ou en développement
   const isProduction = process.env.NODE_ENV === 'production';
-  const rawBackendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const rawBackendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
   
   // En production, utiliser une requête API directe au backend
   // En développement, faire une requête locale (éviter les problèmes CORS)

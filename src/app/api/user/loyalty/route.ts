@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     console.info('Récupération des commandes pour le programme de fidélité');
     
     // Utiliser l'URL absolue pour éviter les erreurs de parsing URL
-    const apiBaseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://api.chanvre-vert.fr';
+    const apiBaseUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const ordersResponse = await fetch(`${apiBaseUrl}/api/orders/me`, {
       headers: {
         'Authorization': authHeader

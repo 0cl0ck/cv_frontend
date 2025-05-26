@@ -1,4 +1,4 @@
-﻿import { NextResponse, NextRequest } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { validateRequest, sanitizeObject } from '@/utils/validation/validator';
 import { reviewSchema } from '@/utils/validation/schemas';
 import { sanitizeHtml, logInjectionAttempt } from '@/lib/security/sanitizer';
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Utiliser l'URL du backend configurÃ©e
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     
     // Construire les paramÃ¨tres de requÃªte pour filtrer les avis
     const queryParams = new URLSearchParams();
@@ -228,7 +228,7 @@ export async function POST(req: NextRequest) {
     }
     
     // 5. URL du backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     
     try {
       // 6. RÃ©cupÃ©rer les informations de l'utilisateur
@@ -413,4 +413,3 @@ function sanitizeString(input: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;');
 }
-
