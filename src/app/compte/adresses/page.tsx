@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { MapPin, ChevronLeft, Plus, Edit2, Trash2, CheckCircle, X, Save, Loader2 } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 import { secureLogger as logger } from '@/utils/logger';
+import { httpClient } from '@/lib/httpClient';
+import axios from 'axios';   // ➜ nouveau
 
 // Types pour les adresses
 type AddressType = 'shipping' | 'billing' | 'both';
@@ -47,6 +49,17 @@ function getAddressTypeLabel(type: AddressType): string {
       return type;
   }
 }
+
+// -------- utilitaires --------
+const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message ?? error.message;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return 'Une erreur inconnue est survenue';
+};
 
 // Composant principal de gestion des adresses
 export default function AddressesPage() {
@@ -96,34 +109,26 @@ export default function AddressesPage() {
         // Utiliser les données utilisateur du contexte d'authentification global
         if (authUser && authUser.id) {
           // Récupérer les adresses de l'utilisateur avec la nouvelle route API
-          const addressesResponse = await fetch(`/api/customers/addresses`, {
-            method: 'GET',
-            credentials: 'include', // Envoie automatiquement le cookie d'authentification
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          logger.debug('Réponse adresses status', { status: addressesResponse.status });
-          
-          if (!addressesResponse.ok) {
-            throw new Error(`Erreur lors de la récupération des adresses: ${addressesResponse.status}`);
+          try {
+            const addressesResponse = await httpClient.get('/customers/addresses');
+            logger.debug('Réponse adresses status', { status: addressesResponse.status });
+            
+            // Mettre à jour les états avec les données récupérées
+            setUser({
+              id: authUser.id,
+              email: authUser.email,
+              firstName: authUser.firstName || '',
+              lastName: authUser.lastName || '',
+              createdAt: new Date().toISOString(), // Date actuelle si non disponible
+              addresses: addressesResponse.data.addresses || []
+            });
+            
+            setAddresses(addressesResponse.data.addresses || []);
+            setLoading(false);
+          } catch (apiError) {
+            console.error('Erreur lors de la récupération des adresses:', apiError);
+            throw new Error(`Erreur lors de la récupération des adresses: ${apiError}`);
           }
-          
-          const addressesData = await addressesResponse.json();
-          
-          // Mettre à jour les états avec les données récupérées
-          setUser({
-            id: authUser.id,
-            email: authUser.email,
-            firstName: authUser.firstName || '',
-            lastName: authUser.lastName || '',
-            createdAt: new Date().toISOString(), // Date actuelle si non disponible
-            addresses: addressesData.addresses || []
-          });
-          
-          setAddresses(addressesData.addresses || []);
-          setLoading(false);
         } else {
           // Fallback: rediriger vers la page de connexion si aucun utilisateur n'est authentifié
           console.warn('Aucun utilisateur authentifié trouvé');
@@ -251,47 +256,9 @@ export default function AddressesPage() {
         setError('Session expirée. Veuillez vous reconnecter.');
         setIsSaving(false);
         return;
+      
       }
       
-      // Récupérer le token d'authentification depuis l'API /api/auth/me
-      // Cette approche est plus fiable que d'essayer d'accéder aux cookies HttpOnly
-      logger.debug('Récupération du token frais pour la sauvegarde d\'adresse');
-      const meResponse = await fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCsrf: true
-      });
-      
-      if (!meResponse.ok) {
-        console.error('Erreur lors de la récupération du token pour la sauvegarde:', meResponse.status);
-        setError('Session expirée. Veuillez vous reconnecter.');
-        setIsSaving(false);
-        return;
-      }
-      
-      const meData = await meResponse.json();
-      let token = meData.token;
-      
-      // Fallback au cookie client si aucun token n'est retourné par l'API
-      if (!token) {
-        logger.debug('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
-        const cookies = document.cookie.split(';');
-        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-        
-        if (!authCookie) {
-          console.error('Aucun token trouvé dans les cookies');  
-          setError('Session expirée. Veuillez vous reconnecter.');
-          setIsSaving(false);
-          return;
-        }
-        
-        token = authCookie.split('=')[1]?.trim();
-      }
-      
-      logger.debug('Token d\'authentification trouvé pour la sauvegarde', { length: token.length });
       
       // Gérer les adresses existantes
       let updatedAddresses = [...addresses];
@@ -336,19 +303,15 @@ export default function AddressesPage() {
         method = 'POST';
       }
       
-      // Appel API avec notre nouvelle route modulaire
-      const response = await fetch(url, {
-        method: method,
-        credentials: 'include', // Envoyer automatiquement les cookies d'authentification
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formAddress),
-        withCsrf: true
-      });
-      
-      if (response.ok) {
-        // Mettre à jour les données locales
+      try {
+        // Appel API avec notre nouvelle route modulaire en utilisant httpClient
+        await httpClient.request({
+          method: method,
+          url: url.replace('/api', ''), // Remove '/api' prefix as httpClient already has baseURL set to '/api'
+          data: formAddress
+        });
+        
+        // Mettre à jour les données locales si la requête a réussi
         setAddresses(updatedAddresses);
         setSuccess(
           editingAddress 
@@ -357,9 +320,9 @@ export default function AddressesPage() {
         );
         setIsAddingAddress(false);
         setEditingAddress(null);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Une erreur est survenue lors de la sauvegarde');
+      } catch (apiError) {
+        console.error('Erreur lors de la sauvegarde de l\'adresse:', apiError);
+        setError(getErrorMessage(apiError));
       }
     } catch (err) {
       console.error('Erreur lors de la sauvegarde de l\'adresse:', err);
@@ -387,71 +350,24 @@ export default function AddressesPage() {
         return;
       }
       
-      // Récupérer le token d'authentification depuis l'API /api/auth/me
-      logger.debug('Récupération du token pour la suppression d\'adresse');
-      const meResponse = await fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCsrf: true
-      });
-      
-      if (!meResponse.ok) {
-        console.error('Erreur lors de la récupération du token pour la suppression:', meResponse.status);
-        setError('Session expirée. Veuillez vous reconnecter.');
-        setIsSaving(false);
-        return;
-      }
-      
-      const meData = await meResponse.json();
-      let token = meData.token;
-      
-      // Fallback au cookie client si aucun token n'est retourné par l'API
-      if (!token) {
-        logger.debug('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
-        const cookies = document.cookie.split(';');
-        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-        
-        if (!authCookie) {
-          console.error('Aucun token trouvé dans les cookies');  
-          setError('Session expirée. Veuillez vous reconnecter.');
-          setIsSaving(false);
-          return;
-        }
-        
-        token = authCookie.split('=')[1]?.trim();
-      }
-      
-      logger.debug('Token d\'authentification trouvé pour la suppression', { length: token.length });
-      
-      // Filtrer les adresses pour retirer celle à supprimer
-      const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
-      
       // Trouver l'index de l'adresse à supprimer
       const addressIndex = addresses.findIndex(addr => addr.id === addressId);
       if (addressIndex === -1) {
         throw new Error('Adresse introuvable');
       }
       
-      // Appel API pour supprimer l'adresse avec notre nouvelle route modulaire
-      const response = await fetch(`/api/customers/addresses/${addressIndex}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCsrf: true
-      });
+      // Filtrer les adresses pour retirer celle à supprimer
+      const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
       
-      if (response.ok) {
+      // Appel API pour supprimer l'adresse avec notre nouvelle route modulaire
+      try {
+        await httpClient.delete(`/customers/addresses/${addressIndex}`);   // 'response' n'était pas utilisé
         // Mettre à jour les données locales
         setAddresses(updatedAddresses);
         setSuccess('Adresse supprimée avec succès');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Une erreur est survenue lors de la suppression');
+      } catch (apiError) {
+        console.error('Erreur API lors de la suppression:', apiError);
+        setError(getErrorMessage(apiError));
       }
     } catch (err) {
       console.error('Erreur lors de la suppression de l\'adresse:', err);
@@ -474,72 +390,38 @@ export default function AddressesPage() {
         return;
       }
       
-      // Récupérer le token d'authentification depuis l'API /api/auth/me
-      logger.debug('Récupération du token pour définir l\'adresse par défaut');
-      const meResponse = await fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCsrf: true
-      });
-      
-      if (!meResponse.ok) {
-        console.error('Erreur lors de la récupération du token:', meResponse.status);
+      // Vérifier l'authentification via httpClient
+      try {
+        // Nous utilisons httpClient qui gère automatiquement les cookies d'authentification
+        await httpClient.get('/auth/me');
+        logger.debug('Authentification vérifiée pour définir l\'adresse par défaut');
+        
+        // Mettre à jour les adresses pour changer celle qui est par défaut
+        const updatedAddresses = addresses.map(addr => ({
+          ...addr,
+          isDefault: addr.id === addressId
+        }));
+        
+        // Trouver l'index de l'adresse à définir par défaut
+        const addressIndex = addresses.findIndex(addr => addr.id === addressId);
+        if (addressIndex === -1) {
+          throw new Error('Adresse introuvable');
+        }
+        
+        // Appel API pour définir l'adresse par défaut
+        try {
+          await httpClient.post(`/customers/addresses/${addressIndex}/default`);
+          setAddresses(updatedAddresses);
+          setSuccess('Adresse par défaut mise à jour avec succès');
+        } catch (apiError) {
+          console.error('Erreur API lors de la mise à jour de l\'adresse par défaut:', apiError);
+          setError(getErrorMessage(apiError));
+        }
+      } catch (authError) {
+        console.error('Erreur lors de la vérification d\'authentification:', authError);
         setError('Session expirée. Veuillez vous reconnecter.');
         setIsSaving(false);
         return;
-      }
-      
-      const meData = await meResponse.json();
-      let token = meData.token;
-      
-      // Fallback au cookie client si aucun token n'est retourné par l'API
-      if (!token) {
-        logger.debug('Aucun token retourné par l\'API, tentative de récupération depuis les cookies...');
-        const cookies = document.cookie.split(';');
-        const authCookie = cookies.find(cookie => cookie.trim().startsWith('payload-token='));
-        
-        if (!authCookie) {
-          console.error('Aucun token trouvé dans les cookies');  
-          setError('Session expirée. Veuillez vous reconnecter.');
-          setIsSaving(false);
-          return;
-        }
-        
-        token = authCookie.split('=')[1]?.trim();
-      }
-      
-      logger.debug('Token d\'authentification trouvé', { length: token.length });
-      
-      // Mettre à jour les adresses pour changer celle qui est par défaut
-      const updatedAddresses = addresses.map(addr => ({
-        ...addr,
-        isDefault: addr.id === addressId
-      }));
-      
-      // Trouver l'index de l'adresse à définir par défaut
-      const addressIndex = addresses.findIndex(addr => addr.id === addressId);
-      if (addressIndex === -1) {
-        throw new Error('Adresse introuvable');
-      }
-      
-      // Appel API pour définir l'adresse par défaut
-      const response = await fetch(`/api/customers/addresses/${addressIndex}/default`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCsrf: true
-      });
-      
-      if (response.ok) {
-        setAddresses(updatedAddresses);
-        setSuccess('Adresse par défaut mise à jour avec succès');
-      } else {
-        setError(`Erreur: ${response.statusText}`);
       }
     } catch {
       setError('Une erreur est survenue lors de la mise à jour de l\'adresse par défaut');

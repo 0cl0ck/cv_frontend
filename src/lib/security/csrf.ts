@@ -254,7 +254,7 @@ export function getCsrfHeader(): { [key: string]: string } {
  * });
  */
 
-export async function fetchWithCsrf<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
+export async function fetchWithCsrf<T = unknown>(url: string, options: RequestInit & { withCsrf?: boolean } = {}): Promise<T> {
   // Protection CSRF désactivée - passage direct à httpClient
   logger.debug('[CSRF] Protection CSRF désactivée - utilisation directe de httpClient');
   
@@ -266,6 +266,8 @@ export async function fetchWithCsrf<T = unknown>(url: string, options: RequestIn
     data: options.body
   };
 
+  // Ne pas passer withCsrf à axios directement
+  // Il est géré par notre intercepteur
   const response = await httpClient.request<T>(config);
   return response.data;
 }
