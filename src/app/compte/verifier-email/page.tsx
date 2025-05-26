@@ -30,6 +30,7 @@ function VerifierEmailContent() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ token }),
+          withCsrf: true
         });
 
         const data = await response.json();

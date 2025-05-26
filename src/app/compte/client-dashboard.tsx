@@ -138,6 +138,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(newUserData),
+        withCsrf: true
       });
       
       const responseData = await response.json();

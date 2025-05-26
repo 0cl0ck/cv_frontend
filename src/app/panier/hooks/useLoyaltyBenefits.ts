@@ -47,6 +47,7 @@ export default function useLoyaltyBenefits(
           shippingCost: country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
           items: cart.items
         }, {
+          withCsrf: true,
           headers
         });
 

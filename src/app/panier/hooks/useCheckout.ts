@@ -167,6 +167,7 @@ export default function useCheckout(
 
       // Faire la requête via httpClient pour éviter les problèmes CORS
       const response = await httpClient.post('/payment/create', checkoutData, {
+        withCsrf: true,
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         }

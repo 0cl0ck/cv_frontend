@@ -80,7 +80,7 @@ export default function usePromoCode(
         cartTotal: cart.subtotal,
         shippingCost,
         items: itemsWithCat
-      });
+      }, { withCsrf: true });
 
       if (result.success && result.valid) {
         let message: string = result.message || '';

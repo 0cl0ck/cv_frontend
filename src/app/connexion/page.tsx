@@ -169,7 +169,7 @@ function LoginForm() {
         email: formData.email,
         password: formData.password,
         collection: 'customers'
-      });
+      }, { withCsrf: true });
       
       const data = response.data;
 

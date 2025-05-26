@@ -72,6 +72,7 @@ function RegisterForm() {
           password: formData.password,
           gdprConsent: formData.gdprConsent
         }),
+        withCsrf: true
       });
 
       const data = await response.json();

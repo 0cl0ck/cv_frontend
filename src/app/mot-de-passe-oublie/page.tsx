@@ -26,6 +26,7 @@ function ForgotPasswordForm() {
           email,
           collection: 'customers'
         }),
+        withCsrf: true
       });
 
       const data = await response.json();
