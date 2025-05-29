@@ -92,16 +92,31 @@ export default function useCheckout(
         ?.split('=')[1] || '';
       let userId: string | null = null;
       let isCustomer = false;
+      let userEmail: string | null = null;
       try {
         const parts = token.split('.');
         if (parts.length === 3) {
           const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
           if (payload.collection === 'customers' && payload.id) {
             userId = payload.id;
+            userEmail = payload.email;
             isCustomer = true;
           }
         }
       } catch {}
+
+      // ✅ RÈGLE 1 & 2 : Les utilisateurs connectés DOIVENT utiliser leur email de compte
+      if (isCustomer && userEmail) {
+        // Forcer l'utilisation de l'email du compte pour la fidélité
+        if (customerInfo.email !== userEmail) {
+          logger.warn('Email du formulaire différent de l\'email du compte', {
+            formEmail: customerInfo.email,
+            accountEmail: userEmail
+          });
+          // On utilise l'email du compte comme source de vérité pour la fidélité
+          customerInfo.email = userEmail;
+        }
+      }
 
       // Utiliser le montant total calculé par l'utilitaire (déjà validé comme positif)
       const finalAmount = Math.max(0.01, priceDetails.total);
@@ -125,13 +140,16 @@ export default function useCheckout(
             quantity: item.quantity,
             attributes: {}
           })),
+          // ✅ RÈGLE 1 : Utilisateurs connectés = commande associée au compte
           ...(isCustomer && userId ? { customer: userId } : {}),
           guestInformation: {
-            email: customerInfo.email,
+            // ✅ RÈGLE 2 : Email = identifiant fidélité (automatiquement celui du compte si connecté)
+            email: customerInfo.email, // Déjà forcé à userEmail pour les utilisateurs connectés
             firstName: customerInfo.firstName,
             lastName: customerInfo.lastName,
             phone: customerInfo.phone
           },
+          // ✅ RÈGLE 3 : Formulaire = source de vérité pour les adresses et détails de commande
           billingAddress: {
             name: `${customerInfo.firstName} ${customerInfo.lastName}`,
             line1: customerInfo.address,
@@ -158,12 +176,23 @@ export default function useCheckout(
           amount: finalAmount,
           amountCents: priceDetails.totalCents,
           currency: 'EUR',
-          customerEmail: customerInfo.email,
+          // ✅ RÈGLE 4 : Email de contact libre (peut être différent de l'email du compte)
+          customerEmail: customerInfo.email, // Pour les notifications
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
           promoCode: promoResult.applied ? promoResult.code : undefined,
           discountAmount: priceDetails.loyaltyDiscount + priceDetails.promoDiscount
         }
       };
+
+      // Log pour vérifier la cohérence des règles
+      logger.info('✅ Vérification des règles de checkout', {
+        isAuthenticated: isCustomer,
+        userAccountEmail: userEmail,
+        checkoutEmail: customerInfo.email,
+        emailsMatch: userEmail === customerInfo.email,
+        customerLinked: !!(isCustomer && userId),
+        loyaltyEmail: customerInfo.email // Email utilisé pour la fidélité
+      });
 
       // Faire la requête via httpClient pour éviter les problèmes CORS
       const response = await httpClient.post('/payment/create', checkoutData, {

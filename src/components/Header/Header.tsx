@@ -129,11 +129,13 @@ export default function Header() {
                         Mes commandes
                       </Link>
                       <button 
-                        className="flex items-center px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50/30 hover:text-red-600 rounded-lg w-full"
+                        className="flex items-center px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50/30 hover:text-red-600 rounded-lg w-full cursor-pointer"
                         onClick={async () => {
                           try {
                             await logout();
                             setAccountMenuOpen(false);
+                            // ✅ Redirection vers la page d'accueil après logout réussi
+                            window.location.href = '/';
                           } catch (error) {
                             console.error('Erreur lors de la déconnexion:', error);
                             setAccountMenuOpen(false);
@@ -291,6 +293,8 @@ export default function Header() {
                       // Utiliser la fonction de déconnexion du contexte d'authentification
                       await logout();
                       setMenuOpen(false);
+                      // ✅ Redirection vers la page d'accueil après logout réussi
+                      window.location.href = '/';
                     } catch (error) {
                       console.error('Erreur lors de la déconnexion:', error);
                     }

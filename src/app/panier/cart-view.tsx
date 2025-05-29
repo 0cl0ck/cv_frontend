@@ -6,7 +6,7 @@ import { useAuthContext } from '@/context/AuthContext';
 
 import {
   CartItemList,
-  CheckoutSidebar,
+  CheckoutSidebar
 } from './components';
 import Link from 'next/link';
 import {
@@ -59,6 +59,16 @@ export default function CartView() {
     errors: checkoutErrors
   } = useCheckout(cart, promoResult, loyaltyBenefits, customerInfo, clearCart, setErrors);
   
+  // Initialiser l'email du compte pour les utilisateurs connectés
+  useEffect(() => {
+    if (isAuthenticated && user?.email && customerInfo.email !== user.email) {
+      setCustomerInfo(prev => ({
+        ...prev,
+        email: user.email
+      }));
+    }
+  }, [isAuthenticated, user?.email, customerInfo.email]);
+
   // Synchroniser les erreurs du checkout avec l'état d'erreurs local
   useEffect(() => {
     if (Object.keys(checkoutErrors).length > 0) {
@@ -107,6 +117,11 @@ export default function CartView() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCustomerInfo(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Fonction pour le CheckoutForm qui utilise la signature (field, value)
+  const handleCustomerInfoChange = (field: keyof CustomerInfo, value: string) => {
+    setCustomerInfo(prev => ({ ...prev, [field]: value }));
   };
 
   if (cart.items.length === 0) {

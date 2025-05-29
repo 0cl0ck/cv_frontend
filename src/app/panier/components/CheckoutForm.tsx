@@ -8,9 +8,10 @@ interface Props {
   onChange: (field: keyof CustomerInfo, value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
+  isAuthenticated: boolean;
 }
 
-export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit, isSubmitting }: Props) {
+export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit, isSubmitting, isAuthenticated }: Props) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <h3 className="font-medium text-lg text-[#F4F8F5]">Informations de contact</h3>
@@ -32,14 +33,23 @@ export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit,
         <div key={field}>
           <label className="block text-sm mb-1 text-[#F4F8F5]">
             {field === 'postalCode' ? 'Code Postal' : field === 'address' ? 'Adresse' : field === 'city' ? 'Ville' : field === 'phone' ? 'Téléphone' : 'Email'}
+            {isAuthenticated && field === 'email' && (
+              <span className="ml-2 text-xs text-[#EFC368]">(email du compte)</span>
+            )}
           </label>
           <input
             type={field === 'email' ? 'email' : 'text'}
             value={customerInfo[field]}
             onChange={e => onChange(field, e.target.value)}
-            className={`w-full p-2 border rounded ${errors[field] ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5] focus:outline-none focus:ring-2 focus:ring-[#EFC368] focus:border-transparent`}
+            disabled={isAuthenticated && field === 'email'}
+            className={`w-full p-2 border rounded ${errors[field] ? 'border-red-500' : 'border-[#3A4A4F]'} bg-[#002935] text-[#F4F8F5] focus:outline-none focus:ring-2 focus:ring-[#EFC368] focus:border-transparent ${isAuthenticated && field === 'email' ? 'opacity-70 cursor-not-allowed' : ''}`}
           />
           {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
+          {isAuthenticated && field === 'email' && (
+            <p className="text-xs text-[#EFC368] mt-1">
+              L'email de votre compte sera utilisé pour la fidélité. Vous pouvez utiliser un autre email pour les notifications en nous contactant.
+            </p>
+          )}
         </div>
       ))}
       <div>
