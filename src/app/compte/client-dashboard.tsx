@@ -187,22 +187,32 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
       if (ordersResponse.ok) {
         const ordersData = await ordersResponse.json();
             
-        // Compter les commandes complétées (livrées ou expédiées)
+        // 🎯 NOUVELLE APPROCHE : Utiliser validatedOrderCount depuis l'API (source de vérité)
+        // Au lieu de compter manuellement les commandes, utiliser la valeur de la collection Customers
+        const ordersCount = ordersData.validatedOrderCount ?? 0;
+        
+        // 📊 Pour information/debug : Compter aussi manuellement les commandes affichées
         const completedOrders = Array.isArray(ordersData.orders) 
           ? ordersData.orders.filter((order: { status: string }) => 
               order.status === 'delivered' || order.status === 'shipped'
             )
           : [];
+        
+        // Log pour débogage si les valeurs diffèrent
+        if (completedOrders.length !== ordersCount) {
+          console.warn('🔍 Différence détectée entre validatedOrderCount et comptage manuel:', {
+            validatedOrderCount: ordersCount,
+            manualCount: completedOrders.length,
+            message: 'Le validatedOrderCount est utilisé comme source de vérité'
+          });
+        }
             
-        // Stocker les commandes pour l'historique
+        // Stocker les commandes pour l'historique (inchangé)
         setOrders(ordersData.orders || []);
             
-        // Calculer le nombre de commandes validées
-        const ordersCount = completedOrders.length;
-            
-        // Générer les données de fidélité
+        // Générer les données de fidélité avec le compteur officiel
         const loyaltyInfo = {
-          ordersCount,
+          ordersCount, // 🎯 Utilise validatedOrderCount depuis la collection Customers
           currentReward: determineReward(ordersCount),
           referralEnabled: ordersCount >= 2
         };
