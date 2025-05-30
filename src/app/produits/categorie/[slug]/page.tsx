@@ -68,7 +68,9 @@ export default async function CategoryPage(props) {
   }
   
   // Fallback pour éviter l'erreur de construction URL
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://www.chanvre-vert.fr' 
+    : 'http://localhost:3000';
   let searchParams = new URLSearchParams();
   
   try {

@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Configuration de l'URL du backend
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 
+                   process.env.NEXT_PUBLIC_SERVER_URL || 
+                   (process.env.NODE_ENV === 'production' ? 'https://api.chanvre-vert.fr' : 'http://localhost:3000');
 
 // Instance axios configurée pour notre API
 export const httpClient = axios.create({
