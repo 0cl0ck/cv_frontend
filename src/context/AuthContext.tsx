@@ -55,72 +55,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       setError(null);
       
-      // 🔬 DIAGNOSTIC: Vérifier l'état des cookies avant la requête
-      const allCookies = document.cookie;
-      const payloadTokenExists = allCookies.includes('payload-token');
-      const csrfTokenExists = allCookies.includes('csrf-token');
-      
-      console.log('🔬 [AuthContext] DIAGNOSTIC fetchUser - État initial:', {
-        timestamp: new Date().toISOString(),
-        allCookies: allCookies || 'AUCUN COOKIE',
-        payloadTokenExists,
-        csrfTokenExists,
-        userAgent: navigator.userAgent,
-        origin: window.location.origin,
-        currentUrl: window.location.href
-      });
-
-      logger.debug('[AuthContext] Appel /auth/me');
+      logger.debug('[AuthContext] Vérification authentification');
       const { data, status } = await httpClient.get('/auth/me', { withCsrf: true });
-      
-      // 🔬 DIAGNOSTIC: Logger la réponse détaillée
-      console.log('🔬 [AuthContext] DIAGNOSTIC - Réponse /auth/me:', {
-        timestamp: new Date().toISOString(),
-        status,
-        hasData: !!data,
-        dataKeys: data ? Object.keys(data) : [],
-        userExists: !!data?.user,
-        userId: data?.user?.id,
-        userEmail: data?.user?.email
-      });
 
       if (status === 401) {
-        console.log('🔬 [AuthContext] DIAGNOSTIC - 401 reçu, déconnexion');
+        logger.debug('[AuthContext] Utilisateur non authentifié');
         setIsAuthenticated(false);
         setUser(null);
         return;
       }
-      logger.debug('[AuthContext] Données utilisateur reçues', { hasUser: !!data?.user });
 
       if (data?.user) {
-        console.log('🔬 [AuthContext] DIAGNOSTIC - Utilisateur authentifié avec succès:', {
-          userId: data.user.id,
-          email: data.user.email
-        });
+        logger.debug('[AuthContext] Utilisateur authentifié', { userId: data.user.id });
         setIsAuthenticated(true);
         setUser(data.user);
       } else {
-        console.log('🔬 [AuthContext] DIAGNOSTIC - Pas d\'utilisateur dans la réponse');
+        logger.debug('[AuthContext] Pas d\'utilisateur dans la réponse');
         setIsAuthenticated(false);
         setUser(null);
       }
     } catch (err) {
-      // 🔬 DIAGNOSTIC: Logger l'erreur complète
-      console.error('🔬 [AuthContext] DIAGNOSTIC - Erreur fetchUser complète:', {
-        timestamp: new Date().toISOString(),
-        errorMessage: err instanceof Error ? err.message : String(err),
-        errorName: err instanceof Error ? err.name : 'Unknown',
-        errorStack: err instanceof Error ? err.stack : undefined,
-        // @ts-ignore - pour capturer les détails axios
-        response: (err as any)?.response ? {
-          status: (err as any).response.status,
-          statusText: (err as any).response.statusText,
-          headers: (err as any).response.headers,
-          data: (err as any).response.data
-        } : 'Pas de response axios'
+      logger.error('[AuthContext] Erreur authentification:', { 
+        error: err instanceof Error ? err.message : String(err) 
       });
-      
-      console.error('[AuthContext] Erreur fetchUser:', err);
       setError(err instanceof Error ? err.message : String(err));
       setIsAuthenticated(false);
       setUser(null);
@@ -141,7 +98,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       window.dispatchEvent(new CustomEvent('auth-change', { detail: { isLoggedIn: false } }));
     } catch (err) {
-      console.error('[AuthContext] Erreur logout:', err);
+      logger.error('[AuthContext] Erreur logout:', { 
+        error: err instanceof Error ? err.message : String(err) 
+      });
       setError('Erreur lors de la déconnexion');
     } finally {
       setLoading(false);
@@ -149,25 +108,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    // 🔬 DIAGNOSTIC: Logger l'initialisation du contexte
-    console.log('🔬 [AuthContext] DIAGNOSTIC - Initialisation useEffect:', {
-      timestamp: new Date().toISOString(),
-      readyState: document.readyState,
-      cookiesAtInit: document.cookie || 'AUCUN COOKIE',
-      currentPath: window.location.pathname
-    });
-    
+    logger.debug('[AuthContext] Initialisation du contexte d\'authentification');
     fetchUser();
 
     const handleAuthChange = () => {
-      // 🔬 DIAGNOSTIC: Logger les changements d'authentification
-      console.log('🔬 [AuthContext] DIAGNOSTIC - Changement d\'authentification détecté:', {
-        timestamp: new Date().toISOString(),
-        cookiesAfterAuthChange: document.cookie || 'AUCUN COOKIE',
-        payloadTokenExists: document.cookie.includes('payload-token'),
-        currentPath: window.location.pathname
-      });
-      
       logger.debug('[AuthContext] Changement d\'authentification détecté');
       fetchUser();
     };

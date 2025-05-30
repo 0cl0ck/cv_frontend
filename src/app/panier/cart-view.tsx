@@ -120,9 +120,9 @@ export default function CartView() {
   };
 
   // Fonction pour le CheckoutForm qui utilise la signature (field, value)
-  const handleCustomerInfoChange = (field: keyof CustomerInfo, value: string) => {
-    setCustomerInfo(prev => ({ ...prev, [field]: value }));
-  };
+  // const handleCustomerInfoChange = (field: keyof CustomerInfo, value: string) => {
+  //   setCustomerInfo(prev => ({ ...prev, [field]: value }));
+  // };
 
   if (cart.items.length === 0) {
     return (
@@ -137,6 +137,14 @@ export default function CartView() {
 
   return (
     <div className="container mx-auto px-4 py-8 bg-[#001E27]">
+      {/* Bannière promotionnelle temporaire */}
+      <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
+        <p className="text-lg font-bold">🎁 PROMOTION TEMPORAIRE 🎁</p>
+        <p>Frais de livraison <span className="font-bold">OFFERTS</span> pour toutes les commandes</p>
+        <p className="text-sm mt-1">+ <span className="font-bold">2g OFFERTS</span> pour votre première commande sur le site</p>
+        <p className="text-xs italic mt-2">*Offre limitée dans le temps</p>
+      </div>
+      
       <h1 className="text-3xl font-bold mb-8 text-[#F4F8F5]">Votre panier</h1>
 
       {/* Liste des articles */}

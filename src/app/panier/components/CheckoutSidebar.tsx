@@ -214,6 +214,7 @@ export default function CheckoutSidebar({
         }}
         onSubmit={onPaymentSubmit}
         isSubmitting={isSubmitting}
+        isAuthenticated={isAuthenticated}
       />
 
       {/* Actions du formulaire */}

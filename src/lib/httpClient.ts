@@ -1,56 +1,25 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
 
-// Determine the base URL based on environment
-const getBaseUrl = () => {
-  // In the browser, use relative URL
-  if (typeof window !== 'undefined') {
-    return '/api';
-  }
-  
-  // During build/SSR, use the environment variable or a default
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-  
-  // Make sure we're using the proper API URL
-  return apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
-};
+// Configuration de l'URL du backend
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
 
+// Instance axios configurée pour notre API
 export const httpClient = axios.create({
-  baseURL: getBaseUrl(),
+  baseURL: `${backendUrl}/api`,
+  // CORS: toujours envoyer les cookies cross-origin
   withCredentials: true,
-  timeout: 50000,
+  // Timeout raisonnable
+  timeout: 10000,
+  // Headers par défaut
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Type augmentation pour le config d'Axios
-declare module 'axios' {
-  interface AxiosRequestConfig {
-    withCsrf?: boolean;
-  }
-}
-
 // Intercepteur pour ajouter le token CSRF aux requêtes mutatives
-httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+httpClient.interceptors.request.use((config) => {
   // S'assurer que les cookies sont toujours envoyés
   config.withCredentials = true;
-
-  // 🔬 DIAGNOSTIC: Logger les détails de chaque requête vers /auth/me
-  if (config.url?.includes('/auth/me')) {
-    console.log('🔬 [httpClient] DIAGNOSTIC - Requête /auth/me:', {
-      timestamp: new Date().toISOString(),
-      url: config.url,
-      baseURL: config.baseURL,
-      fullUrl: `${config.baseURL}${config.url}`,
-      method: config.method,
-      withCredentials: config.withCredentials,
-      headers: {
-        'x-csrf-token': config.headers['x-csrf-token'] ? 'PRÉSENT' : 'ABSENT',
-        'authorization': config.headers['authorization'] ? 'PRÉSENT' : 'ABSENT',
-        'content-type': config.headers['content-type'],
-        'user-agent': config.headers['user-agent']
-      },
-      cookiesInDocument: document.cookie || 'AUCUN COOKIE',
-      origin: window.location.origin
-    });
-  }
 
   const method = config.method?.toLowerCase();
   const needsCsrf =
@@ -64,18 +33,39 @@ httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
         if (match) {
           if (!config.headers) config.headers = new axios.AxiosHeaders();
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (config.headers as any)['X-CSRF-Token'] = decodeURIComponent(match[1]);
+          (config.headers as any)['x-csrf-token'] = decodeURIComponent(match[1]);
         }
       }
     }
   }
   return config;
 }, (error) => {
-  // 🔬 DIAGNOSTIC: Logger les erreurs de requête
-  console.error('🔬 [httpClient] DIAGNOSTIC - Erreur intercepteur requête:', {
-    timestamp: new Date().toISOString(),
-    error: error.message,
-    config: error.config
-  });
+  console.error('[httpClient] Erreur de requête:', error.message);
   return Promise.reject(error);
 });
+
+// Intercepteur de réponse pour gérer les erreurs CORS et authentification
+httpClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.code === 'ERR_NETWORK') {
+      console.error('[httpClient] Erreur réseau - vérifiez CORS/backend:', error);
+    }
+    
+    if (error.response?.status === 401) {
+      // Token expiré ou invalide - déclencher refresh auth
+      window.dispatchEvent(new CustomEvent('auth-expired'));
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// Déclaration de type pour withCsrf
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    withCsrf?: boolean;
+  }
+}

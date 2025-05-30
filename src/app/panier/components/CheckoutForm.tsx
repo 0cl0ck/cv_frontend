@@ -47,7 +47,7 @@ export default function CheckoutForm({ customerInfo, errors, onChange, onSubmit,
           {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
           {isAuthenticated && field === 'email' && (
             <p className="text-xs text-[#EFC368] mt-1">
-              L'email de votre compte sera utilisé pour la fidélité. Vous pouvez utiliser un autre email pour les notifications en nous contactant.
+              L&apos;email de votre compte sera utilisé pour la fidélité. Vous pouvez utiliser un autre email pour les notifications en nous contactant.
             </p>
           )}
         </div>

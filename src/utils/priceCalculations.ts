@@ -29,12 +29,13 @@ export class PriceService {
     }
   }
 
-  static isShippingFree(
-    subtotal: number, 
-    country: string, 
-    promoResult?: PromoResult,
-    loyaltyBenefits?: LoyaltyBenefits
-  ): boolean {
+  static isShippingFree(): boolean {
+    // 🎁 PROMOTION TEMPORAIRE: Frais de livraison offerts pour tous les clients
+    // + 2g offerts pour la première commande sur le site (programme fidélité)
+    return true;
+    
+    // Code commenté pendant la période promotionnelle
+    /*
     // Livraison gratuite si c'est un avantage fidélité activé
     if (loyaltyBenefits?.active && loyaltyBenefits.rewardType === 'freeShipping') {
       return true;
@@ -49,6 +50,7 @@ export class PriceService {
     }
     // Sinon, livraison gratuite à partir de 49€
     return subtotal >= 49;
+    */
   }
 
   static calculateTotalPrice(
@@ -61,7 +63,7 @@ export class PriceService {
     const subtotalCents = cart.subtotalCents || Math.round(subtotal * 100);
     
     // Vérifier si la livraison est gratuite (en tenant compte des avantages fidélité)
-    const free = PriceService.isShippingFree(subtotal, country, promoResult, loyaltyBenefits);
+    const free = PriceService.isShippingFree();
     const shippingCost = free ? 0 : PriceService.calculateShippingCost(subtotal, country);
     const shippingCostCents = Math.round(shippingCost * 100);
 
