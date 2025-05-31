@@ -11,6 +11,7 @@ interface PaymentStatus {
   orderId?: string;
   orderNumber?: string;
   amount?: number;
+  isPaymentSuccessful?: boolean; // Nouveau champ explicite pour le statut de paiement
 }
 
 // Component that uses useSearchParams hook wrapped in its own client component
@@ -43,8 +44,11 @@ function PaymentContent() {
         
         logger.debug(`[TEST-PAIEMENT] Vérification de paiement pour: ${pathSegment}`);
         
+        // Augmenter le timeout pour accommoder les multiples tentatives de vérification
+        // qui peuvent prendre plus de 10s en environnement de développement
         const response = await httpClient.get(`/payment/verify/${pathSegment}`, {
-          params
+          params,
+          timeout: 30000 // 30 secondes au lieu des 10 secondes par défaut
         });
 
         // Avec axios/httpClient, les données sont déjà dans response.data
@@ -74,7 +78,7 @@ function PaymentContent() {
           <p className="font-medium">{error}</p>
           <p className="mt-2">Vous pouvez contacter notre service client pour plus d&apos;informations.</p>
         </div>
-      ) : paymentInfo && paymentInfo.status === 'paid' ? (
+      ) : paymentInfo && (paymentInfo.isPaymentSuccessful || paymentInfo.status === 'paid') ? (
         <>
           <div className="bg-green-900 bg-opacity-25 border border-[#059669] text-[#10B981] px-6 py-4 rounded-lg mb-6">
             <p className="font-medium">Votre paiement a été confirmé !</p>
@@ -94,20 +98,18 @@ function PaymentContent() {
               className="bg-[#007A72] hover:bg-[#059669] text-white px-6 py-3 rounded-md font-medium transition-colors">
               Retour à l&apos;accueil
             </Link>
-            {paymentInfo.orderId && (
-              <Link href={`/compte/commandes/${paymentInfo.orderId}`}
-                className="bg-[#00424A] hover:bg-[#155757] text-[#10B981] border border-[#155757] px-6 py-3 rounded-md font-medium transition-colors">
-                Voir ma commande
-              </Link>
-            )}
+            <Link href="/compte/commandes"
+              className="bg-[#00424A] hover:bg-[#155757] text-[#10B981] border border-[#155757] px-6 py-3 rounded-md font-medium transition-colors">
+              Voir mes commandes
+            </Link>
           </div>
         </>
       ) : (
         <div className="bg-yellow-900 bg-opacity-25 border border-yellow-800 text-yellow-300 px-6 py-4 rounded-lg mb-6">
           <p className="font-medium">État du paiement: {paymentInfo?.status || 'inconnu'}</p>
           <p className="mt-2">
-            Si vous avez été débité mais que votre commande n&apos;apparaît pas comme payée,
-            veuillez nous contacter en précisant le code suivant: {searchParams.get('orderCode') || searchParams.get('t')}
+            Nous avons bien reçu la confirmation de votre paiement, mais celui-ci est en cours de traitement.
+            Si le statut n&apos;évolue pas d&apos;ici quelques minutes, veuillez nous contacter en précisant le code suivant: {searchParams.get('orderCode') || searchParams.get('s') || searchParams.get('t')}
           </p>
         </div>
       )}
