@@ -12,7 +12,7 @@ export function determineReward(ordersCount: number): LoyaltyReward {
     return { 
       type: 'sample', 
       claimed: false, 
-      description: 'Échantillon offert + Accès au programme de parrainage' 
+      description: 'Échantillon offert' 
     };
   }
   if (ordersCount === 3) {
