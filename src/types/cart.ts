@@ -10,6 +10,7 @@ export interface CartItem {
   weight?: number;
   image?: string;
   slug?: string;
+  isGift?: boolean; // Indique si l'article est un cadeau automatique
 }
 
 export interface ShippingMethod {

@@ -8,7 +8,7 @@
 import { z } from 'zod';
 
 // Regex couramment utilisés
-const POSTAL_CODE_REGEX = /^(?:0[1-9]|[1-8]\d|9[0-8])\d{3}$/; // Format code postal français
+const POSTAL_CODE_REGEX = /^(?:(?:0[1-9]|[1-8]\d|9[0-8])\d{3}|[1-9]\d{3})$/; // Format code postal français ou belge
 const PHONE_REGEX = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/; // Format téléphone français
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 

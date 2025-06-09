@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Cart } from '@/app/panier/types';
-import { PromoResult, LoyaltyBenefits, CustomerInfo } from '../types';
+import { PromoResult, LoyaltyBenefits, CustomerInfo, PaymentMethod } from '../types';
 import { calculateTotalPrice } from '@/utils/priceCalculations';
 import { secureLogger as logger } from '@/utils/logger';
 import { httpClient } from '@/lib/httpClient';
@@ -11,6 +11,8 @@ interface UseCheckoutReturn {
   isSubmitting: boolean;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   errors: Record<string, string>;
+  paymentMethod: PaymentMethod;
+  setPaymentMethod: (method: PaymentMethod) => void;
 }
 
 export default function useCheckout(
@@ -24,6 +26,7 @@ export default function useCheckout(
   const isSubmittingRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,19 +130,43 @@ export default function useCheckout(
         customerId: userId || null
       });
 
+      // Fonction pour vérifier si un ID est valide au format MongoDB ObjectId
+      const isValidMongoId = (id?: string) => id && /^[0-9a-f]{24}$/i.test(id);
+
+      // Transformer les articles pour assurer que les IDs sont compatibles MongoDB
+      const transformedItems = cart.items.map(item => {
+        // Si c'est un cadeau avec ID non-standard, utiliser un ObjectId factice
+        const productId = item.isGift && !isValidMongoId(item.productId)
+          ? '000000000000000000000000' // ID factice mais valide pour MongoDB
+          : item.productId;
+        
+        // Même correction pour variantId si présent
+        const variantId = item.variantId && !isValidMongoId(item.variantId)
+          ? null // null pour variantId car optionnel
+          : item.variantId;
+        
+        return {
+          productId,
+          variantId,
+          name: item.name,
+          productName: item.name, // Utiliser name comme fallback
+          title: item.name, // Utiliser name comme fallback 
+          price: item.price,
+          priceCents: item.priceCents,
+          quantity: item.quantity,
+          isGift: item.isGift || false,
+          attributes: {}, // Objet vide par défaut
+          // Conservation de l'ID original pour référence métier
+          originalGiftId: item.isGift && productId !== item.productId ? item.productId : undefined
+        };
+      });
+
+      // Créer l'objet de données pour le checkout
       const checkoutData = {
         order: {
           status: 'pending',
           total: finalAmount,
-          items: cart.items.map(item => ({
-            productId: item.productId,
-            variantId: item.variantId,
-            title: item.name,
-            price: item.price,
-            priceCents: item.priceCents,
-            quantity: item.quantity,
-            attributes: {}
-          })),
+          items: transformedItems,
           // ✅ RÈGLE 1 : Utilisateurs connectés = commande associée au compte
           ...(isCustomer && userId ? { customer: userId } : {}),
           guestInformation: {
@@ -149,22 +176,24 @@ export default function useCheckout(
             lastName: customerInfo.lastName,
             phone: customerInfo.phone
           },
-          // ✅ RÈGLE 3 : Formulaire = source de vérité pour les adresses et détails de commande
+          // ✅ RÈGLE 3 : Adresses complètes et formatées selon le schéma attendu
           billingAddress: {
             name: `${customerInfo.firstName} ${customerInfo.lastName}`,
             line1: customerInfo.address,
-            line2: customerInfo.addressLine2,
+            line2: customerInfo.addressLine2 || '',  // Champ obligatoire, vide si null
             city: customerInfo.city,
             postalCode: customerInfo.postalCode,
-            country: customerInfo.country
+            country: customerInfo.country || 'FR',   // Valeur par défaut FR
+            state: ''  // Champ requis par le schéma
           },
           shippingAddress: {
             name: `${customerInfo.firstName} ${customerInfo.lastName}`,
             line1: customerInfo.address,
-            line2: customerInfo.addressLine2,
+            line2: customerInfo.addressLine2 || '',  // Champ obligatoire, vide si null
             city: customerInfo.city,
             postalCode: customerInfo.postalCode,
-            country: customerInfo.country
+            country: customerInfo.country || 'FR',   // Valeur par défaut FR
+            state: ''  // Champ requis par le schéma
           },
           shipping: { method: '67fffcd911f3717499195edf', cost: priceDetails.shippingCost },
           subtotal: priceDetails.subtotal,
@@ -194,24 +223,74 @@ export default function useCheckout(
         loyaltyEmail: customerInfo.email // Email utilisé pour la fidélité
       });
 
+      // **DIAGNOSTIC** - Log détaillé avant envoi
+      logger.info('🔍 DIAGNOSTIC FRONTEND: Données envoyées au backend', {
+        orderKeys: Object.keys(checkoutData.order),
+        paymentKeys: Object.keys(checkoutData.payment),
+        hasBillingAddress: !!checkoutData.order.billingAddress,
+        hasShippingAddress: !!checkoutData.order.shippingAddress,
+        billingAddressKeys: checkoutData.order.billingAddress ? Object.keys(checkoutData.order.billingAddress) : [],
+        shippingAddressKeys: checkoutData.order.shippingAddress ? Object.keys(checkoutData.order.shippingAddress) : [],
+        shippingFields: checkoutData.order.shipping,
+        guestInfoFields: checkoutData.order.guestInformation ? Object.keys(checkoutData.order.guestInformation) : [],
+        totalCents: checkoutData.payment.amountCents,
+        itemsCount: checkoutData.order.items.length
+      });
+      
+      // Version complète pour débogage
+      console.log('CHECKOUT DATA ENVOYÉES:', JSON.stringify(checkoutData, null, 2));
+      console.log(`Méthode de paiement choisie: ${paymentMethod}`);
+      
+      // URL de l'API en fonction de la méthode de paiement
+      const apiUrl = paymentMethod === 'card' 
+        ? '/payment/create' 
+        : '/payment/bank-transfer';
+      
       // Faire la requête via httpClient pour éviter les problèmes CORS
-      const response = await httpClient.post('/payment/create', checkoutData, {
+      const response = await httpClient.post(apiUrl, checkoutData, {
         withCsrf: true,
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         }
       });
       
-      // httpClient retourne la réponse axios, donc nous avons besoin de response.data
-      const paymentResponse = response.data as { smartCheckoutUrl?: string };
-      if (paymentResponse.smartCheckoutUrl) {
-        clearCart();
-        window.location.href = paymentResponse.smartCheckoutUrl;
+      // Traiter la réponse selon la méthode de paiement
+      const paymentResponse = response.data;
+      clearCart(); // Dans tous les cas, on vide le panier
+      
+      if (paymentMethod === 'card') {
+        // Pour carte bancaire, redirection vers VivaWallet
+        if (paymentResponse.smartCheckoutUrl) {
+          window.location.href = paymentResponse.smartCheckoutUrl;
+        } else {
+          throw new Error('URL de paiement VivaWallet non reçue');
+        }
+      } else if (paymentMethod === 'bank_transfer') {
+        // Pour virement, redirection vers la page de confirmation avec instructions
+        if (paymentResponse.redirectUrl) {
+          window.location.href = paymentResponse.redirectUrl;
+        } else {
+          throw new Error('URL de confirmation non reçue');
+        }
       } else {
-        throw new Error('URL de paiement non reçue');
+        throw new Error('Méthode de paiement non reconnue');
       }
     } catch (err) {
       console.error('Checkout error:', err);
+      
+      // Log détaillé de l'erreur pour débogage
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response?: { status?: number, data?: unknown, headers?: Record<string, unknown> } };
+        console.log('🔴 DÉTAILS ERREUR AXIOS:', { 
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          headers: axiosError.response?.headers
+        });
+        logger.error('🔴 ERREUR CHECKOUT DÉTAILLÉE', {
+          status: axiosError.response?.status,
+          data: JSON.stringify(axiosError.response?.data, null, 2)
+        });
+      }
       
       // Analyser l'erreur pour voir si c'est un problème de validation
       try {
@@ -260,5 +339,5 @@ export default function useCheckout(
     }
   };
 
-  return { isSubmitting, handleSubmit, errors: formErrors };
+  return { isSubmitting, handleSubmit, errors: formErrors, paymentMethod, setPaymentMethod };
 }

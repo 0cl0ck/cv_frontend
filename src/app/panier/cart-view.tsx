@@ -56,7 +56,9 @@ export default function CartView() {
   const {
     isSubmitting,
     handleSubmit: handlePaymentSubmit,
-    errors: checkoutErrors
+    errors: checkoutErrors,
+    paymentMethod,
+    setPaymentMethod
   } = useCheckout(cart, promoResult, loyaltyBenefits, customerInfo, clearCart, setErrors);
   
   // Initialiser l'email du compte pour les utilisateurs connectés
@@ -140,9 +142,12 @@ export default function CartView() {
       {/* Bannière promotionnelle temporaire */}
       <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
         <p className="text-lg font-bold">🎁 PROMOTION TEMPORAIRE 🎁</p>
-        <p>Frais de livraison <span className="font-bold">OFFERTS</span> pour toutes les commandes</p>
-        <p className="text-sm mt-1">+ <span className="font-bold">2g OFFERTS</span> pour votre première commande sur le site</p>
-        <p className="text-xs italic mt-2">*Offre limitée dans le temps</p>
+        <p>Livraison Gratuite pour toutes les commandes</p>
+        <p className="text-sm mt-1">2g offerts avec votre commande, peu importe le montant (passe à 5g dès 50€)</p>
+        <p className="text-sm mt-1">Dès 60€ → +5g offerts</p>
+        <p className="text-sm mt-1">Dès 90€ → 12g offerts</p>
+        <p className="text-sm mt-1">Dès 120€ → 20g offerts</p>
+        <p className="text-xs italic mt-2">*Pour 120€ : 25g offerts en tout (20 + 5)</p>
       </div>
       
       <h1 className="text-3xl font-bold mb-8 text-[#F4F8F5]">Votre panier</h1>
@@ -177,6 +182,8 @@ export default function CartView() {
             onPaymentSubmit={handlePaymentSubmit}
             clearCart={clearCart}
             isSubmitting={isSubmitting}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
           />
         
 

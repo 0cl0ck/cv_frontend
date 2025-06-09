@@ -5,7 +5,7 @@ import LoyaltyBenefitsPanel from './LoyaltyBenefitsPanel';
 import OrderSummary from './OrderSummary';
 import CheckoutForm from './CheckoutForm';
 import { PriceService } from '@/utils/priceCalculations';
-import { Cart, Address, LoyaltyBenefits, PromoResult, CustomerInfo, FormErrors } from '../types';
+import { Cart, Address, LoyaltyBenefits, PromoResult, CustomerInfo, FormErrors, PaymentMethod } from '../types';
 interface CheckoutSidebarProps {
     isAuthenticated: boolean;
     loyaltyBenefits: LoyaltyBenefits;
@@ -29,6 +29,8 @@ interface CheckoutSidebarProps {
     onPaymentSubmit: (e: React.FormEvent) => Promise<void>;
     clearCart: () => void;
     isSubmitting?: boolean;        // Flag pour indiquer si le formulaire est en cours de soumission
+    paymentMethod: PaymentMethod;   // Méthode de paiement choisie
+    setPaymentMethod: (method: PaymentMethod) => void; // Fonction pour changer la méthode de paiement
   }
 
 export default function CheckoutSidebar({
@@ -54,6 +56,8 @@ export default function CheckoutSidebar({
   onPaymentSubmit,
   clearCart,
   isSubmitting = false,
+  paymentMethod = 'card',
+  setPaymentMethod,
 }: CheckoutSidebarProps) {
   if (!checkoutMode) {
     // Mode normal : affichage du résumé, promos, fidélité
@@ -215,6 +219,8 @@ export default function CheckoutSidebar({
         onSubmit={onPaymentSubmit}
         isSubmitting={isSubmitting}
         isAuthenticated={isAuthenticated}
+        paymentMethod={paymentMethod}
+        onPaymentMethodChange={setPaymentMethod}
       />
 
       {/* Actions du formulaire */}

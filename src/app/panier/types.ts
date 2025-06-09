@@ -1,3 +1,5 @@
+export type PaymentMethod = 'card' | 'bank_transfer';
+
 export type AddressType = 'shipping' | 'billing' | 'both';
 
 export interface Address {
@@ -81,6 +83,7 @@ export interface CartItem {
   weight?: number;
   image?: string;
   slug?: string;
+  isGift?: boolean;
 }
 
 export interface ShippingMethod {
