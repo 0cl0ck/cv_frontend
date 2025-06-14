@@ -76,6 +76,7 @@ export interface FormErrors {
 export interface CartItem {
   productId: string;
   variantId?: string;
+  variantName?: string; // Ajout du nom de la variante pour affichage dans le récapitulatif
   name: string;
   price: number; // Prix unitaire en euros (pour l'affichage)
   priceCents: number; // Prix unitaire en centimes (pour les calculs)
@@ -84,6 +85,7 @@ export interface CartItem {
   image?: string;
   slug?: string;
   isGift?: boolean;
+  sku?: string;
 }
 
 export interface ShippingMethod {

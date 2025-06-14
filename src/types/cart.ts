@@ -3,6 +3,7 @@
 export interface CartItem {
   productId: string;
   variantId?: string;
+  variantName?: string; // Nom de la variante pour affichage dans le récapitulatif
   name: string;
   price: number;
   priceCents: number;
@@ -11,6 +12,7 @@ export interface CartItem {
   image?: string;
   slug?: string;
   isGift?: boolean; // Indique si l'article est un cadeau automatique
+  sku?: string; // Référence SKU pour les variantes
 }
 
 export interface ShippingMethod {

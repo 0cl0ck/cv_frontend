@@ -165,6 +165,12 @@ export const useCart = () => {
     
     if (variant) {
       newItem.variantId = variant.id;
+      // Ajouter le nom de la variante si disponible, sinon utiliser le poids comme identifiant
+      newItem.variantName = variant.weight ? `${variant.weight}g` : '';
+      // Ajouter aussi le SKU s'il est disponible
+      if (variant.sku) {
+        newItem.sku = variant.sku;
+      }
     }
     
     setCart((prevCart: Cart) => {
