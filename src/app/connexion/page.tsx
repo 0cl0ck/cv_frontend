@@ -21,15 +21,32 @@ function LoginForm() {
   });
   
   // Utiliser le contexte d'authentification global
-  const { isAuthenticated, loading: authLoading } = useAuthContext();
+  const { isAuthenticated, user, loading: authLoading } = useAuthContext(); // Récupérer l'objet user
 
   // Redirection simple si utilisateur déjà authentifié
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      const redirectPath = searchParams.get('redirect') || '/compte';
-      router.replace(redirectPath);
+    if (!authLoading && isAuthenticated && user) { // Vérifier aussi la présence de user
+      // Rediriger vers /compte uniquement si l'utilisateur est de la collection 'customers'
+      if (user.collection === 'customers') {
+        const redirectPath = searchParams.get('redirect') || '/compte';
+        router.replace(redirectPath);
+      } else {
+        // Optionnel : rediriger les non-clients ailleurs ou afficher un message
+        // Par exemple, rediriger les admins vers un dashboard admin
+        // if (user.collection === 'admins') {
+        //   router.replace('/admin');
+        // } else {
+        //   // Pour les autres types d'utilisateurs ou si la collection n'est pas 'customers'
+        //   // On pourrait choisir de ne pas rediriger ou de rediriger vers la page d'accueil
+        //   // ou afficher un message "Vous êtes connecté mais pas en tant que client"
+        //   logger.warn(`[Login Page] Utilisateur authentifié mais non client (collection: ${user.collection}). Redirection vers /compte annulée.`);
+        // }
+        // Pour l'instant, pour stopper la boucle, on ne redirige pas si ce n'est pas un customer.
+        // Vous pourrez affiner cette logique plus tard.
+        logger.info(`[Login Page] Utilisateur ${user.email} (collection: ${user.collection}) authentifié, mais pas un client. Redirection vers /compte bloquée.`);
+      }
     }
-  }, [isAuthenticated, authLoading, router, searchParams]);
+  }, [isAuthenticated, user, authLoading, router, searchParams]);
 
   // Vérifier les paramètres d'URL pour les messages
   useEffect(() => {

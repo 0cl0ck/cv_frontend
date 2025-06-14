@@ -19,6 +19,7 @@ type User = {
   role?: string;
   firstName?: string;
   lastName?: string;
+  collection?: string; // Ajout de la collection
 };
 
 // Type pour le contexte d'authentification

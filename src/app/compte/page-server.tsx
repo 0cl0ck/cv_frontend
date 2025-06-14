@@ -1,7 +1,8 @@
 // Server Component pour la page compte
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import ClientDashboard from '@/app/compte/client-dashboard'
+import ClientDashboard from '@/app/compte/client-dashboard'; // Assurez-vous que React est importé si ce n'est pas déjà globalement disponible pour JSX
+import React from 'react'; // Ajout de l'import React pour JSX
 import { User } from '@/lib/auth/auth';
 import { secureLogger as logger } from '@/utils/logger';
 
@@ -127,10 +128,28 @@ export default async function DashboardServerPage() {
     
     // Vérifier si l'utilisateur existe
     if (!user) {
-      return redirect('/connexion');
+      logger.warn('[page-server] Utilisateur non trouvé dans les données après appel /api/auth/me');
+      return redirect('/connexion?reason=no-user-data');
+    }
+
+    // Vérifier si l'utilisateur est un client
+    if (user.collection !== 'customers') {
+      logger.warn(`[page-server] Tentative d'accès à /compte par un utilisateur non-client. Collection: ${user.collection}, Email: ${user.email}`);
+      // Au lieu de rediriger, nous allons afficher un message d'accès refusé.
+      // Pour cela, nous pouvons retourner un composant simple ici ou une page dédiée.
+      // Pour l'instant, un simple message :
+      return (
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <h1>Accès non autorisé</h1>
+          <p>Vous êtes bien connecté, mais cette page est réservée aux clients.</p>
+          <p>Si vous êtes un administrateur, veuillez utiliser le panel d&apos;administration.</p>
+          {/* Optionnel: ajouter un lien de déconnexion ou vers la page d'accueil */}
+        </div>
+      );
     }
     
-    // Rendre le composant client avec les données utilisateur
+    // Rendre le composant client avec les données utilisateur si c'est un client
+    logger.info(`[page-server] Utilisateur client ${user.email} accède à son compte.`);
     return <ClientDashboard initialUser={user} />;
   } catch (error) {
     console.error('Erreur lors de la vérification de l\'authentification:', error);
