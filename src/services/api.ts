@@ -140,6 +140,8 @@ export async function getProducts(params?: {
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.category) queryParams.append('where[category][contains]', params.category);
     if (params?.featured) queryParams.append('where[isFeatured][equals]', 'true');
+    // Assurons-nous que seuls les produits actifs sont affichés
+    queryParams.append('where[isActive][equals]', 'true');
     if (params?.sort) queryParams.append('sort', params.sort);
     
     // Filtres de prix
@@ -170,6 +172,9 @@ export async function getProducts(params?: {
     if (params?.featured) {
       filteredProducts = filteredProducts.filter(product => product.isFeatured === true);
     }
+    
+    // Toujours filtrer les produits inactifs (supprimés)
+    filteredProducts = filteredProducts.filter(product => product.isActive !== false);
     
     // Filtres de prix pour les données de secours
     if (params?.minPrice) {
