@@ -2,7 +2,6 @@
 
 import { formatPrice } from '@/utils/utils';
 import { Media, Product, ProductVariation } from '@/types/product';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
@@ -142,14 +141,15 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   };
 
   return (
-    <motion.div 
-      className="group relative flex h-full flex-col rounded-lg bg-background shadow-sm transition-all hover:shadow-md"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover={{ scale: 1.03 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+    <div 
+      className="product-card group relative flex h-full flex-col rounded-lg bg-background shadow-sm transition-all hover:shadow-md hover:scale-105"
+      style={{ 
+        opacity: 1,
+        transform: `translateY(0)`,
+        animationDelay: `${index * 100}ms`,
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Badges */}
       <div className="absolute left-0 top-2 z-10 flex flex-col gap-2">
@@ -175,10 +175,9 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
       <div className="relative aspect-square overflow-hidden">
         <Link href={`/produits/${product.slug}`} className="block h-full w-full">
           {/* Image principale */}
-          <motion.div
-            className="absolute inset-0 h-full w-full"
-            animate={{ opacity: isHovered && hoverImage ? 0 : 1 }}
-            transition={{ duration: 0.3 }}
+          <div
+            className="absolute inset-0 h-full w-full transition-opacity duration-300"
+            style={{ opacity: isHovered && hoverImage ? 0 : 1 }}
           >
             {mainImage?.url ? (
               <Image
@@ -194,14 +193,13 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
                 <span className="text-sm text-gray-500">Image non disponible</span>
               </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Image secondaire (au survol) */}
           {hoverImage?.url && (
-            <motion.div
-              className="absolute inset-0 h-full w-full"
-              animate={{ opacity: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
+            <div
+              className="absolute inset-0 h-full w-full transition-opacity duration-300"
+              style={{ opacity: isHovered ? 1 : 0 }}
             >
               <Image
                 src={getImageUrl(hoverImage)}
@@ -210,24 +208,22 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
-            </motion.div>
+            </div>
           )}
         </Link>
       </div>
 
-      <motion.div 
-        className="flex flex-col flex-grow p-4 bg-[#004942] text-white"
-        animate={{ backgroundColor: isHovered ? '#005a57' : '#004942' }}
-        transition={{ duration: 0.3 }}
+      <div 
+        className="flex flex-col flex-grow p-4 text-white transition-colors duration-300"
+        style={{ backgroundColor: isHovered ? '#005a57' : '#004942' }}
       >
         <Link href={`/produits/${product.slug}`} className="mb-2">
-          <motion.h3 
-            className="text-lg font-semibold text-white"
-            animate={{ color: isHovered ? 'rgb(16, 185, 129)' : 'rgb(255, 255, 255)' }}
-            transition={{ duration: 0.2 }}
+          <h3 
+            className="text-lg font-semibold transition-colors duration-200"
+            style={{ color: isHovered ? 'rgb(16, 185, 129)' : 'rgb(255, 255, 255)' }}
           >
             {product.name}
-          </motion.h3>
+          </h3>
         </Link>
         
         {product.category && (
@@ -319,7 +315,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             )}
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };

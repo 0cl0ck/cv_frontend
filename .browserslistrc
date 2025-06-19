@@ -1,0 +1,16 @@
+# Browsers we support
+# This configuration targets modern browsers only
+# to reduce unnecessary polyfills and optimize bundle size
+
+# Desktop browsers
+Chrome >= 70
+Firefox >= 78
+Safari >= 14
+Edge >= 79
+
+# Mobile browsers  
+iOS >= 14
+Android >= 5
+
+# Explicitly exclude IE 11
+not IE 11

@@ -1,9 +1,12 @@
 import ImageHero from "@/components/Hero/ImageHero";
-import FeaturedProducts from "@/components/sections/FeaturedProducts";
-import CategoryGrid from "@/components/sections/CategoryGrid";
-import FeaturesBanner from "@/components/sections/FeaturesBanner";
-import SocialProofSection from "@/components/sections/SocialProofSection";
-import ContactSection from "@/components/sections/ContactSection";
+import dynamic from 'next/dynamic';
+
+// Lazy load below-the-fold components to improve initial page load performance
+const FeaturedProducts = dynamic(() => import("@/components/sections/FeaturedProducts"), { ssr: true });
+const CategoryGrid = dynamic(() => import("@/components/sections/CategoryGrid"), { ssr: true });
+const FeaturesBanner = dynamic(() => import("@/components/sections/FeaturesBanner"), { ssr: true });
+const SocialProofSection = dynamic(() => import("@/components/sections/SocialProofSection"), { ssr: true });
+const ContactSection = dynamic(() => import("@/components/sections/ContactSection"), { ssr: true });
 
 export default function Home() {
   return (

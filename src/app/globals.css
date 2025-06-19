@@ -40,3 +40,19 @@ select:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px #002935 inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Neon text animation styles - CSS-based alternative to JavaScript animations */
+@keyframes neonPulse {
+  0%, 100% {
+    color: #FFDA85;
+    text-shadow: 0 0 5px #EFC368, 0 0 10px #EFC368, 0 0 15px #EFC368, 0 0 25px #EFC368, 0 0 40px #EFC368;
+  }
+  50% {
+    color: #ffffff;
+    text-shadow: 0 0 7px #ffffff, 0 0 15px #ffffff, 0 0 25px #4fd1c5, 0 0 40px #4fd1c5;
+  }
+}
+
+.neon-text-animation {
+  animation: neonPulse 4s infinite ease-in-out;
+}
