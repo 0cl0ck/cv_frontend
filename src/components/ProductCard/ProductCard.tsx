@@ -1,12 +1,12 @@
 'use client';
 
 import { formatPrice } from '@/utils/utils';
-import { Media, Product, ProductVariation } from '@/types/product';
-import Image from 'next/image';
+import { Product, ProductVariation } from '@/types/product';
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
 import { useCartContext } from '@/context/CartContext';
 import { ChevronDown, ShoppingCart } from 'lucide-react';
+import ProductImage from './ProductImage';
 
 type Props = {
   product: Product;
@@ -26,9 +26,8 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   // Contexte du panier
   const { addItem } = useCartContext();
   
-  // Utiliser mainImage comme image principale
+  // Utiliser mainImage comme image principale et la première image de la galerie comme image au survol
   const mainImage = product.mainImage;
-  // Utiliser la première image de la galerie comme image au survol (si disponible)
   const hoverImage = product.galleryImages?.[0];
   
   // Initialiser la variante sélectionnée au chargement
@@ -54,10 +53,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
     };
   }, []);
 
-  const getImageUrl = (image: Media | undefined): string => {
-    if (!image) return '';
-    return image.url || '';
-  };
+  // getImageUrl est maintenant géré par le composant ProductImage
 
   // Fonction pour vérifier si le produit appartient à une catégorie qui utilise le prix par gramme
   const isWeightBasedCategory = () => {
@@ -172,46 +168,18 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
         </div>
       )}
       
-      <div className="relative aspect-square overflow-hidden">
-        <Link href={`/produits/${product.slug}`} className="block h-full w-full">
-          {/* Image principale */}
-          <div
-            className="absolute inset-0 h-full w-full transition-opacity duration-300"
-            style={{ opacity: isHovered && hoverImage ? 0 : 1 }}
-          >
-            {mainImage?.url ? (
-              <Image
-                src={getImageUrl(mainImage)}
-                alt={product.name}
-                className="h-full w-full object-cover"
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                priority={index < 4}
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-neutral-100">
-                <span className="text-sm text-gray-500">Image non disponible</span>
-              </div>
-            )}
-          </div>
-
-          {/* Image secondaire (au survol) */}
-          {hoverImage?.url && (
-            <div
-              className="absolute inset-0 h-full w-full transition-opacity duration-300"
-              style={{ opacity: isHovered ? 1 : 0 }}
-            >
-              <Image
-                src={getImageUrl(hoverImage)}
-                alt={`${product.name} - vue alternative`}
-                className="h-full w-full object-cover"
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
-            </div>
-          )}
-        </Link>
-      </div>
+      {/* Product Image Component */}
+      <Link href={`/produits/${product.slug}`} className="block overflow-hidden">
+        <ProductImage 
+          mainImage={mainImage}
+          hoverImage={hoverImage}
+          productName={product.name}
+          isHovered={isHovered}
+          isOutOfStock={isOutOfStock()}
+          showFeaturedBadge={showFeaturedBadge}
+          index={index}
+        />
+      </Link>
 
       <div 
         className="flex flex-col flex-grow p-4 text-white transition-colors duration-300"

@@ -4,6 +4,9 @@
   themes: light --default, dark --prefersdark;
 }
 
+/* Prevent Flash of Unstyled Content (FOUC) */
+html { visibility: visible; }
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -41,18 +44,34 @@ select:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Neon text animation styles - CSS-based alternative to JavaScript animations */
+/* Optimized neon animation - reduced text-shadow properties for better performance */
 @keyframes neonPulse {
   0%, 100% {
     color: #FFDA85;
-    text-shadow: 0 0 5px #EFC368, 0 0 10px #EFC368, 0 0 15px #EFC368, 0 0 25px #EFC368, 0 0 40px #EFC368;
+    /* Reduced number of shadows for better performance */
+    text-shadow: 0 0 10px #EFC368, 0 0 25px #EFC368;
   }
   50% {
     color: #ffffff;
-    text-shadow: 0 0 7px #ffffff, 0 0 15px #ffffff, 0 0 25px #4fd1c5, 0 0 40px #4fd1c5;
+    /* Reduced number of shadows for better performance */
+    text-shadow: 0 0 15px #ffffff, 0 0 30px #4fd1c5;
   }
 }
 
 .neon-text-animation {
+  /* Use hardware acceleration for animations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  /* Add will-change to optimize animation rendering */
+  will-change: color, text-shadow;
   animation: neonPulse 4s infinite ease-in-out;
+}
+
+/* Only animate when the document is visible (reduces battery usage) */
+@media (prefers-reduced-motion: reduce) {
+  .neon-text-animation {
+    animation: none;
+    text-shadow: 0 0 10px #EFC368;
+  }
 }

@@ -6,6 +6,9 @@ import Image from 'next/image';
 
 // CSS classes will be used instead of inline styles for better performance
 export default function ImageHero() {
+  // Define exact dimensions for the hero image to reduce CLS
+  const imageWidth = 1920;
+  const imageHeight = 1080;
   return (
     <div className="relative min-h-[100vh] flex items-center text-white bg-[#002830]">
       {/* Image de fond - optimized loading with fetchpriority for better LCP */}
@@ -14,11 +17,15 @@ export default function ImageHero() {
           src="/Chanvre_Vert_Hero_3.png" 
           alt="Chanvre Vert CBD" 
           fill
+          width={imageWidth}
+          height={imageHeight}
           sizes="100vw"
           priority
           fetchPriority="high"
-          quality={90} /* Reduced quality from 100 to 90 for faster loading, visually indistinguishable */
+          loading="eager"
+          quality={85} /* Further reduced quality for faster loading */
           className="object-cover w-full h-full"
+          style={{ transform: 'translate3d(0,0,0)' }} /* Force GPU acceleration */
         />
         {/* Overlay léger pour améliorer la lisibilité du texte */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#002830] via-[#002830]/70 to-transparent"></div>
