@@ -7,18 +7,22 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import CsrfInitializer from "@/components/CsrfInitializer";
 import ResourcePreload from "@/components/Performance/ResourcePreload";
-import ClientCookieManagerWrapper from "@/components/CookieConsent/ClientCookieManagerWrapper";
+import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import FontLoader from "@/components/Performance/FontLoader";
 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -63,19 +67,6 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#126E62" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-        {/* DNS Prefetch and Preconnect to Google Fonts */}
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* Preload critical fonts to improve LCP and reduce CLS */}
-        <link 
-          rel="preload" 
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap"
-          as="style" 
-          crossOrigin="anonymous" 
-        />
         
         {/* Optimize font loading with minimal FOUT */}
         <style dangerouslySetInnerHTML={{ __html: `
@@ -120,7 +111,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
-              <ClientCookieManagerWrapper />
+              <ClientLayoutWrapper />
             </>
           </AuthProvider>
         </CartProvider>

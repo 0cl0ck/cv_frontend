@@ -12,11 +12,10 @@ interface Product {
   images: string[];
   slug: string;
   // Add other product properties as needed
-  [key: string]: any; // For any other properties not explicitly defined
+  [key: string]: unknown; // For any other properties not explicitly defined
 }
 
-// Constants
-const MAX_FEATURED_PRODUCTS = 3;
+// No constants needed here
 
 /**
  * A client component wrapper that handles lazy-loading of featured products

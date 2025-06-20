@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 
 interface LazyLoadSectionProps {
@@ -66,10 +66,9 @@ export default function LazyLoadSection({
       { rootMargin }
     );
 
-    // Get the DOM node using callback ref
-    const currentElement = document.getElementById('lazy-section');
-    if (currentElement) {
-      observer.observe(currentElement);
+    // Get the DOM node using sectionRef
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
 
     // Cleanup observer on unmount
@@ -78,8 +77,11 @@ export default function LazyLoadSection({
     };
   }, [hasLoaded, rootMargin]);
 
+  // Use ref instead of ID to avoid duplicate IDs
+  const sectionRef = useRef<HTMLDivElement>(null);
+  
   return (
-    <div id="lazy-section" className={className}>
+    <div ref={sectionRef} className={className}>
       {isVisible && DynamicComponent ? (
         <DynamicComponent {...componentProps} />
       ) : (
