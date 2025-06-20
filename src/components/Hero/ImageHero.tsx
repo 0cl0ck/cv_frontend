@@ -16,7 +16,6 @@ export default function ImageHero() {
         <Image 
           src="/Chanvre_Vert_Hero_3.png" 
           alt="Chanvre Vert CBD" 
-          fill
           width={imageWidth}
           height={imageHeight}
           sizes="100vw"
