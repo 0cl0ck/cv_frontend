@@ -42,7 +42,7 @@ export default function CartNotification({ productName, show, onClose }: CartNot
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
-          className="fixed bottom-4 right-4 z-50 w-full max-w-sm bg-[#002935] border border-[#3A4A4F] shadow-lg rounded-lg p-4 md:p-5"
+          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm bg-[#002935] border border-[#3A4A4F] shadow-lg rounded-lg p-4 md:p-5"
         >
           <div className="flex items-start justify-between">
             <div className="flex items-center">

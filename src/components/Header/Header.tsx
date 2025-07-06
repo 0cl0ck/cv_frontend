@@ -1,6 +1,6 @@
 'use client';
 
-import { IconMenu2 } from "@tabler/icons-react";
+import { IconMenu2, IconUser, IconLogin } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -103,7 +103,7 @@ export default function Header() {
                   href="/connexion" 
                   className="px-4 py-2 text-sm font-medium text-black bg-[#EFC368] hover:bg-[#D3A74F] rounded-lg shadow-md transition-colors flex items-center"
                 >
-                  <IconMenu2 className="md:mr-2 w-5 h-5" />
+                  <IconLogin className="md:mr-2 w-5 h-5" />
                   <span className="hidden md:inline">Connexion</span>
                 </Link>
               )}
@@ -145,7 +145,7 @@ export default function Header() {
                   className="p-2 mr-1 text-sm font-medium text-black bg-[#EFC368] hover:bg-[#D3A74F] rounded-lg shadow-md transition-colors flex items-center"
                   aria-label="Mon compte"
                 >
-                  <IconMenu2 className="w-5 h-5" />
+                  <IconUser className="w-5 h-5" />
                 </Link>
               ) : (
                 <Link
@@ -153,7 +153,7 @@ export default function Header() {
                   className="p-2 mr-1 text-sm font-medium text-black bg-[#EFC368] hover:bg-[#D3A74F] rounded-lg shadow-md transition-colors flex items-center"
                   aria-label="Connexion"
                 >
-                  <IconMenu2 className="w-5 h-5" />
+                  <IconLogin className="w-5 h-5" />
                 </Link>
               )}
             </div>
@@ -161,9 +161,9 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Menu mobile sidebar */}
+      {/* Menu mobile sidebar overlay */}
       <div
-        className={`md:hidden fixed inset-0 bg-black/50 z-[999] transition-opacity duration-500 ease-in-out ${
+        className={`md:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-500 ease-in-out ${
           menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setMenuOpen(false)}
