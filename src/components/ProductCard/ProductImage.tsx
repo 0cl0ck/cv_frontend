@@ -60,12 +60,7 @@ export default function ProductImage({
         />
       )}
       
-      {/* Badge "En rupture" */}
-      {isOutOfStock && (
-        <div className="absolute top-0 left-0 bg-red-500 text-white text-xs px-2 py-1">
-          Rupture de stock
-        </div>
-      )}
+      {/* Badge "En rupture" - Supprimé car redondant avec le bouton */}
       
       {/* Badge "Produit vedette" */}
       {showFeaturedBadge && (
