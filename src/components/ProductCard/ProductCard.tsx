@@ -175,7 +175,6 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
           hoverImage={hoverImage}
           productName={product.name}
           isHovered={isHovered}
-          isOutOfStock={isOutOfStock()}
           showFeaturedBadge={showFeaturedBadge}
           index={index}
         />
