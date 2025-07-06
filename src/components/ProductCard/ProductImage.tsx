@@ -9,7 +9,6 @@ type ProductImageProps = {
   hoverImage: Media | undefined;
   productName: string;
   isHovered: boolean;
-  isOutOfStock?: boolean;
   showFeaturedBadge?: boolean;
   index: number;
 };
@@ -19,7 +18,6 @@ export default function ProductImage({
   hoverImage,
   productName,
   isHovered,
-  isOutOfStock = false,
   showFeaturedBadge = false,
   index
 }: ProductImageProps) {
