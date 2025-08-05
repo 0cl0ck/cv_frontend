@@ -9,6 +9,7 @@ import CsrfInitializer from "@/components/CsrfInitializer";
 import ResourcePreload from "@/components/Performance/ResourcePreload";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import FontLoader from "@/components/Performance/FontLoader";
+import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
 
 
 const geistSans = Geist({
@@ -96,15 +97,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-950 text-gray-50`}
       >
         {/* Preload critical resources */}
+        <AgeVerificationModal />
         <ResourcePreload resources={criticalResources} />
-        
-        {/* Optimize context wrapping to reduce nesting */}
-        <CartProvider>
-          <AuthProvider>
-            <>
-              {/* Font loading optimization */}
-              <FontLoader />
-              
+        <AuthProvider>
+          <CartProvider>
+                          <FontLoader />
               <CsrfInitializer />
               <Header />
               <main className="flex-grow bg-[#001E27]">
@@ -112,9 +109,8 @@ export default function RootLayout({
               </main>
               <Footer />
               <ClientLayoutWrapper />
-            </>
-          </AuthProvider>
-        </CartProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

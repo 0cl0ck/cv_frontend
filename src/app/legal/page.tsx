@@ -20,6 +20,7 @@ export default function LegalPage() {
         <p className="mb-2"><span className="font-medium">RCS :</span> Dunkerque 978 589 893</p>
         <p className="mb-2"><span className="font-medium">N° TVA intracommunautaire :</span> Non-assujetti (art. 293 B CGI)</p>
         <p className="mb-2"><span className="font-medium">Adresse e-mail :</span> contact@chanvre-vert.fr</p>
+        <p className="mb-2"><span className="font-medium">IDU REP Emballages :</span> [À COMPLÉTER AVEC VOTRE NUMÉRO IDU]</p>
       </div>
 
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
@@ -38,13 +39,18 @@ export default function LegalPage() {
       </div>
 
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Conditions générales d&apos;utilisation</h2>
+        <h2 className="text-xl font-semibold mb-4">Documents contractuels</h2>
         <p className="mb-4">
-          Pour consulter nos conditions générales d&apos;utilisation, veuillez vous référer à notre page dédiée :
+          L'utilisation de notre site et les achats effectués sont régis par les documents suivants :
         </p>
-        <p>
-          <Link href="/terms" className="text-green-600 hover:underline">Conditions Générales d&apos;Utilisation</Link>
-        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <Link href="/cgv" className="text-green-600 hover:underline">Conditions Générales de Vente (CGV)</Link>
+          </li>
+          <li>
+            <Link href="/terms" className="text-green-600 hover:underline">Conditions Générales d&apos;Utilisation (CGU)</Link>
+          </li>
+        </ul>
       </div>
 
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">

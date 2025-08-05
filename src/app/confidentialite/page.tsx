@@ -124,10 +124,13 @@ export default function ConfidentialitePage() {
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Gestion des cookies</h2>
         <p className="mb-4">
-          Notre site utilise des cookies pour améliorer votre expérience de navigation et assurer certaines fonctionnalités. Lors de votre première visite, un bandeau vous informe de l&apos;utilisation de ces cookies et vous permet d&apos;exprimer votre consentement.
+          Notre site utilise des cookies et autres traceurs pour améliorer votre expérience et mesurer l'audience. Lors de votre première visite, un bandeau vous permet d'accepter, de refuser ou de personnaliser vos choix.
         </p>
         <p className="mb-4">
-          Vous pouvez à tout moment modifier vos préférences en matière de cookies en utilisant notre outil de gestion des cookies accessible depuis toutes les pages du site.
+          Pour obtenir une information détaillée sur les cookies que nous utilisons et pour modifier vos préférences à tout moment, veuillez consulter notre page dédiée :
+        </p>
+        <p>
+          <Link href="/cookies" className="text-green-600 hover:underline">Politique de gestion des Cookies</Link>
         </p>
       </div>
 

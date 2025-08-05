@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Conditions Générales de Vente | Chanvre Vert',
@@ -71,7 +72,7 @@ export default function CGVPage() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">8. Droit de rétractation</h2>
           <p className="mb-4">
-            Le client dispose d&apos;un délai de 14 jours à compter de la réception des produits pour exercer son droit de rétractation, sans avoir à justifier de motifs ni à payer de pénalités. Un formulaire type de rétractation est disponible en Annexe I des présentes CGV.
+            Le client dispose d&apos;un délai de 14 jours à compter de la réception des produits pour exercer son droit de rétractation, sans avoir à justifier de motifs ni à payer de pénalités. Pour exercer ce droit, le client peut utiliser le formulaire de rétractation disponible sur notre site via le lien suivant : <Link href="/retractation" className="text-green-600 hover:underline">Formulaire de rétractation</Link>.
           </p>
           <p className="mb-4">
             Conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les produits scellés qui ont été ouverts après la livraison et qui ne peuvent être renvoyés pour des raisons d&apos;hygiène ou de protection de la santé.
