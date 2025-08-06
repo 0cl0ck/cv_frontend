@@ -41,7 +41,7 @@ export default function LegalPage() {
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Documents contractuels</h2>
         <p className="mb-4">
-          L'utilisation de notre site et les achats effectués sont régis par les documents suivants :
+          L&apos;utilisation de notre site et les achats effectués sont régis par les documents suivants :
         </p>
         <ul className="list-disc pl-5 space-y-2">
           <li>

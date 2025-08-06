@@ -12,17 +12,17 @@ export default function RetractationPage() {
 
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <p className="mb-4">
-          Conformément à l'article L. 221-18 du Code de la consommation, vous disposez d'un délai de 14 jours à compter de la réception de votre commande pour exercer votre droit de rétractation sans avoir à justifier de motifs ni à payer de pénalités.
+          Conformément à l&apos;article L. 221-18 du Code de la consommation, vous disposez d&apos;un délai de 14 jours à compter de la réception de votre commande pour exercer votre droit de rétractation sans avoir à justifier de motifs ni à payer de pénalités.
         </p>
         <p>
-          Veuillez compléter et renvoyer ce formulaire uniquement si vous souhaitez vous rétracter de votre commande. Nous vous conseillons de nous l'envoyer par e-mail à <a href="mailto:contact@chanvre-vert.fr" className="text-green-600 hover:underline">contact@chanvre-vert.fr</a>.
+          Veuillez compléter et renvoyer ce formulaire uniquement si vous souhaitez vous rétracter de votre commande. Nous vous conseillons de nous l&apos;envoyer par e-mail à <a href="mailto:contact@chanvre-vert.fr" className="text-green-600 hover:underline">contact@chanvre-vert.fr</a>.
         </p>
       </div>
 
       <div className="bg-gray-800 rounded-lg shadow-md p-8">
-        <h2 className="text-xl font-semibold mb-4">À l'attention de :</h2>
+        <h2 className="text-xl font-semibold mb-4">À l&apos;attention de :</h2>
         <p className="mb-1"><strong>Chanvre Vert (Hugo Dewas EI)</strong></p>
-        <p className="mb-1">5 rue d'Ypres</p>
+        <p className="mb-1">5 rue d&apos;Ypres</p>
         <p className="mb-6">59380 Bergues, France</p>
 
         <h2 className="text-xl font-semibold mb-4">Détails de la rétractation</h2>
@@ -54,7 +54,7 @@ export default function RetractationPage() {
         </div>
 
         <div className="mt-8 text-center">
-            <p className="text-sm text-gray-300">Ce formulaire est un modèle. Vous pouvez également nous notifier votre décision par toute autre déclaration dénuée d'ambiguïté.</p>
+            <p className="text-sm text-gray-300">Ce formulaire est un modèle. Vous pouvez également nous notifier votre décision par toute autre déclaration dénuée d&apos;ambiguïté.</p>
         </div>
       </div>
     </div>

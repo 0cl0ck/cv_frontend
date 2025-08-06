@@ -7,9 +7,8 @@ export const GIFT_THRESHOLDS = {
   TIER_0: 50,   // Amélioration du cadeau de base : 5g si panier >= 50€
   
   // Seuils pour le deuxième cadeau (cadeau additionnel)
-  TIER_1: 60,   // Palier 1: 60€ => +5g de fleurs CBD
-  TIER_2: 90,   // Palier 2: 90€ => +12g de fleurs CBD
-  TIER_3: 120   // Palier 3: 120€ => +20g de fleurs CBD
+  TIER_2: 80,   // Palier 2: 80€ => +10g de fleurs CBD
+  TIER_3: 160   // Palier 3: 160€ => +20g de fleurs CBD
 };
 
 // Identifiants uniques pour les cadeaux
@@ -19,8 +18,7 @@ export const GIFT_IDS = {
   BASE_GIFT_5G: 'gift-base-5g',
   
   // Cadeaux additionnels
-  TIER_1_GIFT: 'gift-tier1-5g',
-  TIER_2_GIFT: 'gift-tier2-12g',
+  TIER_2_GIFT: 'gift-tier2-10g',
   TIER_3_GIFT: 'gift-tier3-20g'
 };
 
@@ -59,14 +57,11 @@ export const determineGiftsForSubtotal = (subtotalInEuros: number): CartItem[] =
   
   // PARTIE 2 : Cadeau additionnel aux paliers élevés (non cumulatifs entre eux)
   if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_3) {
-    // Palier 3: +20g de fleurs CBD si panier >= 120€
+    // Palier 3: +20g de fleurs CBD si panier >= 160€
     gifts.push(createGiftItem(GIFT_IDS.TIER_3_GIFT, 'Cadeau: 20g de fleurs CBD'));
   } else if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_2) {
-    // Palier 2: +12g de fleurs CBD si panier >= 90€
-    gifts.push(createGiftItem(GIFT_IDS.TIER_2_GIFT, 'Cadeau: 12g de fleurs CBD'));
-  } else if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_1) {
-    // Palier 1: +5g de fleurs CBD si panier >= 60€
-    gifts.push(createGiftItem(GIFT_IDS.TIER_1_GIFT, 'Cadeau: 5g de fleurs CBD'));
+    // Palier 2: +10g de fleurs CBD si panier >= 80€
+    gifts.push(createGiftItem(GIFT_IDS.TIER_2_GIFT, 'Cadeau: 10g de fleurs CBD'));
   }
   
   return gifts;

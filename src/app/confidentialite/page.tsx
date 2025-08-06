@@ -124,7 +124,7 @@ export default function ConfidentialitePage() {
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Gestion des cookies</h2>
         <p className="mb-4">
-          Notre site utilise des cookies et autres traceurs pour améliorer votre expérience et mesurer l'audience. Lors de votre première visite, un bandeau vous permet d'accepter, de refuser ou de personnaliser vos choix.
+          Notre site utilise des cookies et autres traceurs pour améliorer votre expérience et mesurer l&apos;audience. Lors de votre première visite, un bandeau vous permet d&apos;accepter, de refuser ou de personnaliser vos choix.
         </p>
         <p className="mb-4">
           Pour obtenir une information détaillée sur les cookies que nous utilisons et pour modifier vos préférences à tout moment, veuillez consulter notre page dédiée :

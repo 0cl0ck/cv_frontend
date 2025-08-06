@@ -29,9 +29,13 @@ export class PriceService {
     }
   }
 
-  static isShippingFree(): boolean {
+  static isShippingFree(country?: string): boolean {
     // 🎁 PROMOTION TEMPORAIRE: Frais de livraison offerts pour tous les clients
     // + 2g offerts pour la première commande sur le site (programme fidélité)
+    // EXCEPTION: Belgique reste payante à 10€
+    if (country === 'Belgique') {
+      return false;
+    }
     return true;
     
     // Code commenté pendant la période promotionnelle
@@ -63,7 +67,7 @@ export class PriceService {
     const subtotalCents = cart.subtotalCents || Math.round(subtotal * 100);
     
     // Vérifier si la livraison est gratuite (en tenant compte des avantages fidélité)
-    const free = PriceService.isShippingFree();
+    const free = PriceService.isShippingFree(country);
     const shippingCost = free ? 0 : PriceService.calculateShippingCost(subtotal, country);
     const shippingCostCents = Math.round(shippingCost * 100);
 

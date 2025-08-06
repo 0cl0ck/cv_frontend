@@ -288,12 +288,11 @@ export default function ProductsLayout({
 {/* Bannière promotionnelle temporaire */}
 <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
         <p className="text-lg font-bold">🎁 PROMOTION TEMPORAIRE 🎁</p>
-        <p>Livraison Gratuite pour toutes les commandes</p>
+        <p>Livraison Gratuite pour toutes les commandes (10€ en Belgique)</p>
         <p className="text-sm mt-1">2g offerts avec votre commande, peu importe le montant (passe à 5g dès 50€)</p>
-        <p className="text-sm mt-1">Dès 60€ → +5g offerts</p>
-        <p className="text-sm mt-1">Dès 90€ → 12g offerts</p>
-        <p className="text-sm mt-1">Dès 120€ → 20g offerts</p>
-        <p className="text-xs italic mt-2">*Pour 120€ : 25g offerts en tout (20 + 5)</p>
+        <p className="text-sm mt-1">Dès 80€ → 10g offerts</p>
+        <p className="text-sm mt-1">Dès 160€ → 20g offerts</p>
+        <p className="text-xs italic mt-2">*Exemple: Pour 160€ : 25g offerts en tout (20 + 5)</p>
       </div>
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
