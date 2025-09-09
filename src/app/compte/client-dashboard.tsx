@@ -214,7 +214,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
         const loyaltyInfo = {
           ordersCount, // 🎯 Utilise validatedOrderCount depuis la collection Customers
           currentReward: determineReward(ordersCount),
-          referralEnabled: ordersCount >= 2
+          referralEnabled: ordersCount >= 1
         };
             
         // Mettre à jour l'utilisateur avec les données de fidélité
@@ -349,7 +349,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
                         <p className="text-xs text-[#BEC3CA] mt-1">
                           {userInfo.loyalty?.referralEnabled
                             ? 'Invitez vos proches et gagnez -30%'
-                            : 'Disponible après 2 commandes validées'}
+                            : 'Disponible après 1 commande validée'}
                         </p>
                       </div>
                       <ChevronRight size={16} className="text-[#10B981] opacity-0 group-hover:opacity-100 transition-opacity self-center ml-2" />

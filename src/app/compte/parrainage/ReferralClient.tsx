@@ -14,6 +14,9 @@ type InviteeItem = {
 
 export default function ReferralClient() {
   const [loading, setLoading] = useState(true);
+  const [loyaltyLoaded, setLoyaltyLoaded] = useState(false);
+  const [eligible, setEligible] = useState(false);
+  const [ordersCount, setOrdersCount] = useState<number>(0);
   const [code, setCode] = useState<string>("");
   const [shareUrl, setShareUrl] = useState<string>("");
   const [invitees, setInvitees] = useState<InviteeItem[]>([]);
@@ -41,6 +44,16 @@ export default function ReferralClient() {
       try {
         setLoading(true);
         setError(null);
+        // 1) Récupérer l'éligibilité (fidélité)
+        const st = await httpClient.get("/loyalty/status").then(r => r.data).catch(() => ({ success: false }));
+        if (cancelled) return;
+        const isEligible = !!(st?.success && st.referralEnabled);
+        setEligible(isEligible);
+        setOrdersCount(Number(st?.ordersCount || 0));
+        setLoyaltyLoaded(true);
+        if (!isEligible) return; // Ne pas générer/charger le code si non éligible
+
+        // 2) Éligible -> charger parrainage (code, filleuls, récompenses)
         const [me, inv, rw] = await Promise.all([
           httpClient.get("/referral/me").then(r => r.data).catch(() => ({ success: false })),
           httpClient.get("/referral/invitees").then(r => r.data).catch(() => ({ success: false, invitees: [], counters: { pending: 0, rewarded: 0 } })),
@@ -103,6 +116,29 @@ export default function ReferralClient() {
   if (error) {
     return (
       <div className="p-3 bg-red-900/40 border border-red-700 rounded-md text-red-100 text-sm">{error}</div>
+    );
+  }
+
+  // Si l'utilisateur n'est pas éligible: afficher une note et masquer le code
+  if (loyaltyLoaded && !eligible) {
+    return (
+      <div className="space-y-6">
+        <div className="mb-1">
+          <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+            <Users className="w-6 h-6 text-emerald-600" /> Programme de parrainage
+          </h1>
+          <p className="text-[#9CA3AF]">Parrainez vos amis et gagnez des récompenses</p>
+        </div>
+        <div className="p-4 rounded-md border border-[#09444C] bg-[#002B33] text-[#D1D5DB]">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-[#003844] rounded-md"><Clock size={18} className="text-[#10B981]" /></div>
+            <div>
+              <div className="font-medium">Parrainage disponible après 1 commande validée</div>
+              <div className="text-sm text-[#BEC3CA] mt-1">Vous avez actuellement {ordersCount} commande{ordersCount > 1 ? 's' : ''} validée{ordersCount > 1 ? 's' : ''}.</div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 

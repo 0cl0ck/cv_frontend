@@ -153,7 +153,7 @@ export async function updateLoyaltyOrderCount(
     const loyaltyInfo = {
       ordersCount,
       currentReward: determineReward(ordersCount),
-      referralEnabled: ordersCount >= 2
+      referralEnabled: ordersCount >= 1
     };
     
     // Mettre à jour le profil utilisateur
