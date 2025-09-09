@@ -335,6 +335,25 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
                       </div>
                       <ChevronRight size={16} className="text-[#10B981] opacity-0 group-hover:opacity-100 transition-opacity self-center ml-2" />
                     </Link>
+
+                    {/* Accès au parrainage */}
+                    <Link
+                      href="/compte/parrainage"
+                      className="bg-[#00424c] hover:bg-[#005866] rounded-md p-3 flex items-start transition-colors group"
+                    >
+                      <div className="mr-3 p-2 bg-[#002B33] rounded-md">
+                        <Gift size={20} className="text-[#10B981]" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-[#D1D5DB]">Parrainage</h3>
+                        <p className="text-xs text-[#BEC3CA] mt-1">
+                          {userInfo.loyalty?.referralEnabled
+                            ? 'Invitez vos proches et gagnez -30%'
+                            : 'Disponible après 2 commandes validées'}
+                        </p>
+                      </div>
+                      <ChevronRight size={16} className="text-[#10B981] opacity-0 group-hover:opacity-100 transition-opacity self-center ml-2" />
+                    </Link>
                   </div>
                   
                   <button
