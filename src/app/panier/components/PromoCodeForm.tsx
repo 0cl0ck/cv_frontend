@@ -8,6 +8,8 @@ interface Props {
   onCancel: () => void;
   promoResult: PromoResult;
   isApplying: boolean;
+  disableApply?: boolean;
+  applyHint?: string;
 }
 
 export default function PromoCodeForm({
@@ -16,7 +18,9 @@ export default function PromoCodeForm({
   onApply,
   onCancel,
   promoResult,
-  isApplying
+  isApplying,
+  disableApply = false,
+  applyHint,
 }: Props) {
   return (
     <div className="mb-6 pb-6 border-b border-[#3A4A4F]">
@@ -33,7 +37,7 @@ export default function PromoCodeForm({
           />
           <button
             type="submit"
-            disabled={isApplying || !promoCode.trim()}
+            disabled={isApplying || !promoCode.trim() || disableApply}
             className="bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] px-3 py-2 rounded-md font-medium transition-colors disabled:opacity-70 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#EFC368]"
           >
             {isApplying ? 'Application...' : 'Appliquer'}
@@ -49,6 +53,9 @@ export default function PromoCodeForm({
             Retirer
           </button>
         </div>
+      )}
+      {(applyHint && !promoResult.applied) && (
+        <div className="mt-2 p-2 rounded text-sm bg-[#00343F] text-[#BEC3CA]">{applyHint}</div>
       )}
       {promoResult.message && !promoResult.applied && (
         <div className="mt-2 p-2 rounded text-sm bg-red-900 bg-opacity-20 text-red-400">{promoResult.message}</div>

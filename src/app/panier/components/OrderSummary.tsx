@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { formatPrice } from '@/utils/utils';
 import { PriceService } from '@/utils/priceCalculations';
 import { PromoResult, LoyaltyBenefits, Cart } from '../types';
+import { httpClient } from '@/lib/httpClient';
 
 interface Props {
   subtotal: number;
@@ -46,6 +47,38 @@ export default function OrderSummary({
     total
   } = priceDetails;
 
+  // Remise parrainage (calculée côté serveur via cookie)
+  const [referralDiscount, setReferralDiscount] = useState<number>(0);
+  const [referralChecked, setReferralChecked] = useState<boolean>(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function checkReferral() {
+      setReferralChecked(false);
+      try {
+        // On envoie un unique item équivalent au sous-total; pour le parrainage seules la somme et le seuil importent
+        const body = {
+          items: [{ unitPrice: subtotal, quantity: 1 }],
+          shipping: { baseCost: calculatedShipping }
+        };
+        const res = await httpClient.post('/cart/apply-referral', body, { withCsrf: true });
+        const data = res.data as { success: boolean; eligible: boolean; discount: number };
+        if (!cancelled) setReferralDiscount(data?.eligible ? Number(data.discount || 0) : 0);
+      } catch {
+        if (!cancelled) setReferralDiscount(0);
+      } finally {
+        if (!cancelled) setReferralChecked(true);
+      }
+    }
+    // Seulement si on a un sous-total
+    if (subtotal > 0) checkReferral();
+    else { setReferralDiscount(0); setReferralChecked(true); }
+    return () => { cancelled = true };
+  }, [subtotal, calculatedShipping]);
+
+  // Total affiché aligné serveur (soustraire la remise parrainage)
+  const displayTotal = Math.max(0, (total || 0) - (referralDiscount || 0));
+
   return (
     <div className="bg-[#002935] p-6 rounded-lg border border-[#3A4A4F]">
       <h2 className="text-xl font-bold mb-4 text-[#F4F8F5]">Récapitulatif</h2>
@@ -70,6 +103,12 @@ export default function OrderSummary({
             <span className="text-[#10B981]">-{formatPrice(loyaltyDiscount)}</span>
           </div>
         )}
+        {referralChecked && referralDiscount > 0 && (
+          <div className="flex justify-between">
+            <span className="text-[#F4F8F5]">Parrainage</span>
+            <span className="text-[#10B981]">-{formatPrice(referralDiscount)}</span>
+          </div>
+        )}
         {/* Afficher des infos sur les avantages si l'utilisateur est connecté */}
         {isAuthenticated && loyaltyBenefits.active && loyaltyBenefits.message && (
           <div className="mt-4 p-2 bg-[#003545] rounded text-[#F4F8F5] text-sm">
@@ -79,7 +118,7 @@ export default function OrderSummary({
       </div>
       <div className="border-t border-[#3A4A4F] pt-3 flex justify-between">
         <span className="font-bold text-[#F4F8F5]">Total</span>
-        <span className="font-bold text-[#F4F8F5]">{formatPrice(total)}</span>
+        <span className="font-bold text-[#F4F8F5]">{formatPrice(displayTotal)}</span>
       </div>
       {!checkoutMode ? (
         <div className="space-y-3 mt-6">
