@@ -10,6 +10,9 @@ function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -129,11 +132,45 @@ function RegisterForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de l\'inscription');
+        let message = 'Erreur lors de l\'inscription';
+        if (data?.error) {
+          message = typeof data.error === 'string' ? data.error : (data.error?.message || data.message || message);
+          // Essayer d\'extraire une erreur de champ s\'il y en a
+          const fields = data.error?.details?.fields;
+          if (fields && typeof fields === 'object') {
+            const firstKey = Object.keys(fields)[0];
+            const firstVal = fields[firstKey];
+            const firstMsg = Array.isArray(firstVal) ? firstVal[0] : (typeof firstVal === 'string' ? firstVal : undefined);
+            if (firstMsg) message = firstMsg;
+          }
+        } else if (data?.message) {
+          message = data.message;
+        }
+        throw new Error(message);
       }
 
-      // Inscription réussie, rediriger vers la page de connexion
-      router.push('/connexion?registered=true');
+      // Inscription réussie: tenter une connexion locale via l'API front pour poser le cookie sur le bon domaine
+      try {
+        const loginRes = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email, password: formData.password, collection: 'customers' })
+        });
+        if (loginRes.ok) {
+          setLoggedIn(true);
+          // Notifier le contexte d'auth et les composants (comme la page de login)
+          window.dispatchEvent(new CustomEvent('login-status-change', { detail: { isLoggedIn: true } }));
+          window.dispatchEvent(new Event('auth-change'));
+          try {
+            localStorage.setItem('auth-token', 'true');
+            localStorage.setItem('auth-status', Date.now().toString());
+          } catch {}
+        }
+      } catch {}
+
+      // Afficher un message de succès et proposer un CTA vers /compte
+      setSuccess('Votre compte a été créé avec succès.');
+      setShowModal(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -148,6 +185,27 @@ function RegisterForm() {
       {error && (
         <div className="bg-red-900 bg-opacity-25 text-red-300 px-4 py-3 rounded mb-4" role="alert">
           <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
+      {/* CTA déplacé en haut */}
+      {success && (
+        <div className="bg-green-900 bg-opacity-25 text-emerald-300 px-4 py-3 rounded mb-4" role="alert">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <span className="block">{success} {loggedIn ? 'Vous pouvez accéder à votre espace.' : ''}</span>
+            <button
+              onClick={() => { router.push('/compte'); router.refresh(); }}
+              className="self-start sm:self-auto bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-md"
+            >
+              Accéder à mon compte
+            </button>
+          </div>
+        </div>
+      )}
+
+      {false && success && (
+        <div className="bg-green-900 bg-opacity-25 text-emerald-300 px-4 py-3 rounded mb-4" role="alert">
+          <span className="block sm:inline">{success} {loggedIn ? 'Vous pouvez accéder à votre espace.' : ''}</span>
         </div>
       )}
 
@@ -307,6 +365,17 @@ function RegisterForm() {
           )}
         </button>
       </form>
+
+      {false && success && (
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => { router.push('/compte'); router.refresh(); }}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-md"
+          >
+            Accéder à mon compte
+          </button>
+        </div>
+      )}
       
       <div className="mt-4 text-center">
         <p className="text-sm text-[#BEC3CA]">
@@ -316,6 +385,14 @@ function RegisterForm() {
           </Link>
         </p>
       </div>
+      {/* Success modal overlay */}
+      <SuccessModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onConfirm={() => { router.push('/compte'); router.refresh(); }}
+        message={success}
+        loggedIn={loggedIn}
+      />
     </div>
   );
 }
@@ -327,6 +404,42 @@ export default function RegisterPage() {
       <Suspense fallback={<div className="text-[#D1D5DB]">Chargement...</div>}>
         <RegisterForm />
       </Suspense>
+    </div>
+  );
+}
+
+// Lightweight modal component
+function SuccessModal({
+  open,
+  onClose,
+  onConfirm,
+  message,
+  loggedIn,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  message: string;
+  loggedIn: boolean;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <button aria-hidden className="absolute inset-0 bg-black/60" onClick={onClose} />
+      {/* Dialog */}
+      <div role="dialog" aria-modal="true" className="relative w-full max-w-md rounded-lg bg-[#002930] border border-[#155757] shadow-xl p-6">
+        <h2 className="text-xl font-bold text-white mb-2">Compte créé</h2>
+        <p className="text-[#D1D5DB] mb-4">{message} {loggedIn ? 'Vous pouvez accéder à votre espace.' : ''}</p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-end">
+          <button onClick={onConfirm} className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-md">
+            Accéder à mon compte
+          </button>
+          <button onClick={onClose} className="border border-[#155757] text-[#D1D5DB] hover:border-[#10B981] hover:text-white font-medium py-2 px-4 rounded-md">
+            Continuer
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

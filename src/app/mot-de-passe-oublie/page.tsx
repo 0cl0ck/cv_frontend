@@ -32,7 +32,20 @@ function ForgotPasswordForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de la demande de réinitialisation');
+        let message = 'Erreur lors de la demande de réinitialisation';
+        if (data?.error) {
+          message = typeof data.error === 'string' ? data.error : (data.error?.message || data.message || message);
+          const fields = data.error?.details?.fields;
+          if (fields && typeof fields === 'object') {
+            const firstKey = Object.keys(fields)[0];
+            const firstVal = fields[firstKey];
+            const firstMsg = Array.isArray(firstVal) ? firstVal[0] : (typeof firstVal === 'string' ? firstVal : undefined);
+            if (firstMsg) message = firstMsg;
+          }
+        } else if (data?.message) {
+          message = data.message;
+        }
+        throw new Error(message);
       }
 
       // Demande réussie

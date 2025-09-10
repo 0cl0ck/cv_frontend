@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import axios from 'axios';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -91,7 +92,8 @@ function LoginForm() {
       logger.debug('[Login Debug] Tentative de connexion avec httpClient');
       
       // Utiliser httpClient au lieu de fetch standard pour éviter les problèmes CORS
-      const response = await httpClient.post<{ error?: string, message?: string }>('/auth/login', {
+      type LoginResponse = { error?: string | { message?: string }; message?: string }
+      const response = await httpClient.post<LoginResponse>('/auth/login', {
         email: formData.email,
         password: formData.password,
         collection: 'customers'
@@ -99,8 +101,12 @@ function LoginForm() {
       
       const data = response.data;
 
-      if (data && data.error) {
-        throw new Error(data.error || 'Erreur de connexion');
+      if (data?.error) {
+        const errField = data.error;
+        const msg = typeof errField === 'string'
+          ? errField
+          : (errField?.message || data.message || 'Erreur de connexion');
+        throw new Error(msg);
       }
 
       logger.debug('[Login Debug] Connexion réussie');
@@ -122,9 +128,26 @@ function LoginForm() {
       const redirectPath = searchParams.get('redirect') || '/compte';
       router.push(redirectPath);
       router.refresh(); // Pour rafraîchir les données de session
-    } catch (err: unknown) {
-      console.error('[Login Debug] Erreur de connexion:', err);
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      } catch (err: unknown) {
+        console.error('[Login Debug] Erreur de connexion:', err);
+        let message = 'Une erreur est survenue lors de la connexion.';
+        if (axios.isAxiosError(err)) {
+          const status = err.response?.status;
+          type ErrorData = { error?: string | { message?: string }; message?: string }
+          const data = err.response?.data as ErrorData | undefined;
+          if (status === 401) {
+            message = 'Email ou mot de passe incorrect.';
+          } else if (data?.error) {
+            message = typeof data.error === 'string' ? data.error : (data.error.message || data.message || message);
+          } else if (data?.message) {
+          message = data.message;
+        } else if (err.message) {
+          message = err.message;
+        }
+      } else if (err instanceof Error) {
+        message = err.message || message;
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }

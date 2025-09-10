@@ -44,7 +44,10 @@ function VerifierEmailContent() {
           }, 3000);
         } else {
           setStatus('error');
-          setMessage(data.error || 'Une erreur est survenue lors de la vérification.');
+          const msg = data?.error
+            ? (typeof data.error === 'string' ? data.error : (data.error?.message || data.message))
+            : (data?.message || 'Une erreur est survenue lors de la vérification.');
+          setMessage(msg || 'Une erreur est survenue lors de la vérification.');
         }
       } catch (error) {
         setStatus('error');

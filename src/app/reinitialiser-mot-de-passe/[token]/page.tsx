@@ -29,7 +29,10 @@ export default function ResetPasswordPage() {
         if (response.ok && data.valid) {
           setIsTokenValid(true);
         } else {
-          setError(data.error || 'Ce lien de réinitialisation n\'est plus valide ou a expiré.');
+          const msg = data?.error
+            ? (typeof data.error === 'string' ? data.error : (data.error?.message || data.message))
+            : (data?.message || 'Ce lien de réinitialisation n\'est plus valide ou a expiré.');
+          setError(msg || 'Ce lien de réinitialisation n\'est plus valide ou a expiré.');
         }
       } catch {
         setError('Erreur lors de la vérification du lien. Veuillez réessayer.');
@@ -95,7 +98,20 @@ export default function ResetPasswordPage() {
         if (data.code === 'INVALID_TOKEN') {
           setError('Ce lien de réinitialisation n\'est plus valide ou a expiré.');
         } else {
-          throw new Error(data.error || 'Erreur lors de la réinitialisation du mot de passe');
+          let message = 'Erreur lors de la réinitialisation du mot de passe';
+          if (data?.error) {
+            message = typeof data.error === 'string' ? data.error : (data.error?.message || data.message || message);
+            const fields = data.error?.details?.fields;
+            if (fields && typeof fields === 'object') {
+              const firstKey = Object.keys(fields)[0];
+              const firstVal = fields[firstKey];
+              const firstMsg = Array.isArray(firstVal) ? firstVal[0] : (typeof firstVal === 'string' ? firstVal : undefined);
+              if (firstMsg) message = firstMsg;
+            }
+          } else if (data?.message) {
+            message = data.message;
+          }
+          throw new Error(message);
         }
       } else {
         setSuccess(true);
