@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MapPin, ShoppingCart, Edit2, X, Save, Loader2, Award, Gift, Truck, LogOut, ChevronRight } from 'lucide-react';
+import { MapPin, ShoppingCart, Edit2, X, Save, Loader2, Award, LogOut, ChevronRight, Gift, Truck } from 'lucide-react';
 import { determineReward } from '@/lib/loyalty';
 import { LoyaltyReward } from '@/types/loyalty';
 import { User } from '@/lib/auth/auth';
@@ -213,7 +213,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
         // Générer les données de fidélité avec le compteur officiel
         const loyaltyInfo = {
           ordersCount, // 🎯 Utilise validatedOrderCount depuis la collection Customers
-          currentReward: determineReward(ordersCount),
+          currentReward: determineReward(),
           referralEnabled: ordersCount >= 1
         };
             
@@ -467,15 +467,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
         {(() => {
           const count = userInfo.loyalty.ordersCount;
           const next =
-            count < 2
-              ? { t: 2, d: 'Échantillon offert' }
-              : count < 3
-              ? { t: 3, d: 'Livraison offerte' }
-              : count < 5
-              ? { t: 5, d: 'Produit offert (10€)' }
-              : count < 10
-              ? { t: 10, d: 'Réduction 20€' }
-              : null;
+            count < 3 ? { t: 3, d: 'Bronze (5%)' } : count < 5 ? { t: 5, d: 'Argent (10%)' } : count < 10 ? { t: 10, d: 'Or' } : null;
           if (!next) {
             return (
               <div className="bg-[#003038] p-4 rounded-lg text-center">
@@ -509,37 +501,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
       {/* Section responsive pour récompenses et niveaux côte à côte sur desktop */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 content-start">
         {/* Les récompenses périodiques */}
-        <div className="p-4 bg-[#003038] rounded-lg self-start h-auto">
-          <h3 className="text-sm font-medium text-[#D1D5DB] mb-3">
-            Récompenses périodiques
-          </h3>
-          <ul className="text-xs space-y-2 text-[#BEC3CA]">
-            <li className="flex items-start">
-              <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">
-                2
-              </span>
-              Échantillon offert
-            </li>
-            <li className="flex items-start">
-              <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">
-                3
-              </span>
-              Livraison offerte (5€)
-            </li>
-            <li className="flex items-start">
-              <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">
-                5
-              </span>
-              Produit offert (10€)
-            </li>
-            <li className="flex items-start">
-              <span className="w-5 h-5 rounded-full bg-[#155757] text-[#10B981] flex items-center justify-center mr-2 text-xs font-bold">
-                10
-              </span>
-              Réduction 20€ ou produit offert
-            </li>
-          </ul>
-        </div>
+        
 
         {/* Les niveaux de fidélité */}
         <div className="p-4 bg-[#003038] rounded-lg self-start h-auto">
@@ -707,3 +669,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
     </div>
   );
 }
+
+
+
+

@@ -44,7 +44,7 @@ export default function useLoyaltyBenefits(
         
         const { data } = await httpClient.post<LoyaltyResponseData>('/cart/apply-loyalty', {
           cartTotal: cart.subtotal,
-          shippingCost: country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95,
+          shippingCost: country === 'Belgique' ? (cart.subtotal >= 70 ? 0 : 10) : (cart.subtotal >= 50 ? 0 : 5),
           items: cart.items
         }, {
           withCsrf: true,
@@ -53,22 +53,22 @@ export default function useLoyaltyBenefits(
 
         const orderCount: number = data?.orderCount || 1;
         let nextLevel: NextLevel | undefined;
-        if (orderCount < 2) nextLevel = { name: 'Échantillon offert', ordersRequired: 2, remainingOrders: 2 - orderCount };
-        else if (orderCount < 3) nextLevel = { name: 'Bronze', ordersRequired: 3, remainingOrders: 3 - orderCount };
+        if (orderCount < 3) nextLevel = { name: 'Bronze', ordersRequired: 3, remainingOrders: 3 - orderCount };
         else if (orderCount < 5) nextLevel = { name: 'Argent', ordersRequired: 5, remainingOrders: 5 - orderCount };
         else if (orderCount < 10) nextLevel = { name: 'Or', ordersRequired: 10, remainingOrders: 10 - orderCount };
 
-        if (data?.reward && data.reward.type !== 'none') {
+        const hasDiscount = typeof data?.discount === 'number' && data.discount > 0;
+        if (hasDiscount) {
           setLoyaltyBenefits({
             active: true,
-            message: data.reward?.message || '',
+            message: data?.reward?.message || 'Remise fidélité appliquée',
             discountAmount: data.discount || 0,
-            rewardType: data.reward?.type || 'none',
+            rewardType: 'none',
             orderCount,
             nextLevel
           });
         } else {
-          setLoyaltyBenefits(prev => ({ ...prev, orderCount, nextLevel }));
+          setLoyaltyBenefits(prev => ({ ...prev, active: false, discountAmount: 0, orderCount, nextLevel }));
         }
       } catch {
         // silent
@@ -82,3 +82,4 @@ export default function useLoyaltyBenefits(
 
   return { loyaltyBenefits, loading };
 }
+

@@ -34,8 +34,12 @@ httpClient.interceptors.request.use((config) => {
         const match = document.cookie.match(/(?:^|; )csrf-token=([^;]+)/);
         if (match) {
           if (!config.headers) config.headers = new axios.AxiosHeaders();
+          const token = decodeURIComponent(match[1]);
+          // Ensure both canonical and lowercase header keys are set for tests and server compatibility
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (config.headers as any)['x-csrf-token'] = decodeURIComponent(match[1]);
+          (config.headers as any)['X-CSRF-Token'] = token;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (config.headers as any)['x-csrf-token'] = token;
         }
       }
     }

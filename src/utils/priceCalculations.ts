@@ -20,41 +20,18 @@ interface PriceCalculationResult {
 
 export class PriceService {
   static calculateShippingCost(subtotal: number, country: string): number {
+    // Nouvelle politique d'expédition
+    // - France et autres: 5€ si < 50€, gratuit à partir de 50€
+    // - Belgique: 10€ si < 70€, gratuit à partir de 70€
     if (country === 'Belgique') {
-      return 10;
-    } else if (subtotal >= 49) {
-      return 0;
-    } else {
-      return 4.95;
+      return subtotal >= 70 ? 0 : 10;
     }
+    return subtotal >= 50 ? 0 : 5;
   }
 
-  static isShippingFree(country?: string): boolean {
-    // 🎁 PROMOTION TEMPORAIRE: Frais de livraison offerts pour tous les clients
-    // + 2g offerts pour la première commande sur le site (programme fidélité)
-    // EXCEPTION: Belgique reste payante à 10€
-    if (country === 'Belgique') {
-      return false;
-    }
-    return true;
-    
-    // Code commenté pendant la période promotionnelle
-    /*
-    // Livraison gratuite si c'est un avantage fidélité activé
-    if (loyaltyBenefits?.active && loyaltyBenefits.rewardType === 'freeShipping') {
-      return true;
-    }
-    // Livraison gratuite si c'est un code promo appliqué
-    if (promoResult?.applied && promoResult.type === 'free_shipping') {
-      return true;
-    }
-    // En Belgique, jamais de livraison gratuite par défaut
-    if (country === 'Belgique') {
-      return false;
-    }
-    // Sinon, livraison gratuite à partir de 49€
-    return subtotal >= 49;
-    */
+  static isShippingFree(country?: string, subtotal?: number): boolean {
+    if (typeof subtotal !== 'number') return false;
+    return PriceService.calculateShippingCost(subtotal, country || '') === 0;
   }
 
   static calculateTotalPrice(
@@ -65,10 +42,9 @@ export class PriceService {
   ): PriceCalculationResult {
     const subtotal = cart.subtotal;
     const subtotalCents = cart.subtotalCents || Math.round(subtotal * 100);
-    
-    // Vérifier si la livraison est gratuite (en tenant compte des avantages fidélité)
-    const free = PriceService.isShippingFree(country);
-    const shippingCost = free ? 0 : PriceService.calculateShippingCost(subtotal, country);
+
+    // Calcul des frais de livraison selon la politique actuelle
+    const shippingCost = PriceService.calculateShippingCost(subtotal, country);
     const shippingCostCents = Math.round(shippingCost * 100);
 
     // Remise fidélité (renvoyée par le backend)
@@ -106,3 +82,4 @@ export const calculateShippingCost = PriceService.calculateShippingCost;
 export const isShippingFree = PriceService.isShippingFree;
 export const calculateTotalPrice = PriceService.calculateTotalPrice;
 export const formatPriceWithCurrency = PriceService.formatPriceWithCurrency;
+

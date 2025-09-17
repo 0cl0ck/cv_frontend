@@ -2,16 +2,19 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import usePromoCode from '../usePromoCode';
 import { Cart, CustomerInfo } from '@/app/panier/types';
-import { fetchWithCsrf } from '@/lib/security/csrf';
+import { httpClient } from '@/lib/httpClient';
 
-jest.mock('@/lib/security/csrf', () => ({
-  fetchWithCsrf: jest.fn(),
-}));
-
-// Mock fetchWithCsrf to use global fetch for tests
-jest.mock('@/lib/security/csrf', () => ({
-  fetchWithCsrf: (url: string, options?: RequestInit) => fetch(url, options).then(res => res.json()),
-}));
+jest.mock('@/lib/httpClient', () => {
+  const actual = jest.requireActual('@/lib/httpClient');
+  return {
+    __esModule: true,
+    ...actual,
+    httpClient: {
+      get: jest.fn(),
+      post: jest.fn(),
+    },
+  };
+});
 
 function Wrapper({ cart, customerInfo }: { cart: Cart; customerInfo: CustomerInfo }) {
   const { promoCode, setPromoCode, promoResult, applyPromo } = usePromoCode(cart, customerInfo);
@@ -31,7 +34,8 @@ function Wrapper({ cart, customerInfo }: { cart: Cart; customerInfo: CustomerInf
 
 describe('usePromoCode', () => {
   beforeEach(() => {
-    (fetchWithCsrf as jest.Mock).mockReset();
+    (httpClient.get as jest.Mock).mockReset();
+    (httpClient.post as jest.Mock).mockReset();
   });
 
   it('does not call API when code is empty', () => {
@@ -50,7 +54,7 @@ describe('usePromoCode', () => {
 
     render(<Wrapper cart={cart} customerInfo={customerInfo} />);
     fireEvent.submit(screen.getByTestId('form'));
-    expect(fetchWithCsrf).not.toHaveBeenCalled();
+    expect(httpClient.post).not.toHaveBeenCalled();
   });
 
   it('shows message when promo code is invalid', async () => {
@@ -67,7 +71,7 @@ describe('usePromoCode', () => {
       country: 'France',
     };
 
-    (fetchWithCsrf as jest.Mock).mockResolvedValueOnce({ success: false, valid: false, message: 'Code invalide' });
+    (httpClient.post as jest.Mock).mockResolvedValueOnce({ data: { success: false, valid: false, message: 'Code invalide' } });
 
     render(<Wrapper cart={cart} customerInfo={customerInfo} />);
     fireEvent.change(screen.getByTestId('promo-input'), { target: { value: 'BAD' } });
@@ -76,6 +80,6 @@ describe('usePromoCode', () => {
     await waitFor(() => {
       expect(screen.getByTestId('message').textContent).toBe('Code invalide');
     });
-    expect(fetchWithCsrf).toHaveBeenCalledTimes(1);
+    expect(httpClient.post).toHaveBeenCalledTimes(1);
   });
 });

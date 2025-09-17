@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     const currentLoyalty = userData.loyalty || {};
 
     // Calculer la récompense et l’éligibilité parrainage (seuil = 1)
-    const calculatedReward = determineReward(ordersCount);
+    const calculatedReward = determineReward();
     const loyaltyInfo = {
       ordersCount,
       currentReward: calculatedReward,

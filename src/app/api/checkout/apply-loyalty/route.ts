@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { applyLoyaltyBenefits, determineReward } from '@/lib/loyalty';
+import { applyLoyaltyBenefits } from '@/lib/loyalty';
 import { secureLogger as logger } from '@/utils/logger';
+import type { GenericObject } from '@/utils/logger';
 
 // Interface pour le corps de la requête
 interface ApplyLoyaltyRequest {
@@ -20,14 +21,14 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json(
-        { message: 'Token d\'authentification manquant' },
+        { message: "Token d'authentification manquant" },
         { status: 401 }
       );
     }
 
     // Récupérer les données du panier
-    const body = await request.json() as ApplyLoyaltyRequest;
-    
+    const body = (await request.json()) as ApplyLoyaltyRequest;
+
     // Vérifier les données nécessaires
     if (body.cartTotal === undefined || !Array.isArray(body.items)) {
       return NextResponse.json(
@@ -37,17 +38,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Récupérer les informations utilisateur et l'historique des commandes
-    const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    
+    const backendUrl =
+      process.env.BACKEND_INTERNAL_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      'http://localhost:3000';
+
     // Récupérer les commandes passées de l'utilisateur
     const ordersResponse = await fetch(`${backendUrl}/api/orders/me`, {
       headers: {
-        'Authorization': authHeader
-      }
+        Authorization: authHeader,
+      },
     });
 
     if (!ordersResponse.ok) {
-      console.error(`Erreur lors de la récupération des commandes: ${ordersResponse.status}`);
+      logger.error(
+        `Erreur lors de la récupération des commandes: ${ordersResponse.status}`
+      );
       return NextResponse.json(
         { message: 'Erreur lors de la récupération des commandes' },
         { status: ordersResponse.status }
@@ -55,26 +61,29 @@ export async function POST(request: NextRequest) {
     }
 
     const ordersData = await ordersResponse.json();
-    
-    // Compter uniquement les commandes complétées (livrées ou expédiées)
-    const completedOrders = Array.isArray(ordersData.orders) 
-      ? ordersData.orders.filter((order: { status: string }) => 
-          order.status === 'delivered' || order.status === 'shipped'
+
+    // Compter uniquement les commandes complètes (livrées ou expédiées)
+    const completedOrders = Array.isArray(ordersData.orders)
+      ? ordersData.orders.filter(
+          (order: { status: string }) =>
+            order.status === 'delivered' || order.status === 'shipped'
         )
       : [];
-    
+
     const ordersCount = completedOrders.length;
-    
-    // Appliquer les récompenses de fidélité au panier actuel
+
+    // Appliquer la remise fidélité au panier actuel
     const loyaltyBenefits = applyLoyaltyBenefits(
       ordersCount,
       body.cartTotal,
       body.shippingCost
     );
-    
-    logger.info(`Application des avantages fidélité: ${loyaltyBenefits.message}`);
-    
-    // Préparer la réponse avec les modifications appliquées en utilisant les données de loyaltyBenefits
+
+    logger.info(
+      `Application des avantages fidélité: ${loyaltyBenefits.message}`
+    );
+
+    // Préparer la réponse
     const response = {
       success: true,
       originalTotal: loyaltyBenefits.originalTotal,
@@ -86,17 +95,24 @@ export async function POST(request: NextRequest) {
         type: loyaltyBenefits.reward.type,
         message: loyaltyBenefits.message,
       },
-      nextOrderReward: determineReward(ordersCount + 2) // La récompense pour la commande suivante
     };
 
-    logger.info(`Récompense de fidélité appliquée: ${loyaltyBenefits.message} [Commandes: ${ordersCount}]`);
-    
+    logger.info(
+      `Remise fidélité appliquée: ${loyaltyBenefits.message} [Commandes: ${ordersCount}]`
+    );
+
     return NextResponse.json(response);
-    
-  } catch (error) {
-    console.error('Erreur lors de l\'application des récompenses de fidélité:', error);
+  } catch (error: unknown) {
+    const errorContext: GenericObject =
+      error instanceof Error
+        ? { name: error.name, message: error.message, stack: error.stack }
+        : { error };
+    logger.error("Erreur lors de l'application des avantages fidélité:", errorContext);
     return NextResponse.json(
-      { message: 'Une erreur est survenue lors de l\'application des récompenses de fidélité' },
+      {
+        message:
+          "Une erreur est survenue lors de l'application des avantages fidélité",
+      },
       { status: 500 }
     );
   }

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function HomeHero() {
   return (
     <div className="relative min-h-[100vh] flex items-center justify-center text-white bg-gray-800" data-theme="dark">
-      {/* Vidéo de fond */}
+      {/* VidÃ©o de fond */}
       <div className="absolute inset-0 overflow-hidden">
         <video 
           autoPlay 
@@ -17,11 +17,11 @@ export default function HomeHero() {
         >
           <source src="/videos/glass_anim.mp4" type="video/mp4" />
         </video>
-        {/* Overlay pour assombrir légèrement la vidéo */}
+        {/* Overlay pour assombrir lÃ©gÃ¨rement la vidÃ©o */}
         <div className="absolute inset-0 bg-black opacity-40"></div>
       </div>
       
-      {/* Contenu texte - ajusté avec padding-top pour tenir compte du header */}
+      {/* Contenu texte - ajustÃ© avec padding-top pour tenir compte du header */}
       <div className="container mx-auto px-4 z-10 relative flex items-center md:justify-between justify-center py-16 md:py-24 pt-28 md:pt-32">
         <div className="max-w-[36.5rem] text-center md:text-left">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
@@ -29,14 +29,14 @@ export default function HomeHero() {
           CBD Premium
           </h1>
           <p className="text-lg md:text-xl mb-6">
-          Explorez notre gamme de produits CBD premium: <br />Naturel, Certifié et Efficace.<br />
-          Livraison rapide et discrète partout en France.
+          Explorez notre gamme de produits CBD premium: <br />Naturel, CertifiÃ© et Efficace.<br />
+          Livraison rapide et discrÃ¨te partout en France.
           </p>
           <ul className="flex justify-center md:justify-start gap-4">
             <li>
               <Link href="/produits" className="btn px-6 py-3 rounded-lg inline-flex items-center justify-center bg-[#EFC368] hover:bg-[#d9ae5a] text-black"
               >
-                Découvrir nos produits
+                DÃ©couvrir nos produits
               </Link>
             </li>
             <li>
@@ -47,14 +47,15 @@ export default function HomeHero() {
           </ul>
         </div>
         
-        {/* Texte promotionnel à droite - visible uniquement sur desktop */}
+        {/* Texte promotionnel Ã  droite - visible uniquement sur desktop */}
         <div className=" md:block text-right">
           <p className="text-[#EFC368] font-bold text-xl lg:text-2xl">
-            Jusqu&apos;à 25G offerts<br />
-            + Livraison Gratuite
+            Jusqu&apos;&agrave; 25G offerts
           </p>
         </div>
       </div>
     </div>
   );
 }
+
+

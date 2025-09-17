@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -11,15 +11,15 @@ import { IconFilter, IconSortDescending, IconArrowDown, IconArrowUp } from '@tab
 
 // Types pour les props du composant
 interface ProductsLayoutProps {
-  // Mode pagination côté serveur
+  // Mode pagination cÃ´tÃ© serveur
   products: Product[];
   currentPage: number;
   totalPages: number;
   
-  // Mode pagination côté client
+  // Mode pagination cÃ´tÃ© client
   allProducts?: Product[];
   requestedPage?: number;
-  productsPerPage?: number; // Nombre de produits par page pour la pagination côté client
+  productsPerPage?: number; // Nombre de produits par page pour la pagination cÃ´tÃ© client
   
   // Props communs
   categories: Category[];
@@ -28,13 +28,13 @@ interface ProductsLayoutProps {
   description?: string;
   activeCategory?: string;
   
-  // Paramètres de tri et filtrage
+  // ParamÃ¨tres de tri et filtrage
   priceRange?: string;
   pricePerGramSort?: string;
   sortParam?: string;
 }
 
-// Types pour les options de tri simplifiées
+// Types pour les options de tri simplifiÃ©es
 type PriceSortType = 'none' | 'price-asc' | 'price-desc';
 
 // Animation variants
@@ -62,7 +62,7 @@ const itemVariants = {
 };
 
 export default function ProductsLayout({
-  // Support pour les deux modes (côté serveur et côté client)
+  // Support pour les deux modes (cÃ´tÃ© serveur et cÃ´tÃ© client)
   products,
   allProducts,
   categories,
@@ -79,17 +79,17 @@ export default function ProductsLayout({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
-  // Seul état conservé pour le tri par prix
+  // Seul Ã©tat conservÃ© pour le tri par prix
   const [selectedPriceSort, setSelectedPriceSort] = useState<PriceSortType>('none');
   
-  // État pour la pagination côté client
+  // Ã‰tat pour la pagination cÃ´tÃ© client
   const [currentClientPage, setCurrentClientPage] = useState<number>(requestedPage || currentPage || 1);
   
-  // Déterminer si nous sommes en mode pagination côté client
+  // DÃ©terminer si nous sommes en mode pagination cÃ´tÃ© client
   const isClientSidePagination = !!allProducts;
   
   
-  // Initialiser le tri depuis les paramètres d'URL
+  // Initialiser le tri depuis les paramÃ¨tres d'URL
   useEffect(() => {
     const sortParam = searchParams.get('sort');
     if (sortParam === 'price-asc' || sortParam === 'price-desc') {
@@ -99,8 +99,8 @@ export default function ProductsLayout({
     }
   }, [searchParams]);
   
-  // Mettre à jour l'URL avec les paramètres de tri (gardé pour usage futur potentiel)
-  // Fonction actuellement non utilisée mais conservée pour implémentation future
+  // Mettre Ã  jour l'URL avec les paramÃ¨tres de tri (gardÃ© pour usage futur potentiel)
+  // Fonction actuellement non utilisÃ©e mais conservÃ©e pour implÃ©mentation future
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const updateUrlWithFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -111,16 +111,16 @@ export default function ProductsLayout({
       params.delete('sort');
     }
     
-    // Mettre à jour l'URL sans recharger la page
+    // Mettre Ã  jour l'URL sans recharger la page
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
   
   // Gestionnaire pour le changement de tri par prix
   const handlePriceSortChange = (sort: PriceSortType) => {
-    // 1. Mettre à jour l'état local
+    // 1. Mettre Ã  jour l'Ã©tat local
     setSelectedPriceSort(sort);
     
-    // 2. Préparer les paramètres d'URL
+    // 2. PrÃ©parer les paramÃ¨tres d'URL
     const params = new URLSearchParams(searchParams.toString());
       
     if (sort !== 'none') {
@@ -129,26 +129,26 @@ export default function ProductsLayout({
       params.delete('sort');
     }
     
-    // 3. Mise à jour de l'URL adaptée selon le mode de pagination
+    // 3. Mise Ã  jour de l'URL adaptÃ©e selon le mode de pagination
     if (!isClientSidePagination) {
-      // Sur la page principale, les produits sont chargés côté serveur
-      // => Force un rechargement de page pour obtenir les produits triés depuis le serveur
-      // => Réinitialiser la pagination à la page 1 pour le tri global
+      // Sur la page principale, les produits sont chargÃ©s cÃ´tÃ© serveur
+      // => Force un rechargement de page pour obtenir les produits triÃ©s depuis le serveur
+      // => RÃ©initialiser la pagination Ã  la page 1 pour le tri global
       
-      // Supprimer tout paramètre de pagination existant pour revenir à la page 1
+      // Supprimer tout paramÃ¨tre de pagination existant pour revenir Ã  la page 1
       params.delete('page');
       
       // Redirection avec rechargement complet
       window.location.href = `${pathname}?${params.toString()}`;
     } else {
-      // Sur les pages de catégorie, les produits sont déjà tous chargés
+      // Sur les pages de catÃ©gorie, les produits sont dÃ©jÃ  tous chargÃ©s
       // => Navigation client sans rechargement (SPA)
-      // => Réinitialiser également la pagination pour cohérence
+      // => RÃ©initialiser Ã©galement la pagination pour cohÃ©rence
       
-      // Réinitialiser la page en mémoire
+      // RÃ©initialiser la page en mÃ©moire
       setCurrentClientPage(1);
       
-      // Supprimer le paramètre de page pour revenir à la page 1
+      // Supprimer le paramÃ¨tre de page pour revenir Ã  la page 1
       params.delete('page');
       
       // Navigation sans rechargement
@@ -156,7 +156,7 @@ export default function ProductsLayout({
     }
   };
   
-  // Calculer les produits à afficher et les informations de pagination
+  // Calculer les produits Ã  afficher et les informations de pagination
   const {
     displayedProducts,
     clientTotalPages,
@@ -164,8 +164,8 @@ export default function ProductsLayout({
   } = useMemo(() => {
 
     
-    // Si nous sommes en mode pagination côté serveur, ou si allProducts est vide, utiliser directement les produits passés
-    // CORRECTION: Vérifier si le tableau allProducts est vide en vérifiant sa longueur
+    // Si nous sommes en mode pagination cÃ´tÃ© serveur, ou si allProducts est vide, utiliser directement les produits passÃ©s
+    // CORRECTION: VÃ©rifier si le tableau allProducts est vide en vÃ©rifiant sa longueur
     if (!isClientSidePagination || !allProducts?.length) {
       return {
         displayedProducts: products || [],
@@ -182,7 +182,7 @@ export default function ProductsLayout({
     
     // Appliquer le tri par prix selon la demande
     if (selectedPriceSort !== 'none') {
-      // Séparer les produits en deux groupes : ceux avec prix au gramme et ceux sans
+      // SÃ©parer les produits en deux groupes : ceux avec prix au gramme et ceux sans
       const productsWithPricePerGram = filtered.filter(p => 
         p.pricePerGram || 
         (p.productType === 'variable' && p.variants?.some(v => v.pricePerGram))
@@ -238,7 +238,7 @@ export default function ProductsLayout({
         return selectedPriceSort === 'price-asc' ? priceA - priceB : priceB - priceA;
       });
       
-      // Combiner les produits dans l'ordre souhaité: 
+      // Combiner les produits dans l'ordre souhaitÃ©: 
       // D'abord les produits avec prix au gramme, puis les produits sans prix au gramme
       filtered = [...productsWithPricePerGram, ...productsWithoutPricePerGram];
       
@@ -260,12 +260,12 @@ export default function ProductsLayout({
     selectedPriceSort, currentClientPage, productsPerPage
   ]);
   
-  // Gestionnaire pour le changement de page côté client
+  // Gestionnaire pour le changement de page cÃ´tÃ© client
   const handleClientPageChange = (page: number) => {
-    // Mettre à jour l'état local
+    // Mettre Ã  jour l'Ã©tat local
     setCurrentClientPage(page);
     
-    // Mettre à jour l'URL sans rechargement
+    // Mettre Ã  jour l'URL sans rechargement
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
@@ -273,26 +273,25 @@ export default function ProductsLayout({
 
   return (
     <div className="bg-[#001e27] dark:bg-[#001e27] min-h-screen">
-      {/* Header section avec fond dégradé */}
+      {/* Header section avec fond dÃ©gradÃ© */}
       <motion.div 
         className="bg-[#001e27] dark:bg-[#001e27] py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        {/* Éléments décoratifs */}
+        {/* Ã‰lÃ©ments dÃ©coratifs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full border border-white/20"></div>
           <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full border border-white/20"></div>
         </div>
-{/* Bannière promotionnelle temporaire */}
+{/* BanniÃ¨re promotionnelle temporaire */}
 <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
-        <p className="text-lg font-bold">🎁 PROMOTION TEMPORAIRE 🎁</p>
-        <p>Livraison Gratuite pour toutes les commandes (10€ en Belgique)</p>
-        <p className="text-sm mt-1">2g offerts avec votre commande, peu importe le montant (passe à 5g dès 50€)</p>
-        <p className="text-sm mt-1">Dès 80€ → 10g offerts</p>
-        <p className="text-sm mt-1">Dès 160€ → 20g offerts</p>
-        <p className="text-xs italic mt-2">*Exemple: Pour 160€ : 25g offerts en tout (20 + 5)</p>
+        <p className="text-lg font-bold">PROMOTION TEMPORAIRE</p>
+        <p className="text-sm mt-1">2g offerts avec votre commande, peu importe le montant (passe &agrave; 5g d&egrave;s 50&euro;)</p>
+        <p className="text-sm mt-1">D&egrave;s 80&euro; &rarr; 10g offerts</p>
+        <p className="text-sm mt-1">D&egrave;s 160&euro; &rarr; 20g offerts</p>
+        <p className="text-xs italic mt-2">*Exemple: Pour 160&euro; : 25g offerts en tout (20 + 5)</p>
       </div>
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
@@ -314,16 +313,16 @@ export default function ProductsLayout({
           initial="hidden"
           animate="visible"
         >
-          {/* Sidebar avec filtres simplifiés */}
+          {/* Sidebar avec filtres simplifiÃ©s */}
           <motion.aside 
             className="md:w-1/4 space-y-6"
             variants={itemVariants}
           >
-            {/* Filtre par catégorie */}
+            {/* Filtre par catÃ©gorie */}
             <div className="bg-[#00454f] rounded-lg shadow-lg p-6 border border-[#005965]">
               <div className="flex items-center mb-4">
                 <IconFilter className="mr-2 text-[#00878a] dark:text-green-300" size={20} />
-                <h2 className="font-bold text-xl text-white">Catégories</h2>
+                <h2 className="font-bold text-xl text-white">CatÃ©gories</h2>
               </div>
               <CategoryFilter categories={categories} activeCategory={activeCategory} />
             </div>
@@ -344,7 +343,7 @@ export default function ProductsLayout({
                     onChange={() => handlePriceSortChange('none')}
                     className="h-4 w-4 text-[#00878a] focus:ring-[#00878a] dark:focus:ring-green-300"
                   />
-                  <label htmlFor="price-sort-none" className="ml-2 text-sm text-white/90">Non trié</label>
+                  <label htmlFor="price-sort-none" className="ml-2 text-sm text-white/90">Non triÃ©</label>
                 </div>
                 <div className="flex items-center">
                   <input
@@ -426,7 +425,7 @@ export default function ProductsLayout({
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.7, duration: 0.6 }}
                 >
-                  {isClientSidePagination ? filteredTotal : totalProducts} produit{(isClientSidePagination ? filteredTotal : totalProducts) !== 1 ? 's' : ''} trouvé{(isClientSidePagination ? filteredTotal : totalProducts) !== 1 ? 's' : ''}
+                  {isClientSidePagination ? filteredTotal : totalProducts} produit{(isClientSidePagination ? filteredTotal : totalProducts) !== 1 ? 's' : ''} trouvÃ©{(isClientSidePagination ? filteredTotal : totalProducts) !== 1 ? 's' : ''}
                 </motion.div>
               </>
             ) : (
@@ -437,7 +436,7 @@ export default function ProductsLayout({
                 transition={{ duration: 0.5 }}
               >
                 <p className="text-white dark:text-neutral-400">
-                  Aucun produit ne correspond à vos critères. Essayez de modifier vos filtres.
+                  Aucun produit ne correspond Ã  vos critÃ¨res. Essayez de modifier vos filtres.
                 </p>
               </motion.div>
             )}
@@ -447,3 +446,4 @@ export default function ProductsLayout({
     </div>
   );
 }
+

@@ -37,10 +37,8 @@ export default function usePromoCode(
     try {
       const shippingCost =
         customerInfo.country === 'Belgique'
-          ? 10
-          : cart.subtotal >= 49
-          ? 0
-          : 4.95;
+          ? (cart.subtotal >= 70 ? 0 : 10)
+          : (cart.subtotal >= 50 ? 0 : 5);
 
       // Récupération des catégories
       const itemsWithCat = await Promise.all(
@@ -124,7 +122,7 @@ export default function usePromoCode(
       if (!promoResult.applied || !promoResult.code) return;
       try {
         const shippingCost =
-          customerInfo.country === 'Belgique' ? 10 : cart.subtotal >= 49 ? 0 : 4.95;
+          customerInfo.country === 'Belgique' ? (cart.subtotal >= 70 ? 0 : 10) : (cart.subtotal >= 50 ? 0 : 5);
 
         // Récupérer les catégories pour respecter d'éventuelles restrictions
         const itemsWithCat = await Promise.all(

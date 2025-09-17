@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gift, Truck, AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { LoyaltyBenefits } from '../types';
 
 interface Props {
@@ -21,7 +21,7 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
           <span className="font-medium">Programme de fidélité</span>
         </div>
         <p className="text-xs text-[#F4F8F5] mb-2">
-          Connectez-vous pour bénéficier d’avantages exclusifs selon votre historique de commandes.
+          Connectez-vous pour bénéficier d&apos;avantages exclusifs selon votre historique de commandes.
         </p>
         <a href="/connexion?redirect=/panier" className="text-[#EFC368] text-xs hover:underline">
           Se connecter pour en profiter
@@ -30,16 +30,14 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
     );
   }
 
-  // Utilisateur authentifié
-  const { orderCount, active, rewardType, nextLevel } = loyaltyBenefits;
-  const icon = rewardType === 'freeShipping' ? <Truck size={18} className="mr-2" /> : <Gift size={18} className="mr-2" />;
+  const { orderCount, active, nextLevel, message } = loyaltyBenefits;
 
   return (
     <div className="mt-3 bg-[#001f29] border border-[#3A4A4F] rounded-md p-3">
-      {/* Récompense immédiate s’il y en a */}
+      {/* Remise fidélité si applicable */}
       {active && (
         <div className="flex items-center text-[#10B981] font-medium mb-2">
-          {icon} Avantage fidélité appliqué !
+          <CheckCircle2 size={18} className="mr-2" /> {message || 'Remise fidélité appliquée !'}
         </div>
       )}
 
@@ -67,17 +65,9 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
         <span>1</span><span>5</span><span>10</span>
       </div>
 
-      {/* Liste des paliers */}
+      {/* Niveaux de fidélité */}
       <div className="mt-3 text-[10px] text-[#F4F8F5]">
-        <p className="text-xs text-[#EFC368] font-medium mb-1">Récompenses ponctuelles :</p>
-        <ul className="ml-4 list-disc">
-          <li className={orderCount>=2?'text-green-400':''}>2 commandes : Échantillon offert</li>
-          <li className={orderCount>=3?'text-green-400':''}>3 commandes : Livraison offerte (5 €)</li>
-          <li className={orderCount>=5?'text-green-400':''}>5 commandes : Produit offert (10 €)</li>
-          <li className={orderCount>=10?'text-green-400':''}>10 commandes : Réduction 20 € ou produit offert</li>
-        </ul>
-
-        <p className="text-xs text-[#EFC368] font-medium mt-2 mb-1">Niveaux de fidélité :</p>
+        <p className="text-xs text-[#EFC368] font-medium mb-1">Niveaux de fidélité :</p>
         <ul className="ml-4 list-disc text-[10px]">
           <li className={orderCount>=3?'text-green-400':''}><strong className="text-[#CD7F32]">Bronze</strong> (3 commandes) : 5 % permanent</li>
           <li className={orderCount>=5?'text-green-400':''}><strong className="text-[#C0C0C0]">Argent</strong> (5 commandes) : 10 % permanent</li>
@@ -88,9 +78,10 @@ export default function LoyaltyBenefitsPanel({ loyaltyBenefits, loading, isAuthe
       {/* Prochain palier */}
       {nextLevel && (
         <p className="text-[11px] text-green-400 mt-2">
-          Plus que {nextLevel.remainingOrders} commande{nextLevel.remainingOrders>1?'s':''} pour débloquer “{nextLevel.name}” !
+          Plus que {nextLevel.remainingOrders} commande{nextLevel.remainingOrders>1?'s':''} pour débloquer &quot;{nextLevel.name}&quot; !
         </p>
       )}
     </div>
   );
 }
+
