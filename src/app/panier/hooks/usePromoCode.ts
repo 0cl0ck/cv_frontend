@@ -104,7 +104,7 @@ export default function usePromoCode(
         setPromoResult({ applied: false, code: '', discount: 0, message: result.message || 'Code promo invalide', type: '' as PromoType });
       }
     } catch {
-      setPromoResult({ applied: false, code: '', discount: 0, message: 'Erreur technique lors de l’application', type: '' as PromoType });
+      setPromoResult({ applied: false, code: '', discount: 0, message: "Erreur technique lors de l'application", type: '' as PromoType });
     } finally {
       setIsApplying(false);
     }

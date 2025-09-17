@@ -11,7 +11,7 @@ export default function GuestLoyaltyBanner() {
         <span className="font-medium">Programme de fidélité</span>
       </div>
       <p className="text-xs text-[#F4F8F5] mb-2">
-        Connectez-vous pour bénéficier d’avantages exclusifs selon votre historique de commandes.
+        Connectez-vous pour bénéficier d&apos;avantages exclusifs selon votre historique de commandes.
       </p>
       <Link href="/connexion?redirect=/panier" className="text-[#EFC368] text-xs hover:underline">
         Se connecter pour en profiter

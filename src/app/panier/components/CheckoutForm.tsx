@@ -64,7 +64,7 @@ export default function CheckoutForm({
         </div>
       ))}
       <div>
-        <label className="block text-sm mb-1 text-[#F4F8F5]">Complément d’adresse <span className="text-neutral-500 text-xs">(optionnel)</span></label>
+        <label className="block text-sm mb-1 text-[#F4F8F5]">Complément d&apos;adresse <span className="text-neutral-500 text-xs">(optionnel)</span></label>
         <input
           type="text"
           value={customerInfo.addressLine2}

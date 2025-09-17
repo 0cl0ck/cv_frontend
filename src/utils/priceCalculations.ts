@@ -21,10 +21,10 @@ interface PriceCalculationResult {
 export class PriceService {
   static calculateShippingCost(subtotal: number, country: string): number {
     // Nouvelle politique d'expédition
-    // - France et autres: 5€ si < 50€, gratuit à partir de 50€
-    // - Belgique: 10€ si < 70€, gratuit à partir de 70€
+    // - France & others: 5 EUR if subtotal < 50, free from 50
+    // - Belgique: 10 EUR if subtotal < 200, free from 200
     if (country === 'Belgique') {
-      return subtotal >= 70 ? 0 : 10;
+      return subtotal >= 200 ? 0 : 10;
     }
     return subtotal >= 50 ? 0 : 5;
   }

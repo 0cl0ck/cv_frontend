@@ -28,7 +28,7 @@ export default function ImageHero() {
             transform: "translate3d(0,0,0)",
           }} /* Force GPU acceleration */
         />
-        {/* Overlay lÃ©ger pour amÃ©liorer la lisibilitÃ© du texte */}
+        {/* Overlay léger pour améliorer la lisibilité du texte */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#002830] via-[#002830]/70 to-transparent"></div>
       </div>
 
@@ -52,12 +52,12 @@ export default function ImageHero() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4">
             CBD Premium
           </h2>
-          <p className="text-lg mb-8">Naturel, certifiÃ©, efficace.</p>
+          <p className="text-lg mb-8">Naturel, certifié, efficace.</p>
           <Link
             href="/produits"
             className="btn px-6 py-3 rounded-lg inline-flex items-center justify-center bg-[#EFC368] hover:bg-[#d9ae5a] transition-colors text-black"
           >
-            DÃ©couvrir nos produits
+            Découvrir nos produits
           </Link>
         </div>
 
@@ -81,5 +81,3 @@ export default function ImageHero() {
     </div>
   );
 }
-
-

@@ -44,7 +44,7 @@ export default function useLoyaltyBenefits(
         
         const { data } = await httpClient.post<LoyaltyResponseData>('/cart/apply-loyalty', {
           cartTotal: cart.subtotal,
-          shippingCost: country === 'Belgique' ? (cart.subtotal >= 70 ? 0 : 10) : (cart.subtotal >= 50 ? 0 : 5),
+          shippingCost: country === 'Belgique' ? (cart.subtotal >= 200 ? 0 : 10) : (cart.subtotal >= 50 ? 0 : 5),
           items: cart.items
         }, {
           withCsrf: true,

@@ -16,9 +16,9 @@ describe('PriceService.calculateShippingCost', () => {
     expect(PriceService.calculateShippingCost(50, 'France')).toBe(0);
   });
 
-  it('Belgique: 10 if <70, free at >=70', () => {
-    expect(PriceService.calculateShippingCost(69.99, 'Belgique')).toBe(10);
-    expect(PriceService.calculateShippingCost(70, 'Belgique')).toBe(0);
+  it('Belgique: 10 if <200, free at >=200', () => {
+    expect(PriceService.calculateShippingCost(199.99, 'Belgique')).toBe(10);
+    expect(PriceService.calculateShippingCost(200, 'Belgique')).toBe(0);
   });
 });
 

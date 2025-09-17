@@ -139,7 +139,7 @@ function extractTimestamp(token: string): number {
     
     return isNaN(timestamp) ? 0 : timestamp;
   } catch (error) {
-    console.error('Erreur lors de l’extraction du timestamp:', error);
+    console.error("Erreur lors de l'extraction du timestamp:", error);
     return 0;
   }
 }
