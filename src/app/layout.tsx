@@ -11,6 +11,8 @@ import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import FontLoader from "@/components/Performance/FontLoader";
 import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
 
+import { getCategories, fallbackCategories } from "@/services/api";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,11 +45,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialCategories = await getCategories().catch(() => fallbackCategories);
+
   // Define critical resources to preload
   const criticalResources = [
     {
@@ -103,7 +107,7 @@ export default function RootLayout({
           <CartProvider>
                           <FontLoader />
               <CsrfInitializer />
-              <Header />
+              <Header initialCategories={initialCategories} />
               <main className="flex-grow bg-[#001E27]">
                 {children}
               </main>

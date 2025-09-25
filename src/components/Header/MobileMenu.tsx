@@ -6,14 +6,16 @@ import Image from 'next/image';
 import { IconX, IconUser, IconPackage, IconLogout, IconLogin } from '@tabler/icons-react';
 import { useAuthContext } from '@/context/AuthContext';
 
+type NavLinkItem = { label: string; url: string };
+
 type MobileMenuProps = {
   menuOpen: boolean;
   setMenuOpen: (state: boolean) => void;
-  navItems: Array<{ label: string; url: string }>;
+  navItems: NavLinkItem[];
+  categoryItems?: NavLinkItem[];
 };
 
-export default function MobileMenu({ menuOpen, setMenuOpen, navItems }: MobileMenuProps) {
-  // Utiliser le contexte d'authentification global
+export default function MobileMenu({ menuOpen, setMenuOpen, navItems, categoryItems }: MobileMenuProps) {
   const { isAuthenticated, logout } = useAuthContext();
 
   return (
@@ -22,80 +24,87 @@ export default function MobileMenu({ menuOpen, setMenuOpen, navItems }: MobileMe
         menuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex justify-between items-center p-4 border-b border-[#004a59]">
-        <Image 
-          src="/logo.png" 
-          alt="Chanvre Vert Logo" 
-          width={40} 
-          height={40} 
-          className=""
-        />
-        <p className="text-white text-sm">Menu</p>
+      <div className="flex items-center justify-between border-b border-[#004a59] p-4">
+        <Image src="/logo.png" alt="Chanvre Vert Logo" width={40} height={40} />
+        <p className="text-sm text-white">Menu</p>
         <button
           onClick={() => setMenuOpen(false)}
           className="p-2 text-white focus:outline-none"
           aria-label="Fermer le menu"
         >
-          <IconX className="w-6 h-6" />
+          <IconX className="h-6 w-6" />
         </button>
       </div>
-      <nav className="flex flex-col py-4 px-4 space-y-4 h-[calc(100vh-70px)] overflow-y-auto">
-        {navItems.map((item, i) => (
+      <nav className="flex h-[calc(100vh-70px)] flex-col space-y-4 overflow-y-auto px-4 py-4">
+        {navItems.map((item) => (
           <Link
-            key={i}
+            key={item.url}
             href={item.url}
-            className="flex text-white items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1"
+            className="flex items-center py-2 text-base font-medium text-white transition-all duration-200 hover:translate-x-1"
             onClick={() => setMenuOpen(false)}
           >
             {item.label}
           </Link>
         ))}
-        
-        {/* Menu compte utilisateur sur mobile */}
+
+        {categoryItems && categoryItems.length > 0 ? (
+          <div className="mt-6 border-t border-[#004a59] pt-4">
+            <p className="mb-2 text-sm text-white/70">Categories</p>
+            {categoryItems.map((item) => (
+              <Link
+                key={item.url}
+                href={item.url}
+                className="flex items-center py-2 text-base font-medium text-white transition-all duration-200 hover:translate-x-1"
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        ) : null}
+
         {isAuthenticated ? (
-          <>
-            <div className="mt-6 border-t border-[#004a59] pt-4">
-              <p className="text-white/70 text-sm mb-2">Mon compte</p>
-              <Link
-                href="/compte"
-                className="flex text-white items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1"
-                onClick={() => setMenuOpen(false)}
-              >
-                <IconUser className="mr-3 w-5 h-5" />
-                Mon profil
-              </Link>
-              <Link
-                href="/compte/commandes"
-                className="flex text-white items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1"
-                onClick={() => setMenuOpen(false)}
-              >
-                <IconPackage className="mr-3 w-5 h-5" />
-                Mes commandes
-              </Link>
-              <button 
-                className="flex text-red-400 items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1 w-full text-left"
-                onClick={async () => {
-                  try {
-                    await logout();
-                    setMenuOpen(false);
-                    window.location.href = '/';
-                  } catch (error) {
-                    console.error('Erreur lors de la déconnexion:', error);
-                  }
-                }}
-              >
-                <IconLogout className="mr-3 w-5 h-5" />
-                Déconnexion
-              </button>
-            </div>
-          </>
+          <div className="mt-6 border-t border-[#004a59] pt-4">
+            <p className="mb-2 text-sm text-white/70">Mon compte</p>
+            <Link
+              href="/compte"
+              className="flex items-center py-2 text-base font-medium text-white transition-all duration-200 hover:translate-x-1"
+              onClick={() => setMenuOpen(false)}
+            >
+              <IconUser className="mr-3 h-5 w-5" />
+              Mon profil
+            </Link>
+            <Link
+              href="/compte/commandes"
+              className="flex items-center py-2 text-base font-medium text-white transition-all duration-200 hover:translate-x-1"
+              onClick={() => setMenuOpen(false)}
+            >
+              <IconPackage className="mr-3 h-5 w-5" />
+              Mes commandes
+            </Link>
+            <button
+              className="flex w-full items-center py-2 text-left text-base font-medium text-red-400 transition-all duration-200 hover:translate-x-1"
+              onClick={async () => {
+                try {
+                  await logout();
+                  setMenuOpen(false);
+                  window.location.href = '/';
+                } catch (error) {
+                  console.error('Erreur lors de la deconnexion:', error);
+                }
+              }}
+            >
+              <IconLogout className="mr-3 h-5 w-5" />
+              Deconnexion
+            </button>
+          </div>
         ) : (
           <Link
             href="/connexion"
-            className="flex text-white items-center text-base font-medium py-2 transition-all duration-200 hover:translate-x-1 mt-4"
+            className="mt-4 flex items-center py-2 text-base font-medium text-white transition-all duration-200 hover:translate-x-1"
             onClick={() => setMenuOpen(false)}
           >
-            <IconLogin className="mr-3 w-5 h-5" />
+            <IconLogin className="mr-3 h-5 w-5" />
             Connexion
           </Link>
         )}
@@ -103,3 +112,4 @@ export default function MobileMenu({ menuOpen, setMenuOpen, navItems }: MobileMe
     </div>
   );
 }
+

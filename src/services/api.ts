@@ -112,13 +112,49 @@ const fallbackProducts: Product[] = [
 ];
 
 // Données de secours pour les catégories en cas d'erreur API
-const fallbackCategories: Category[] = [
-  { id: '1', name: 'Fleurs CBD', slug: 'fleurs-cbd' },
-  { id: '2', name: 'Huiles CBD', slug: 'huiles-cbd' },
-  { id: '3', name: 'Infusions CBD', slug: 'infusions-cbd' },
-  { id: '4', name: 'Résines CBD', slug: 'resine-cbd' },
-  { id: '5', name: 'Gélules CBD', slug: 'gelules-cbd' },
-  { id: '6', name: 'Packs CBD', slug: 'packs-cbd' },
+export const fallbackCategories: Category[] = [
+  {
+    id: '1',
+    name: 'Fleurs CBD',
+    slug: 'fleurs-cbd',
+    description: 'S\u00e9lection premium cultiv\u00e9e en int\u00e9rieur et en serre.',
+    image: '/images/categories/categorie_fleurs_cbd.webp',
+  },
+  {
+    id: '2',
+    name: 'Huiles CBD',
+    slug: 'huiles-cbd',
+    description: 'D\u00e9couvrez nos huiles full spectrum et broad spectrum.',
+    image: '/images/categories/categorie_huile_cbd.webp',
+  },
+  {
+    id: '3',
+    name: 'Infusions CBD',
+    slug: 'infusions-cbd',
+    description: 'Des m\u00e9langes bien-\u00eatre pour des pauses relaxantes.',
+    image: '/images/categories/categorie_infusion_cbd.webp',
+  },
+  {
+    id: '4',
+    name: 'R\u00e9sines CBD',
+    slug: 'resine-cbd',
+    description: 'Textures onctueuses et taux de CBD ma\u00eetris\u00e9s.',
+    image: '/images/categories/categorie_resine_cbd.webp',
+  },
+  {
+    id: '5',
+    name: 'G\u00e9lules CBD',
+    slug: 'gelules-cbd',
+    description: 'Dosage pr\u00e9cis et facile \u00e0 emporter au quotidien.',
+    image: '/images/categories/categorie_gelules_cbd.webp',
+  },
+  {
+    id: '6',
+    name: 'Packs CBD',
+    slug: 'packs-cbd',
+    description: 'Composez votre routine bien-\u00eatre \u00e0 prix doux.',
+    image: '/images/categories/categorie_packs_cbd.webp',
+  },
 ];
 
 /**

@@ -41,6 +41,8 @@ export type Category = {
   name: string;
   slug: string;
   isActive?: boolean;
+  description?: string | null;
+  image?: Media | string | null;
   meta?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;

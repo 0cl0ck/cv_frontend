@@ -60,7 +60,7 @@ httpClient.interceptors.response.use(
       console.error('[httpClient] Erreur réseau - vérifiez CORS/backend:', error);
     }
     
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
       // Token expiré ou invalide - déclencher refresh auth
       window.dispatchEvent(new CustomEvent('auth-expired'));
     }
