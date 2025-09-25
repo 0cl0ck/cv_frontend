@@ -63,15 +63,16 @@ export default function AboutPage() {
       </div>
       
       {/* Section des images */}
-      <h2 className="text-2xl font-semibold mb-4">Découvrez nos cultures</h2>
+      <h2 className="text-2xl font-semibold mb-4">Découvrez nos fournisseurs partenaires</h2>
+      <p className="text-gray-300 mb-6">Nous collaborons avec des cultivateurs certifiés en France, en Suisse et en Italie : voici un aperçu de leurs champs et de leur savoir-faire.</p>
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <ImageCard 
           src="/images/a-propos/ferme-cbd.jpg" 
-          alt="Culture de chanvre CBD en France"
+          alt="Culture de chanvre CBD chez l'un de nos fournisseurs français"
         />
         <ImageCard 
           src="/images/a-propos/ferme-cbd-2.jpg" 
-          alt="Récolte de chanvre CBD de qualité"
+          alt="Récolte de chanvre CBD chez un fournisseur partenaire"
         />
       </div>
       

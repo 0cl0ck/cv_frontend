@@ -1,83 +1,98 @@
 ﻿"use client";
 
-import React from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
-// CSS classes will be used instead of inline styles for better performance
-export default function ImageHero() {
-  // Define exact dimensions for the hero image to reduce CLS
-  const imageWidth = 1920;
-  const imageHeight = 1080;
+type Cta = {
+  text: string;
+  href: string;
+};
+
+interface HeroProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  primaryCTA?: Cta;
+  secondaryCTA?: Cta;
+  imageUrl?: string;
+  imageAlt?: string;
+}
+
+export default function ImageHero({
+  title = "avec du CBD premium certifié",
+  subtitle = "Boostez votre bien-être",
+  description = "Découvrez huiles, fleurs et infusions triées pour votre équilibre, traçabilité claire, livraison express.",
+  primaryCTA = {
+    text: "Decouvrir nos produits",
+    href: "/produits",
+  },
+  secondaryCTA = {
+    text: "En savoir plus",
+    href: "/a-propos",
+  },
+  imageUrl = "/images/hero/Hero.webp",
+  imageAlt = "CBD Premium - Chanvre Vert",
+}: HeroProps = {}) {
   return (
-    <div className="relative min-h-[100vh] flex items-center text-white bg-[#002830]">
-      {/* Image de fond - optimized loading with fetchpriority for better LCP */}
-      <div className="absolute inset-0 overflow-hidden">
+    <section className="relative min-h-[600px] overflow-hidden">
+      <div className="absolute inset-0 z-0">
         <Image
-          src="/Chanvre_Vert_Hero_3.png"
-          alt="Chanvre Vert CBD"
-          width={imageWidth}
-          height={imageHeight}
+          src={imageUrl}
+          alt={imageAlt}
+          fill
           sizes="100vw"
+          className="object-cover"
           priority
-          fetchPriority="high"
-          loading="eager"
-          quality={85} /* Further reduced quality for faster loading */
-          className="object-cover w-full h-full"
-          style={{
-            transform: "translate3d(0,0,0)",
-          }} /* Force GPU acceleration */
+          quality={100}
         />
-        {/* Overlay léger pour améliorer la lisibilité du texte */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#002830] via-[#002830]/70 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
       </div>
 
-      {/* Contenu texte */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 z-10 relative flex flex-col md:flex-row items-start md:justify-between justify-start py-16 md:py-24 pt-28 md:pt-32">
-        <div className="max-w-[500px] ml-4 md:ml-8 lg:ml-12 relative">
-          {/* Version mobile de la promotion - visible uniquement sur mobile, positionnée en haut */}
-          <div className="md:hidden w-full text-center mb-6">
-            <div className="neon-container backdrop-blur-sm p-2 rounded-lg">
-              <p className="font-bold text-base flex flex-col items-center justify-center neon-text-animation">
-                PROMO SP&Eacute;CIALE
-                <span className="uppercase tracking-wider text-sm">
-                  JUSQU&apos;&Agrave; 25G OFFERTS
-                </span>
-              </p>
-            </div>
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-2">
-            Chanvre Vert
+      <div className="absolute inset-0 z-10 opacity-5">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.1) 35px, rgba(255,255,255,0.1) 70px)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-20 mx-auto flex min-h-[600px] max-w-7xl items-center px-4 md:px-6 lg:px-8">
+        <div className="max-w-2xl text-white">
+          <h1 className="mb-6 text-[36px] md:text-[48px] lg:text-[60px] font-bold leading-[1] tracking-[-0.01em] text-white">
+            <span className="block">{subtitle}</span>
+            <span className="block text-[#EFC368]">{title}</span>
           </h1>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-4">
-            CBD Premium
-          </h2>
-          <p className="text-lg mb-8">Naturel, certifié, efficace.</p>
-          <Link
-            href="/produits"
-            className="btn px-6 py-3 rounded-lg inline-flex items-center justify-center bg-[#EFC368] hover:bg-[#d9ae5a] transition-colors text-black"
-          >
-            Découvrir nos produits
-          </Link>
-        </div>
-
-        {/* Texte promotionnel à droite - visible uniquement sur desktop */}
-        <div className="hidden md:block text-center mx-auto px-4 md:px-8 lg:px-12 mt-4">
-          <div className="neon-container backdrop-blur-sm p-4 rounded-lg">
-            <p className="font-bold text-xl lg:text-2xl flex flex-col items-center justify-center neon-text-animation">
-              PROMOTION TEMPORAIRE
-              <br />
-              <span className="uppercase tracking-wider">
-                Jusqu&apos;&agrave; 25G offerts
-              </span>
-              <br />
-              <span className="text-base mt-2 opacity-90">
-                D&eacute;tails sur la page produits et la page panier
-              </span>
-            </p>
+          <p className="mb-8 text-lg leading-relaxed text-gray-200 md:text-xl">
+            {description}
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href={primaryCTA.href}
+              className="inline-flex items-center justify-center rounded-lg bg-[#EFC368] px-6 py-3 text-base font-semibold text-black shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d3a74f] hover:shadow-xl"
+            >
+              {primaryCTA.text}
+            </Link>
+            <Link
+              href={secondaryCTA.href}
+              className="inline-flex items-center justify-center rounded-lg border border-white px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-xl"
+            >
+              {secondaryCTA.text}
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="absolute inset-x-0 bottom-0 z-20">
+        <svg
+          className="h-12 w-full fill-current text-[#012730] md:h-16"
+          viewBox="0 0 1440 48"
+          preserveAspectRatio="none"
+        >
+          <path d="M0,48 L60,42 C120,36 240,24 360,18 C480,12 600,12 720,16.5 C840,21 960,30 1080,33 C1200,36 1320,33 1380,31.5 L1440,30 L1440,48 L0,48 Z" />
+        </svg>
+      </div>
+    </section>
   );
 }
