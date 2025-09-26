@@ -39,15 +39,16 @@ describe('useCart', () => {
     expect(result.current.cart.totalCents).toBe(2000);
   });
 
-  it('replaces existing item when adding same product/variant (uses latest quantity)', async () => {
+  it('increments existing item when adding same product/variant', async () => {
     const { result } = renderHook(() => useCart());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     act(() => result.current.addItem({ ...product }, 1, { ...variant }));
     act(() => result.current.addItem({ ...product }, 3, { ...variant }));
 
-    await waitFor(() => expect(result.current.cart.items[0].quantity).toBe(3));
-    expect(result.current.cart.subtotal).toBe(30);
+    await waitFor(() => expect(result.current.cart.items[0].quantity).toBe(4));
+    expect(result.current.cart.subtotal).toBe(40);
+    expect(result.current.cart.subtotalCents).toBe(4000);
   });
 
   it('updates quantity and recalculates totals', async () => {

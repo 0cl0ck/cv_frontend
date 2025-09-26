@@ -10,6 +10,7 @@ import ResourcePreload from "@/components/Performance/ResourcePreload";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import FontLoader from "@/components/Performance/FontLoader";
 import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
+import MobileBonusWidget from '@/components/Loyalty/MobileBonusWidget';
 
 import { getCategories, fallbackCategories } from "@/services/api";
 
@@ -105,14 +106,15 @@ export default async function RootLayout({
         <ResourcePreload resources={criticalResources} />
         <AuthProvider>
           <CartProvider>
-                          <FontLoader />
-              <CsrfInitializer />
-              <Header initialCategories={initialCategories} />
-              <main className="flex-grow bg-[#001E27]">
-                {children}
-              </main>
-              <Footer />
-              <ClientLayoutWrapper />
+            <FontLoader />
+            <CsrfInitializer />
+            <Header initialCategories={initialCategories} />
+            <MobileBonusWidget />
+            <main className="flex-grow bg-[#001E27]">
+              {children}
+            </main>
+            <Footer />
+            <ClientLayoutWrapper />
           </CartProvider>
         </AuthProvider>
       </body>

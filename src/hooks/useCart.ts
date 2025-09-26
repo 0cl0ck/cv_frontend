@@ -145,36 +145,37 @@ export const useCart = () => {
     quantity: number = 1,
     variant?: ProductVariation
   ) => {
-    // Pour les produits spéciaux (comme les cadeaux) qui pourraient être ajoutés manuellement
-    // On vérifie une propriété personnalisée qui n'est pas dans le type standard Product
-    // @ts-expect-error - La propriété isGift pourrait exister sur des objets Product étendus
+    // Pour les produits speciaux (comme les cadeaux) qui pourraient etre ajoutes manuellement
+    // On verifie une propriete personnalisee qui n'est pas dans le type standard Product
+    // @ts-expect-error - La propriete isGift pourrait exister sur des objets Product etendus
     if (product.isGift === true) {
-      console.warn("Tentative d'ajout manuel d'un article cadeau ignorée");
+      console.warn("Tentative d'ajout manuel d'un article cadeau ignoree");
       return;
     }
 
-    // Créer l'objet item pour le produit à ajouter
     const price = variant?.price || product.price || 0;
     const priceCents = eurosToCents(price);
+    const desiredQuantity = 
+      Number.isFinite(quantity) ? Math.max(1, Math.floor(quantity)) : 1;
 
-    const newItem: CartItem = {
+    const baseItem: CartItem = {
       productId: product.id,
       name: product.name,
       price: price,
       priceCents: priceCents,
-      quantity, // Utiliser directement la quantité spécifiée sans condition
+      quantity: desiredQuantity,
       weight: variant?.weight,
       image: product.mainImage?.url,
       slug: product.slug,
     };
 
     if (variant) {
-      newItem.variantId = variant.id;
+      baseItem.variantId = variant.id;
       // Ajouter le nom de la variante si disponible, sinon utiliser le poids comme identifiant
-      newItem.variantName = variant.weight ? `${variant.weight}g` : "";
+      baseItem.variantName = variant.weight ? `${variant.weight}g` : "";
       // Ajouter aussi le SKU s'il est disponible
       if (variant.sku) {
-        newItem.sku = variant.sku;
+        baseItem.sku = variant.sku;
       }
     }
 
@@ -182,32 +183,40 @@ export const useCart = () => {
       // Filtrer les articles cadeaux du panier actuel
       const regularItems = prevCart.items.filter((item) => !item.isGift);
 
-      // Vérifier si le produit est déjà dans le panier (parmi les articles réguliers)
+      // Verifier si le produit est deja dans le panier (parmi les articles reguliers)
       const existingItemIndex = regularItems.findIndex(
         (item: CartItem) =>
           item.productId === product.id &&
-          (!variant || item.variantId === variant.id)
+          (!variant || item.variantId === variant?.id)
       );
 
-      // Créer un tableau d'articles réguliers mis à jour
+      const existingItem =
+        existingItemIndex !== -1 ? regularItems[existingItemIndex] : undefined;
+
+      const mergedQuantity = existingItem
+        ? Math.max(1, (existingItem.quantity || 0) + desiredQuantity)
+        : desiredQuantity;
+
+      const updatedItem = existingItem
+        ? { ...existingItem, ...baseItem, quantity: mergedQuantity }
+        : { ...baseItem, quantity: mergedQuantity };
+
       let updatedRegularItems;
 
       if (existingItemIndex !== -1) {
-        // Si le produit existe déjà, le mettre à jour
+        // Si le produit existe deja, cumuler les quantites
         updatedRegularItems = [...regularItems];
-        updatedRegularItems[existingItemIndex] = newItem;
+        updatedRegularItems[existingItemIndex] = updatedItem;
       } else {
-        // Si c'est un nouveau produit, l'ajouter
-        updatedRegularItems = [...regularItems, newItem];
+        // Nouveau produit, l'ajouter a la liste
+        updatedRegularItems = [...regularItems, updatedItem];
       }
 
-      // Créer un panier temporaire avec uniquement les articles réguliers
       const tempCart = {
         ...prevCart,
         items: updatedRegularItems,
       };
 
-      // Mettre à jour ce panier temporaire avec les cadeaux appropriés
       return updateGiftItems(tempCart);
     });
   };

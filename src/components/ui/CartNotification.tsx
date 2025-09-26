@@ -13,22 +13,22 @@ interface CartNotificationProps {
 
 export default function CartNotification({ productName, show, onClose }: CartNotificationProps) {
   const [isVisible, setIsVisible] = useState(false);
-  
-  // Auto-dismiss après 5 secondes
+
+  // Auto-dismiss after 5 seconds
   useEffect(() => {
     setIsVisible(show);
-    
+
     if (show) {
       const timer = setTimeout(() => {
         setIsVisible(false);
         onClose();
       }, 5000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [show, onClose]);
 
-  // Gérer la fermeture manuelle
+  // Handle manual close
   const handleClose = () => {
     setIsVisible(false);
     onClose();
@@ -38,40 +38,37 @@ export default function CartNotification({ productName, show, onClose }: CartNot
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.3 }}
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm bg-[#002935] border border-[#3A4A4F] shadow-lg rounded-lg p-4 md:p-5"
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.25 }}
+          className="fixed top-4 md:top-auto md:bottom-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm bg-[#002935] border border-[#3A4A4F] shadow-md rounded-lg px-4 py-3 md:px-5 md:py-4"
         >
-          <div className="flex items-start justify-between">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 text-[#EFC368]">
-                <ShoppingBag size={20} />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-[#F4F8F5]">
-                  Produit ajouté au panier
-                </p>
-                <p className="mt-1 text-xs text-[#A5B4B9]">
-                  {productName}
-                </p>
-              </div>
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#013845] text-[#EFC368]">
+              <ShoppingBag size={18} />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-semibold text-[#F4F8F5]">
+                Produit ajoute au panier
+              </p>
+              <p className="mt-0.5 text-xs text-[#A5B4B9]">
+                {productName}
+              </p>
+              <Link
+                href="/panier"
+                className="mt-2 inline-flex items-center text-xs font-semibold uppercase tracking-wide text-[#EFC368] hover:text-[#F4F8F5] transition-colors"
+              >
+                Voir mon panier
+              </Link>
             </div>
             <button
               onClick={handleClose}
-              className="ml-4 inline-flex text-[#A5B4B9] hover:text-[#F4F8F5] focus:outline-none focus:text-[#F4F8F5] transition-colors"
+              className="mt-1 inline-flex text-[#A5B4B9] hover:text-[#F4F8F5] focus:outline-none focus:text-[#F4F8F5] transition-colors"
+              aria-label="Fermer la notification"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
-          </div>
-          <div className="mt-3">
-            <Link
-              href="/panier"
-              className="flex items-center justify-center bg-[#03745C] hover:bg-[#045E4A] text-[#F4F8F5] text-sm font-medium py-2 px-4 w-full rounded-md transition-colors"
-            >
-              Voir mon panier
-            </Link>
           </div>
         </motion.div>
       )}
