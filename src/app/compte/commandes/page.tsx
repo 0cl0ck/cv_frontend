@@ -19,6 +19,11 @@ type Order = {
     cost: number;
     freeShippingThreshold?: number;
   };
+  loyaltyDiscount?: number;
+  promoDiscount?: number;
+  referralDiscount?: number;
+  discountAmount?: number;
+  discountCode?: string | null;
   total: number;
   items: {
     productId: string;
@@ -275,7 +280,30 @@ export default function OrdersPage() {
                               </span>
                               <span className="text-sm text-[#D1D5DB]">{formatPrice(order.shipping?.cost || 0)}</span>
                             </div>
-                            
+
+                            {(order.promoDiscount ?? 0) > 0 && (
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-sm text-[#BEC3CA]">
+                                  Code promo{order.discountCode ? ` (${order.discountCode})` : ''}
+                                </span>
+                                <span className="text-sm text-[#10B981]">-{formatPrice(order.promoDiscount ?? 0)}</span>
+                              </div>
+                            )}
+
+                            {(order.loyaltyDiscount ?? 0) > 0 && (
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-sm text-[#BEC3CA]">Remise fidélité</span>
+                                <span className="text-sm text-[#10B981]">-{formatPrice(order.loyaltyDiscount ?? 0)}</span>
+                              </div>
+                            )}
+
+                            {(order.referralDiscount ?? 0) > 0 && (
+                              <div className="flex justify-between items-center py-1">
+                                <span className="text-sm text-[#BEC3CA]">Parrainage</span>
+                                <span className="text-sm text-[#10B981]">-{formatPrice(order.referralDiscount ?? 0)}</span>
+                              </div>
+                            )}
+
                             <div className="flex justify-between items-center pt-3 border-t border-[#1D5754]">
                               <span className="text-base font-bold text-[#BEC3CA]">Total</span>
                               <span className="text-base font-bold text-[#D1D5DB]">{formatPrice(order.total)}</span>
@@ -333,6 +361,24 @@ export default function OrdersPage() {
                                   </td>
                                   <td className="px-4 py-2 text-sm font-medium text-[#D1D5DB]">{formatPrice(order.shipping?.cost || 0)}</td>
                                 </tr>
+                                {(order.promoDiscount ?? 0) > 0 && (
+                                  <tr>
+                                    <td colSpan={3} className="px-4 py-2 text-right text-sm font-medium text-[#BEC3CA]">Code promo{order.discountCode ? ` (${order.discountCode})` : ''}</td>
+                                    <td className="px-4 py-2 text-sm font-medium text-[#10B981]">-{formatPrice(order.promoDiscount ?? 0)}</td>
+                                  </tr>
+                                )}
+                                {(order.loyaltyDiscount ?? 0) > 0 && (
+                                  <tr>
+                                    <td colSpan={3} className="px-4 py-2 text-right text-sm font-medium text-[#BEC3CA]">Remise fidélité</td>
+                                    <td className="px-4 py-2 text-sm font-medium text-[#10B981]">-{formatPrice(order.loyaltyDiscount ?? 0)}</td>
+                                  </tr>
+                                )}
+                                {(order.referralDiscount ?? 0) > 0 && (
+                                  <tr>
+                                    <td colSpan={3} className="px-4 py-2 text-right text-sm font-medium text-[#BEC3CA]">Parrainage</td>
+                                    <td className="px-4 py-2 text-sm font-medium text-[#10B981]">-{formatPrice(order.referralDiscount ?? 0)}</td>
+                                  </tr>
+                                )}
                                 <tr>
                                   <td colSpan={3} className="px-4 py-2 text-right text-sm font-bold text-[#BEC3CA]">Total</td>
                                   <td className="px-4 py-2 text-sm font-bold text-[#D1D5DB]">{formatPrice(order.total)}</td>
