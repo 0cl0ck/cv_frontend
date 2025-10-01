@@ -1,5 +1,3 @@
-﻿"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,11 +17,11 @@ interface HeroProps {
 }
 
 export default function ImageHero({
-  title = "avec du CBD premium certifié",
-  subtitle = "Boostez votre bien-être",
-  description = "Découvrez huiles, fleurs et infusions triées pour votre équilibre, traçabilité claire, livraison express.",
+  title = "avec du CBD premium certifi\u00E9",
+  subtitle = "Boostez votre bien-\u00EAtre",
+  description = "D\u00E9couvrez huiles, fleurs et infusions tri\u00E9es pour votre \u00E9quilibre, tra\u00E7abilit\u00E9 claire, livraison express.",
   primaryCTA = {
-    text: "Decouvrir nos produits",
+    text: "D\u00E9couvrir nos produits",
     href: "/produits",
   },
   secondaryCTA = {

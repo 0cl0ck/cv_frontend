@@ -4,15 +4,18 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { useAuthContext } from '@/context/AuthContext';
 
 // Formulaire d'inscription
 function RegisterForm() {
   const router = useRouter();
+  const { isAuthenticated, user, loading: authLoading } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [hasRedirected, setHasRedirected] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -27,6 +30,7 @@ function RegisterForm() {
   });
 
   const searchParams = useSearchParams();
+  const redirectParam = searchParams?.get('redirect');
   const [referralValid, setReferralValid] = useState<null | boolean>(null);
 
   // Validate and track referral code (sets HttpOnly cookie if valid)
@@ -63,6 +67,18 @@ function RegisterForm() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || hasRedirected) {
+      return;
+    }
+
+    const safeRedirect = redirectParam && redirectParam.startsWith('/') ? redirectParam : null;
+    const destination = safeRedirect ?? (user?.collection === 'customers' ? '/compte' : '/');
+    setHasRedirected(true);
+    router.replace(destination);
+    router.refresh();
+  }, [authLoading, hasRedirected, isAuthenticated, redirectParam, router, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -177,6 +193,15 @@ function RegisterForm() {
       setIsLoading(false);
     }
   };
+
+  if (!authLoading && isAuthenticated) {
+    return (
+      <div className="w-full max-w-md bg-[#002930] rounded-lg shadow-md p-8 border border-[#155757] text-center">
+        <Loader2 size={32} className="mx-auto mb-4 animate-spin text-[#10B981]" />
+        <p className="text-[#BEC3CA]">Vous etes deja connecte. Redirection en cours...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md bg-[#002930] rounded-lg shadow-md p-8 border border-[#155757]">
@@ -443,3 +468,4 @@ function SuccessModal({
     </div>
   );
 }
+
