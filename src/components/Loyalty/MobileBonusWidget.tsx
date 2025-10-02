@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, useId, type MouseEvent } from 'react';
 import clsx from 'clsx';
 
 import { useCartContext } from '@/context/CartContext';
@@ -31,6 +31,10 @@ type GiftBreakdown = {
   totalGifts: number;
 };
 
+type MobileMenuToggleDetail = {
+  open: boolean;
+};
+
 function computeGifts(subtotal: number): GiftBreakdown {
   if (subtotal <= 0) {
     return { baseGift: 0, extraGift: 0, totalGifts: 0 };
@@ -47,7 +51,9 @@ export default function MobileBonusWidget() {
   const { cart, isLoading } = useCartContext();
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const gradientId = useId();
   const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevSubtotalRef = useRef<number>(0);
   const autoCloseRequestedRef = useRef(false);
@@ -77,6 +83,40 @@ export default function MobileBonusWidget() {
       autoCloseTimerRef.current = null;
     }
   };
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    setIsMobileMenuOpen(document.body.classList.contains('mobile-menu-open'));
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleMenuToggle = (event: Event) => {
+      const customEvent = event as CustomEvent<MobileMenuToggleDetail>;
+      setIsMobileMenuOpen(Boolean(customEvent.detail?.open));
+    };
+
+    window.addEventListener('mobile-menu-toggle', handleMenuToggle);
+
+    return () => {
+      window.removeEventListener('mobile-menu-toggle', handleMenuToggle);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return;
+    }
+
+    setIsExpanded(false);
+    setIsMinimized(true);
+    autoCloseRequestedRef.current = false;
+    clearAutoCloseTimer();
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     const previousSubtotal = prevSubtotalRef.current;
@@ -173,6 +213,10 @@ export default function MobileBonusWidget() {
   };
 
   const handleRestore = () => {
+    if (isMobileMenuOpen) {
+      return;
+    }
+
     setIsMinimized(false);
     setIsExpanded(true);
     autoCloseRequestedRef.current = false;
@@ -181,7 +225,7 @@ export default function MobileBonusWidget() {
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-4 left-4 z-50 md:hidden">
+      <div className="fixed bottom-4 right-4 z-50 md:hidden transition-transform duration-300 ease-in-out">
         <button
           type="button"
           onClick={handleRestore}
@@ -248,32 +292,99 @@ export default function MobileBonusWidget() {
                 </div>
               </div>
             </div>
-            <div
-              className={clsx(
-                'flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/10 text-white transition-transform duration-300',
-                isExpanded ? 'rotate-180' : 'rotate-0'
-              )}
-              aria-hidden
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5"
+            <div className="relative flex-none">
+              <span className="bonus-widget-ring" aria-hidden>
+
+                <svg className="bonus-widget-ring-svg" viewBox="0 0 40 40" role="presentation" focusable="false">
+
+                  <defs>
+
+                    <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+
+                      <stop offset="0%" stopColor="rgba(239, 195, 104, 0.9)" />
+
+                      <stop offset="45%" stopColor="rgba(239, 195, 104, 0.6)" />
+
+                      <stop offset="75%" stopColor="rgba(239, 195, 104, 0.2)" />
+
+                      <stop offset="100%" stopColor="rgba(239, 195, 104, 0)" />
+
+                    </linearGradient>
+
+                  </defs>
+
+                  <circle
+
+                    className="bonus-widget-ring-highlight"
+
+                    cx="20"
+
+                    cy="20"
+
+                    r="18"
+
+                    stroke={`url(#${gradientId})`}
+
+                    strokeWidth="2"
+
+                    strokeLinecap="round"
+
+                    strokeDasharray="56.5 56.5"
+
+                    strokeDashoffset="0"
+
+                    fill="none"
+
+                  />
+
+                  <circle
+
+                    cx="20"
+
+                    cy="20"
+
+                    r="18"
+
+                    stroke="rgba(239, 195, 104, 0.18)"
+
+                    strokeWidth="1"
+
+                    fill="none"
+
+                    opacity="0.35"
+
+                  />
+
+                </svg>
+
+              </span>
+              <div
+                className={clsx(
+                  'relative z-[1] flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition-transform duration-300',
+                  isExpanded ? 'rotate-180' : 'rotate-0'
+                )}
+                aria-hidden
               >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5"
+                >
                 <path d="M6 9l6 6 6-6" />
               </svg>
+              </div>
             </div>
           </button>
 
           <button
             type="button"
             onClick={handleMinimize}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-300/50"
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white transition hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-300/70 focus:ring-offset-2 focus:ring-offset-[#032629]"
             aria-label="Reduire le widget bonus"
           >
             <svg
@@ -281,7 +392,7 @@ export default function MobileBonusWidget() {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
               className="h-3.5 w-3.5"

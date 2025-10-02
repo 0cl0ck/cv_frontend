@@ -75,3 +75,43 @@ select:-webkit-autofill:active {
     text-shadow: 0 0 10px #EFC368;
   }
 }
+
+@keyframes bonusWidgetRingSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bonus-widget-ring {
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  display: block;
+}
+
+.bonus-widget-ring-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform-origin: center;
+  animation: bonusWidgetRingSpin 2.8s linear infinite;
+}
+
+.bonus-widget-ring-highlight {
+  filter: drop-shadow(0 0 3px rgba(239, 195, 104, 0.2));
+}
+
+button:hover .bonus-widget-ring-svg,
+button:focus-visible .bonus-widget-ring-svg {
+  filter: drop-shadow(0 0 5px rgba(239, 195, 104, 0.35));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bonus-widget-ring-svg {
+    animation: none;
+  }
+}
+

@@ -156,9 +156,24 @@ export default function Header({ initialCategories }: HeaderProps): JSX.Element 
     if (typeof document === "undefined") {
       return;
     }
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+
+    const body = document.body;
+    body.style.overflow = menuOpen ? "hidden" : "auto";
+    body.classList.toggle("mobile-menu-open", menuOpen);
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("mobile-menu-toggle", { detail: { open: menuOpen } })
+      );
+    }
+
     return () => {
-      document.body.style.overflow = "auto";
+      body.style.overflow = "auto";
+      body.classList.remove("mobile-menu-open");
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("mobile-menu-toggle", { detail: { open: false } }));
+      }
     };
   }, [menuOpen]);
 
