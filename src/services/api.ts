@@ -117,42 +117,42 @@ export const fallbackCategories: Category[] = [
     id: '1',
     name: 'Fleurs CBD',
     slug: 'fleurs-cbd',
-    description: 'S\u00e9lection premium cultiv\u00e9e en int\u00e9rieur et en serre.',
+    description: 'Sélection premium cultivée en intérieur et en serre.',
     image: '/images/categories/categorie_fleurs_cbd.webp',
   },
   {
     id: '2',
     name: 'Huiles CBD',
     slug: 'huiles-cbd',
-    description: 'D\u00e9couvrez nos huiles full spectrum et broad spectrum.',
+    description: 'Découvrez nos huiles full spectrum et broad spectrum.',
     image: '/images/categories/categorie_huile_cbd.webp',
   },
   {
     id: '3',
     name: 'Infusions CBD',
     slug: 'infusions-cbd',
-    description: 'Des m\u00e9langes bien-\u00eatre pour des pauses relaxantes.',
+    description: 'Des mélanges bien-être pour des pauses relaxantes.',
     image: '/images/categories/categorie_infusion_cbd.webp',
   },
   {
     id: '4',
-    name: 'R\u00e9sines CBD',
+    name: 'Résines CBD',
     slug: 'resine-cbd',
-    description: 'Textures onctueuses et taux de CBD ma\u00eetris\u00e9s.',
+    description: 'Textures onctueuses et taux de CBD maîtrisés.',
     image: '/images/categories/categorie_resine_cbd.webp',
   },
   {
     id: '5',
-    name: 'G\u00e9lules CBD',
+    name: 'Gélules CBD',
     slug: 'gelules-cbd',
-    description: 'Dosage pr\u00e9cis et facile \u00e0 emporter au quotidien.',
+    description: 'Dosage précis et facile à emporter au quotidien.',
     image: '/images/categories/categorie_gelules_cbd.webp',
   },
   {
     id: '6',
     name: 'Packs CBD',
     slug: 'packs-cbd',
-    description: 'Composez votre routine bien-\u00eatre \u00e0 prix doux.',
+    description: 'Composez votre routine bien-être à prix doux.',
     image: '/images/categories/categorie_packs_cbd.webp',
   },
 ];
@@ -361,5 +361,49 @@ export async function getRelatedProducts(productId: string, categoryIds: string[
         return categoryIds.includes(catId);
       })
       .slice(0, limit);
+  }
+}
+
+
+export async function searchProducts(query: string, options: { limit?: number } = {}): Promise<{ query: string; docs: Product[]; totalDocs: number }> {
+  const trimmedQuery = query.trim();
+  const limit = Math.max(1, Math.min(options.limit ?? 8, 20));
+
+  if (trimmedQuery.length < 3) {
+    return {
+      query: trimmedQuery,
+      docs: [],
+      totalDocs: 0,
+    };
+  }
+
+  try {
+    const params = new URLSearchParams();
+    params.set('q', trimmedQuery);
+    params.set('limit', limit.toString());
+
+    const { data } = await httpClient.get(`/search/products?${params.toString()}`);
+
+    const docs = Array.isArray(data?.docs) ? (data.docs as Product[]) : [];
+    const totalDocs = Number.isFinite(data?.totalDocs) ? Number(data.totalDocs) : docs.length;
+    const responseQuery = typeof data?.query === 'string' ? data.query : trimmedQuery;
+
+    return {
+      query: responseQuery,
+      docs,
+      totalDocs,
+    };
+  } catch (error) {
+    console.error('Error searching products:', error);
+
+    const fallbackMatches = fallbackProducts.filter((product) =>
+      product.name.toLowerCase().includes(trimmedQuery.toLowerCase()),
+    );
+
+    return {
+      query: trimmedQuery,
+      docs: fallbackMatches.slice(0, limit),
+      totalDocs: fallbackMatches.length,
+    };
   }
 }

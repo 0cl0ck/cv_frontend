@@ -1,30 +1,34 @@
 ﻿"use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useProductSearch } from "@/hooks/useProductSearch";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ProductCard } from "@/components/ProductCard/ProductCard";
 import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
 import Pagination from "@/components/Pagination/Pagination";
 import { Product, Category } from "@/types/product";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   IconFilter,
   IconSortDescending,
   IconArrowDown,
   IconArrowUp,
+  IconSearch,
+  IconLoader2,
 } from "@tabler/icons-react";
 
 // Types pour les props du composant
 interface ProductsLayoutProps {
-  // Mode pagination côté serveur
+  // Mode pagination cote serveur
   products: Product[];
   currentPage: number;
   totalPages: number;
 
-  // Mode pagination côté client
+  // Mode pagination cote client
   allProducts?: Product[];
   requestedPage?: number;
-  productsPerPage?: number; // Nombre de produits par page pour la pagination côté client
+  productsPerPage?: number; // Nombre de produits par page pour la pagination cote client
 
   // Props communs
   categories: Category[];
@@ -33,13 +37,14 @@ interface ProductsLayoutProps {
   description?: string;
   activeCategory?: string;
 
-  // Paramètres de tri et filtrage
+  // Parametres de tri et filtrage
   priceRange?: string;
   pricePerGramSort?: string;
   sortParam?: string;
+  initialSearchTerm?: string;
 }
 
-// Types pour les options de tri simplifiées
+// Types pour les options de tri simplifiees
 type PriceSortType = "none" | "price-asc" | "price-desc";
 
 // Animation variants
@@ -66,8 +71,24 @@ const itemVariants = {
   },
 };
 
-export default function ProductsLayout({
-  // Support pour les deux modes (côté serveur et côté client)
+export default function ProductsLayout(props: ProductsLayoutProps) {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        retry: 1,
+      },
+    },
+  }));
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ProductsLayoutContent {...props} />
+    </QueryClientProvider>
+  );
+}
+
+function ProductsLayoutContent({
   products,
   allProducts,
   categories,
@@ -79,24 +100,60 @@ export default function ProductsLayout({
   title,
   description,
   activeCategory,
+  initialSearchTerm,
 }: ProductsLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const rawSearchParam = searchParams.get("search");
+  const initialQueryFromUrl = rawSearchParam ?? (initialSearchTerm ?? "");
 
-  // Seul état conservé pour le tri par prix
+  // Seul etat conserve pour le tri par prix
   const [selectedPriceSort, setSelectedPriceSort] =
     useState<PriceSortType>("none");
 
-  // à‰tat pour la pagination côté client
+  // a‰tat pour la pagination cote client
   const [currentClientPage, setCurrentClientPage] = useState<number>(
     requestedPage || currentPage || 1
   );
 
-  // Déterminer si nous sommes en mode pagination côté client
+  // Determiner si nous sommes en mode pagination cote client
   const isClientSidePagination = !!allProducts;
 
-  // Initialiser le tri depuis les paramètres d'URL
+  const {
+    query: searchQuery,
+    setQuery: setSearchQuery,
+    debouncedQuery,
+    results: searchResults,
+    total: searchTotal,
+    isFetching: searchIsFetching,
+    isLoading: searchIsLoading,
+    isError: searchIsError,
+    error: searchError,
+    hasSufficientLength: searchReady,
+  } = useProductSearch({ initialQuery: initialQueryFromUrl, limit: productsPerPage });
+
+  useEffect(() => {
+    const currentValue = rawSearchParam ?? "";
+    const nextValue = searchReady ? debouncedQuery : "";
+
+    if (nextValue === currentValue) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextValue) {
+      params.set("search", nextValue);
+    } else {
+      params.delete("search");
+    }
+
+    const nextUrl = params.toString();
+    router.replace(nextUrl ? `${pathname}?${nextUrl}` : pathname, { scroll: false });
+  }, [debouncedQuery, pathname, rawSearchParam, router, searchParams, searchReady]);
+
+  // Initialiser le tri depuis les parametres d'URL
   useEffect(() => {
     const sortParam = searchParams.get("sort");
     if (sortParam === "price-asc" || sortParam === "price-desc") {
@@ -106,8 +163,8 @@ export default function ProductsLayout({
     }
   }, [searchParams]);
 
-  // Mettre à  jour l'URL avec les paramètres de tri (gardé pour usage futur potentiel)
-  // Fonction actuellement non utilisée mais conservée pour implémentation future
+  // Mettre a  jour l'URL avec les parametres de tri (garde pour usage futur potentiel)
+  // Fonction actuellement non utilisee mais conservee pour implementation future
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const updateUrlWithFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -118,16 +175,16 @@ export default function ProductsLayout({
       params.delete("sort");
     }
 
-    // Mettre à  jour l'URL sans recharger la page
+    // Mettre a  jour l'URL sans recharger la page
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   // Gestionnaire pour le changement de tri par prix
   const handlePriceSortChange = (sort: PriceSortType) => {
-    // 1. Mettre à  jour l'état local
+    // 1. Mettre a  jour l'etat local
     setSelectedPriceSort(sort);
 
-    // 2. Préparer les paramètres d'URL
+    // 2. Preparer les parametres d'URL
     const params = new URLSearchParams(searchParams.toString());
 
     if (sort !== "none") {
@@ -136,26 +193,26 @@ export default function ProductsLayout({
       params.delete("sort");
     }
 
-    // 3. Mise à  jour de l'URL adaptée selon le mode de pagination
+    // 3. Mise a  jour de l'URL adaptee selon le mode de pagination
     if (!isClientSidePagination) {
-      // Sur la page principale, les produits sont chargés côté serveur
-      // => Force un rechargement de page pour obtenir les produits triés depuis le serveur
-      // => Réinitialiser la pagination à  la page 1 pour le tri global
+      // Sur la page principale, les produits sont charges cote serveur
+      // => Force un rechargement de page pour obtenir les produits tries depuis le serveur
+      // => Reinitialiser la pagination a  la page 1 pour le tri global
 
-      // Supprimer tout paramètre de pagination existant pour revenir à  la page 1
+      // Supprimer tout parametre de pagination existant pour revenir a  la page 1
       params.delete("page");
 
       // Redirection avec rechargement complet
       window.location.href = `${pathname}?${params.toString()}`;
     } else {
-      // Sur les pages de catégorie, les produits sont déjà  tous chargés
+      // Sur les pages de categorie, les produits sont deja  tous charges
       // => Navigation client sans rechargement (SPA)
-      // => Réinitialiser également la pagination pour cohérence
+      // => Reinitialiser egalement la pagination pour coherence
 
-      // Réinitialiser la page en mémoire
+      // Reinitialiser la page en memoire
       setCurrentClientPage(1);
 
-      // Supprimer le paramètre de page pour revenir à  la page 1
+      // Supprimer le parametre de page pour revenir a  la page 1
       params.delete("page");
 
       // Navigation sans rechargement
@@ -163,139 +220,268 @@ export default function ProductsLayout({
     }
   };
 
-  // Calculer les produits à  afficher et les informations de pagination
-  const { displayedProducts, clientTotalPages, filteredTotal } = useMemo(() => {
-    // Si nous sommes en mode pagination côté serveur, ou si allProducts est vide, utiliser directement les produits passés
-    // CORRECTION: Vérifier si le tableau allProducts est vide en vérifiant sa longueur
+  // Calculer les produits a afficher et les informations de pagination
+
+  const baseListing = useMemo(() => {
+
     if (!isClientSidePagination || !allProducts?.length) {
+
       return {
+
         displayedProducts: products || [],
+
         clientTotalPages: totalPages || 1,
+
         filteredTotal: totalProducts,
+
       };
+
     }
 
-    // Copie de tous les produits pour le filtrage
+
+
     let filtered = [...allProducts];
 
-    // Appliquer le tri par prix selon la demande
+
+
     if (selectedPriceSort !== "none") {
-      // Séparer les produits en deux groupes : ceux avec prix au gramme et ceux sans
+
       const productsWithPricePerGram = filtered.filter(
+
         (p) =>
+
           p.pricePerGram ||
+
           (p.productType === "variable" &&
+
             p.variants?.some((v) => v.pricePerGram))
+
       );
+
+
 
       const productsWithoutPricePerGram = filtered.filter(
+
         (p) =>
+
           !p.pricePerGram &&
+
           !(
+
             p.productType === "variable" &&
+
             p.variants?.some((v) => v.pricePerGram)
+
           )
+
       );
 
-      // Afficher les produits avec prix au gramme (avant tri)
+
+
       if (productsWithPricePerGram.length > 0) {
+
         productsWithPricePerGram.map((p) => ({
+
           name: p.name,
+
           pricePerGram: p.pricePerGram,
+
           minPricePerGram:
+
             p.productType === "variable" && p.variants?.length
+
               ? Math.min(
+
                   ...p.variants
+
                     .filter((v) => v.pricePerGram)
+
                     .map((v) => v.pricePerGram || Infinity)
+
                 )
+
               : p.pricePerGram,
+
         }));
+
       }
 
-      // Tri des produits avec prix au gramme
+
+
       productsWithPricePerGram.sort((a, b) => {
-        // Pour les produits simples, utiliser directement pricePerGram
+
         const priceA =
+
           a.pricePerGram ||
+
           (a.productType === "variable" && a.variants?.length
+
             ? Math.min(
+
                 ...a.variants
+
                   .filter((v) => v.pricePerGram)
+
                   .map((v) => v.pricePerGram || Infinity)
+
               )
+
             : Infinity);
 
+
+
         const priceB =
+
           b.pricePerGram ||
+
           (b.productType === "variable" && b.variants?.length
+
             ? Math.min(
+
                 ...b.variants
+
                   .filter((v) => v.pricePerGram)
+
                   .map((v) => v.pricePerGram || Infinity)
+
               )
+
             : Infinity);
 
-        // Tri ascendant ou descendant selon le choix
+
+
         return selectedPriceSort === "price-asc"
+
           ? priceA - priceB
+
           : priceB - priceA;
+
       });
 
-      // Tri des produits sans prix au gramme
+
+
       productsWithoutPricePerGram.sort((a, b) => {
+
         const priceA =
+
           a.price ||
+
           (a.productType === "variable" && a.variants?.length
+
             ? Math.min(...a.variants.map((v) => v.price))
+
             : 0);
+
+
 
         const priceB =
+
           b.price ||
+
           (b.productType === "variable" && b.variants?.length
+
             ? Math.min(...b.variants.map((v) => v.price))
+
             : 0);
 
-        // Tri ascendant ou descendant selon le choix
+
+
         return selectedPriceSort === "price-asc"
+
           ? priceA - priceB
+
           : priceB - priceA;
+
       });
 
-      // Combiner les produits dans l'ordre souhaité:
-      // D'abord les produits avec prix au gramme, puis les produits sans prix au gramme
+
+
       filtered = [...productsWithPricePerGram, ...productsWithoutPricePerGram];
 
-      // Version sans logging pour la production
     }
 
-    // Calculer la pagination
+
+
     const start = (currentClientPage - 1) * productsPerPage;
+
     const end = start + productsPerPage;
+
     const paginatedProducts = filtered.slice(start, end);
 
+
+
     return {
+
       displayedProducts: paginatedProducts,
+
       clientTotalPages: Math.ceil(filtered.length / productsPerPage),
+
       filteredTotal: filtered.length,
+
     };
+
   }, [
+
     allProducts,
+
     products,
+
     totalPages,
+
     totalProducts,
+
     isClientSidePagination,
+
     selectedPriceSort,
+
     currentClientPage,
+
     productsPerPage,
+
   ]);
 
-  // Gestionnaire pour le changement de page côté client
+
+
+  const baseDisplayedProducts = baseListing.displayedProducts;
+
+  const baseClientTotalPages = baseListing.clientTotalPages;
+
+  const baseFilteredTotal = baseListing.filteredTotal;
+
+
+
+  const searchActive = searchReady;
+
+  const searchBusy = searchActive && (searchIsFetching || searchIsLoading);
+
+  const activeProducts = searchActive ? searchResults : baseDisplayedProducts;
+
+  const activeClientTotalPages = searchActive ? 1 : baseClientTotalPages;
+
+  const activeFilteredTotal = searchActive ? searchTotal : baseFilteredTotal;
+
+  const totalForDisplay = searchActive
+
+    ? activeFilteredTotal
+
+    : isClientSidePagination
+
+    ? baseFilteredTotal
+
+    : totalProducts;
+
+  const pluralSuffix = totalForDisplay !== 1 ? "s" : "";
+
+  const showSearchEmptyState = searchActive && !searchBusy && activeProducts.length === 0;
+
+
+
+  // Gestionnaire pour le changement de page cote client
   const handleClientPageChange = (page: number) => {
-    // Mettre à  jour l'état local
+    // Mettre a  jour l'etat local
     setCurrentClientPage(page);
 
-    // Mettre à  jour l'URL sans rechargement
+    // Mettre a  jour l'URL sans rechargement
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
@@ -303,19 +489,19 @@ export default function ProductsLayout({
 
   return (
     <div className="bg-[#001e27] dark:bg-[#001e27] min-h-screen">
-      {/* Header section avec fond dégradé */}
+      {/* Header section avec fond degrade */}
       <motion.div
         className="bg-[#001e27] dark:bg-[#001e27] py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        {/* à‰léments décoratifs */}
+        {/* a‰lements decoratifs */}
         <div className="absolute inset-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full border border-white/20"></div>
           <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full border border-white/20"></div>
         </div>
-        {/* Bannière promotionnelle temporaire */}
+        {/* Banniere promotionnelle temporaire */}
         <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
           <p className="text-lg font-bold">PROMOTION TEMPORAIRE</p>
           <p className="text-sm mt-1">
@@ -354,16 +540,16 @@ export default function ProductsLayout({
           initial="hidden"
           animate="visible"
         >
-          {/* Sidebar avec filtres simplifiés */}
+          {/* Sidebar avec filtres simplifies */}
           <motion.aside className="md:w-1/4 space-y-6" variants={itemVariants}>
-            {/* Filtre par catégorie */}
+            {/* Filtre par categorie */}
             <div className="bg-[#00454f] rounded-lg shadow-lg p-6 border border-[#005965]">
               <div className="flex items-center mb-4">
                 <IconFilter
                   className="mr-2 text-[#00878a] dark:text-green-300"
                   size={20}
                 />
-                <h2 className="font-bold text-xl text-white">Catégories</h2>
+                <h2 className="font-bold text-xl text-white">Categories</h2>
               </div>
               <CategoryFilter
                 categories={categories}
@@ -394,7 +580,7 @@ export default function ProductsLayout({
                     htmlFor="price-sort-none"
                     className="ml-2 text-sm text-white/90"
                   >
-                    Non trié
+                    Non trie
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -437,84 +623,229 @@ export default function ProductsLayout({
 
           {/* Produits et pagination */}
           <motion.section className="md:w-3/4" variants={itemVariants}>
+
+                        <div className="mb-6">
+              <label htmlFor="product-search-input" className="sr-only">
+                Search products
+              </label>
+
+              <div className="relative">
+                <IconSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={18} />
+                <input
+                  id="product-search-input"
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder='Rechercher &quot;fleurs cbd&quot; ou &quot;amnesia&quot;'
+                  className="w-full rounded-full bg-[#002732] py-3 pl-11 pr-12 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#EFC368]"
+                  autoComplete="off"
+                  inputMode="search"
+                />
+                {searchBusy ? (
+                  <IconLoader2
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#EFC368] animate-spin"
+                    size={18}
+                  />
+                ) : null}
+              </div>
+
+              <div className="mt-2 min-h-[1.25rem] text-sm text-white/70">
+                {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 ? (
+                  <span>Tapez au moins 3 caracteres pour lancer la recherche.</span>
+                ) : searchActive ? (
+                  searchBusy ? (
+                    <span>Recherche en cours...</span>
+                  ) : activeFilteredTotal > 0 ? (
+                    <span>
+                      {activeFilteredTotal} resultat{pluralSuffix} pour &quot;
+                      <span className="font-semibold">{debouncedQuery}</span>
+                      &quot;
+                    </span>
+                  ) : (
+                    <span>
+                      Aucun resultat pour &quot;
+                      <span className="font-semibold">{debouncedQuery}</span>
+                      &quot;.
+                    </span>
+                  )
+                ) : (
+                  <span className="text-white/40">
+                    Astuce : essayez des mots-cles comme &quot;fleurs cbd&quot; ou &quot;amnesia&quot;.
+                  </span>
+                )}
+              </div>
+
+              {searchIsError ? (
+                <p className="mt-1 text-sm text-red-400">
+                  {searchError instanceof Error
+                    ? searchError.message
+                    : 'Impossible de charger les resultats. Veuillez reessayer.'}
+                </p>
+              ) : null}
+            </div>
+
             {/* Affichage des produits */}
-            {displayedProducts.length > 0 ? (
+
+            {activeProducts.length > 0 ? (
+
               <>
+
                 <motion.div
+
                   className="grid grid-cols-1 min-[321px]:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+
                   variants={containerVariants}
+
                   initial="hidden"
+
                   animate="visible"
+
                 >
-                  {displayedProducts.map((product: Product, index: number) => (
+
+                  {activeProducts.map((product: Product, index: number) => (
+
                     <motion.div
+
                       key={product.id}
+
                       variants={itemVariants}
+
                       whileHover={{ y: -5 }}
+
                       transition={{ duration: 0.3 }}
+
                     >
+
                       <ProductCard product={product} index={index} />
+
                     </motion.div>
+
                   ))}
+
                 </motion.div>
+
+
 
                 {/* Affichage de la pagination */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.6 }}
-                  className="mt-8"
-                >
-                  {isClientSidePagination ? (
-                    <Pagination
-                      currentPage={currentClientPage}
-                      totalPages={clientTotalPages}
-                      onPageChange={handleClientPageChange}
-                    />
-                  ) : (
-                    <Pagination
-                      currentPage={currentPage || 1}
-                      totalPages={totalPages || 1}
-                    />
-                  )}
-                </motion.div>
+
+                {searchActive ? null : (
+
+                  <motion.div
+
+                    initial={{ opacity: 0 }}
+
+                    animate={{ opacity: 1 }}
+
+                    transition={{ delay: 0.5, duration: 0.6 }}
+
+                    className="mt-8"
+
+                  >
+
+                    {isClientSidePagination ? (
+
+                      <Pagination
+
+                        currentPage={currentClientPage}
+
+                        totalPages={activeClientTotalPages}
+
+                        onPageChange={handleClientPageChange}
+
+                      />
+
+                    ) : (
+
+                      <Pagination
+
+                        currentPage={currentPage || 1}
+
+                        totalPages={totalPages || 1}
+
+                      />
+
+                    )}
+
+                  </motion.div>
+
+                )}
+
+
 
                 {/* Affichage du nombre total de produits */}
+
                 <motion.div
+
                   className="mt-4 text-sm text-center text-white dark:text-neutral-400"
+
                   initial={{ opacity: 0 }}
+
                   animate={{ opacity: 1 }}
+
                   transition={{ delay: 0.7, duration: 0.6 }}
+
                 >
-                  {isClientSidePagination ? filteredTotal : totalProducts}{" "}
-                  produit
-                  {(isClientSidePagination ? filteredTotal : totalProducts) !==
-                  1
-                    ? "s"
-                    : ""}{" "}
-                  trouvé
-                  {(isClientSidePagination ? filteredTotal : totalProducts) !==
-                  1
-                    ? "s"
-                    : ""}
+
+                  {totalForDisplay} resultat{pluralSuffix} trouve{pluralSuffix}
+
                 </motion.div>
+
               </>
-            ) : (
+
+            ) : showSearchEmptyState ? (
+
               <motion.div
+
                 className="bg-[#00454f] rounded-lg shadow-lg p-8 text-center border border-gray-100 dark:border-[#005965]"
+
                 initial={{ opacity: 0, scale: 0.95 }}
+
                 animate={{ opacity: 1, scale: 1 }}
+
                 transition={{ duration: 0.5 }}
+
               >
+
                 <p className="text-white dark:text-neutral-400">
-                  Aucun produit ne correspond à  vos critères. Essayez de
-                  modifier vos filtres.
+
+                  Aucun produit ne correspond a &quot;
+
+                  <span className="font-semibold">{debouncedQuery}</span>
+
+                  &quot;.
+
                 </p>
+
               </motion.div>
+
+            ) : (
+
+              <motion.div
+
+                className="bg-[#00454f] rounded-lg shadow-lg p-8 text-center border border-gray-100 dark:border-[#005965]"
+
+                initial={{ opacity: 0, scale: 0.95 }}
+
+                animate={{ opacity: 1, scale: 1 }}
+
+                transition={{ duration: 0.5 }}
+
+              >
+
+                <p className="text-white dark:text-neutral-400">
+
+                  Aucun produit ne correspond a vos filtres. Ajustez-les puis reessayez.
+
+                </p>
+
+              </motion.div>
+
             )}
+
           </motion.section>
         </motion.div>
       </div>
     </div>
   );
 }
+

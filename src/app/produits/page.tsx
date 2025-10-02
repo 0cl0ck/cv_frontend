@@ -22,6 +22,7 @@ export default async function ProductsPage(props) {
     const limitRaw = params.limit;
     const priceRaw = params.price;
     const pricePerGramSortRaw = params.pricePerGramSort;
+    const searchRaw = params.search;
 
     // 3️⃣ On normalise en string, avec fallback si besoin
     const pageStr  = Array.isArray(pageRaw)  ? pageRaw[0]  : pageRaw  ?? '1';
@@ -29,6 +30,11 @@ export default async function ProductsPage(props) {
     const price    = Array.isArray(priceRaw) ? priceRaw[0] : priceRaw ?? 'all';
     const pricePerGramSort = Array.isArray(pricePerGramSortRaw) ? pricePerGramSortRaw[0] : pricePerGramSortRaw ?? 'none';
     const sortParam = Array.isArray(params.sort) ? params.sort[0] : params.sort ?? 'newest';
+    const initialSearchTerm = typeof searchRaw === 'string'
+      ? searchRaw
+      : Array.isArray(searchRaw) && searchRaw.length > 0
+      ? searchRaw[0] || ''
+      : '';
 
     // 4️⃣ On parse en nombre
     const currentPage = parseInt(pageStr, 10);
@@ -193,6 +199,7 @@ export default async function ProductsPage(props) {
         priceRange={price}
         pricePerGramSort={pricePerGramSort}
         sortParam={sortParam}
+        initialSearchTerm={initialSearchTerm}
       />
     );
   } catch (error) {

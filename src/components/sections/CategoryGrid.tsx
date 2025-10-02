@@ -123,12 +123,12 @@ const categories: CategoryCard[] = [
     href: "/produits/categorie/infusions-cbd",
   },
   {
-    title: "R\u00E9sine CBD",
+    title: "Résine CBD",
     src: "/images/categories/categorie_resine_cbd.webp",
     href: "/produits/categorie/resine-cbd",
   },
   {
-    title: "G\u00E9lules CBD",
+    title: "Gélules CBD",
     src: "/images/categories/categorie_gelules_cbd.webp",
     href: "/produits/categorie/gelules-cbd",
   },
@@ -149,7 +149,7 @@ export default function CategoryGrid() {
         <div className="mb-12 flex items-center justify-between">
           <div className="flex items-center">
             <div className="mr-3 h-8 w-1.5 rounded-full bg-[#004942]"></div>
-            <h2 className="text-3xl font-bold text-white">Cat\u00E9gories</h2>
+            <h2 className="text-3xl font-bold text-white">Catégories</h2>
           </div>
           <Link
             href="/produits"

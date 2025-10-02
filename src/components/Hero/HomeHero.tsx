@@ -29,9 +29,9 @@ export default function HomeHero() {
           <p className="text-lg md:text-xl mb-6">
             Explorez notre gamme de produits CBD premium:
             <br />
-            Naturel, certifi\u00E9 et efficace.
+            Naturel, certifié et efficace.
             <br />
-            Livraison rapide et discr\u00E8te partout en France.
+            Livraison rapide et discrète partout en France.
           </p>
           <ul className="flex justify-center md:justify-start gap-4">
             <li>
@@ -39,7 +39,7 @@ export default function HomeHero() {
                 href="/produits"
                 className="btn px-6 py-3 rounded-lg inline-flex items-center justify-center bg-[#EFC368] hover:bg-[#d9ae5a] text-black"
               >
-                D\u00E9couvrir nos produits
+                Découvrir nos produits
               </Link>
             </li>
             <li>
@@ -55,7 +55,7 @@ export default function HomeHero() {
 
         <div className="md:block text-right">
           <p className="text-[#EFC368] font-bold text-xl lg:text-2xl">
-            Jusqu\u2019\u00E0 25G offerts
+            Jusqu’à 25G offerts
           </p>
         </div>
       </div>
