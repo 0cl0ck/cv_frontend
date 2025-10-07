@@ -34,7 +34,7 @@ export default function OrderSummary({
 }: Props) {
   const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
   const calculatedShipping = totals?.shippingCost ?? 0;
-  const loyaltyDiscount = totals?.loyaltyDiscount ?? (loyaltyBenefits.discount || 0);
+  const loyaltyDiscount = totals?.loyaltyDiscount ?? (loyaltyBenefits.discountAmount || 0);
   const promoDiscount = totals?.promoDiscount ?? (promoResult.applied ? promoResult.discount : 0);
   const baseTotal =
     totals?.total ?? Math.max(0, subtotal + calculatedShipping - loyaltyDiscount - promoDiscount);

@@ -54,11 +54,11 @@ export function useCartPricing(
       items,
       subtotal: cart.subtotal,
       country: country || 'FR',
-      loyaltyDiscount: loyaltyBenefits.discount,
+      loyaltyDiscount: loyaltyBenefits.discountAmount,
       promoApplied: promoResult.applied ? promoResult.discount : 0,
       referralDiscount,
     });
-  }, [cart.items, cart.subtotal, country, loyaltyBenefits.discount, promoResult.applied, promoResult.discount, referralDiscount]);
+  }, [cart.items, cart.subtotal, country, loyaltyBenefits.discountAmount, promoResult.applied, promoResult.discount, referralDiscount]);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,7 +78,7 @@ export function useCartPricing(
         const data = await calculateCartTotals({
           cart,
           country,
-          loyaltyDiscount: loyaltyBenefits.discount,
+          loyaltyDiscount: loyaltyBenefits.discountAmount,
           promoDiscount: promoResult.applied ? promoResult.discount : 0,
           referralDiscount,
         });
@@ -102,7 +102,7 @@ export function useCartPricing(
     return () => {
       cancelled = true;
     };
-  }, [cart, country, loyaltyBenefits.discount, promoResult.applied, promoResult.discount, referralDiscount, signature]);
+  }, [cart, country, loyaltyBenefits.discountAmount, promoResult.applied, promoResult.discount, referralDiscount, signature]);
 
   return {
     totals,

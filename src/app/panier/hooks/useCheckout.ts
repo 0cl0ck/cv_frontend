@@ -89,7 +89,7 @@ export default function useCheckout(
       const priceDetails = await calculateCartTotals({
         cart,
         country: customerInfo.country,
-        loyaltyDiscount: loyaltyBenefits.discount,
+        loyaltyDiscount: loyaltyBenefits.discountAmount,
         promoDiscount: promoResult.applied ? promoResult.discount : 0,
       });
 

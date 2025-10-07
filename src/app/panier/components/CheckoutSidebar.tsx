@@ -68,7 +68,7 @@ export default function CheckoutSidebar({
 
   const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
   const shippingCost = totals?.shippingCost ?? 0;
-  const loyaltyDiscountValue = totals?.loyaltyDiscount ?? (loyaltyBenefits.discount || 0);
+  const loyaltyDiscountValue = totals?.loyaltyDiscount ?? (loyaltyBenefits.discountAmount || 0);
   const promoDiscountValue = totals?.promoDiscount ?? (promoResult.applied ? promoResult.discount : 0);
   const totalAmount =
     totals?.total ?? Math.max(0, subtotal + shippingCost - loyaltyDiscountValue - promoDiscountValue);
@@ -182,6 +182,11 @@ export default function CheckoutSidebar({
             <div className="flex justify-between">
               <span className="text-[#F4F8F5]">Remise fidélité</span>
               <span className="text-[#10B981]">-{formatPrice(loyaltyDiscountValue)}</span>
+            </div>
+          )}
+          {isAuthenticated && loyaltyBenefits.active && loyaltyBenefits.message && (
+            <div className="mt-3 p-2 bg-[#003545] rounded text-[#F4F8F5] text-xs">
+              {loyaltyBenefits.message}
             </div>
           )}
         </div>
