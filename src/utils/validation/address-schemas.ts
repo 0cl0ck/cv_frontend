@@ -7,16 +7,12 @@ import { z } from 'zod';
 // Constantes pour les regex
 const FRENCH_POSTAL_CODE_REGEX = /^(?:0[1-9]|[1-8]\d|9[0-8])\d{3}$/;
 const BELGIAN_POSTAL_CODE_REGEX = /^[1-9]\d{3}$/;
-const SWISS_POSTAL_CODE_REGEX = /^\d{4}$/;
-const LUXEMBOURG_POSTAL_CODE_REGEX = /^L-\d{4}$/;
 
 // Constantes pour les validations de téléphone par pays
 const PHONE_REGEX_MAP = {
   France: /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/,
   Belgique: /^(?:(?:\+|00)32|0)(?:\s*[1-69](?:\s*\d{2}){4}|\s*7[0-9](?:\s*\d{2}){3}|\s*[23](?:\s*\d{2}){3})$/,
-  Suisse: /^(?:(?:\+|00)41|0)(?:\s*[1-9]\d{1}(?:\s*\d{3}){2})$/,
-  Luxembourg: /^(?:(?:\+|00)352|0)(?:\s*\d{2}(?:\s*\d{2}){3})$/,
-};
+} as const;
 
 // Regex de base pour les téléphones (fallback générique)
 const GENERIC_PHONE_REGEX = /^\+?[0-9\s.-]{8,15}$/;
@@ -39,10 +35,6 @@ export const postalCodeSchema = z.string()
       isValid = FRENCH_POSTAL_CODE_REGEX.test(val);
     } else if (country.includes('Belgique')) {
       isValid = BELGIAN_POSTAL_CODE_REGEX.test(val);
-    } else if (country.includes('Suisse')) {
-      isValid = SWISS_POSTAL_CODE_REGEX.test(val);
-    } else if (country.includes('Luxembourg')) {
-      isValid = LUXEMBOURG_POSTAL_CODE_REGEX.test(val);
     } else {
       // Par défaut, accepter les codes postaux non vides
       isValid = val.trim().length > 0;
@@ -69,10 +61,6 @@ export const phoneSchema = z.string()
       isValid = PHONE_REGEX_MAP.France.test(val);
     } else if (country.includes('Belgique') && PHONE_REGEX_MAP.Belgique) {
       isValid = PHONE_REGEX_MAP.Belgique.test(val);
-    } else if (country.includes('Suisse') && PHONE_REGEX_MAP.Suisse) {
-      isValid = PHONE_REGEX_MAP.Suisse.test(val);
-    } else if (country.includes('Luxembourg') && PHONE_REGEX_MAP.Luxembourg) {
-      isValid = PHONE_REGEX_MAP.Luxembourg.test(val);
     } else {
       // Par défaut, utiliser une validation générique
       isValid = GENERIC_PHONE_REGEX.test(val);
@@ -121,12 +109,9 @@ export const addressSchema = z.object({
     })
     .optional(),
   postalCode: postalCodeSchema,
-  country: z.string()
-    .min(2, 'Le pays est requis')
-    .max(56, 'Le nom du pays est trop long')
-    .refine(val => /^[a-zA-ZÀ-ÿ\s'-]+$/.test(val), {
-      message: 'Le nom du pays contient des caractères non autorisés'
-    }),
+  country: z.enum(['France', 'Belgique'], {
+    errorMap: () => ({ message: 'Le pays doit être "France" ou "Belgique"' })
+  }),
   phone: phoneSchema,
   isDefault: z.boolean().default(false)
 });

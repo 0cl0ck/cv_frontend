@@ -68,19 +68,19 @@ export interface LoyaltyBenefits {
 /**
  * Récupère les avantages de fidélité applicables au panier actuel
  * @param cartTotal Total du panier avant remises
- * @param shippingCost Coût de livraison
+ * @param country Pays de livraison pour calculer les frais
  * @param items Articles du panier
  */
 export async function getLoyaltyBenefits(
   cartTotal: number,
-  shippingCost: number,
+  country: string,
   items: CheckoutItem[]
 ): Promise<LoyaltyBenefits> {
   try {
     const { data } = await httpClient.post('/loyalty/cart', {
       cartTotal,
-      shippingCost,
-      items
+      country,
+      items,
     });
     
     return data;
@@ -238,8 +238,8 @@ export async function processCheckout(
     // 1. Récupérer les avantages de fidélité
     const loyaltyBenefits = await getLoyaltyBenefits(
       checkoutData.subtotal,
-      checkoutData.shipping.cost,
-      checkoutData.items
+      checkoutData.shippingAddress.country || checkoutData.billingAddress.country || 'France',
+      checkoutData.items,
     );
     
     if (!loyaltyBenefits.success) {

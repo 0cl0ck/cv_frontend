@@ -1,5 +1,6 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+export { formatPrice } from './formatPrice';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -30,12 +31,4 @@ export function initDarkMode() {
     // Add the current theme class
     htmlEl.classList.add(theme);
   }
-}
-
-// Format price to Euro format
-export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(price);
 }

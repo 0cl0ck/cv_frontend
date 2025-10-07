@@ -1,3 +1,11 @@
+// Allowed countries and sanitization
+const ALLOWED_COUNTRIES = ['France', 'Belgique'] as const;
+type AllowedCountry = typeof ALLOWED_COUNTRIES[number];
+const sanitizeCountry = (c: string): AllowedCountry =>
+  (ALLOWED_COUNTRIES as readonly string[]).includes(c) ? (c as AllowedCountry) : 'France';
+const sanitizeAddressesCountries = <T extends { country: string }>(addrs: T[]): T[] =>
+  addrs.map(a => ({ ...a, country: sanitizeCountry(a.country) }));
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateRequest, sanitizeObject } from '@/utils/validation/validator';
 import { addressSchema, userAddressesSchema } from '@/utils/validation/address-schemas';
@@ -191,6 +199,9 @@ export async function POST(request: NextRequest) {
     // Générer un ID unique pour l'adresse
     const newId = `addr_${Date.now()}`;
     updatedAddresses.push({ ...addressData, id: newId });
+
+    // Sanitize all countries before validation
+    updatedAddresses = sanitizeAddressesCountries(updatedAddresses);
     
     // 7. Valider l'ensemble des adresses
     const addressesValidation = userAddressesSchema.safeParse({ addresses: updatedAddresses });
@@ -358,6 +369,9 @@ export async function PATCH(request: NextRequest) {
         ...addressData
       };
     }
+
+    // Sanitize all countries before validation
+    updatedAddresses = sanitizeAddressesCountries(updatedAddresses);
     
     // 8. Valider l'ensemble des adresses
     const addressesValidation = userAddressesSchema.safeParse({ addresses: updatedAddresses });
@@ -504,7 +518,9 @@ export async function DELETE(request: NextRequest) {
     
     // 6. Supprimer l'adresse
     const addressToDelete = existingAddresses[addressIndex];
-    const updatedAddresses = existingAddresses.filter((addr: Address) => addr.id !== addressId);
+    const updatedAddresses = sanitizeAddressesCountries<Address>(
+      existingAddresses.filter((addr: Address) => addr.id !== addressId)
+    );
     
     // 7. Si l'adresse supprimée était l'adresse par défaut, définir une nouvelle adresse par défaut
     if (addressToDelete.isDefault && updatedAddresses.length > 0) {

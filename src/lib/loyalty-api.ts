@@ -38,13 +38,13 @@ export async function getLoyaltyStatus() {
  * Récupère les avantages de fidélité applicables au panier
  * Nouvelle API centralisée
  */
-export async function getLoyaltyBenefits(cartTotal: number, shippingCost: number, items: CartItem[]) {
+export async function getLoyaltyBenefits(cartTotal: number, country: string, items: CartItem[]) {
   try {
     // Nouvelle API
     const { data } = await httpClient.post('/loyalty/cart', {
       cartTotal,
-      shippingCost,
-      items
+      country,
+      items,
     });
     return data;
   } catch (error) {
@@ -54,8 +54,8 @@ export async function getLoyaltyBenefits(cartTotal: number, shippingCost: number
     try {
       const { data } = await httpClient.post('/cart/apply-loyalty', {
         cartTotal,
-        shippingCost,
-        items
+        country,
+        items,
       });
       return data;
     } catch (fallbackError) {

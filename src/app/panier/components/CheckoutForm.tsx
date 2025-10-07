@@ -81,8 +81,6 @@ export default function CheckoutForm({
         >
           <option>France</option>
           <option>Belgique</option>
-          <option>Suisse</option>
-          <option>Luxembourg</option>
         </select>
       </div>
 

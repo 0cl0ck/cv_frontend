@@ -9,6 +9,11 @@ import { secureLogger as logger } from '@/utils/logger';
 import { httpClient } from '@/lib/httpClient';
 import axios from 'axios';   // ➜ nouveau
 
+  const ALLOWED_COUNTRIES = ['France', 'Belgique'] as const;
+  type AllowedCountry = typeof ALLOWED_COUNTRIES[number];
+  const sanitizeCountry = (c: string): AllowedCountry =>
+    (ALLOWED_COUNTRIES as readonly string[]).includes(c) ? (c as AllowedCountry) : 'France';
+
 // Types pour les adresses
 type AddressType = 'shipping' | 'billing' | 'both';
 
@@ -114,16 +119,21 @@ export default function AddressesPage() {
             logger.debug('Réponse adresses status', { status: addressesResponse.status });
             
             // Mettre à jour les états avec les données récupérées
+            const sanitizedAddresses = (addressesResponse.data.addresses || []).map((a: Address) => ({
+              ...a,
+              country: sanitizeCountry(a.country),
+            }));
+
             setUser({
               id: authUser.id,
               email: authUser.email,
               firstName: authUser.firstName || '',
               lastName: authUser.lastName || '',
               createdAt: new Date().toISOString(), // Date actuelle si non disponible
-              addresses: addressesResponse.data.addresses || []
+              addresses: sanitizedAddresses
             });
             
-            setAddresses(addressesResponse.data.addresses || []);
+            setAddresses(sanitizedAddresses);
             setLoading(false);
           } catch (apiError) {
             console.error('Erreur lors de la récupération des adresses:', apiError);
@@ -178,7 +188,8 @@ export default function AddressesPage() {
     if (address) {
       // Mode édition: initialiser avec les valeurs existantes
       setFormAddress({
-        ...address
+        ...address,
+        country: sanitizeCountry(address.country),
       });
       setEditingAddress(address);
       setIsAddingAddress(false);
@@ -243,10 +254,17 @@ export default function AddressesPage() {
         return;
       }
       
-      // S'assurer que le téléphone est dans un format valide (format français: 10 chiffres commençant par 0)
-      const phoneRegex = /^0\d{9}$/;
-      if (formAddress.phone && !phoneRegex.test(formAddress.phone.replace(/\D/g, ''))) {
-        setError('Le numéro de téléphone doit être au format français (10 chiffres commençant par 0)');
+      // S'assurer que le téléphone est dans un format valide selon le pays
+      const FR_PHONE = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
+      const BE_PHONE = /^(?:(?:\+|00)32|0)(?:\s*[1-69](?:\s*\d{2}){4}|\s*7[0-9](?:\s*\d{2}){3}|\s*[23](?:\s*\d{2}){3})$/;
+      const phoneVal = (formAddress.phone || '').trim();
+      const phoneOk = formAddress.country === 'Belgique' ? BE_PHONE.test(phoneVal) : FR_PHONE.test(phoneVal);
+      if (formAddress.phone && !phoneOk) {
+        setError(
+          formAddress.country === 'Belgique'
+            ? 'Le numéro de téléphone doit être au format belge (ex: 0470 12 34 56 ou +32...)'
+            : 'Le numéro de téléphone doit être au format français (ex: 06 12 34 56 78)'
+        );
         setIsSaving(false);
         return;
       }
@@ -682,17 +700,18 @@ export default function AddressesPage() {
               {/* Pays */}
               <div>
                 <label htmlFor="country" className="block text-[#BEC3CA] mb-1">Pays <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
+                <select
                   id="country"
                   name="country"
-                  value={formAddress.country}
+                  value={sanitizeCountry(formAddress.country)}
                   onChange={handleInputChange}
                   className="w-full bg-[#00424c] text-[#D1D5DB] border border-[#0A3A3A] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#007A72]"
-                  placeholder="Pays"
                   required
                   disabled={isSaving}
-                />
+                >
+                  <option value="France">France</option>
+                  <option value="Belgique">Belgique</option>
+                </select>
               </div>
               
               {/* Téléphone */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { formatPrice } from '@/utils/utils';
+import { formatPrice } from '@/utils/formatPrice';
 import { Product, ProductVariation } from '@/types/product';
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useCartContext } from "@/context/CartContext";
@@ -87,6 +87,11 @@ export default function CartView() {
   const handleBack = () => setCheckoutMode(false);
 
   const handleSelectAddress = (addr: Address) => {
+    const ALLOWED_COUNTRIES = ["France", "Belgique"] as const;
+    type AllowedCountry = typeof ALLOWED_COUNTRIES[number];
+    const sanitizeCountry = (c: string): AllowedCountry =>
+      (ALLOWED_COUNTRIES as readonly string[]).includes(c) ? (c as AllowedCountry) : "France";
+
     // Extraire le prénom et le nom à partir du champ name de l'adresse
     let firstName = "";
     let lastName = "";
@@ -115,7 +120,7 @@ export default function CartView() {
       addressLine2: addr.line2 || "",
       city: addr.city,
       postalCode: addr.postalCode,
-      country: addr.country,
+      country: sanitizeCountry(addr.country),
       phone: addr.phone || prev.phone,
     }));
   };

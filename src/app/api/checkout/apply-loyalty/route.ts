@@ -6,7 +6,7 @@ import type { GenericObject } from '@/utils/logger';
 // Interface pour le corps de la requête
 interface ApplyLoyaltyRequest {
   cartTotal: number;
-  shippingCost: number;
+  country?: string;
   items: Array<{
     id: string;
     name: string;
@@ -14,6 +14,14 @@ interface ApplyLoyaltyRequest {
     quantity: number;
   }>;
 }
+
+const computeShippingCost = (subtotal: number, country?: string): number => {
+  const norm = (country || '').trim().toLowerCase();
+  if (['belgique', 'belgium', 'be'].includes(norm)) {
+    return subtotal >= 200 ? 0 : 10;
+  }
+  return subtotal >= 50 ? 0 : 5;
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,7 +84,7 @@ export async function POST(request: NextRequest) {
     const loyaltyBenefits = applyLoyaltyBenefits(
       ordersCount,
       body.cartTotal,
-      body.shippingCost
+      computeShippingCost(body.cartTotal, body.country)
     );
 
     logger.info(

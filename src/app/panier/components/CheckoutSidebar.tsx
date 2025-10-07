@@ -4,7 +4,8 @@ import GuestLoyaltyBanner from './GuestLoyaltyBanner';
 import LoyaltyBenefitsPanel from './LoyaltyBenefitsPanel';
 import OrderSummary from './OrderSummary';
 import CheckoutForm from './CheckoutForm';
-import { PriceService } from '@/utils/priceCalculations';
+import { useCartPricing } from '../hooks/useCartPricing';
+import { formatPrice } from '@/utils/formatPrice';
 import { Cart, Address, LoyaltyBenefits, PromoResult, CustomerInfo, FormErrors, PaymentMethod } from '../types';
 interface CheckoutSidebarProps {
     isAuthenticated: boolean;
@@ -59,6 +60,19 @@ export default function CheckoutSidebar({
   paymentMethod = 'card',
   setPaymentMethod,
 }: CheckoutSidebarProps) {
+  const {
+    totals,
+    loading: pricingLoading,
+    error: pricingError,
+  } = useCartPricing(cart, customerInfo.country, loyaltyBenefits, promoResult);
+
+  const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
+  const shippingCost = totals?.shippingCost ?? 0;
+  const loyaltyDiscountValue = totals?.loyaltyDiscount ?? (loyaltyBenefits.discount || 0);
+  const promoDiscountValue = totals?.promoDiscount ?? (promoResult.applied ? promoResult.discount : 0);
+  const totalAmount =
+    totals?.total ?? Math.max(0, subtotal + shippingCost - loyaltyDiscountValue - promoDiscountValue);
+
   if (!checkoutMode) {
     // Mode normal : affichage du résumé, promos, fidélité
     return (
@@ -88,7 +102,9 @@ export default function CheckoutSidebar({
 
         {/* 3) Récapitulatif & checkout */}
         <OrderSummary
-          subtotal={cart.subtotal}
+          cart={cart}
+          totals={totals}
+          loadingTotals={pricingLoading}
           promoResult={promoResult}
           loyaltyBenefits={loyaltyBenefits}
           isAuthenticated={isAuthenticated}
@@ -132,48 +148,49 @@ export default function CheckoutSidebar({
       {/* 3) Récapitulatif pour le mode checkout */}
       <div className="mb-4">
         <h2 className="text-xl font-bold mb-2 text-[#F4F8F5]">Récapitulatif</h2>
-        {/* Utiliser PriceService pour tous les calculs */}
-        {(() => {
-          const priceDetails = PriceService.calculateTotalPrice(cart, customerInfo.country, loyaltyBenefits, promoResult);
-          const {
-            subtotal,
-            shippingCost,
-            loyaltyDiscount,
-            promoDiscount,
-            total
-          } = priceDetails;
-          
-          return (
-            <>
-              <div className="space-y-1 mb-4">
-                <div className="flex justify-between">
-                  <span className="text-[#F4F8F5]">Sous-total</span>
-                  <span className="text-[#F4F8F5]">{PriceService.formatPriceWithCurrency(subtotal)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#F4F8F5]">Livraison</span>
-                  <span className="text-[#F4F8F5]">{shippingCost === 0 ? 'Gratuit' : PriceService.formatPriceWithCurrency(shippingCost)}</span>
-                </div>
-                {promoDiscount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-[#F4F8F5]">Code promo {promoResult.code && `(${promoResult.code})`}</span>
-                    <span className="text-[#10B981]">-{PriceService.formatPriceWithCurrency(promoDiscount)}</span>
-                  </div>
-                )}
-                {loyaltyDiscount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-[#F4F8F5]">Remise fidélité</span>
-                    <span className="text-[#10B981]">-{PriceService.formatPriceWithCurrency(loyaltyDiscount)}</span>
-                  </div>
-                )}
-              </div>
-              <div className="border-t border-[#3A4A4F] pt-2 flex justify-between font-medium">
-                <span className="text-[#F4F8F5]">Total</span>
-                <span className="text-[#F4F8F5]">{PriceService.formatPriceWithCurrency(total)}</span>
-              </div>
-            </>
-          );
-        })()}
+        {pricingError && (
+          <div className="mb-2 text-sm text-red-400">
+            {pricingError}
+          </div>
+        )}
+        <div className="space-y-1 mb-4">
+          <div className="flex justify-between">
+            <span className="text-[#F4F8F5]">Sous-total</span>
+            <span className="text-[#F4F8F5]">
+              {pricingLoading ? 'Calcul...' : formatPrice(subtotal)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-[#F4F8F5]">Livraison</span>
+            <span className="text-[#F4F8F5]">
+              {pricingLoading
+                ? 'Calcul...'
+                : shippingCost === 0
+                ? 'Gratuit'
+                : formatPrice(shippingCost)}
+            </span>
+          </div>
+          {promoDiscountValue > 0 && (
+            <div className="flex justify-between">
+              <span className="text-[#F4F8F5]">
+                Code promo {promoResult.code && `(${promoResult.code})`}
+              </span>
+              <span className="text-[#10B981]">-{formatPrice(promoDiscountValue)}</span>
+            </div>
+          )}
+          {loyaltyDiscountValue > 0 && (
+            <div className="flex justify-between">
+              <span className="text-[#F4F8F5]">Remise fidélité</span>
+              <span className="text-[#10B981]">-{formatPrice(loyaltyDiscountValue)}</span>
+            </div>
+          )}
+        </div>
+        <div className="border-t border-[#3A4A4F] pt-2 flex justify-between font-medium">
+          <span className="text-[#F4F8F5]">Total</span>
+          <span className="text-[#F4F8F5]">
+            {pricingLoading ? 'Calcul...' : formatPrice(totalAmount)}
+          </span>
+        </div>
       </div>
 
       {/* Si connecté, liste des adresses : */}

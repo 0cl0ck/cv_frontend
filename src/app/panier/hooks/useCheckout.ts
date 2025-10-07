@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { Cart } from '@/app/panier/types';
 import { PromoResult, LoyaltyBenefits, CustomerInfo, PaymentMethod } from '../types';
-import { calculateTotalPrice } from '@/utils/priceCalculations';
+import { calculateCartTotals } from '@/lib/pricingClient';
 import { secureLogger as logger } from '@/utils/logger';
 import { httpClient } from '@/lib/httpClient';
 
@@ -86,7 +86,12 @@ export default function useCheckout(
 
     try {
       // Utiliser l'utilitaire centralisé pour calculer tous les éléments de prix
-      const priceDetails = calculateTotalPrice(cart, customerInfo.country, loyaltyBenefits, promoResult);
+      const priceDetails = await calculateCartTotals({
+        cart,
+        country: customerInfo.country,
+        loyaltyDiscount: loyaltyBenefits.discount,
+        promoDiscount: promoResult.applied ? promoResult.discount : 0,
+      });
 
       // Décodage token
       const token = document.cookie

@@ -35,11 +35,6 @@ export default function usePromoCode(
 
     setIsApplying(true);
     try {
-      const shippingCost =
-        customerInfo.country === 'Belgique'
-          ? (cart.subtotal >= 70 ? 0 : 10)
-          : (cart.subtotal >= 50 ? 0 : 5);
-
       // Récupération des catégories
       const itemsWithCat = await Promise.all(
         cart.items.map(async (item) => {
@@ -73,12 +68,16 @@ export default function usePromoCode(
         restrictedCategories?: RestrictedCategory[];
       }
 
-      const { data: result } = await httpClient.post<PromoCodeResponse>('/cart/apply-promo', {
-        promoCode: promoCode.trim(),
-        cartTotal: cart.subtotal,
-        shippingCost,
-        items: itemsWithCat
-      }, { withCsrf: true });
+      const { data: result } = await httpClient.post<PromoCodeResponse>(
+        '/cart/apply-promo',
+        {
+          promoCode: promoCode.trim(),
+          cartTotal: cart.subtotal,
+          country: customerInfo.country,
+          items: itemsWithCat,
+        },
+        { withCsrf: true },
+      );
 
       if (result.success && result.valid) {
         let message: string = result.message || '';
@@ -121,9 +120,6 @@ export default function usePromoCode(
     async function revalidateIfNeeded() {
       if (!promoResult.applied || !promoResult.code) return;
       try {
-        const shippingCost =
-          customerInfo.country === 'Belgique' ? (cart.subtotal >= 70 ? 0 : 10) : (cart.subtotal >= 50 ? 0 : 5);
-
         // Récupérer les catégories pour respecter d'éventuelles restrictions
         const itemsWithCat = await Promise.all(
           cart.items.map(async (item) => {
@@ -148,7 +144,12 @@ export default function usePromoCode(
           type?: PromoType;
         }>(
           '/cart/apply-promo',
-          { promoCode: promoResult.code, cartTotal: cart.subtotal, shippingCost, items: itemsWithCat },
+          {
+            promoCode: promoResult.code,
+            cartTotal: cart.subtotal,
+            country: customerInfo.country,
+            items: itemsWithCat,
+          },
           { withCsrf: true }
         );
 

@@ -42,14 +42,18 @@ export default function useLoyaltyBenefits(
           discount?: number;
         }
         
-        const { data } = await httpClient.post<LoyaltyResponseData>('/cart/apply-loyalty', {
-          cartTotal: cart.subtotal,
-          shippingCost: country === 'Belgique' ? (cart.subtotal >= 200 ? 0 : 10) : (cart.subtotal >= 50 ? 0 : 5),
-          items: cart.items
-        }, {
-          withCsrf: true,
-          headers
-        });
+        const { data } = await httpClient.post<LoyaltyResponseData>(
+          '/cart/apply-loyalty',
+          {
+            cartTotal: cart.subtotal,
+            country,
+            items: cart.items,
+          },
+          {
+            withCsrf: true,
+            headers,
+          },
+        );
 
         const orderCount: number = data?.orderCount || 1;
         let nextLevel: NextLevel | undefined;

@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CartItem as CI } from '@/app/panier/types';
-import { formatPrice } from '@/utils/utils';
+import { formatPrice } from '@/utils/formatPrice';
 
 interface Props {
   item: CI;

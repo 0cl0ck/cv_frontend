@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Category, Product, ProductVariation } from '@/types/product';
-import { formatPrice } from '@/utils/utils';
+import { formatPrice } from '@/utils/formatPrice';
 import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
 import AddToCartSection from './AddToCartSection';
 
