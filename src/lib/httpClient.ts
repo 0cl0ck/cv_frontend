@@ -23,6 +23,20 @@ httpClient.interceptors.request.use((config) => {
   // S'assurer que les cookies sont toujours envoyés
   config.withCredentials = true;
 
+  // Attacher le JWT au header Authorization côté navigateur si disponible
+  if (typeof window !== 'undefined') {
+    const bearer = window.localStorage.getItem('auth_bearer');
+    if (bearer && bearer.trim().length > 0) {
+      if (config.headers instanceof axios.AxiosHeaders) {
+        config.headers.set('Authorization', `Bearer ${bearer}`);
+      } else {
+        const headers = new axios.AxiosHeaders(config.headers);
+        headers.set('Authorization', `Bearer ${bearer}`);
+        config.headers = headers;
+      }
+    }
+  }
+
   const method = config.method?.toLowerCase();
   const needsCsrf =
   (method && ['post', 'put', 'patch', 'delete'].includes(method)) ||
@@ -36,10 +50,15 @@ httpClient.interceptors.request.use((config) => {
           if (!config.headers) config.headers = new axios.AxiosHeaders();
           const token = decodeURIComponent(match[1]);
           // Ensure both canonical and lowercase header keys are set for tests and server compatibility
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (config.headers as any)['X-CSRF-Token'] = token;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (config.headers as any)['x-csrf-token'] = token;
+          if (config.headers instanceof axios.AxiosHeaders) {
+            config.headers.set('X-CSRF-Token', token);
+            config.headers.set('x-csrf-token', token);
+          } else {
+            const headers = new axios.AxiosHeaders(config.headers);
+            headers.set('X-CSRF-Token', token);
+            headers.set('x-csrf-token', token);
+            config.headers = headers;
+          }
         }
       }
     }

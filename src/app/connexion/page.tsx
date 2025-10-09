@@ -92,7 +92,7 @@ function LoginForm() {
       logger.debug('[Login Debug] Tentative de connexion avec httpClient');
       
       // Utiliser httpClient au lieu de fetch standard pour éviter les problèmes CORS
-      type LoginResponse = { error?: string | { message?: string }; message?: string }
+      type LoginResponse = { error?: string | { message?: string }; message?: string; token?: string; exp?: number }
       const response = await httpClient.post<LoginResponse>('/auth/login', {
         email: formData.email,
         password: formData.password,
@@ -111,6 +111,13 @@ function LoginForm() {
 
       logger.debug('[Login Debug] Connexion réussie');
       // Connexion réussie, rediriger vers le tableau de bord client
+      // Stocker le JWT pour les requêtes XHR (l'intercepteur httpClient lira localStorage)
+      try {
+        const bearer = response.data?.token;
+        if (typeof bearer === 'string' && bearer.trim().length > 0) {
+          window.localStorage.setItem('auth_bearer', bearer);
+        }
+      } catch {}
       
       // Déclencher un événement personnalisé pour informer le Header et autres composants
       const loginEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: true } });
