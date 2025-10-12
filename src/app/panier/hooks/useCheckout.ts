@@ -138,17 +138,6 @@ export default function useCheckout(
       // Fonction pour vérifier si un ID est valide au format MongoDB ObjectId
       const isValidMongoId = (id?: string) => id && /^[0-9a-f]{24}$/i.test(id);
 
-      // Debug: Inspecter les articles du panier avant transformation
-      console.log('🔍 CHECKOUT DEBUG - Articles du panier:', JSON.stringify(cart.items.map(item => ({
-        id: item.productId,
-        name: item.name,
-        variantId: item.variantId,
-        variantName: item.variantName,  // Vérifions si cette propriété existe
-        hasVariantName: !!item.variantName,
-        variantNameType: typeof item.variantName,
-        price: item.price
-      })), null, 2));
-
       // Transformer les articles pour assurer que les IDs sont compatibles MongoDB
       const transformedItems = cart.items.map(item => {
         // Si c'est un cadeau avec ID non-standard, utiliser un ObjectId factice
@@ -256,21 +245,6 @@ export default function useCheckout(
         itemsCount: checkoutData.order.items.length
       });
       
-      // Version complète pour débogage
-      console.log('CHECKOUT DATA ENVOYÉES:', JSON.stringify(checkoutData, null, 2));
-      console.log(`Méthode de paiement choisie: ${paymentMethod}`);
-
-      // Log spécifique pour le problème des variants
-      console.log('🔍 VARIANT DEBUG - Articles transformés finaux:', JSON.stringify(transformedItems.map(item => ({
-        productName: item.productName,
-        variantId: item.variantId, 
-        variantName: item.variantName,
-        hasVariantName: !!item.variantName,
-        variantNameType: typeof item.variantName,
-        price: item.price,
-        quantity: item.quantity
-      })), null, 2));
-      
       // URL de l'API en fonction de la méthode de paiement
       const apiUrl = paymentMethod === 'card' 
         ? '/payment/create' 
@@ -311,11 +285,6 @@ export default function useCheckout(
       // Log détaillé de l'erreur pour débogage
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { status?: number, data?: unknown, headers?: Record<string, unknown> } };
-        console.log('🔴 DÉTAILS ERREUR AXIOS:', { 
-          status: axiosError.response?.status,
-          data: axiosError.response?.data,
-          headers: axiosError.response?.headers
-        });
         logger.error('🔴 ERREUR CHECKOUT DÉTAILLÉE', {
           status: axiosError.response?.status,
           data: JSON.stringify(axiosError.response?.data, null, 2)

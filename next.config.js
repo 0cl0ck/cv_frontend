@@ -74,6 +74,39 @@ const nextConfig = {
   
   // Remove X-Powered-By header
   poweredByHeader: false,
+  
+  // Disable public source maps in production
+  productionBrowserSourceMaps: false,
+  
+  // Security headers
+  headers: async () => [
+    {
+      source: '/:path*',
+      headers: [
+        {
+          key: 'Content-Security-Policy',
+          value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://api.chanvre-vert.fr; frame-ancestors 'none';"
+        },
+        {
+          key: 'X-Frame-Options',
+          value: 'DENY'
+        },
+        {
+          key: 'X-Content-Type-Options',
+          value: 'nosniff'
+        },
+        {
+          key: 'Referrer-Policy',
+          value: 'strict-origin-when-cross-origin'
+        },
+        {
+          key: 'Permissions-Policy',
+          value: 'camera=(), microphone=(), geolocation=()'
+        }
+      ]
+    }
+  ],
+  
   redirects: async () => [
     {
       source: '/success',
@@ -86,16 +119,6 @@ const nextConfig = {
       permanent: true,
     },
   ],
-  rewrites: async () => {
-    const baseUrl =
-      process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3000'
-        : 'https://api.chanvre-vert.fr';
-    return [
-      // Redirection de toutes les requêtes API vers le backend
-      { source: '/api/:path*', destination: `${baseUrl}/api/:path*` },
-    ];
-  },
 };
 
 // Apply bundle analyzer wrapper if ANALYZE env var is present

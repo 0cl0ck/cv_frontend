@@ -1,6 +1,7 @@
 'use client';
 
 import React, { ElementType } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import { RichTextContent } from '@/types/product';
 
 interface RichTextRendererProps {
@@ -21,7 +22,14 @@ export const RichTextRenderer: React.FC<RichTextRendererProps> = ({ content }) =
     // Permettre à la fois le HTML et les caractères d'émojis
     // Le HTML sera interprété correctement et les émojis seront affichés comme des caractères normaux
     const formattedContent = processTextWithEmojis(content);
-    return <div dangerouslySetInnerHTML={{ __html: formattedContent }} />;
+    
+    // Sanitiser le contenu avec DOMPurify pour prévenir les attaques XSS
+    const sanitized = DOMPurify.sanitize(formattedContent, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'span', 'div'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style']
+    });
+    
+    return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;
   }
 
   // Si le contenu est un objet RichTextContent

@@ -37,6 +37,8 @@ export async function POST(request: NextRequest) {
     // Supprimer le cookie d'authentification
     response.cookies.set('payload-token', '', {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       expires: new Date(0), // Date dans le passé pour forcer l'expiration
       path: '/',
     });
@@ -54,6 +56,8 @@ export async function POST(request: NextRequest) {
     
     response.cookies.set('payload-token', '', {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       expires: new Date(0),
       path: '/',
     });

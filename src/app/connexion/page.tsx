@@ -110,14 +110,6 @@ function LoginForm() {
       }
 
       logger.debug('[Login Debug] Connexion réussie');
-      // Connexion réussie, rediriger vers le tableau de bord client
-      // Stocker le JWT pour les requêtes XHR (l'intercepteur httpClient lira localStorage)
-      try {
-        const bearer = response.data?.token;
-        if (typeof bearer === 'string' && bearer.trim().length > 0) {
-          window.localStorage.setItem('auth_bearer', bearer);
-        }
-      } catch {}
       
       // Déclencher un événement personnalisé pour informer le Header et autres composants
       const loginEvent = new CustomEvent('login-status-change', { detail: { isLoggedIn: true } });
@@ -126,10 +118,6 @@ function LoginForm() {
       // Également déclencher notre événement personnalisé auth-change pour le contexte
       const authChangeEvent = new Event('auth-change');
       window.dispatchEvent(authChangeEvent);
-      
-      // Ajouter une entrée dans localStorage pour déclencher l'événement storage
-      localStorage.setItem('auth-token', 'true');
-      localStorage.setItem('auth-status', Date.now().toString());
       
       // Récupérer la redirection si présente dans l'URL
       const redirectPath = searchParams.get('redirect') || '/compte';

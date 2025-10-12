@@ -168,7 +168,6 @@ function isTokenExpired(token: string): boolean {
  */
 export async function validateCsrfToken(
   request: NextRequest, 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _storedToken = ''
 ): Promise<boolean> {
   // Récupérer le token du cookie

@@ -177,10 +177,6 @@ function RegisterForm() {
           // Notifier le contexte d'auth et les composants (comme la page de login)
           window.dispatchEvent(new CustomEvent('login-status-change', { detail: { isLoggedIn: true } }));
           window.dispatchEvent(new Event('auth-change'));
-          try {
-            localStorage.setItem('auth-token', 'true');
-            localStorage.setItem('auth-status', Date.now().toString());
-          } catch {}
         }
       } catch {}
 

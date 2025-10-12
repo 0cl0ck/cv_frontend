@@ -95,12 +95,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       await httpClient.post('/auth/logout', undefined, { withCsrf: true });
-      // Supprimer le JWT stocké côté client pour arrêter l'envoi du header Authorization
-      try {
-        if (typeof window !== 'undefined') {
-          window.localStorage.removeItem('auth_bearer');
-        }
-      } catch {}
       setIsAuthenticated(false);
       setUser(null);
       window.dispatchEvent(new CustomEvent('auth-change', { detail: { isLoggedIn: false } }));

@@ -1,14 +1,10 @@
 import axios from 'axios';
 
-// Configuration de l'URL du backend
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 
-                   process.env.NEXT_PUBLIC_SERVER_URL || 
-                   (process.env.NODE_ENV === 'production' ? 'https://api.chanvre-vert.fr' : 'http://localhost:3000');
-
 // Instance axios configurée pour notre API
+// Utilise les routes BFF Next.js (/api/*) comme proxy vers le backend
 export const httpClient = axios.create({
-  baseURL: `${backendUrl}/api`,
-  // CORS: toujours envoyer les cookies cross-origin
+  baseURL: '/api',
+  // CORS: toujours envoyer les cookies (httpOnly)
   withCredentials: true,
   // Timeout raisonnable
   timeout: 10000,
@@ -22,20 +18,6 @@ export const httpClient = axios.create({
 httpClient.interceptors.request.use((config) => {
   // S'assurer que les cookies sont toujours envoyés
   config.withCredentials = true;
-
-  // Attacher le JWT au header Authorization côté navigateur si disponible
-  if (typeof window !== 'undefined') {
-    const bearer = window.localStorage.getItem('auth_bearer');
-    if (bearer && bearer.trim().length > 0) {
-      if (config.headers instanceof axios.AxiosHeaders) {
-        config.headers.set('Authorization', `Bearer ${bearer}`);
-      } else {
-        const headers = new axios.AxiosHeaders(config.headers);
-        headers.set('Authorization', `Bearer ${bearer}`);
-        config.headers = headers;
-      }
-    }
-  }
 
   const method = config.method?.toLowerCase();
   const needsCsrf =

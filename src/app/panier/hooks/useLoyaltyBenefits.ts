@@ -26,13 +26,6 @@ export default function useLoyaltyBenefits(
     const fetchLoyalty = async () => {
       setLoading(true);
       try {
-        const token =
-          localStorage.getItem('authToken') ||
-          (user as { token?: string } | null)?.token ||
-          null;
-
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        
         interface LoyaltyResponseData {
           orderCount?: number;
           reward?: { 
@@ -51,7 +44,6 @@ export default function useLoyaltyBenefits(
           },
           {
             withCsrf: true,
-            headers,
           },
         );
 
