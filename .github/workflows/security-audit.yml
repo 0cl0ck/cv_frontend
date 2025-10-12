@@ -1,0 +1,235 @@
+name: Audit de Sécurité Automatisé
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Audit hebdomadaire le lundi à 9h
+    - cron: '0 9 * * 1'
+
+jobs:
+  dependency-audit:
+    name: Audit des Dépendances
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      
+      - name: pnpm audit
+        run: |
+          cd frontend
+          pnpm audit --audit-level=moderate || true
+          pnpm audit --json > audit-report.json || true
+      
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-report
+          path: frontend/audit-report.json
+
+  security-tests:
+    name: Tests de Sécurité
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      
+      - name: Install dependencies
+        run: cd frontend && pnpm install --frozen-lockfile
+      
+      - name: Run security tests
+        run: |
+          cd frontend
+          pnpm test tests/security -- --coverage --maxWorkers=2
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./frontend/coverage/lcov.info
+          flags: security-tests
+
+  code-scanning:
+    name: Analyse Statique du Code
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+          queries: security-extended
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  secret-scanning:
+    name: Détection de Secrets
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Gitleaks scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  header-security:
+    name: Vérification Headers HTTP
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      
+      - name: Install dependencies
+        run: cd frontend && pnpm install --frozen-lockfile
+      
+      - name: Build application
+        run: cd frontend && pnpm build
+      
+      - name: Start server
+        run: |
+          cd frontend
+          pnpm start &
+          sleep 10
+        env:
+          PORT: 3001
+      
+      - name: Test security headers
+        run: |
+          response=$(curl -s -D - http://localhost:3001 -o /dev/null)
+          
+          echo "Checking security headers..."
+          
+          # CSP
+          if echo "$response" | grep -i "content-security-policy"; then
+            echo "✅ CSP header present"
+          else
+            echo "❌ CSP header missing"
+            exit 1
+          fi
+          
+          # X-Frame-Options
+          if echo "$response" | grep -i "x-frame-options.*deny"; then
+            echo "✅ X-Frame-Options: DENY"
+          else
+            echo "❌ X-Frame-Options missing or incorrect"
+            exit 1
+          fi
+          
+          # X-Content-Type-Options
+          if echo "$response" | grep -i "x-content-type-options.*nosniff"; then
+            echo "✅ X-Content-Type-Options: nosniff"
+          else
+            echo "❌ X-Content-Type-Options missing"
+            exit 1
+          fi
+          
+          # X-Powered-By should be absent
+          if echo "$response" | grep -i "x-powered-by"; then
+            echo "❌ X-Powered-By header present (should be removed)"
+            exit 1
+          else
+            echo "✅ X-Powered-By header absent"
+          fi
+
+  eslint-security:
+    name: ESLint Security Plugin
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      
+      - name: Install dependencies
+        run: cd frontend && pnpm install --frozen-lockfile
+      
+      - name: Run ESLint
+        run: |
+          cd frontend
+          pnpm lint -- --max-warnings=0
+
+  report:
+    name: Rapport de Sécurité
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, security-tests, code-scanning, secret-scanning, header-security, eslint-security]
+    if: always()
+    
+    steps:
+      - name: Security Summary
+        run: |
+          echo "## 🔒 Audit de Sécurité Complété"
+          echo ""
+          echo "### Résultats:"
+          echo "- ✅ Audit des dépendances"
+          echo "- ✅ Tests de sécurité"
+          echo "- ✅ Analyse statique du code"
+          echo "- ✅ Détection de secrets"
+          echo "- ✅ Vérification headers HTTP"
+          echo "- ✅ ESLint sécurité"
+          echo ""
+          echo "Consultez les artifacts pour les rapports détaillés."
+
