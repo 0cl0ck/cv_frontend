@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkOrigin } from '@/lib/security/origin-check';
 
 /**
  * Route d'API qui gère la déconnexion en supprimant le cookie d'authentification
  * et en informant le backend de la déconnexion.
  */
 export async function POST(request: NextRequest) {
+  // Vérification Origin/Referer pour protection CSRF supplémentaire
+  const originCheck = checkOrigin(request);
+  if (originCheck) return originCheck;
+  
   try {
     // Configuration de l'URL du backend
     const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';

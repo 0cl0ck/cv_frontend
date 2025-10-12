@@ -6,6 +6,86 @@ const withPWA = require('next-pwa')({
   disable: process.env.NODE_ENV === 'development',
   // Only build once in production
   buildExcludes: [/middleware-manifest.json$/],
+  // Runtime caching strategy - NE JAMAIS cacher les routes sensibles
+  runtimeCaching: [
+    {
+      // Routes d'authentification - NetworkOnly (jamais de cache)
+      urlPattern: /^\/api\/auth\/.*/i,
+      handler: 'NetworkOnly',
+      options: {
+        cacheName: 'auth-api',
+      },
+    },
+    {
+      // Routes clients/comptes - NetworkOnly (données personnelles)
+      urlPattern: /^\/api\/customers\/.*/i,
+      handler: 'NetworkOnly',
+      options: {
+        cacheName: 'customers-api',
+      },
+    },
+    {
+      // Routes commandes - NetworkOnly (données sensibles)
+      urlPattern: /^\/api\/(checkout|orders|payment)\/.*/i,
+      handler: 'NetworkOnly',
+      options: {
+        cacheName: 'orders-api',
+      },
+    },
+    {
+      // Routes fidélité - NetworkOnly (données personnelles)
+      urlPattern: /^\/api\/loyalty\/.*/i,
+      handler: 'NetworkOnly',
+      options: {
+        cacheName: 'loyalty-api',
+      },
+    },
+    {
+      // Routes panier - NetworkOnly (données personnelles)
+      urlPattern: /^\/api\/cart\/.*/i,
+      handler: 'NetworkOnly',
+      options: {
+        cacheName: 'cart-api',
+      },
+    },
+    {
+      // Images - CacheFirst pour performance
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images-cache',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 jours
+        },
+      },
+    },
+    {
+      // Fichiers statiques - CacheFirst
+      urlPattern: /\.(?:js|css|woff2?)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'static-resources',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 jours
+        },
+      },
+    },
+    {
+      // API publiques (produits, catégories) - NetworkFirst avec fallback cache
+      urlPattern: /^\/api\/(products|categories)\/.*/i,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'public-api',
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 5 * 60, // 5 minutes
+        },
+      },
+    },
+  ],
 });
 
 // Configure bundle analyzer for when ANALYZE env var is present

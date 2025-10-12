@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { secureLogger as logger } from '@/utils/logger';
 import { httpClient } from '@/lib/httpClient';
+import { checkOrigin } from '@/lib/security/origin-check';
 import type { AxiosError, AxiosResponse } from 'axios';
 
 export async function POST(request: NextRequest) {
+  // Vérification Origin/Referer pour protection CSRF supplémentaire
+  const originCheck = checkOrigin(request);
+  if (originCheck) return originCheck;
+  
   try {
     // Configuration de l'URL du backend
     const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';

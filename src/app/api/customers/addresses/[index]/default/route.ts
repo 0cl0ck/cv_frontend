@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { checkOrigin } from '@/lib/security/origin-check';
 
 const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -11,6 +12,10 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ index: string }> }
 ) {
+  // Vérification Origin/Referer pour protection CSRF supplémentaire
+  const originCheck = checkOrigin(request);
+  if (originCheck) return originCheck;
+  
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('payload-token')?.value;
