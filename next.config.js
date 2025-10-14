@@ -74,7 +74,7 @@ const withPWA = require('next-pwa')({
     },
     {
       // API publiques (produits, catégories) - NetworkFirst avec fallback cache
-      urlPattern: /^\/api\/(products|categories)\/.*/i,
+      urlPattern: /^\/api\/(products|categories)(?:\/.*)?/i,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'public-api',
@@ -108,6 +108,7 @@ const nextConfig = {
   allowedDevOrigins: process.env.NODE_ENV === 'development' ? ['*'] : [],
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   serverExternalPackages: ['pino', 'thread-stream'],
+  
   
   // Enhanced logging configuration
   logging: {

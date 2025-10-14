@@ -20,7 +20,7 @@ export async function GET(_request: NextRequest) {
     const response = await fetch(`${BACKEND_URL}/api/customers/addresses`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `JWT ${token}`,
         'Content-Type': 'application/json',
       },
       cache: 'no-store',
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`${BACKEND_URL}/api/customers/addresses`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `JWT ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),

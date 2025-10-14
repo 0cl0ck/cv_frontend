@@ -1,0 +1,40 @@
+<testsuites id="" name="" tests="18" failures="0" skipped="0" errors="0" time="1.193721">
+<testsuite name="e2e\api.smoke.spec.ts" timestamp="2025-10-13T20:28:18.909Z" hostname="chromium" tests="18" failures="0" skipped="0" time="1.952" errors="0">
+<testcase name="Public BFF routes › GET /api/products -&gt; 200 JSON" classname="e2e\api.smoke.spec.ts" time="0.203">
+</testcase>
+<testcase name="Public BFF routes › GET /api/categories -&gt; 200 JSON" classname="e2e\api.smoke.spec.ts" time="0.207">
+</testcase>
+<testcase name="Public BFF routes › GET /api/search/products -&gt; 200 JSON" classname="e2e\api.smoke.spec.ts" time="0.127">
+</testcase>
+<testcase name="Public BFF routes › GET /api/reviews without productId -&gt; 400" classname="e2e\api.smoke.spec.ts" time="0.083">
+</testcase>
+<testcase name="Pricing BFF › POST /api/pricing -&gt; 200 with totals" classname="e2e\api.smoke.spec.ts" time="0.109">
+</testcase>
+<testcase name="Pricing BFF › POST /api/cart/pricing alias -&gt; 200 with totals" classname="e2e\api.smoke.spec.ts" time="0.108">
+</testcase>
+<testcase name="CSRF › GET /api/csrf -&gt; 200 sets cookies" classname="e2e\api.smoke.spec.ts" time="0.088">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › GET /api/auth/me -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.084">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › GET /api/customers/addresses -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.103">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › POST /api/checkout -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.119">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › POST /api/cart/apply-referral -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.123">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › POST /api/cart/apply-loyalty -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.101">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › GET /api/loyalty/status -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.076">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › POST /api/loyalty/claim -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.111">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › POST /api/loyalty/sync -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.071">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › POST /api/loyalty/cart -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.057">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › GET /api/payment/verify/:code -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.091">
+</testcase>
+<testcase name="Protected BFF routes (no auth) › POST /api/payment/create -&gt; 401" classname="e2e\api.smoke.spec.ts" time="0.091">
+</testcase>
+</testsuite>
+</testsuites>

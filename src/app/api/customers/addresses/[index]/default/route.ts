@@ -29,7 +29,7 @@ export async function POST(
     const response = await fetch(`${BACKEND_URL}/api/customers/addresses/${index}/default`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `JWT ${token}`,
         'Content-Type': 'application/json',
       },
     });

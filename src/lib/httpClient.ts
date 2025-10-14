@@ -1,9 +1,18 @@
 import axios from 'axios';
 
 // Instance axios configurée pour notre API
-// Utilise les routes BFF Next.js (/api/*) comme proxy vers le backend
+// En développement : pointe vers backend PayloadCMS sur port 8080
+// En production : utilise les routes BFF Next.js (/api/*) comme proxy vers le backend
+// BaseURL dynamique: absolue côté serveur (SSR), relative côté navigateur
+const isServer = typeof window === 'undefined';
+const devPort = process.env.PORT || (process.env.NODE_ENV === 'development' ? '3001' : '3000');
+const siteUrl = isServer
+  ? (process.env.NEXT_PUBLIC_SITE_URL
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${devPort}`))
+  : '';
+
 export const httpClient = axios.create({
-  baseURL: '/api',
+  baseURL: isServer ? `${siteUrl}/api` : '/api',
   // CORS: toujours envoyer les cookies (httpOnly)
   withCredentials: true,
   // Timeout raisonnable

@@ -168,9 +168,7 @@ describe('Sécurité Headers - Headers manquants dangereux', () => {
   });
 
   it('ne doit pas exposer de headers sensibles', () => {
-    const sensit
-
-iveHeaders = [
+    const sensitiveHeaders = [
       'X-Powered-By',
       'Server',
       'X-AspNet-Version',

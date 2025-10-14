@@ -29,7 +29,7 @@ export async function DELETE(
     const response = await fetch(`${BACKEND_URL}/api/customers/addresses/${index}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `JWT ${token}`,
         'Content-Type': 'application/json',
       },
     });

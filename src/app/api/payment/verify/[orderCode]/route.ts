@@ -24,7 +24,7 @@ export async function GET(
     const response = await fetch(`${BACKEND_URL}/api/payment/verify/${orderCode}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `JWT ${token}`,
         'Content-Type': 'application/json',
       },
       cache: 'no-store',
