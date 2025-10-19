@@ -87,10 +87,37 @@ export default function CartView() {
   const handleBack = () => setCheckoutMode(false);
 
   const handleSelectAddress = (addr: Address) => {
-    const ALLOWED_COUNTRIES = ["France", "Belgique"] as const;
+    const ALLOWED_COUNTRIES = [
+      "France",
+      "Belgique",
+      "Suisse",
+      "Luxembourg",
+      "Espagne",
+      "Portugal",
+      "Pays Bas",
+    ] as const;
     type AllowedCountry = typeof ALLOWED_COUNTRIES[number];
-    const sanitizeCountry = (c: string): AllowedCountry =>
-      (ALLOWED_COUNTRIES as readonly string[]).includes(c) ? (c as AllowedCountry) : "France";
+
+    const normalize = (s: string) =>
+      (s || "").trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    const sanitizeCountry = (c: string): AllowedCountry => {
+      const n = normalize(c);
+      if (!n) return "France";
+      if (n === 'fr' || n.startsWith('fr') || n === 'france') return "France";
+      if (['be','bel','belgique','belgium','belgie','belge'].includes(n)) return "Belgique";
+      if (['ch','che','suisse','switzerland','schweiz','svizzera'].includes(n)) return "Suisse";
+      if (['lu','luxembourg','ltz'].includes(n)) return "Luxembourg";
+      if (['es','esp','espagne','spain','espana','espana','espanol'].includes(n)) return "Espagne";
+      if (['pt','prt','portugal'].includes(n)) return "Portugal";
+      if (
+        ['nl','nld','netherlands','holland','hollande','nederland','pays bas','pays-bas'].includes(n)
+      ) return "Pays Bas";
+      const label = (ALLOWED_COUNTRIES as readonly string[]).find(
+        (x) => normalize(x) === n
+      );
+      return (label as AllowedCountry) || "France";
+    };
 
     // Extraire le prénom et le nom à partir du champ name de l'adresse
     let firstName = "";

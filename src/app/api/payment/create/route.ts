@@ -16,19 +16,23 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('payload-token')?.value;
-    
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const referral = cookieStore.get('referral-code')?.value;
     
     const body = await request.json();
     
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `JWT ${token}`;
+    }
+    if (referral) {
+      headers['Cookie'] = `referral-code=${encodeURIComponent(referral)}`;
+    }
+
     const response = await fetch(`${BACKEND_URL}/api/payment/create`, {
       method: 'POST',
-      headers: {
-        'Authorization': `JWT ${token}`,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
     });
     

@@ -4,7 +4,6 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, ShoppingCart, Edit2, X, Save, Loader2, Award, LogOut, ChevronRight, Gift, Truck } from 'lucide-react';
-import { determineReward } from '@/lib/loyalty';
 import { LoyaltyReward } from '@/types/loyalty';
 import { User } from '@/lib/auth/auth';
 import { useAuthContext } from '@/context/AuthContext';
@@ -176,52 +175,28 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
     try {
       setLoyaltyLoading(true);
       
-      // Récupérer les commandes récentes
-      const ordersResponse = await fetch('/api/orders/me', {
-        credentials: 'include', // Utilise le cookie payload-token automatiquement
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      // Récupérer l'état de fidélité via l'API canonique
+      const statusResponse = await fetch('/api/loyalty/status', {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
       });
-          
-      if (ordersResponse.ok) {
-        const ordersData = await ordersResponse.json();
-            
-        // 🎯 NOUVELLE APPROCHE : Utiliser validatedOrderCount depuis l'API (source de vérité)
-        // Au lieu de compter manuellement les commandes, utiliser la valeur de la collection Customers
-        const ordersCount = ordersData.validatedOrderCount ?? 0;
-        
-        // 📊 Pour information/debug : Compter aussi manuellement les commandes affichées
-        const completedOrders = Array.isArray(ordersData.orders) 
-          ? ordersData.orders.filter((order: { status: string }) => 
-              order.status === 'delivered' || order.status === 'shipped'
-            )
-          : [];
-        
-        // Log pour débogage si les valeurs diffèrent
-        if (completedOrders.length !== ordersCount) {
-          console.warn('🔍 Différence détectée entre validatedOrderCount et comptage manuel:', {
-            validatedOrderCount: ordersCount,
-            manualCount: completedOrders.length,
-            message: 'Le validatedOrderCount est utilisé comme source de vérité'
-          });
-        }
-            
-        // Stocker les commandes pour l'historique (inchangé)
-        setOrders(ordersData.orders || []);
-            
-        // Générer les données de fidélité avec le compteur officiel
+      
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        const ordersCount: number = typeof statusData?.ordersCount === 'number' ? statusData.ordersCount : 0;
+        const currentReward: LoyaltyReward = (statusData?.currentReward || { type: 'none', claimed: false, description: 'Aucune récompense disponible' }) as LoyaltyReward;
+        const referralEnabled: boolean = Boolean(statusData?.referralEnabled);
+
         const loyaltyInfo = {
-          ordersCount, // 🎯 Utilise validatedOrderCount depuis la collection Customers
-          currentReward: determineReward(),
-          referralEnabled: ordersCount >= 1
+          ordersCount,
+          currentReward,
+          referralEnabled,
         };
-            
-        // Mettre à jour l'utilisateur avec les données de fidélité
+
         setUserInfo(prev => ({ ...prev, loyalty: loyaltyInfo }));
       } else {
-        console.error('Erreur lors de la récupération des commandes:', ordersResponse.status);
-        setLoyaltyError('Impossible de charger vos commandes');
+        console.error('Erreur lors de la récupération du statut de fidélité:', statusResponse.status);
+        setLoyaltyError('Impossible de charger votre programme de fidélité');
       }
     } catch (error) {
       console.error('Erreur lors de la récupération des données supplémentaires:', error);

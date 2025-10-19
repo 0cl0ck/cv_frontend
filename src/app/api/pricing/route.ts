@@ -2,80 +2,42 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { checkOrigin } from '@/lib/security/origin-check';
 
-type PricingItem = {
-  price: number;
-  quantity: number;
-};
+const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-type PricingInput = {
-  items?: PricingItem[];
-  country?: string;
-  loyaltyDiscount?: number;
-  promoDiscount?: number;
-  referralDiscount?: number;
-};
-
+/**
+ * Route BFF pour calculer les prix du panier
+ * Proxy vers le backend avec le token HttpOnly cookie
+ */
 export async function POST(request: NextRequest) {
+  // Vérification Origin/Referer pour protection CSRF supplémentaire
   const originCheck = checkOrigin(request);
   if (originCheck) return originCheck;
-  
+
   try {
-    await cookies();
+    const cookieStore = await cookies();
+    const token = cookieStore.get('payload-token')?.value;
 
-    const input = (await request.json()) as PricingInput;
-
-    const items = Array.isArray(input.items) ? input.items : [];
-    const toNumber = (n: unknown): number => (Number.isFinite(n as number) ? Number(n) : 0);
-    const round2 = (n: number): number => Math.round(n * 100) / 100;
-    const toCents = (n: number): number => Math.round(n * 100);
-    const clampNonNegative = (n: number): number => (n < 0 ? 0 : n);
-
-    const subtotal = round2(
-      items.reduce((sum, it) => sum + toNumber(it.price) * toNumber(it.quantity), 0),
-    );
-
-    const computeShippingCost = (subtotalVal: number, c?: string): number => {
-      const norm = (c || '').trim().toLowerCase();
-      if (['belgique', 'belgium', 'be'].includes(norm)) {
-        return subtotalVal >= 200 ? 0 : 10;
-      }
-      return subtotalVal >= 50 ? 0 : 5;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
     };
+    if (token) {
+      headers['Authorization'] = `JWT ${token}`;
+    }
 
-    const shippingCost = round2(computeShippingCost(subtotal, input.country));
+    const response = await fetch(`${BACKEND_URL}/api/cart/pricing`, {
+      method: 'POST',
+      headers,
+      body: await request.text(),
+    });
 
-    const loyaltyDiscount = clampNonNegative(round2(toNumber(input.loyaltyDiscount)));
-    const promoDiscount = clampNonNegative(round2(toNumber(input.promoDiscount)));
-    const referralDiscount = clampNonNegative(round2(toNumber(input.referralDiscount)));
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status, headers: { 'Cache-Control': 'no-store' } });
 
-    const discountedTotal = subtotal + shippingCost - (loyaltyDiscount + promoDiscount + referralDiscount);
-    const total = round2(Math.max(0, discountedTotal));
-
-    const data = {
-      success: true,
-      subtotal,
-      subtotalCents: toCents(subtotal),
-      shippingCost,
-      shippingCostCents: toCents(shippingCost),
-      loyaltyDiscount,
-      loyaltyDiscountCents: toCents(loyaltyDiscount),
-      promoDiscount,
-      promoDiscountCents: toCents(promoDiscount),
-      referralDiscount,
-      referralDiscountCents: toCents(referralDiscount),
-      total,
-      totalCents: toCents(total),
-      currency: 'EUR',
-      shippingMethod: 'standard',
-    };
-
-    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error('[BFF /api/pricing] Error:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
-

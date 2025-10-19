@@ -203,7 +203,7 @@ export default function useCheckout(
             country: customerInfo.country || 'FR',   // Valeur par défaut FR
             state: ''  // Champ requis par le schéma
           },
-          shipping: { method: '67fffcd911f3717499195edf', cost: priceDetails.shippingCost },
+          shipping: { cost: priceDetails.shippingCost },
           subtotal: priceDetails.subtotal,
           loyaltyDiscount: priceDetails.loyaltyDiscount,
           promoDiscount: priceDetails.promoDiscount,

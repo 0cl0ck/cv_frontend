@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
 import { LoyaltyBenefits, NextLevel, RewardType } from '../types';
 import { Cart } from '@/app/panier/types';
-import { httpClient } from '@/lib/httpClient';
+import { getLoyaltyBenefits } from '@/lib/loyalty-api';
 
 export default function useLoyaltyBenefits(
   cart: Cart,
@@ -26,38 +26,19 @@ export default function useLoyaltyBenefits(
     const fetchLoyalty = async () => {
       setLoading(true);
       try {
-        interface LoyaltyResponseData {
-          orderCount?: number;
-          reward?: { 
-            type: RewardType;
-            message: string;
-          };
-          discount?: number;
-        }
-        
-        const { data } = await httpClient.post<LoyaltyResponseData>(
-          '/cart/apply-loyalty',
-          {
-            cartTotal: cart.subtotal,
-            country,
-            items: cart.items,
-          },
-          {
-            withCsrf: true,
-          },
-        );
+        const data = await getLoyaltyBenefits(cart.subtotal, country, cart.items);
 
-        const orderCount: number = data?.orderCount || 1;
+        const orderCount: number = data.orderCount || 1;
         let nextLevel: NextLevel | undefined;
         if (orderCount < 3) nextLevel = { name: 'Bronze', ordersRequired: 3, remainingOrders: 3 - orderCount };
         else if (orderCount < 5) nextLevel = { name: 'Argent', ordersRequired: 5, remainingOrders: 5 - orderCount };
         else if (orderCount < 10) nextLevel = { name: 'Or', ordersRequired: 10, remainingOrders: 10 - orderCount };
 
-        const hasDiscount = typeof data?.discount === 'number' && data.discount > 0;
+        const hasDiscount = typeof data.discount === 'number' && data.discount > 0;
         if (hasDiscount) {
           setLoyaltyBenefits({
             active: true,
-            message: data?.reward?.message || 'Remise fidélité appliquée',
+            message: data.message || 'Remise fidélité appliquée',
             discountAmount: data.discount || 0,
             rewardType: 'none',
             orderCount,

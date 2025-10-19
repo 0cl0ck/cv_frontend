@@ -6,13 +6,23 @@
 import { httpClient } from './httpClient';
 import logger from '@/utils/logger';
 
+export type LoyaltyCartResponse = {
+  success: boolean;
+  orderCount: number;
+  guest?: boolean;
+  message: string;
+  discount: number;
+  shippingDiscount?: number;
+  freeProduct?: boolean;
+  newTotal: number;
+  originalTotal: number;
+};
+
 // Interface pour représenter un item du panier
 interface CartItem {
   productId: string;
   quantity: number;
   price?: number;
-  variant?: string;
-  [key: string]: unknown; // Pour les propriétés supplémentaires
 }
 
 /**
@@ -38,37 +48,28 @@ export async function getLoyaltyStatus() {
  * Récupère les avantages de fidélité applicables au panier
  * Nouvelle API centralisée
  */
-export async function getLoyaltyBenefits(cartTotal: number, country: string, items: CartItem[]) {
+export async function getLoyaltyBenefits(
+  cartTotal: number,
+  country: string,
+  items: CartItem[],
+): Promise<LoyaltyCartResponse> {
   try {
-    // Nouvelle API
     const { data } = await httpClient.post('/loyalty/cart', {
       cartTotal,
       country,
       items,
     });
-    return data;
+    return data as LoyaltyCartResponse;
   } catch (error) {
-    logger.warn('Erreur avec la nouvelle API de fidélité, fallback vers l\'ancienne', { error });
-    
-    // Fallback vers l'ancienne API en cas d'erreur
-    try {
-      const { data } = await httpClient.post('/cart/apply-loyalty', {
-        cartTotal,
-        country,
-        items,
-      });
-      return data;
-    } catch (fallbackError) {
-      logger.error('Erreur également avec l\'ancienne API de fidélité', { fallbackError });
-      return {
-        success: false,
-        orderCount: 0,
-        message: 'Erreur lors de l\'application des avantages de fidélité',
-        discount: 0,
-        newTotal: cartTotal,
-        originalTotal: cartTotal
-      };
-    }
+    logger.error('Erreur avec l\'API fidélité /loyalty/cart', { error });
+    return {
+      success: false,
+      orderCount: 0,
+      message: 'Erreur lors de l\'application des avantages de fidélité',
+      discount: 0,
+      newTotal: cartTotal,
+      originalTotal: cartTotal,
+    } as LoyaltyCartResponse;
   }
 }
 
