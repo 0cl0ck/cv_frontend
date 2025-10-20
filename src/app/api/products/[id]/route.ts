@@ -6,9 +6,13 @@ function isObjectId(value: string): boolean {
   return /^[a-fA-F0-9]{24}$/.test(value);
 }
 
-export async function GET(_req: NextRequest, context: { params: { id: string } }): Promise<NextResponse> {
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
-    const idOrSlug = decodeURIComponent(context.params.id || '');
+    const { id } = await params;
+    const idOrSlug = decodeURIComponent(id || '');
     if (!idOrSlug) {
       return NextResponse.json({ error: 'Missing identifier' }, { status: 400 });
     }

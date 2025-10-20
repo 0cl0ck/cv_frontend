@@ -28,7 +28,7 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
   it('shows loyalty discount and message, and displays final total including loyalty in checkout mode', async () => {
     // Mock pricing totals returned by backend
     (httpClient.post as jest.Mock).mockImplementation((url: string) => {
-      if (url === '/cart/pricing') {
+      if (url === '/pricing') {
         return Promise.resolve({
           data: {
             success: true,

@@ -33,7 +33,6 @@ describe('Sécurité BFF - Architecture', () => {
     '/api/loyalty/status',
     '/api/loyalty/cart',
     '/api/loyalty/claim',
-    '/api/loyalty/sync',
     '/api/payment/create',
     '/api/payment/verify/[orderCode]',
     '/api/pricing',
@@ -44,7 +43,7 @@ describe('Sécurité BFF - Architecture', () => {
     bffRoutes.forEach(route => {
       console.log(`  - ${route}`);
     });
-    expect(bffRoutes.length).toBeGreaterThanOrEqual(14);
+    expect(bffRoutes.length).toBeGreaterThanOrEqual(13);
   });
 });
 

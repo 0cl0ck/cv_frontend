@@ -2,6 +2,7 @@
 
 export interface CartItem {
   productId: string;
+  categoryId?: string; // ID de catégorie pour restrictions promo
   variantId?: string;
   variantName?: string; // Nom de la variante pour affichage dans le récapitulatif
   name: string;

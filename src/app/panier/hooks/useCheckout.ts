@@ -86,11 +86,11 @@ export default function useCheckout(
 
     try {
       // Utiliser l'utilitaire centralisé pour calculer tous les éléments de prix
+      // Le backend gère automatiquement: fidélité (JWT), parrainage (cookie), promo (code)
       const priceDetails = await calculateCartTotals({
         cart,
         country: customerInfo.country,
-        loyaltyDiscount: loyaltyBenefits.discountAmount,
-        promoDiscount: promoResult.applied ? promoResult.discount : 0,
+        promoCode: promoResult.applied ? promoResult.code : undefined,
       });
 
       // Décodage token

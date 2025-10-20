@@ -97,10 +97,43 @@ export const useCart = () => {
             (item: CartItem) => !item.isGift
           );
 
+          const parseLocaleDecimal = (value: unknown): number => {
+            if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+            const raw = String(value ?? "").trim();
+            if (raw.length === 0) return 0;
+            const cleaned = raw.replace(/[^0-9,.-]/g, "");
+            const hasComma = cleaned.includes(",");
+            const hasDot = cleaned.includes(".");
+            let normalized = cleaned;
+            if (hasComma && hasDot) {
+              const lastComma = cleaned.lastIndexOf(",");
+              const lastDot = cleaned.lastIndexOf(".");
+              const decimalSep = lastComma > lastDot ? "," : ".";
+              normalized = decimalSep === "," ? cleaned.replace(/\./g, "") : cleaned.replace(/,/g, "");
+              normalized = normalized.replace(",", ".");
+            } else if (hasComma && !hasDot) {
+              normalized = cleaned.replace(",", ".");
+            }
+            const n = Number(normalized);
+            return Number.isFinite(n) ? n : 0;
+          };
+
+          const normalizedItems: CartItem[] = regularItems.map((it: CartItem) => {
+            const price = parseLocaleDecimal((it as unknown as { price?: unknown }).price);
+            const quantity = Number.isFinite(it.quantity) ? Math.max(1, Math.floor(it.quantity)) : 1;
+            return {
+              ...it,
+              categoryId: it.categoryId, // Préserver categoryId depuis localStorage
+              price,
+              priceCents: Math.round(price * 100),
+              quantity,
+            } as CartItem;
+          });
+
           // Restaurer un panier avec uniquement les articles réguliers
           const tempCart = {
             ...parsedCart,
-            items: regularItems,
+            items: normalizedItems,
           };
 
           // Mettre à jour les cadeaux automatiquement en fonction du sous-total actuel
@@ -153,13 +186,36 @@ export const useCart = () => {
       return;
     }
 
-    const price = variant?.price || product.price || 0;
+    const parseLocaleDecimal = (value: unknown): number => {
+      if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+      const raw = String(value ?? "").trim();
+      if (raw.length === 0) return 0;
+      const cleaned = raw.replace(/[^0-9,.-]/g, "");
+      const hasComma = cleaned.includes(",");
+      const hasDot = cleaned.includes(".");
+      let normalized = cleaned;
+      if (hasComma && hasDot) {
+        const lastComma = cleaned.lastIndexOf(",");
+        const lastDot = cleaned.lastIndexOf(".");
+        const decimalSep = lastComma > lastDot ? "," : ".";
+        normalized = decimalSep === "," ? cleaned.replace(/\./g, "") : cleaned.replace(/,/g, "");
+        normalized = normalized.replace(",", ".");
+      } else if (hasComma && !hasDot) {
+        normalized = cleaned.replace(",", ".");
+      }
+      const n = Number(normalized);
+      return Number.isFinite(n) ? n : 0;
+    };
+    const price = parseLocaleDecimal(variant?.price ?? product.price ?? 0);
     const priceCents = eurosToCents(price);
     const desiredQuantity = 
       Number.isFinite(quantity) ? Math.max(1, Math.floor(quantity)) : 1;
 
     const baseItem: CartItem = {
       productId: product.id,
+      categoryId: typeof product.category === 'string' 
+        ? product.category 
+        : (product.category as { id?: string })?.id,
       name: product.name,
       price: price,
       priceCents: priceCents,

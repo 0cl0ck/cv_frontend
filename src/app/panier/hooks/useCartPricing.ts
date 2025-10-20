@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Cart, LoyaltyBenefits, PromoResult } from '../types';
+import { useEffect, useState } from 'react';
+import type { Cart } from '../types';
 import type { PricingTotals } from '@/lib/pricingClient';
 import { calculateCartTotals } from '@/lib/pricingClient';
 
@@ -25,40 +25,21 @@ const emptyTotals: PricingTotals = {
   totalCents: 0,
   currency: 'EUR',
   shippingMethod: 'standard',
+  appliedPromo: null,
+  appliedLoyalty: null,
+  appliedReferral: null,
 };
 
 export function useCartPricing(
   cart: Cart,
   country: string | undefined,
-  loyaltyBenefits: LoyaltyBenefits,
-  promoResult: PromoResult,
-  referralDiscount: number = 0,
+  promoCode?: string,
 ): UseCartPricingResult {
   const [totals, setTotals] = useState<PricingTotals | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const signature = useMemo(() => {
-    const items = Array.isArray(cart.items)
-      ? cart.items
-          .filter((item) => !item.isGift)
-          .map((item) => ({
-            id: item.productId,
-            variant: item.variantId,
-            qty: item.quantity,
-            price: item.price,
-          }))
-      : [];
-
-    return JSON.stringify({
-      items,
-      subtotal: cart.subtotal,
-      country: country || 'FR',
-      loyaltyDiscount: loyaltyBenefits.discountAmount,
-      promoApplied: promoResult.applied ? promoResult.discount : 0,
-      referralDiscount,
-    });
-  }, [cart.items, cart.subtotal, country, loyaltyBenefits.discountAmount, promoResult.applied, promoResult.discount, referralDiscount]);
+  // Recalculer lorsque le panier, le pays ou le code promo changent
 
   useEffect(() => {
     let cancelled = false;
@@ -77,17 +58,16 @@ export function useCartPricing(
       try {
         const data = await calculateCartTotals({
           cart,
-          country,
-          loyaltyDiscount: loyaltyBenefits.discountAmount,
-          promoDiscount: promoResult.applied ? promoResult.discount : 0,
-          referralDiscount,
+          country: country || 'FR',
+          promoCode,
         });
         if (!cancelled) {
           setTotals(data);
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Une erreur est survenue lors du calcul du total.');
+          console.error('[useCartPricing] Échec du calcul du panier', err);
+          setError("Impossible de recalculer le panier pour le moment. Merci de réessayer.");
           setTotals(emptyTotals);
         }
       } finally {
@@ -102,7 +82,7 @@ export function useCartPricing(
     return () => {
       cancelled = true;
     };
-  }, [cart, country, loyaltyBenefits.discountAmount, promoResult.applied, promoResult.discount, referralDiscount, signature]);
+  }, [cart, country, promoCode]);
 
   return {
     totals,

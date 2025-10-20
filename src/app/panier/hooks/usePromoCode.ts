@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { PromoResult, RestrictedCategory, PromoType, CategoryRestrictionType } from '../types';
+import { PromoResult, PromoType, RestrictedCategory, CategoryRestrictionType } from '../types';
 import { Cart } from '@/app/panier/types';
 import { CustomerInfo } from '../types';
-import { httpClient } from '@/lib/httpClient';
+import { calculateCartTotals } from '@/lib/pricingClient';
 
 interface UsePromoCodeReturn {
   promoCode: string;
@@ -26,7 +26,9 @@ export default function usePromoCode(
     code: '',
     discount: 0,
     message: '',
-    type: '' as PromoType
+    type: '' as PromoType,
+    categoryRestrictionType: '' as CategoryRestrictionType,
+    restrictedCategories: [] as RestrictedCategory[]
   });
 
   const applyPromo = async (e: React.FormEvent) => {
@@ -35,82 +37,63 @@ export default function usePromoCode(
 
     setIsApplying(true);
     try {
-      // Récupération des catégories
-      const itemsWithCat = await Promise.all(
-        cart.items.map(async (item) => {
-          try {
-            const { data } = await httpClient.get<{
-              category?: {
-                id?: string;
-              } | string;
-            }>(`/products/${item.productId}`);
-            let categoryId = '';
-            if (typeof data?.category === 'string') {
-              categoryId = data.category;
-            } else if (data?.category && typeof data.category === 'object') {
-              categoryId = data.category.id || '';
-            }
-            return { productId: item.productId, categoryId, price: item.price, quantity: item.quantity };
-          } catch {
-            return { productId: item.productId, categoryId: '', price: item.price, quantity: item.quantity };
-          }
-        })
-      );
+      // Utiliser /api/pricing avec le promoCode
+      const totals = await calculateCartTotals({
+        cart,
+        country: customerInfo.country || 'FR',
+        promoCode: promoCode.trim(),
+      });
 
-      interface PromoCodeResponse {
-        success: boolean;
-        valid: boolean;
-        message?: string;
-        code?: string;
-        discount?: number;
-        type?: PromoType;
-        categoryRestrictionType?: CategoryRestrictionType;
-        restrictedCategories?: RestrictedCategory[];
-      }
+      const appliedPromo = totals.appliedPromo;
 
-      const { data: result } = await httpClient.post<PromoCodeResponse>(
-        '/cart/apply-promo',
-        {
-          promoCode: promoCode.trim(),
-          cartTotal: cart.subtotal,
-          country: customerInfo.country,
-          items: itemsWithCat,
-        },
-        { withCsrf: true },
-      );
-
-      if (result.success && result.valid) {
-        let message: string = result.message || '';
-        if (result.categoryRestrictionType === 'exclude' && result.restrictedCategories?.length) {
-          const names = (result.restrictedCategories as RestrictedCategory[])
-            .map(c => c.name)
-            .join(', ');
-          message = `Code "${result.code}" appliqué (hors ${names})`;
-        } else if (result.categoryRestrictionType === 'include' && result.restrictedCategories?.length) {
-          const names = (result.restrictedCategories as RestrictedCategory[])
-            .map(c => c.name)
-            .join(', ');
-          message = `Code "${result.code}" appliqué (uniquement sur ${names})`;
+      if (appliedPromo && appliedPromo.applied && totals.promoDiscount > 0) {
+        // Construire le message avec détails des restrictions
+        let message: string = appliedPromo.message || `Code "${appliedPromo.code}" appliqué avec succès!`;
+        if (appliedPromo.categoryRestrictionType === 'exclude' && appliedPromo.restrictedCategories?.length) {
+          const names = appliedPromo.restrictedCategories.map(c => c.name).join(', ');
+          message = `Code "${appliedPromo.code}" appliqué (hors ${names})`;
+        } else if (appliedPromo.categoryRestrictionType === 'include' && appliedPromo.restrictedCategories?.length) {
+          const names = appliedPromo.restrictedCategories.map(c => c.name).join(', ');
+          message = `Code "${appliedPromo.code}" appliqué (uniquement sur ${names})`;
         }
+
         setPromoResult({ 
           applied: true, 
-          code: result.code || '', 
-          discount: result.discount || 0, 
+          code: appliedPromo.code, 
+          discount: totals.promoDiscount, 
           message, 
-          type: result.type as PromoType 
+          type: appliedPromo.type as PromoType,
+          categoryRestrictionType: appliedPromo.categoryRestrictionType,
+          restrictedCategories: appliedPromo.restrictedCategories,
         });
       } else {
-        setPromoResult({ applied: false, code: '', discount: 0, message: result.message || 'Code promo invalide', type: '' as PromoType });
+        setPromoResult({ 
+          applied: false, 
+          code: '', 
+          discount: 0, 
+          message: 'Code promo invalide ou non applicable', 
+          type: '' as PromoType,
+          categoryRestrictionType: '' as CategoryRestrictionType,
+          restrictedCategories: [] as RestrictedCategory[]
+        });
       }
     } catch {
-      setPromoResult({ applied: false, code: '', discount: 0, message: "Erreur technique lors de l'application", type: '' as PromoType });
+      setPromoResult({ 
+        applied: false, 
+        code: '', 
+        discount: 0, 
+        message: "Erreur technique lors de l'application", 
+        type: '' as PromoType,
+        categoryRestrictionType: '' as CategoryRestrictionType,
+        restrictedCategories: [] as RestrictedCategory[]
+      });
     } finally {
       setIsApplying(false);
     }
   };
 
   const cancelPromo = () => {
-    setPromoResult({ applied: false, code: '', discount: 0, message: '', type: '' as PromoType });
+    setPromoResult({ applied: false, code: '', discount: 0, message: '', type: '' as PromoType, categoryRestrictionType: '' as CategoryRestrictionType, restrictedCategories: [] as RestrictedCategory[] });
     setPromoCode('');
   };
 
@@ -119,49 +102,27 @@ export default function usePromoCode(
     let cancelled = false;
     async function revalidateIfNeeded() {
       if (!promoResult.applied || !promoResult.code) return;
+      
       try {
-        // Récupérer les catégories pour respecter d'éventuelles restrictions
-        const itemsWithCat = await Promise.all(
-          cart.items.map(async (item) => {
-            try {
-              const { data } = await httpClient.get<{ category?: { id?: string } | string }>(`/products/${item.productId}`);
-              let categoryId = '';
-              if (typeof data?.category === 'string') categoryId = data.category;
-              else if (data?.category && typeof data.category === 'object') categoryId = data.category.id || '';
-              return { productId: item.productId, categoryId, price: item.price, quantity: item.quantity };
-            } catch {
-              return { productId: item.productId, categoryId: '', price: item.price, quantity: item.quantity };
-            }
-          })
-        );
-
-        const { data: result } = await httpClient.post<{
-          success: boolean;
-          valid: boolean;
-          message?: string;
-          code?: string;
-          discount?: number;
-          type?: PromoType;
-        }>(
-          '/cart/apply-promo',
-          {
-            promoCode: promoResult.code,
-            cartTotal: cart.subtotal,
-            country: customerInfo.country,
-            items: itemsWithCat,
-          },
-          { withCsrf: true }
-        );
+        // Utiliser /api/pricing pour revalider
+        const totals = await calculateCartTotals({
+          cart,
+          country: customerInfo.country || 'FR',
+          promoCode: promoResult.code,
+        });
 
         if (cancelled) return;
-        if (result.success && result.valid) {
+
+        const appliedPromo = totals.appliedPromo;
+        
+        if (appliedPromo && appliedPromo.applied && totals.promoDiscount > 0) {
           // Mettre à jour la remise avec le nouveau total
           setPromoResult((prev) => ({
             ...prev,
             applied: true,
-            discount: result.discount || 0,
-            message: result.message || prev.message,
-            type: (result.type || prev.type) as PromoType,
+            discount: totals.promoDiscount,
+            message: appliedPromo.message || prev.message,
+            type: (appliedPromo.type || prev.type) as PromoType,
           }));
         } else {
           // Invalider le code si le panier n'est plus éligible
@@ -169,13 +130,21 @@ export default function usePromoCode(
             applied: false,
             code: '',
             discount: 0,
-            message: result.message || "Le code promo n'est plus applicable (panier insuffisant)",
+            message: "Le code promo n'est plus applicable (panier insuffisant)",
             type: '' as PromoType,
+            categoryRestrictionType: '' as CategoryRestrictionType,
+            restrictedCategories: [] as RestrictedCategory[],
           });
         }
       } catch {
         // En cas d'erreur réseau, ne pas bloquer, mais retirer la remise pour éviter un affichage trompeur
-        setPromoResult((prev) => ({ ...prev, applied: false, discount: 0 }));
+        setPromoResult((prev) => ({ 
+          ...prev, 
+          applied: false, 
+          discount: 0,
+          categoryRestrictionType: '' as CategoryRestrictionType,
+          restrictedCategories: [] as RestrictedCategory[],
+        }));
       }
     }
 

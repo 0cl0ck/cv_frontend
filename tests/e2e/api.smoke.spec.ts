@@ -87,25 +87,6 @@ test.describe('Pricing BFF', () => {
     const body = (await res.json()) as unknown;
     expectPricingShape(body);
   });
-
-  test('POST /api/cart/pricing alias -> 200 with totals', async ({ request, baseURL }) => {
-    const origin = getBaseOrigin(baseURL);
-    const res = await request.post('/api/cart/pricing', {
-      headers: withOrigin(origin),
-      data: {
-        items: [
-          { price: 10, quantity: 1 },
-        ],
-        country: 'FR',
-        loyaltyDiscount: 0,
-        promoDiscount: 0,
-        referralDiscount: 0,
-      },
-    });
-    expect(res.ok()).toBeTruthy();
-    const body = (await res.json()) as unknown;
-    expectPricingShape(body);
-  });
 });
 
 // CSRF endpoint
@@ -169,15 +150,6 @@ test.describe('Protected BFF routes (no auth)', () => {
     const res = await request.post('/api/loyalty/claim', {
       headers: withOrigin(origin),
       data: { reward: 'TEST' },
-    });
-    expect(res.status()).toBe(401);
-  });
-
-  test('POST /api/loyalty/sync -> 401', async ({ request, baseURL }) => {
-    const origin = getBaseOrigin(baseURL);
-    const res = await request.post('/api/loyalty/sync', {
-      headers: withOrigin(origin),
-      data: {},
     });
     expect(res.status()).toBe(401);
   });

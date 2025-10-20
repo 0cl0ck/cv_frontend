@@ -60,18 +60,31 @@ export default function CheckoutSidebar({
   paymentMethod = 'card',
   setPaymentMethod,
 }: CheckoutSidebarProps) {
+  // Le backend calcule automatiquement TOUTES les remises
   const {
     totals,
     loading: pricingLoading,
     error: pricingError,
-  } = useCartPricing(cart, customerInfo.country, loyaltyBenefits, promoResult);
+  } = useCartPricing(cart, customerInfo.country, promoResult.applied ? promoResult.code : undefined);
 
   const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
   const shippingCost = totals?.shippingCost ?? 0;
-  const loyaltyDiscountValue = totals?.loyaltyDiscount ?? (loyaltyBenefits.discountAmount || 0);
-  const promoDiscountValue = totals?.promoDiscount ?? (promoResult.applied ? promoResult.discount : 0);
-  const totalAmount =
-    totals?.total ?? Math.max(0, subtotal + shippingCost - loyaltyDiscountValue - promoDiscountValue);
+  const loyaltyDiscountValue = totals?.loyaltyDiscount ?? 0;
+  const promoDiscountValue = totals?.promoDiscount ?? 0;
+  const referralDiscountValue = totals?.referralDiscount ?? 0;
+  const totalAmount = totals?.total ?? Math.max(0, subtotal + shippingCost - loyaltyDiscountValue - promoDiscountValue - referralDiscountValue);
+  
+  // Reconstruction des bénéfices à partir de totals pour rétrocompatibilité UI
+  const actualLoyaltyBenefits: LoyaltyBenefits = {
+    ...loyaltyBenefits,
+    discountAmount: loyaltyDiscountValue,
+    active: loyaltyDiscountValue > 0,
+    message: totals?.appliedLoyalty?.tier === 'silver' 
+      ? 'Fidélité Argent : -10% sur votre commande'
+      : totals?.appliedLoyalty?.tier === 'bronze'
+      ? 'Fidélité Bronze : -5% sur votre commande'
+      : loyaltyBenefits.message,
+  };
 
   if (!checkoutMode) {
     // Mode normal : affichage du résumé, promos, fidélité
@@ -92,7 +105,7 @@ export default function CheckoutSidebar({
         {/* 2) Programme de fidélité */}
         {isAuthenticated ? (
           <LoyaltyBenefitsPanel
-            loyaltyBenefits={loyaltyBenefits}
+            loyaltyBenefits={actualLoyaltyBenefits}
             loading={loadingLoyalty}
             isAuthenticated
           />
@@ -106,7 +119,7 @@ export default function CheckoutSidebar({
           totals={totals}
           loadingTotals={pricingLoading}
           promoResult={promoResult}
-          loyaltyBenefits={loyaltyBenefits}
+          loyaltyBenefits={actualLoyaltyBenefits}
           isAuthenticated={isAuthenticated}
           onCheckout={onCheckout}
           checkoutMode={checkoutMode}
@@ -137,7 +150,7 @@ export default function CheckoutSidebar({
       {/* 2) Programme de fidélité pour le mode checkout */}
       {isAuthenticated ? (
         <LoyaltyBenefitsPanel
-          loyaltyBenefits={loyaltyBenefits}
+          loyaltyBenefits={actualLoyaltyBenefits}
           loading={loadingLoyalty}
           isAuthenticated
         />

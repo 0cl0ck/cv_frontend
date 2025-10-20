@@ -77,6 +77,7 @@ export interface CartItem {
   productId: string;
   variantId?: string;
   variantName?: string; // Ajout du nom de la variante pour affichage dans le récapitulatif
+  categoryId?: string; // ID de catégorie pour restrictions promo
   name: string;
   price: number; // Prix unitaire en euros (pour l'affichage)
   priceCents: number; // Prix unitaire en centimes (pour les calculs)

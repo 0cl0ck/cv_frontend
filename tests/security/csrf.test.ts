@@ -17,7 +17,7 @@ describe('Sécurité CSRF - Vérification Origin/Referer', () => {
     '/api/customers/addresses',
     '/api/loyalty/cart',
     '/api/loyalty/claim',
-    '/api/loyalty/sync',
+    
     '/api/payment/create',
     '/api/pricing',
   ];

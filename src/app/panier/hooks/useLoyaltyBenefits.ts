@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '@/context/AuthContext';
-import { LoyaltyBenefits, NextLevel, RewardType } from '../types';
+import { LoyaltyBenefits } from '../types';
 import { Cart } from '@/app/panier/types';
-import { getLoyaltyBenefits } from '@/lib/loyalty-api';
+import { calculateCartTotals } from '@/lib/pricingClient';
 
 export default function useLoyaltyBenefits(
   cart: Cart,
@@ -26,26 +26,32 @@ export default function useLoyaltyBenefits(
     const fetchLoyalty = async () => {
       setLoading(true);
       try {
-        const data = await getLoyaltyBenefits(cart.subtotal, country, cart.items);
+        // Utiliser /api/pricing qui retourne déjà appliedLoyalty
+        const totals = await calculateCartTotals({
+          cart,
+          country: country || 'FR',
+        });
 
-        const orderCount: number = data.orderCount || 1;
-        let nextLevel: NextLevel | undefined;
-        if (orderCount < 3) nextLevel = { name: 'Bronze', ordersRequired: 3, remainingOrders: 3 - orderCount };
-        else if (orderCount < 5) nextLevel = { name: 'Argent', ordersRequired: 5, remainingOrders: 5 - orderCount };
-        else if (orderCount < 10) nextLevel = { name: 'Or', ordersRequired: 10, remainingOrders: 10 - orderCount };
-
-        const hasDiscount = typeof data.discount === 'number' && data.discount > 0;
-        if (hasDiscount) {
+        const appliedLoyalty = totals.appliedLoyalty;
+        
+        if (appliedLoyalty && appliedLoyalty.eligible) {
           setLoyaltyBenefits({
-            active: true,
-            message: data.message || 'Remise fidélité appliquée',
-            discountAmount: data.discount || 0,
+            active: totals.loyaltyDiscount > 0,
+            message: appliedLoyalty.message || 'Remise fidélité appliquée',
+            discountAmount: totals.loyaltyDiscount,
             rewardType: 'none',
-            orderCount,
-            nextLevel
+            orderCount: appliedLoyalty.ordersCount || 1,
+            nextLevel: appliedLoyalty.nextLevel,
           });
         } else {
-          setLoyaltyBenefits(prev => ({ ...prev, active: false, discountAmount: 0, orderCount, nextLevel }));
+          setLoyaltyBenefits({
+            active: false,
+            message: '',
+            discountAmount: 0,
+            rewardType: 'none',
+            orderCount: appliedLoyalty?.ordersCount || 1,
+            nextLevel: appliedLoyalty?.nextLevel,
+          });
         }
       } catch {
         // silent

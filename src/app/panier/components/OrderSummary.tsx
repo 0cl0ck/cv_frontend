@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { formatPrice } from '@/utils/formatPrice';
-import { httpClient } from '@/lib/httpClient';
-import type { PromoResult, LoyaltyBenefits, Cart } from '../types';
+import type { Cart, LoyaltyBenefits, PromoResult } from '../types';
 import type { PricingTotals } from '@/lib/pricingClient';
 
 interface Props {
@@ -30,59 +29,25 @@ export default function OrderSummary({
   checkoutMode,
   onBackToCart,
   onClearCart,
-  country = 'France',
+  country: _country = 'France',
 }: Props) {
   const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
   const calculatedShipping = totals?.shippingCost ?? 0;
   const loyaltyDiscount = totals?.loyaltyDiscount ?? (loyaltyBenefits.discountAmount || 0);
   const promoDiscount = totals?.promoDiscount ?? (promoResult.applied ? promoResult.discount : 0);
-  const baseTotal =
-    totals?.total ?? Math.max(0, subtotal + calculatedShipping - loyaltyDiscount - promoDiscount);
+  // Le parrainage est désormais calculé par le backend et inclus dans totals
+  const referralDiscount = totals?.referralDiscount ?? 0;
+  const referralChecked = true; // Toujours vrai maintenant car calculé côté serveur
 
-  const [referralDiscount, setReferralDiscount] = useState<number>(0);
-  const [referralChecked, setReferralChecked] = useState<boolean>(false);
+  const baseTotal = totals?.total ?? Math.max(0, subtotal + calculatedShipping - loyaltyDiscount - promoDiscount - referralDiscount);
 
-  useEffect(() => {
-    let cancelled = false;
+  const totalWithoutShipping = Math.max(
+    0,
+    subtotal - loyaltyDiscount - promoDiscount - referralDiscount,
+  );
 
-    async function checkReferral() {
-      setReferralChecked(false);
-      try {
-        const body = {
-          items: (cart.items || [])
-            .filter((item) => !item.isGift)
-            .map((item) => ({
-              unitPrice: Number.isFinite(item.price) ? Number(item.price) : 0,
-              quantity: Number.isFinite(item.quantity) ? Number(item.quantity) : 0,
-            })),
-          country,
-        };
-
-        const res = await httpClient.post('/cart/apply-referral', body, { withCsrf: true });
-        const data = res.data as { success: boolean; eligible: boolean; discount: number };
-        if (!cancelled) {
-          setReferralDiscount(data?.eligible ? Number(data.discount || 0) : 0);
-        }
-      } catch {
-        if (!cancelled) setReferralDiscount(0);
-      } finally {
-        if (!cancelled) setReferralChecked(true);
-      }
-    }
-
-    if ((cart.items || []).filter((item) => !item.isGift).length > 0) {
-      checkReferral();
-    } else {
-      setReferralDiscount(0);
-      setReferralChecked(true);
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, [cart.items, country, subtotal]);
-
-  const displayTotal = Math.max(0, baseTotal - (referralDiscount || 0));
+  const displayTotal = checkoutMode ? baseTotal : totalWithoutShipping;
+  const shouldShowShipping = checkoutMode;
 
   return (
     <div className="bg-[#002935] p-6 rounded-lg border border-[#3A4A4F]">
@@ -94,16 +59,23 @@ export default function OrderSummary({
             {loadingTotals ? 'Calcul...' : formatPrice(subtotal)}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-[#F4F8F5]">Livraison</span>
-          <span className="text-[#F4F8F5]">
-            {loadingTotals
-              ? 'Calcul...'
-              : calculatedShipping === 0
-              ? 'Gratuit'
-              : formatPrice(calculatedShipping)}
-          </span>
-        </div>
+        {shouldShowShipping ? (
+          <div className="flex justify-between">
+            <span className="text-[#F4F8F5]">Livraison</span>
+            <span className="text-[#F4F8F5]">
+              {loadingTotals
+                ? 'Calcul...'
+                : calculatedShipping === 0
+                ? 'Gratuit'
+                : formatPrice(calculatedShipping)}
+            </span>
+          </div>
+        ) : (
+          <div className="flex justify-between">
+            <span className="text-[#F4F8F5]">Livraison</span>
+            <span className="text-[#F4F8F5] text-sm">Calculée à l’étape suivante</span>
+          </div>
+        )}
         {promoDiscount > 0 && (
           <div className="flex justify-between">
             <span className="text-[#F4F8F5]">
@@ -164,4 +136,3 @@ export default function OrderSummary({
     </div>
   );
 }
-
