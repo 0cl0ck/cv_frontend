@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { checkOrigin } from '@/lib/security/origin-check';
 
 const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -14,20 +13,16 @@ export async function POST(request: NextRequest) {
   if (originCheck) return originCheck;
   
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('payload-token')?.value;
-    const referral = cookieStore.get('referral-code')?.value;
+    // Forward tous les cookies de la requête vers le backend
+    const cookieHeader = request.headers.get('cookie');
     
     const body = await request.json();
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    if (token) {
-      headers['Authorization'] = `JWT ${token}`;
-    }
-    if (referral) {
-      headers['Cookie'] = `referral-code=${encodeURIComponent(referral)}`;
+    if (cookieHeader) {
+      headers['Cookie'] = cookieHeader;
     }
 
     const response = await fetch(`${BACKEND_URL}/api/payment/create`, {

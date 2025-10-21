@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { checkOrigin } from '@/lib/security/origin-check';
 
 const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -15,22 +14,16 @@ export async function POST(request: NextRequest) {
   if (originCheck) return originCheck;
 
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('payload-token')?.value;
-    const referralCode = cookieStore.get('referral-code')?.value;
+    // Forward tous les cookies de la requête vers le backend
+    const cookieHeader = request.headers.get('cookie');
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     
-    // Forward JWT token pour la fidélité
-    if (token) {
-      headers['Authorization'] = `JWT ${token}`;
-    }
-    
-    // Forward cookie de parrainage
-    if (referralCode) {
-      headers['Cookie'] = `referral-code=${encodeURIComponent(referralCode)}`;
+    // Forward tous les cookies (JWT token + referral-code)
+    if (cookieHeader) {
+      headers['Cookie'] = cookieHeader;
     }
 
     // Lire le corps JSON

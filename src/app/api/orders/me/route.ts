@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('payload-token')?.value;
-
-    if (!token) {
+    // Forward tous les cookies de la requête vers le backend
+    const cookieHeader = request.headers.get('cookie');
+    
+    if (!cookieHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -16,7 +15,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${BACKEND_URL}/api/orders/me${search || ''}`, {
       method: 'GET',
       headers: {
-        Authorization: `JWT ${token}`,
+        'Cookie': cookieHeader,
         'Content-Type': 'application/json',
       },
       cache: 'no-store',

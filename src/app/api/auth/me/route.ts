@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -7,19 +6,19 @@ const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_
  * Route BFF pour vérifier l'authentification de l'utilisateur
  * Proxy vers le backend avec le token HttpOnly cookie
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('payload-token')?.value;
+    // Forward tous les cookies de la requête vers le backend
+    const cookieHeader = request.headers.get('cookie');
     
-    if (!token) {
+    if (!cookieHeader) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
     
     const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
       method: 'GET',
       headers: {
-        'Authorization': `JWT ${token}`,
+        'Cookie': cookieHeader,
         'Content-Type': 'application/json',
       },
       cache: 'no-store',

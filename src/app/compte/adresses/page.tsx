@@ -113,13 +113,17 @@ export default function AddressesPage() {
       try {
         // Utiliser les données utilisateur du contexte d'authentification global
         if (authUser && authUser.id) {
-          // Récupérer les adresses de l'utilisateur avec la nouvelle route API
+          // Récupérer les adresses de l'utilisateur via le profil complet
           try {
-            const addressesResponse = await httpClient.get('/customers/addresses');
-            logger.debug('Réponse adresses status', { status: addressesResponse.status });
+            const customerResponse = await httpClient.get('/customers/me');
+            logger.debug('Réponse customer status', { status: customerResponse.status });
+            
+            // Extraire les adresses depuis le customer
+            const fetchedAddresses = customerResponse.data?.addresses || [];
+            logger.debug('Adresses récupérées', { count: fetchedAddresses.length });
             
             // Mettre à jour les états avec les données récupérées
-            const sanitizedAddresses = (addressesResponse.data.addresses || []).map((a: Address) => ({
+            const sanitizedAddresses = (fetchedAddresses || []).map((a: Address) => ({
               ...a,
               country: sanitizeCountry(a.country),
             }));
@@ -274,9 +278,7 @@ export default function AddressesPage() {
         setError('Session expirée. Veuillez vous reconnecter.');
         setIsSaving(false);
         return;
-      
       }
-      
       
       // Gérer les adresses existantes
       let updatedAddresses = [...addresses];
@@ -301,32 +303,10 @@ export default function AddressesPage() {
         updatedAddresses.push({ ...formAddress, id: newId });
       }
       
-      // Déterminer l'URL et la méthode en fonction de l'opération
-      let url;
-      let method;
-      
-      if (editingAddress) {
-        // Cas de modification d'une adresse existante
-        // Trouver l'index de l'adresse à modifier
-        const addressIndex = addresses.findIndex(addr => addr.id === editingAddress.id);
-        if (addressIndex === -1) {
-          throw new Error('Adresse introuvable');
-        }
-        
-        url = `/api/customers/addresses/${addressIndex}`;
-        method = 'PUT';
-      } else {
-        // Cas d'ajout d'une nouvelle adresse
-        url = '/api/customers/addresses';
-        method = 'POST';
-      }
-      
+      // Approche PayloadCMS native : PATCH du customer avec le tableau addresses mis à jour
       try {
-        // Appel API avec notre nouvelle route modulaire en utilisant httpClient
-        await httpClient.request({
-          method: method,
-          url: url.replace('/api', ''), // Remove '/api' prefix as httpClient already has baseURL set to '/api'
-          data: formAddress
+        await httpClient.patch('/customers/me', {
+          addresses: updatedAddresses
         });
         
         // Mettre à jour les données locales si la requête a réussi
@@ -368,24 +348,25 @@ export default function AddressesPage() {
         return;
       }
       
-      // Trouver l'index de l'adresse à supprimer
-      const addressIndex = addresses.findIndex(addr => addr.id === addressId);
-      if (addressIndex === -1) {
-        throw new Error('Adresse introuvable');
-      }
-      
       // Filtrer les adresses pour retirer celle à supprimer
       const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
       
-      // Appel API pour supprimer l'adresse avec notre nouvelle route modulaire
+      // Approche PayloadCMS native : PATCH du customer avec le tableau addresses mis à jour
       try {
-        await httpClient.delete(`/customers/addresses/${addressIndex}`);   // 'response' n'était pas utilisé
+        await httpClient.patch('/customers/me', {
+          addresses: updatedAddresses
+        });
+        
         // Mettre à jour les données locales
         setAddresses(updatedAddresses);
         setSuccess('Adresse supprimée avec succès');
       } catch (apiError) {
         console.error('Erreur API lors de la suppression:', apiError);
-        setError(getErrorMessage(apiError));
+        const errorMsg = getErrorMessage(apiError);
+        setError(errorMsg === 'Request failed with status code 500' 
+          ? 'Impossible de supprimer l\'adresse. Veuillez réessayer.'
+          : errorMsg
+        );
       }
     } catch (err) {
       console.error('Erreur lors de la suppression de l\'adresse:', err);
@@ -404,45 +385,29 @@ export default function AddressesPage() {
     try {
       if (!user) {
         setError('Session expirée. Veuillez vous reconnecter.');
-        setIsSaving(false);
         return;
       }
       
-      // Vérifier l'authentification via httpClient
-      try {
-        // Nous utilisons httpClient qui gère automatiquement les cookies d'authentification
-        await httpClient.get('/auth/me');
-        logger.debug('Authentification vérifiée pour définir l\'adresse par défaut');
-        
-        // Mettre à jour les adresses pour changer celle qui est par défaut
-        const updatedAddresses = addresses.map(addr => ({
-          ...addr,
-          isDefault: addr.id === addressId
-        }));
-        
-        // Trouver l'index de l'adresse à définir par défaut
-        const addressIndex = addresses.findIndex(addr => addr.id === addressId);
-        if (addressIndex === -1) {
-          throw new Error('Adresse introuvable');
-        }
-        
-        // Appel API pour définir l'adresse par défaut
-        try {
-          await httpClient.post(`/customers/addresses/${addressIndex}/default`);
-          setAddresses(updatedAddresses);
-          setSuccess('Adresse par défaut mise à jour avec succès');
-        } catch (apiError) {
-          console.error('Erreur API lors de la mise à jour de l\'adresse par défaut:', apiError);
-          setError(getErrorMessage(apiError));
-        }
-      } catch (authError) {
-        console.error('Erreur lors de la vérification d\'authentification:', authError);
-        setError('Session expirée. Veuillez vous reconnecter.');
-        setIsSaving(false);
-        return;
-      }
-    } catch {
-      setError('Une erreur est survenue lors de la mise à jour de l\'adresse par défaut');
+      // Mettre à jour les adresses pour changer celle qui est par défaut
+      const updatedAddresses = addresses.map(addr => ({
+        ...addr,
+        isDefault: addr.id === addressId
+      }));
+      
+      // Approche PayloadCMS native : PATCH du customer avec le tableau addresses mis à jour
+      await httpClient.patch('/customers/me', {
+        addresses: updatedAddresses
+      });
+      
+      setAddresses(updatedAddresses);
+      setSuccess('Adresse par défaut mise à jour avec succès');
+    } catch (apiError) {
+      console.error('Erreur API lors de la mise à jour de l\'adresse par défaut:', apiError);
+      const errorMsg = getErrorMessage(apiError);
+      setError(errorMsg === 'Request failed with status code 500' 
+        ? 'Impossible de définir l\'adresse par défaut. Veuillez réessayer.'
+        : errorMsg
+      );
     } finally {
       setIsSaving(false);
     }

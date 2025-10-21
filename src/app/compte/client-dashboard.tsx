@@ -7,6 +7,7 @@ import { MapPin, ShoppingCart, Edit2, X, Save, Loader2, Award, LogOut, ChevronRi
 import { LoyaltyReward } from '@/types/loyalty';
 import { User } from '@/lib/auth/auth';
 import { useAuthContext } from '@/context/AuthContext';
+import { httpClient } from '@/lib/httpClient';
 
 // Type pour les informations de l'utilisateur
 type UserInfo = {
@@ -175,14 +176,10 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
     try {
       setLoyaltyLoading(true);
       
-      // Récupérer l'état de fidélité via l'API canonique
-      const statusResponse = await fetch('/api/loyalty/status', {
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      // Récupérer l'état de fidélité via httpClient (gère automatiquement l'authentification)
+      const { data: statusData } = await httpClient.get('/loyalty/status');
       
-      if (statusResponse.ok) {
-        const statusData = await statusResponse.json();
+      if (statusData?.success) {
         const ordersCount: number = typeof statusData?.ordersCount === 'number' ? statusData.ordersCount : 0;
         const currentReward: LoyaltyReward = (statusData?.currentReward || { type: 'none', claimed: false, description: 'Aucune récompense disponible' }) as LoyaltyReward;
         const referralEnabled: boolean = Boolean(statusData?.referralEnabled);
@@ -195,7 +192,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
 
         setUserInfo(prev => ({ ...prev, loyalty: loyaltyInfo }));
       } else {
-        console.error('Erreur lors de la récupération du statut de fidélité:', statusResponse.status);
+        console.error('Erreur lors de la récupération du statut de fidélité');
         setLoyaltyError('Impossible de charger votre programme de fidélité');
       }
     } catch (error) {

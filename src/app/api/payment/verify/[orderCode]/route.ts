@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 const BACKEND_URL = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -12,16 +11,16 @@ export async function GET(
   { params }: { params: Promise<{ orderCode: string }> }
 ) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('payload-token')?.value;
+    // Forward tous les cookies de la requête vers le backend
+    const cookieHeader = request.headers.get('cookie');
     
     const { orderCode } = await params;
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    if (token) {
-      headers['Authorization'] = `JWT ${token}`;
+    if (cookieHeader) {
+      headers['Cookie'] = cookieHeader;
     }
 
     // Forward full query string; if no identifier is present, add orderCode to satisfy backend validation
