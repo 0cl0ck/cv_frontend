@@ -61,7 +61,7 @@ export default function useLoyaltyBenefits(
     };
 
     fetchLoyalty();
-  }, [cart.subtotal, cart.items, country, isAuthenticated, user, authLoading]);
+  }, [cart, country, isAuthenticated, user, authLoading]);
 
   return { loyaltyBenefits, loading };
 }

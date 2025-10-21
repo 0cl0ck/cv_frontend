@@ -152,7 +152,7 @@ export default function usePromoCode(
     return () => {
       cancelled = true;
     };
-  }, [cart.subtotal, cart.items, customerInfo.country, promoResult.applied, promoResult.code]);
+  }, [cart, customerInfo.country, promoResult.applied, promoResult.code]);
 
   return { promoCode, setPromoCode, promoResult, isApplying, applyPromo, cancelPromo };
 }
