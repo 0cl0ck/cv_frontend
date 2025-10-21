@@ -169,6 +169,16 @@ export default function useCheckout(
         };
       });
 
+      // Valider que le userId est un ObjectId MongoDB valide avant de l'utiliser
+      const isValidCustomerId = userId && isValidMongoId(userId);
+      if (isCustomer && userId && !isValidCustomerId) {
+        logger.warn('⚠️ Customer ID invalide détecté dans le JWT', {
+          userId,
+          length: userId.length,
+          isHex: /^[0-9a-fA-F]+$/.test(userId),
+        });
+      }
+
       // Créer l'objet de données pour le checkout
       const checkoutData = {
         order: {
@@ -176,7 +186,8 @@ export default function useCheckout(
           total: finalAmount,
           items: transformedItems,
           // ✅ RÈGLE 1 : Utilisateurs connectés = commande associée au compte
-          ...(isCustomer && userId ? { customer: userId } : {}),
+          // ⚠️ IMPORTANT : Ne pas envoyer le customer ID s'il n'est pas un ObjectId MongoDB valide
+          ...(isCustomer && isValidCustomerId ? { customer: userId } : {}),
           guestInformation: {
             // ✅ RÈGLE 2 : Email = identifiant fidélité (automatiquement celui du compte si connecté)
             email: customerInfo.email, // Déjà forcé à userEmail pour les utilisateurs connectés
@@ -217,7 +228,8 @@ export default function useCheckout(
           customerEmail: customerInfo.email, // Pour les notifications
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
           promoCode: promoResult.applied ? promoResult.code : undefined,
-          discountAmount: priceDetails.loyaltyDiscount + priceDetails.promoDiscount
+          discountAmount: priceDetails.loyaltyDiscount + priceDetails.promoDiscount,
+          paymentMethod: paymentMethod // 'card' ou 'bank_transfer'
         }
       };
 
@@ -245,13 +257,8 @@ export default function useCheckout(
         itemsCount: checkoutData.order.items.length
       });
       
-      // URL de l'API en fonction de la méthode de paiement
-      const apiUrl = paymentMethod === 'card' 
-        ? '/payment/create' 
-        : '/payment/bank-transfer';
-      
-      // Faire la requête via httpClient pour éviter les problèmes CORS
-      const response = await httpClient.post(apiUrl, checkoutData, {
+      // Toujours utiliser /payment/create - le backend gère la méthode
+      const response = await httpClient.post('/payment/create', checkoutData, {
         withCsrf: true,
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {})
