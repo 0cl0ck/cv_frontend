@@ -169,16 +169,6 @@ export default function useCheckout(
         };
       });
 
-      // Valider que le userId est un ObjectId MongoDB valide avant de l'utiliser
-      const isValidCustomerId = userId && isValidMongoId(userId);
-      if (isCustomer && userId && !isValidCustomerId) {
-        logger.warn('⚠️ Customer ID invalide détecté dans le JWT', {
-          userId,
-          length: userId.length,
-          isHex: /^[0-9a-fA-F]+$/.test(userId),
-        });
-      }
-
       // Créer l'objet de données pour le checkout
       const checkoutData = {
         order: {
@@ -186,8 +176,7 @@ export default function useCheckout(
           total: finalAmount,
           items: transformedItems,
           // ✅ RÈGLE 1 : Utilisateurs connectés = commande associée au compte
-          // ⚠️ IMPORTANT : Ne pas envoyer le customer ID s'il n'est pas un ObjectId MongoDB valide
-          ...(isCustomer && isValidCustomerId ? { customer: userId } : {}),
+          ...(isCustomer && userId ? { customer: userId } : {}),
           guestInformation: {
             // ✅ RÈGLE 2 : Email = identifiant fidélité (automatiquement celui du compte si connecté)
             email: customerInfo.email, // Déjà forcé à userEmail pour les utilisateurs connectés
