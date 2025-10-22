@@ -31,9 +31,9 @@ function BankTransferContent() {
   useEffect(() => {
     // Récupérer toutes les données nécessaires des paramètres d'URL
     const orderReference = searchParams.get('ref');
-    const bankAccountName = searchParams.get('name');
-    const bankIban = searchParams.get('iban');
-    const bankBic = searchParams.get('bic');
+    const bankAccountName = searchParams.get('BANK_ACCOUNT_NAME') ?? searchParams.get('name');
+    const bankIban = searchParams.get('BANK_IBAN') ?? searchParams.get('iban');
+    const bankBic = searchParams.get('BANK_BIC') ?? searchParams.get('bic');
     const amountStr = searchParams.get('amount');
 
     if (!orderReference || !bankAccountName || !bankIban || !bankBic || !amountStr) {
