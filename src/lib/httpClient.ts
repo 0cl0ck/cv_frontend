@@ -5,7 +5,7 @@ import axios from 'axios';
 // En production : utilise les routes BFF Next.js (/api/*) comme proxy vers le backend
 // BaseURL dynamique: absolue côté serveur (SSR), relative côté navigateur
 const isServer = typeof window === 'undefined';
-const devPort = process.env.PORT || (process.env.NODE_ENV === 'development' ? '3001' : '3000');
+const devPort = process.env.PORT || '3000';
 const siteUrl = isServer
   ? (process.env.NEXT_PUBLIC_SITE_URL
       || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${devPort}`))

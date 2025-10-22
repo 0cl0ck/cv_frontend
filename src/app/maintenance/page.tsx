@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import UnlockForm from './UnlockForm'
 
 export const metadata: Metadata = {
   title: 'Maintenance en cours – Chanvre Vert',
@@ -31,6 +32,7 @@ export default function MaintenancePage() {
           Revenez dans quelques heures. Si le problème persiste, contactez-nous à
           {' '}<a href="mailto:contact@chanvre-vert.fr" style={{ color: '#60a5fa', textDecoration: 'underline' }}>contact@chanvre-vert.fr</a>.
         </p>
+        <UnlockForm />
       </div>
     </main>
   )
