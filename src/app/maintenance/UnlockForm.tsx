@@ -75,7 +75,7 @@ export default function UnlockForm() {
           onClick={lock}
           style={{ padding: '0.5rem 0.75rem', borderRadius: 8, background: 'transparent', color: '#93c5fd', border: '1px solid #1e293b', cursor: 'pointer' }}
         >
-          Fermer l'accès
+          Fermer l&apos;accès
         </button>
       </div>
     </div>
