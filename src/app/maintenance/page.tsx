@@ -28,7 +28,7 @@ export default function MaintenancePage() {
           Merci pour votre patience.
         </p>
         <p style={{ fontSize: '0.95rem', opacity: 0.7 }}>
-          Revenez dans quelques minutes. Si le problème persiste, contactez-nous à
+          Revenez dans quelques heures. Si le problème persiste, contactez-nous à
           {' '}<a href="mailto:contact@chanvre-vert.fr" style={{ color: '#60a5fa', textDecoration: 'underline' }}>contact@chanvre-vert.fr</a>.
         </p>
       </div>
