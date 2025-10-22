@@ -10,7 +10,10 @@ interface BankTransferData {
   bankBic: string;
   orderReference: string;
   orderAmount: number;
+  currency: string;
 }
+
+const BANK_TRANSFER_STORAGE_KEY = 'chanvre_vert.bank_transfer';
 
 // Composant LoadingSpinner séparé
 function LoadingSpinner() {
@@ -29,35 +32,87 @@ function BankTransferContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Récupérer toutes les données nécessaires des paramètres d'URL
-    const orderReference = searchParams.get('ref');
-    const bankAccountName = searchParams.get('BANK_ACCOUNT_NAME') ?? searchParams.get('name');
-    const bankIban = searchParams.get('BANK_IBAN') ?? searchParams.get('iban');
-    const bankBic = searchParams.get('BANK_BIC') ?? searchParams.get('bic');
-    const amountStr = searchParams.get('amount');
+    const orderParam = searchParams.get('order') ?? searchParams.get('ref');
+    let resolved = false;
 
-    if (!orderReference || !bankAccountName || !bankIban || !bankBic || !amountStr) {
-      setError('Informations bancaires incomplètes. Veuillez contacter notre service client.');
-      setLoading(false);
-      return;
+    const tryFromStorage = () => {
+      if (typeof window === 'undefined') return false;
+      try {
+        const storedRaw = sessionStorage.getItem(BANK_TRANSFER_STORAGE_KEY);
+        if (!storedRaw) return false;
+        const stored = JSON.parse(storedRaw) as {
+          orderReference?: string;
+          orderId?: string | null;
+          bankAccountName?: string;
+          bankIban?: string;
+          bankBic?: string;
+          orderAmount?: number;
+          currency?: string;
+        };
+        if (!stored.bankAccountName || !stored.bankIban || !stored.bankBic) return false;
+
+        const storedOrderRef = stored.orderReference || stored.orderId || null;
+        const matchesOrder =
+          !orderParam ||
+          storedOrderRef === orderParam ||
+          (stored.orderId && stored.orderId === orderParam);
+
+        if (!matchesOrder) return false;
+
+        setBankData({
+          bankAccountName: stored.bankAccountName,
+          bankIban: stored.bankIban,
+          bankBic: stored.bankBic,
+          orderReference: stored.orderReference || orderParam || 'Commande',
+          orderAmount: Number(stored.orderAmount) || 0,
+          currency:
+            typeof stored.currency === 'string' && stored.currency.trim().length > 0
+              ? stored.currency
+              : 'EUR',
+        });
+        setError(null);
+        return true;
+      } catch (storageError) {
+        console.warn(
+          'Impossible de lire les informations de virement depuis sessionStorage',
+          storageError,
+        );
+        return false;
+      }
+    };
+
+    resolved = tryFromStorage();
+
+    if (!resolved) {
+      const bankAccountName = searchParams.get('BANK_ACCOUNT_NAME') ?? searchParams.get('name');
+      const bankIban = searchParams.get('BANK_IBAN') ?? searchParams.get('iban');
+      const bankBic = searchParams.get('BANK_BIC') ?? searchParams.get('bic');
+      const amountStr = searchParams.get('amount');
+      const currencyParam = searchParams.get('currency') ?? 'EUR';
+
+      if (orderParam && bankAccountName && bankIban && bankBic && amountStr) {
+        const orderAmount = parseFloat(amountStr);
+        if (!Number.isNaN(orderAmount)) {
+          setBankData({
+            bankAccountName,
+            bankIban,
+            bankBic,
+            orderReference: orderParam,
+            orderAmount,
+            currency: currencyParam,
+          });
+          setError(null);
+          resolved = true;
+        }
+      }
     }
 
-    // Convertir le montant en nombre
-    const orderAmount = parseFloat(amountStr);
-    if (isNaN(orderAmount)) {
-      setError('Le montant de la commande est invalide. Veuillez contacter notre service client.');
-      setLoading(false);
-      return;
+    if (!resolved) {
+      setError(
+        'Informations bancaires indisponibles. Veuillez contacter notre service client.',
+      );
     }
 
-    // Tout est OK, mettre à jour l'état
-    setBankData({
-      bankAccountName,
-      bankIban,
-      bankBic,
-      orderReference,
-      orderAmount
-    });
     setLoading(false);
   }, [searchParams]);
 
@@ -93,6 +148,13 @@ function BankTransferContent() {
   if (!bankData) {
     return null; // Ceci ne devrait jamais se produire grâce à notre logique ci-dessus
   }
+
+  const currencyDisplay =
+    bankData.currency?.toUpperCase() === 'EUR'
+      ? '€'
+      : (bankData.currency && bankData.currency.trim().length > 0
+          ? bankData.currency
+          : '€');
 
   return (
     <div className="min-h-screen bg-[#001E27] text-[#F4F8F5] py-12 px-4">
@@ -136,7 +198,9 @@ function BankTransferContent() {
             <div>
               <h3 className="text-sm uppercase text-[#EFC368] font-medium mb-1">Montant à payer</h3>
               <div className="bg-[#001E27] p-3 rounded-lg border border-[#3A4A4F]">
-                <span className="font-mono text-lg font-medium">{bankData.orderAmount.toFixed(2)} €</span>
+                <span className="font-mono text-lg font-medium">
+                  {bankData.orderAmount.toFixed(2)} {currencyDisplay}
+                </span>
               </div>
             </div>
 

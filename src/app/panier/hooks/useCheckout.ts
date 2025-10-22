@@ -266,12 +266,32 @@ export default function useCheckout(
           throw new Error('URL de paiement VivaWallet non reçue');
         }
       } else if (paymentMethod === 'bank_transfer') {
-        // Pour virement, redirection vers la page de confirmation avec instructions
-        if (paymentResponse.redirectUrl) {
-          window.location.href = paymentResponse.redirectUrl;
-        } else {
-          throw new Error('URL de confirmation non reçue');
+        const bankDetails = paymentResponse.bankDetails;
+        const orderReference = paymentResponse.orderNumber || paymentResponse.orderId;
+        if (!bankDetails || !orderReference) {
+          throw new Error('Informations de virement incompletes');
         }
+
+        try {
+          if (typeof window !== 'undefined') {
+            const bankTransferPayload = {
+              orderReference,
+              orderId: paymentResponse.orderId ?? null,
+              bankAccountName: bankDetails.accountName,
+              bankIban: bankDetails.iban,
+              bankBic: bankDetails.bic,
+              orderAmount:
+                typeof paymentResponse.amount === 'number' ? paymentResponse.amount : finalAmount,
+              currency: typeof paymentResponse.currency === 'string' ? paymentResponse.currency : 'EUR',
+              storedAt: Date.now(),
+            };
+            sessionStorage.setItem('chanvre_vert.bank_transfer', JSON.stringify(bankTransferPayload));
+          }
+        } catch (storageError) {
+          console.warn("Impossible de sauvegarder les informations de virement dans sessionStorage", storageError);
+        }
+
+        window.location.href = `/confirmation/virement?order=${encodeURIComponent(orderReference)}`;
       } else {
         throw new Error('Méthode de paiement non reconnue');
       }
