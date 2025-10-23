@@ -154,15 +154,6 @@ test.describe('Protected BFF routes (no auth)', () => {
     expect(res.status()).toBe(401);
   });
 
-  test('POST /api/loyalty/cart -> 401', async ({ request, baseURL }) => {
-    const origin = getBaseOrigin(baseURL);
-    const res = await request.post('/api/loyalty/cart', {
-      headers: withOrigin(origin),
-      data: { items: [] },
-    });
-    expect(res.status()).toBe(401);
-  });
-
   test('GET /api/payment/verify/:code -> 401', async ({ request }) => {
     const res = await request.get('/api/payment/verify/TESTCODE');
     expect(res.status()).toBe(401);

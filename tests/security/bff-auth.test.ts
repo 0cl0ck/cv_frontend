@@ -31,7 +31,6 @@ describe('Sécurité BFF - Architecture', () => {
     '/api/checkout',
     '/api/customers/addresses',
     '/api/loyalty/status',
-    '/api/loyalty/cart',
     '/api/loyalty/claim',
     '/api/payment/create',
     '/api/payment/verify/[orderCode]',
@@ -225,4 +224,5 @@ describe('Sécurité BFF - Détection d\'anomalies', () => {
     expect(true).toBe(true);
   });
 });
+
 

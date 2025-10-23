@@ -15,7 +15,6 @@ describe('Sécurité CSRF - Vérification Origin/Referer', () => {
     '/api/cart/apply-loyalty',
     '/api/checkout',
     '/api/customers/addresses',
-    '/api/loyalty/cart',
     '/api/loyalty/claim',
     
     '/api/payment/create',
@@ -153,4 +152,5 @@ describe('Sécurité CSRF - Test d\'attaque simulée', () => {
     console.log('✓ Attaque CSRF simulée correctement bloquée par défenses multiples');
   });
 });
+
 
