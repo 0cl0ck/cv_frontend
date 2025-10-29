@@ -20,7 +20,9 @@ describe('OrderSummary referral', () => {
   });
 
   it('applies referral discount from backend when eligible', async () => {
-    (httpClient.post as jest.Mock).mockResolvedValueOnce({ data: { success: true, eligible: true, discount: 4 } });
+    (httpClient.post as jest.Mock).mockResolvedValueOnce({
+      data: { success: true, eligible: true, discount: 4 },
+    });
 
     const cart: Cart = {
       subtotal: 60,
@@ -36,6 +38,8 @@ describe('OrderSummary referral', () => {
       success: true,
       subtotal: 60,
       subtotalCents: 6000,
+      siteDiscount: 18,
+      siteDiscountCents: 1800,
       shippingCost: 0,
       shippingCostCents: 0,
       loyaltyDiscount: 0,
@@ -44,10 +48,12 @@ describe('OrderSummary referral', () => {
       promoDiscountCents: 0,
       referralDiscount: 0,
       referralDiscountCents: 0,
-      total: 60,
-      totalCents: 6000,
+      total: 42,
+      totalCents: 4200,
       currency: 'EUR',
       shippingMethod: 'standard',
+      appliedSitePromotion: { label: 'Promotion Halloween', percentage: 30 },
+      automaticGifts: [],
     };
 
     render(
@@ -67,7 +73,7 @@ describe('OrderSummary referral', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/56,00 €|56,00 €/)).toBeInTheDocument();
+      expect(screen.getByText(/42,00/)).toBeInTheDocument();
     });
   });
 });

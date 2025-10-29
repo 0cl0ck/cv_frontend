@@ -4,17 +4,21 @@ import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { Product, ProductVariation } from '@/types/product';
 import { Cart } from '@/app/panier/types';
+import type { PricingTotals } from '@/lib/pricingClient';
 import CartNotification from '@/components/ui/CartNotification';
 
 interface CartContextType {
   cart: Cart;
   isLoading: boolean;
+  pricingTotals: PricingTotals | null;
   addItem: (product: Product, quantity?: number, variant?: ProductVariation) => void;
   updateQuantity: (index: number, quantity: number) => void;
   removeItem: (index: number) => void;
   clearCart: () => void;
   setShippingMethod: (methodId: string, cost: number, methodName?: string) => void;
   forceUpdateCart: () => void;
+  setAppliedPromoCode: (code: string | null) => void;
+  setPricingCountry: (country: string | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);

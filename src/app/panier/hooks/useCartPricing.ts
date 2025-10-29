@@ -13,6 +13,8 @@ const emptyTotals: PricingTotals = {
   success: true,
   subtotal: 0,
   subtotalCents: 0,
+  siteDiscount: 0,
+  siteDiscountCents: 0,
   shippingCost: 0,
   shippingCostCents: 0,
   loyaltyDiscount: 0,
@@ -25,9 +27,11 @@ const emptyTotals: PricingTotals = {
   totalCents: 0,
   currency: 'EUR',
   shippingMethod: 'standard',
+  appliedSitePromotion: null,
   appliedPromo: null,
   appliedLoyalty: null,
   appliedReferral: null,
+  automaticGifts: [],
 };
 
 export function useCartPricing(
@@ -90,3 +94,4 @@ export function useCartPricing(
     error,
   };
 }
+

@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState, useId, type MouseEvent } from 're
 import clsx from 'clsx';
 
 import { useCartContext } from '@/context/CartContext';
-import { GIFT_THRESHOLDS } from '@/utils/gift-utils';
+import { GIFT_THRESHOLDS, GIFT_IDS } from '@/utils/gift-utils';
 
 type BonusTier = {
   amount: number;
@@ -17,38 +17,114 @@ type BonusTier = {
 };
 
 const BONUS_TIERS: BonusTier[] = [
-  { amount: 0, label: '2g offerts', description: 'Ajoutez un produit au panier', totalGifts: 2 },
-  { amount: GIFT_THRESHOLDS.TIER_0, label: '5g offerts', description: 'A partir de 50 EUR de panier', totalGifts: 5 },
-  { amount: GIFT_THRESHOLDS.TIER_2, label: '15g offerts', description: 'A partir de 80 EUR de panier', totalGifts: 15 },
-  { amount: GIFT_THRESHOLDS.TIER_3, label: '25g offerts', description: 'A partir de 160 EUR de panier', totalGifts: 25 },
+  {
+    amount: GIFT_THRESHOLDS.TIER_1,
+    label: '3g offerts',
+    description: 'A partir de 50 EUR de panier',
+    totalGifts: 3,
+  },
+  {
+    amount: GIFT_THRESHOLDS.TIER_2,
+    label: '10g + goodies + 1 pre-roll',
+    description: 'A partir de 80 EUR de panier',
+    totalGifts: 10,
+  },
+  {
+    amount: GIFT_THRESHOLDS.TIER_3,
+    label: '20g + goodies + 2 pre-rolls + surprise',
+    description: 'A partir de 160 EUR de panier',
+    totalGifts: 20,
+  },
 ];
 
 const MAX_AMOUNT = GIFT_THRESHOLDS.TIER_3;
 
 type GiftBreakdown = {
-  baseGift: number;
-  extraGift: number;
-  totalGifts: number;
+  grams: number;
+  headline: string;
+  perks: string[];
 };
 
 type MobileMenuToggleDetail = {
   open: boolean;
 };
 
-function computeGifts(subtotal: number): GiftBreakdown {
-  if (subtotal <= 0) {
-    return { baseGift: 0, extraGift: 0, totalGifts: 0 };
+const GIFT_GRAMS: Record<string, number> = {
+  [GIFT_IDS.TIER_1_3G]: 3,
+  [GIFT_IDS.TIER_2_10G]: 10,
+  [GIFT_IDS.TIER_3_20G]: 20,
+};
+
+function summarizeAutomaticGifts(
+  gifts: Array<{ id: string; name: string; quantity: number }> | undefined | null,
+): GiftBreakdown | null {
+  if (!Array.isArray(gifts) || gifts.length === 0) {
+    return null;
   }
 
-  const baseGift = subtotal >= GIFT_THRESHOLDS.TIER_0 ? 5 : 2;
-  const extraGift =
-    subtotal >= GIFT_THRESHOLDS.TIER_3 ? 20 : subtotal >= GIFT_THRESHOLDS.TIER_2 ? 10 : 0;
+  let grams = 0;
+  for (const gift of gifts) {
+    const quantity = Math.max(1, Number.isFinite(gift.quantity) ? gift.quantity : 1);
+    const giftGrams = GIFT_GRAMS[gift.id as keyof typeof GIFT_GRAMS];
+    if (giftGrams) {
+      grams += giftGrams * quantity;
+    }
+  }
 
-  return { baseGift, extraGift, totalGifts: baseGift + extraGift };
+  const hasTier3 = gifts.some((gift) => gift.id === GIFT_IDS.TIER_3_20G);
+  const hasTier2 = gifts.some((gift) => gift.id === GIFT_IDS.TIER_2_10G);
+  const hasTier1 = gifts.some((gift) => gift.id === GIFT_IDS.TIER_1_3G);
+
+  let headline = '';
+  if (hasTier3) {
+    headline = '20g + 2 pre-rolls + surprise + goodies offerts';
+  } else if (hasTier2) {
+    headline = '10g + goodies + 1 pre-roll offerts';
+  } else if (hasTier1) {
+    headline = '3g de fleurs CBD offerts';
+  }
+
+  const perks = gifts.map((gift) =>
+    gift.quantity > 1 ? `${gift.name} x${gift.quantity}` : gift.name,
+  );
+
+  return {
+    grams,
+    headline,
+    perks,
+  };
+}
+
+function computeGifts(subtotal: number): GiftBreakdown {
+  if (subtotal >= GIFT_THRESHOLDS.TIER_3) {
+    return {
+      grams: 20,
+      headline: '20g + 2 pre-rolls + surprise + goodies offerts',
+      perks: ['20g de fleurs CBD', '2 pre-rolls CBD', 'Produit surprise', 'Goodies exclusifs'],
+    };
+  }
+
+  if (subtotal >= GIFT_THRESHOLDS.TIER_2) {
+    return {
+      grams: 10,
+      headline: '10g + goodies + 1 pre-roll offerts',
+      perks: ['10g de fleurs CBD', '1 pre-roll CBD', 'Goodies exclusifs'],
+    };
+  }
+
+  if (subtotal >= GIFT_THRESHOLDS.TIER_1) {
+    return {
+      grams: 3,
+      headline: '3g de fleurs CBD offerts',
+      perks: ['3g de fleurs CBD'],
+    };
+  }
+
+  return { grams: 0, headline: '', perks: [] };
 }
 
 export default function MobileBonusWidget() {
-  const { cart, isLoading } = useCartContext();
+  const { cart, isLoading, pricingTotals } = useCartContext();
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
@@ -58,9 +134,29 @@ export default function MobileBonusWidget() {
   const prevSubtotalRef = useRef<number>(0);
   const autoCloseRequestedRef = useRef(false);
 
-  const subtotal = cart?.subtotal ?? 0;
+  const netSubtotal = useMemo(() => {
+    if (!pricingTotals) {
+      return Math.max(0, cart?.subtotal ?? 0);
+    }
+    return Math.max(
+      0,
+      pricingTotals.subtotal -
+        pricingTotals.siteDiscount -
+        pricingTotals.loyaltyDiscount -
+        pricingTotals.promoDiscount -
+        pricingTotals.referralDiscount,
+    );
+  }, [pricingTotals, cart?.subtotal]);
 
-  const gifts = useMemo(() => computeGifts(subtotal), [subtotal]);
+  const backendGiftSummary = useMemo(
+    () => summarizeAutomaticGifts(pricingTotals?.automaticGifts),
+    [pricingTotals?.automaticGifts],
+  );
+
+  const gifts = useMemo(
+    () => backendGiftSummary ?? computeGifts(netSubtotal),
+    [backendGiftSummary, netSubtotal],
+  );
 
   const currencyFormatter = useMemo(
     () =>
@@ -120,12 +216,12 @@ export default function MobileBonusWidget() {
 
   useEffect(() => {
     const previousSubtotal = prevSubtotalRef.current;
-    if (!isMinimized && previousSubtotal <= 0 && subtotal > 0) {
+    if (!isMinimized && previousSubtotal <= 0 && netSubtotal > 0) {
       setIsExpanded(true);
       autoCloseRequestedRef.current = true; // Auto open only on first add
     }
-    prevSubtotalRef.current = subtotal;
-  }, [subtotal, isMinimized]);
+    prevSubtotalRef.current = netSubtotal;
+  }, [netSubtotal, isMinimized]);
 
   useEffect(() => {
     if (!isExpanded || isMinimized || !autoCloseRequestedRef.current) {
@@ -171,25 +267,27 @@ export default function MobileBonusWidget() {
     return null;
   }
 
-  const nextTier = subtotal <= 0
-    ? BONUS_TIERS[0]
-    : BONUS_TIERS.find((tier, index) => index > 0 && subtotal < tier.amount);
+  const nextTier = BONUS_TIERS.find((tier) => netSubtotal < tier.amount);
 
-  const remainingToNextTier =
-    nextTier && nextTier.amount > 0 ? Math.max(0, nextTier.amount - subtotal) : 0;
-  const additionalGifts = nextTier ? Math.max(0, nextTier.totalGifts - gifts.totalGifts) : 0;
+  const remainingToNextTier = nextTier ? Math.max(0, nextTier.amount - netSubtotal) : 0;
+  const additionalGifts = nextTier ? Math.max(0, nextTier.totalGifts - gifts.grams) : 0;
+  const amountToFirstTier = Math.max(0, GIFT_THRESHOLDS.TIER_1 - netSubtotal);
 
-  const headline = subtotal <= 0
-    ? 'Ajoutez un produit pour recevoir 2g offerts'
-    : nextTier
-      ? `Encore ${currencyFormatter.format(Math.ceil(remainingToNextTier))} -> +${additionalGifts}g offerts`
-      : 'Bonus maximal atteint : 25g offerts';
+  const headline =
+    netSubtotal < GIFT_THRESHOLDS.TIER_1
+      ? `Encore ${currencyFormatter.format(Math.ceil(amountToFirstTier))} -> 3g offerts`
+      : nextTier
+        ? `Encore ${currencyFormatter.format(Math.ceil(remainingToNextTier))} -> ${nextTier.label}`
+        : 'Bonus Halloween maximal atteint';
 
-  const detailLine = subtotal <= 0
-    ? 'Offre valable sur toutes vos commandes'
-    : `Total actuel : ${gifts.totalGifts}g offerts`;
+  const detailLine =
+    netSubtotal < GIFT_THRESHOLDS.TIER_1
+      ? 'Promotion Halloween : -30% sur tout le site'
+      : gifts.grams > 0
+        ? gifts.headline
+        : 'Montant calcule apres remise et fidelite';
 
-  const limitedSubtotal = Math.min(Math.max(subtotal, 0), MAX_AMOUNT);
+  const limitedSubtotal = Math.min(Math.max(netSubtotal, 0), MAX_AMOUNT);
   const progressPercent = Math.round((limitedSubtotal / MAX_AMOUNT) * 100);
 
   const handleToggle = () => {
@@ -239,9 +337,9 @@ export default function MobileBonusWidget() {
             height={40}
             className="h-10 w-10 rounded-full object-contain"
           />
-          {gifts.totalGifts > 0 && (
+          {gifts.grams > 0 && (
             <span className="absolute -right-1 -top-1 rounded-full bg-emerald-300 px-1.5 py-[1px] text-[11px] font-semibold text-[#02211f]">
-              {gifts.totalGifts}g
+              {gifts.grams}g
             </span>
           )}
         </button>
@@ -260,7 +358,7 @@ export default function MobileBonusWidget() {
             aria-expanded={isExpanded}
           >
             <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-emerald-400/15 text-sm font-semibold text-emerald-200">
-              {gifts.totalGifts}g
+              {gifts.grams > 0 ? `${gifts.grams}g` : '-30%'}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-sm font-semibold text-white">
@@ -275,8 +373,8 @@ export default function MobileBonusWidget() {
                   />
                 </div>
                 <div className="mt-2 flex justify-between text-[10px] text-white/60">
-                  {BONUS_TIERS.map((tier, index) => {
-                    const reached = index === 0 ? subtotal > 0 : subtotal >= tier.amount;
+                  {BONUS_TIERS.map((tier) => {
+                    const reached = netSubtotal >= tier.amount;
                     return (
                       <div key={tier.amount} className="flex flex-col items-center gap-1">
                         <div
@@ -411,13 +509,23 @@ export default function MobileBonusWidget() {
             <div className="min-h-0 border-t border-white/10 px-5 pb-5 pt-4 text-sm text-white/80">
               <div className="mb-4 flex items-center justify-between text-xs uppercase tracking-wide text-white/60">
                 <span>Votre progression</span>
-                <span className="font-semibold text-emerald-200">
-                  {gifts.totalGifts}g offerts
-                </span>
+                <span className="font-semibold text-emerald-200">{gifts.grams}g offerts</span>
               </div>
+              {gifts.perks.length > 0 && (
+                <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-xs text-white/70">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
+                    Cadeaux actuels
+                  </p>
+                  <ul className="space-y-1">
+                    {gifts.perks.map((perk) => (
+                      <li key={perk}>- {perk}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="space-y-3">
-                {BONUS_TIERS.map((tier, index) => {
-                  const reached = index === 0 ? subtotal > 0 : subtotal >= tier.amount;
+                {BONUS_TIERS.map((tier) => {
+                  const reached = netSubtotal >= tier.amount;
                   const isNext = !reached && nextTier && nextTier.amount === tier.amount;
                   return (
                     <div
@@ -474,6 +582,7 @@ export default function MobileBonusWidget() {
               <div className="mt-5 flex flex-col gap-2 text-xs text-white/60">
                 <span>Cadeaux automatiquement ajoutes au panier.</span>
                 <span>Livraison et codes promo compatibles.</span>
+                <span>Montant calcule apres remises et fidelite.</span>
               </div>
               <Link
                 href="/panier"

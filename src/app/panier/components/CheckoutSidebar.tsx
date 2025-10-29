@@ -69,10 +69,27 @@ export default function CheckoutSidebar({
 
   const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
   const shippingCost = totals?.shippingCost ?? 0;
+  const siteDiscountValue = totals?.siteDiscount ?? 0;
   const loyaltyDiscountValue = totals?.loyaltyDiscount ?? 0;
   const promoDiscountValue = totals?.promoDiscount ?? 0;
   const referralDiscountValue = totals?.referralDiscount ?? 0;
-  const totalAmount = totals?.total ?? Math.max(0, subtotal + shippingCost - loyaltyDiscountValue - promoDiscountValue - referralDiscountValue);
+  const totalAmount =
+    totals?.total ??
+    Math.max(
+      0,
+      subtotal +
+        shippingCost -
+        siteDiscountValue -
+        loyaltyDiscountValue -
+        promoDiscountValue -
+        referralDiscountValue,
+    );
+  const sitePromotionLabel =
+    siteDiscountValue > 0
+      ? totals?.appliedSitePromotion
+        ? `${totals.appliedSitePromotion.label} (-${totals.appliedSitePromotion.percentage}%)`
+        : 'Promotion Halloween (-30%)'
+      : null;
   
   // Reconstruction des bénéfices à partir de totals pour rétrocompatibilité UI
   const actualLoyaltyBenefits: LoyaltyBenefits = {
@@ -183,6 +200,12 @@ export default function CheckoutSidebar({
                 : formatPrice(shippingCost)}
             </span>
           </div>
+          {siteDiscountValue > 0 && (
+            <div className="flex justify-between">
+              <span className="text-[#F4F8F5]">{sitePromotionLabel}</span>
+              <span className="text-[#10B981]">-{formatPrice(siteDiscountValue)}</span>
+            </div>
+          )}
           {promoDiscountValue > 0 && (
             <div className="flex justify-between">
               <span className="text-[#F4F8F5]">

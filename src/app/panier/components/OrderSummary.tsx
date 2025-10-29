@@ -33,21 +33,33 @@ export default function OrderSummary({
 }: Props) {
   const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
   const calculatedShipping = totals?.shippingCost ?? 0;
+  const siteDiscount = totals?.siteDiscount ?? 0;
   const loyaltyDiscount = totals?.loyaltyDiscount ?? (loyaltyBenefits.discountAmount || 0);
   const promoDiscount = totals?.promoDiscount ?? (promoResult.applied ? promoResult.discount : 0);
   // Le parrainage est désormais calculé par le backend et inclus dans totals
   const referralDiscount = totals?.referralDiscount ?? 0;
   const referralChecked = true; // Toujours vrai maintenant car calculé côté serveur
 
-  const baseTotal = totals?.total ?? Math.max(0, subtotal + calculatedShipping - loyaltyDiscount - promoDiscount - referralDiscount);
+  const baseTotal =
+    totals?.total ??
+    Math.max(
+      0,
+      subtotal + calculatedShipping - siteDiscount - loyaltyDiscount - promoDiscount - referralDiscount,
+    );
 
   const totalWithoutShipping = Math.max(
     0,
-    subtotal - loyaltyDiscount - promoDiscount - referralDiscount,
+    subtotal - siteDiscount - loyaltyDiscount - promoDiscount - referralDiscount,
   );
 
   const displayTotal = checkoutMode ? baseTotal : totalWithoutShipping;
   const shouldShowShipping = checkoutMode;
+  const sitePromotionLabel =
+    siteDiscount > 0
+      ? totals?.appliedSitePromotion
+        ? `${totals.appliedSitePromotion.label} (-${totals.appliedSitePromotion.percentage}%)`
+        : 'Promotion Halloween (-30%)'
+      : null;
 
   return (
     <div className="bg-[#002935] p-6 rounded-lg border border-[#3A4A4F]">
@@ -74,6 +86,12 @@ export default function OrderSummary({
           <div className="flex justify-between">
             <span className="text-[#F4F8F5]">Livraison</span>
             <span className="text-[#F4F8F5] text-sm">Calculée à l’étape suivante</span>
+          </div>
+        )}
+        {siteDiscount > 0 && (
+          <div className="flex justify-between">
+            <span className="text-[#F4F8F5]">{sitePromotionLabel}</span>
+            <span className="text-[#10B981]">-{formatPrice(siteDiscount)}</span>
           </div>
         )}
         {promoDiscount > 0 && (

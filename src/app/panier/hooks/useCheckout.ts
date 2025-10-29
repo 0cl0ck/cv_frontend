@@ -205,6 +205,8 @@ export default function useCheckout(
           },
           shipping: { cost: priceDetails.shippingCost },
           subtotal: priceDetails.subtotal,
+          siteDiscount: priceDetails.siteDiscount,
+          sitePromotionLabel: priceDetails.appliedSitePromotion?.label,
           loyaltyDiscount: priceDetails.loyaltyDiscount,
           promoDiscount: priceDetails.promoDiscount,
           notes: ''
@@ -217,7 +219,8 @@ export default function useCheckout(
           customerEmail: customerInfo.email, // Pour les notifications
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
           promoCode: promoResult.applied ? promoResult.code : undefined,
-          discountAmount: priceDetails.loyaltyDiscount + priceDetails.promoDiscount,
+          discountAmount:
+            priceDetails.siteDiscount + priceDetails.loyaltyDiscount + priceDetails.promoDiscount,
           paymentMethod: paymentMethod // 'card' ou 'bank_transfer'
         }
       };

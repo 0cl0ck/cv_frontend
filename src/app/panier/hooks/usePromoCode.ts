@@ -5,6 +5,7 @@ import { PromoResult, PromoType, RestrictedCategory, CategoryRestrictionType } f
 import { Cart } from '@/app/panier/types';
 import { CustomerInfo } from '../types';
 import { calculateCartTotals } from '@/lib/pricingClient';
+import { useCartContext } from '@/context/CartContext';
 
 interface UsePromoCodeReturn {
   promoCode: string;
@@ -30,6 +31,7 @@ export default function usePromoCode(
     categoryRestrictionType: '' as CategoryRestrictionType,
     restrictedCategories: [] as RestrictedCategory[]
   });
+  const { setAppliedPromoCode } = useCartContext();
 
   const applyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +68,7 @@ export default function usePromoCode(
           categoryRestrictionType: appliedPromo.categoryRestrictionType,
           restrictedCategories: appliedPromo.restrictedCategories,
         });
+        setAppliedPromoCode(appliedPromo.code);
       } else {
         setPromoResult({ 
           applied: false, 
@@ -76,6 +79,7 @@ export default function usePromoCode(
           categoryRestrictionType: '' as CategoryRestrictionType,
           restrictedCategories: [] as RestrictedCategory[]
         });
+        setAppliedPromoCode(null);
       }
     } catch {
       setPromoResult({ 
@@ -87,6 +91,7 @@ export default function usePromoCode(
         categoryRestrictionType: '' as CategoryRestrictionType,
         restrictedCategories: [] as RestrictedCategory[]
       });
+      setAppliedPromoCode(null);
     } finally {
       setIsApplying(false);
     }
@@ -94,6 +99,7 @@ export default function usePromoCode(
 
   const cancelPromo = () => {
     setPromoResult({ applied: false, code: '', discount: 0, message: '', type: '' as PromoType, categoryRestrictionType: '' as CategoryRestrictionType, restrictedCategories: [] as RestrictedCategory[] });
+    setAppliedPromoCode(null);
     setPromoCode('');
   };
 
@@ -124,6 +130,7 @@ export default function usePromoCode(
             message: appliedPromo.message || prev.message,
             type: (appliedPromo.type || prev.type) as PromoType,
           }));
+          setAppliedPromoCode(appliedPromo.code);
         } else {
           // Invalider le code si le panier n'est plus éligible
           setPromoResult({
@@ -135,6 +142,7 @@ export default function usePromoCode(
             categoryRestrictionType: '' as CategoryRestrictionType,
             restrictedCategories: [] as RestrictedCategory[],
           });
+          setAppliedPromoCode(null);
         }
       } catch {
         // En cas d'erreur réseau, ne pas bloquer, mais retirer la remise pour éviter un affichage trompeur
@@ -145,6 +153,7 @@ export default function usePromoCode(
           categoryRestrictionType: '' as CategoryRestrictionType,
           restrictedCategories: [] as RestrictedCategory[],
         }));
+        setAppliedPromoCode(null);
       }
     }
 
@@ -152,7 +161,7 @@ export default function usePromoCode(
     return () => {
       cancelled = true;
     };
-  }, [cart, customerInfo.country, promoResult.applied, promoResult.code]);
+  }, [cart, customerInfo.country, promoResult.applied, promoResult.code, setAppliedPromoCode]);
 
   return { promoCode, setPromoCode, promoResult, isApplying, applyPromo, cancelPromo };
 }

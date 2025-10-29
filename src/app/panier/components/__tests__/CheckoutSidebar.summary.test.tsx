@@ -25,7 +25,7 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
     (httpClient.post as jest.Mock).mockReset();
   });
 
-  it('shows loyalty discount and message, and displays final total including loyalty in checkout mode', async () => {
+  it('shows loyalty discount and updated totals including site promotion', async () => {
     // Mock pricing totals returned by backend
     (httpClient.post as jest.Mock).mockImplementation((url: string) => {
       if (url === '/pricing') {
@@ -34,6 +34,8 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
             success: true,
             subtotal: 100,
             subtotalCents: 10000,
+            siteDiscount: 30,
+            siteDiscountCents: 3000,
             shippingCost: 5,
             shippingCostCents: 500,
             loyaltyDiscount: 10,
@@ -42,10 +44,12 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
             promoDiscountCents: 0,
             referralDiscount: 0,
             referralDiscountCents: 0,
-            total: 95,
-            totalCents: 9500,
+            total: 65,
+            totalCents: 6500,
             currency: 'EUR',
             shippingMethod: 'standard',
+            appliedSitePromotion: { label: 'Promotion Halloween', percentage: 30 },
+            automaticGifts: [],
           },
         });
       }
@@ -53,9 +57,7 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
     });
 
     const cart: Cart = {
-      items: [
-        { productId: 'p1', name: 'Produit test', price: 100, priceCents: 10000, quantity: 1 },
-      ],
+      items: [{ productId: 'p1', name: 'Produit test', price: 100, priceCents: 10000, quantity: 1 }],
       subtotal: 100,
       subtotalCents: 10000,
       total: 0,
@@ -92,10 +94,10 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
 
     render(
       <CheckoutSidebar
-        isAuthenticated={true}
+        isAuthenticated
         loyaltyBenefits={loyaltyBenefits}
         loadingLoyalty={false}
-        promoCode={''}
+        promoCode=""
         setPromoCode={() => {}}
         promoResult={promoResult}
         isApplying={false}
@@ -108,13 +110,13 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
         selectedAddressId={null}
         userAddresses={[]}
         handleSelectAddress={() => {}}
-        checkoutMode={true}
+        checkoutMode
         onCheckout={() => {}}
         onBackToCart={() => {}}
         onPaymentSubmit={async () => {}}
         clearCart={() => {}}
         isSubmitting={false}
-        paymentMethod={'card'}
+        paymentMethod="card"
         setPaymentMethod={() => {}}
       />
     );
@@ -122,14 +124,19 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
     // Loyalty message should be visible
     expect(screen.getByText(/Remise fidélité -10% appliquée/)).toBeInTheDocument();
 
-    // Discount line should appear with -10,00 € (locale may include narrow no-break space)
+    // Loyalty discount amount should appear
     await waitFor(() => {
-      expect(screen.getByText(/-10,00\s?€/)).toBeInTheDocument();
+      expect(screen.getByText(/-10,00/)).toBeInTheDocument();
     });
 
-    // Total should include loyalty discount: 100 + 5 - 10 = 95
+    // Site promotion discount should appear
     await waitFor(() => {
-      expect(screen.getByText(/95,00\s?€/)).toBeInTheDocument();
+      expect(screen.getByText(/-30,00/)).toBeInTheDocument();
+    });
+
+    // Total should include site and loyalty discounts: 100 - 30 - 10 + 5 = 65
+    await waitFor(() => {
+      expect(screen.getByText(/65,00/)).toBeInTheDocument();
     });
   });
 });

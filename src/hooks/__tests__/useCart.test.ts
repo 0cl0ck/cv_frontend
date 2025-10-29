@@ -2,15 +2,35 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useCart } from '../useCart';
 import type { Product, ProductVariation } from '@/types/product';
 
-jest.mock('@/utils/gift-utils', () => {
-  const actual = jest.requireActual('@/utils/gift-utils');
-  return {
-    __esModule: true,
-    ...actual,
-    // Avoid adding gifts in these tests to keep assertions simple
-    determineGiftsForSubtotal: jest.fn(() => []),
-  };
-});
+jest.mock('@/lib/pricingClient', () => ({
+  __esModule: true,
+  calculateCartTotals: jest.fn(() =>
+    Promise.resolve({
+      success: true,
+      subtotal: 0,
+      subtotalCents: 0,
+      siteDiscount: 0,
+      siteDiscountCents: 0,
+      shippingCost: 0,
+      shippingCostCents: 0,
+      loyaltyDiscount: 0,
+      loyaltyDiscountCents: 0,
+      promoDiscount: 0,
+      promoDiscountCents: 0,
+      referralDiscount: 0,
+      referralDiscountCents: 0,
+      total: 0,
+      totalCents: 0,
+      currency: 'EUR',
+      shippingMethod: 'standard',
+      appliedSitePromotion: null,
+      appliedPromo: null,
+      appliedLoyalty: null,
+      appliedReferral: null,
+      automaticGifts: [],
+    }),
+  ),
+}));
 
 const product: Product = { id: 'p1', name: 'Prod 1', slug: 'prod-1', price: 10 };
 const variant: ProductVariation = { id: 'v1', weight: 5, price: 10 };

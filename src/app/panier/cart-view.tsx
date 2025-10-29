@@ -184,16 +184,14 @@ export default function CartView() {
     <div className="container mx-auto px-4 py-8 bg-[#001E27]">
       {/* Bannière promotionnelle temporaire */}
       <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
-        <p className="text-lg font-bold">PROMOTION TEMPORAIRE</p>
-        <p className="text-sm mt-1">
-          2g offerts avec votre commande, peu importe le montant (passe &agrave;
-          5g d&egrave;s 50&euro;)
-        </p>
-        <p className="text-sm mt-1">D&egrave;s 80&euro; &rarr; 10g offerts</p>
-        <p className="text-sm mt-1">D&egrave;s 160&euro; &rarr; 20g offerts</p>
-        <p className="text-xs italic mt-2">
-          *Exemple: Pour 160&euro; : 25g offerts en tout (20 + 5)
-        </p>
+        <p className="text-lg font-bold uppercase">PROMOTION HALLOWEEN</p>
+        <p className="text-sm mt-1">-30% sur tout le site + cadeaux automatiques.</p>
+        <div className="mt-2 space-y-1 text-sm">
+          <p>50 EUR : 3g offerts</p>
+          <p>80 EUR : 10g offerts + 1 pre-roll + goodies</p>
+          <p>160 EUR : 20g offerts + 2 pre-rolls + surprise + goodies</p>
+        </div>
+        <p className="text-xs mt-3">Montant calcule apres remises et fidelite.</p>
       </div>
 
       <h1 className="text-3xl font-bold mb-8 text-[#F4F8F5]">Votre panier</h1>

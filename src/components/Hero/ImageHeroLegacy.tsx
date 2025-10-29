@@ -37,12 +37,18 @@ export default function ImageHeroLegacy() {
         <div className="max-w-[500px] ml-4 md:ml-8 lg:ml-12 relative">
           {/* Version mobile de la promotion - visible uniquement sur mobile, positionnee en haut */}
           <div className="md:hidden w-full text-center mb-6">
-            <div className="neon-container backdrop-blur-sm p-2 rounded-lg">
+            <div className="neon-container backdrop-blur-sm p-3 rounded-lg space-y-2">
               <p className="font-bold text-base flex flex-col items-center justify-center neon-text-animation">
-                PROMO SP&Eacute;CIALE
+                PROMO HALLOWEEN
                 <span className="uppercase tracking-wider text-sm">
-                  JUSQU&apos;&Agrave; 25G OFFERTS
+                  -30% sur tout le site
                 </span>
+              </p>
+              <p className="text-xs text-white/90">
+                50 EUR : 3g offerts / 80 EUR : 10g + goodies + 1 pre-roll / 160 EUR : 20g + 2 pre-rolls + surprise
+              </p>
+              <p className="text-[10px] text-white/70 uppercase tracking-wider">
+                Montant calcule apres remises et fidelite
               </p>
             </div>
           </div>
@@ -63,17 +69,20 @@ export default function ImageHeroLegacy() {
 
         {/* Texte promotionnel a droite - visible uniquement sur desktop */}
         <div className="hidden md:block text-center mx-auto px-4 md:px-8 lg:px-12 mt-4">
-          <div className="neon-container backdrop-blur-sm p-4 rounded-lg">
-            <p className="font-bold text-xl lg:text-2xl flex flex-col items-center justify-center neon-text-animation">
-              PROMOTION TEMPORAIRE
-              <br />
-              <span className="uppercase tracking-wider">
-                Jusqu&apos;&agrave; 25G offerts
-              </span>
-              <br />
-              <span className="text-base mt-2 opacity-90">
-                D&eacute;tails sur la page produits et la page panier
-              </span>
+          <div className="neon-container backdrop-blur-sm p-5 rounded-lg text-white">
+            <p className="font-bold text-xl lg:text-2xl tracking-wide neon-text-animation">
+              PROMOTION HALLOWEEN
+            </p>
+            <p className="mt-2 text-sm uppercase tracking-wider text-emerald-100">
+              -30% sur tout le site
+            </p>
+            <ul className="mt-3 space-y-1 text-sm text-white/90">
+              <li>50 EUR : 3g offerts</li>
+              <li>80 EUR : 10g offerts + 1 pre-roll + goodies</li>
+              <li>160 EUR : 20g offerts + 2 pre-rolls + surprise + goodies</li>
+            </ul>
+            <p className="text-xs mt-3 text-white/70 uppercase tracking-wider">
+              Montant calcule apres remises et fidelite
             </p>
           </div>
         </div>

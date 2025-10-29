@@ -5,6 +5,8 @@ export interface PricingTotals {
   success: boolean;
   subtotal: number;
   subtotalCents: number;
+  siteDiscount: number;
+  siteDiscountCents: number;
   shippingCost: number;
   shippingCostCents: number;
   loyaltyDiscount: number;
@@ -17,7 +19,16 @@ export interface PricingTotals {
   totalCents: number;
   currency: string;
   shippingMethod: string;
+  automaticGifts: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+  }>;
   // Détails des remises appliquées (optionnels)
+  appliedSitePromotion?: {
+    label: string;
+    percentage: number;
+  } | null;
   appliedPromo?: { 
     code: string; 
     type: string; 
@@ -108,5 +119,10 @@ export async function calculateCartTotals({
     throw new Error('Le calcul du panier a échoué');
   }
 
-  return data;
+  return {
+    ...data,
+    automaticGifts: Array.isArray((data as PricingTotals).automaticGifts)
+      ? (data as PricingTotals).automaticGifts
+      : [],
+  };
 }
