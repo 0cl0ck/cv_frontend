@@ -63,6 +63,15 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
   // Utilisé dans la gestion d'erreur de fetchUserData
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loyaltyError, setLoyaltyError] = useState<string | null>(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
   const router = useRouter();
 
   // Charger les données supplémentaires au montage
@@ -169,6 +178,67 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
       console.error('Erreur lors de la mise à jour des informations utilisateur:', error);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const togglePasswordForm = () => {
+    setShowPasswordForm((prev) => !prev);
+    setPasswordError(null);
+    setPasswordSuccess(false);
+  };
+
+  const handlePasswordFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePasswordSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('Les nouveaux mots de passe ne correspondent pas');
+      return;
+    }
+
+    setPasswordSubmitting(true);
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        let message = data?.error || data?.message || 'Impossible de mettre à jour le mot de passe';
+        const fields = data?.details?.fields;
+        if (fields && typeof fields === 'object') {
+          const firstKey = Object.keys(fields)[0];
+          const firstVal = fields[firstKey];
+          const firstMsg = Array.isArray(firstVal) ? firstVal[0] : (typeof firstVal === 'string' ? firstVal : undefined);
+          if (firstMsg) {
+            message = firstMsg;
+          }
+        }
+        setPasswordError(message);
+        return;
+      }
+
+      setPasswordSuccess(true);
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setTimeout(() => setPasswordSuccess(false), 2500);
+    } catch (err) {
+      setPasswordError('Une erreur réseau est survenue. Veuillez réessayer.');
+      console.error('Erreur lors du changement de mot de passe:', err);
+    } finally {
+      setPasswordSubmitting(false);
     }
   };
 
@@ -326,6 +396,95 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
                       </div>
                       <ChevronRight size={16} className="text-[#10B981] opacity-0 group-hover:opacity-100 transition-opacity self-center ml-2" />
                     </Link>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={togglePasswordForm}
+                      className="w-full border border-[#155757] hover:border-[#10B981] text-[#D1D5DB] hover:text-white rounded-md px-3 py-2 transition-colors"
+                    >
+                      {showPasswordForm ? 'Fermer le formulaire' : 'Modifier mon mot de passe'}
+                    </button>
+
+                    {showPasswordForm && (
+                      <form onSubmit={handlePasswordSubmit} className="mt-3 space-y-3 bg-[#00343C] border border-[#155757] rounded-md p-4">
+                        <div className="space-y-1">
+                          <label htmlFor="currentPassword" className="block text-xs font-medium text-[#BEC3CA] uppercase tracking-wide">
+                            Mot de passe actuel
+                          </label>
+                          <input
+                            type="password"
+                            id="currentPassword"
+                            name="currentPassword"
+                            value={passwordForm.currentPassword}
+                            onChange={handlePasswordFieldChange}
+                            className="w-full px-3 py-2 bg-[#00242A] border border-[#155757] rounded-md text-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                            autoComplete="current-password"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label htmlFor="newPassword" className="block text-xs font-medium text-[#BEC3CA] uppercase tracking-wide">
+                            Nouveau mot de passe
+                          </label>
+                          <input
+                            type="password"
+                            id="newPassword"
+                            name="newPassword"
+                            value={passwordForm.newPassword}
+                            onChange={handlePasswordFieldChange}
+                            className="w-full px-3 py-2 bg-[#00242A] border border-[#155757] rounded-md text-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                            autoComplete="new-password"
+                            required
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label htmlFor="confirmPassword" className="block text-xs font-medium text-[#BEC3CA] uppercase tracking-wide">
+                            Confirmation
+                          </label>
+                          <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={passwordForm.confirmPassword}
+                            onChange={handlePasswordFieldChange}
+                            className="w-full px-3 py-2 bg-[#00242A] border border-[#155757] rounded-md text-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+                            autoComplete="new-password"
+                            required
+                          />
+                        </div>
+
+                        {passwordError && (
+                          <div className="bg-red-900/40 border border-red-700/40 text-red-200 text-sm px-3 py-2 rounded-md">
+                            {passwordError}
+                          </div>
+                        )}
+
+                        {passwordSuccess && (
+                          <div className="bg-emerald-900/30 border border-emerald-600/40 text-emerald-200 text-sm px-3 py-2 rounded-md">
+                            Votre mot de passe a été mis à jour.
+                          </div>
+                        )}
+
+                        <button
+                          type="submit"
+                          disabled={passwordSubmitting}
+                          className="w-full flex items-center justify-center bg-[#007A72] hover:bg-[#059669] text-white font-medium py-2 px-4 rounded-md disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {passwordSubmitting ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin mr-2" />
+                              Mise à jour...
+                            </>
+                          ) : (
+                            'Enregistrer'
+                          )}
+                        </button>
+                      </form>
+                    )}
                   </div>
                   
                   <button
