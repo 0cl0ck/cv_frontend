@@ -28,7 +28,7 @@ export default function ImageHero({
     text: "En savoir plus",
     href: "/a-propos",
   },
-  imageUrl = "/images/hero/Hero.webp",
+  imageUrl = "/images/hero/HeroHalloween.webp",
   imageAlt = "CBD Premium - Chanvre Vert",
 }: HeroProps = {}) {
   return (
@@ -57,27 +57,45 @@ export default function ImageHero({
       </div>
 
       <div className="relative z-20 mx-auto flex min-h-[600px] max-w-7xl items-center px-4 md:px-6 lg:px-8">
-        <div className="max-w-2xl text-white">
-          <h1 className="mb-6 text-[36px] md:text-[48px] lg:text-[60px] font-bold leading-[1] tracking-[-0.01em] text-white">
-            <span className="block">{subtitle}</span>
-            <span className="block text-[#EFC368]">{title}</span>
-          </h1>
-          <p className="mb-8 text-lg leading-relaxed text-gray-200 md:text-xl">
-            {description}
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              href={primaryCTA.href}
-              className="inline-flex items-center justify-center rounded-lg bg-[#EFC368] px-6 py-3 text-base font-semibold text-black shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d3a74f] hover:shadow-xl"
-            >
-              {primaryCTA.text}
-            </Link>
-            <Link
-              href={secondaryCTA.href}
-              className="inline-flex items-center justify-center rounded-lg border border-white px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-xl"
-            >
-              {secondaryCTA.text}
-            </Link>
+        <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8 items-start md:items-center">
+          {/* Card promotion Halloween - Mobile: en haut, Desktop: à droite */}
+          <div className="w-full md:w-auto md:ml-auto order-first md:order-last">
+            <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-white/20">
+              <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide neon-text-animation text-center md:text-left">
+                PROMO HALLOWEEN
+              </p>
+              <p className="mt-2 text-sm md:text-base uppercase tracking-wider text-[#EFC368] text-center md:text-left">
+                -30% sur tout le site
+              </p>
+              <p className="mt-3 text-xs md:text-sm text-white/90 text-center md:text-left">
+                Cadeaux offerts selon le montant du panier
+              </p>
+            </div>
+          </div>
+
+          {/* Contenu texte principal */}
+          <div className="max-w-2xl text-white order-last md:order-first">
+            <h1 className="mb-6 text-[36px] md:text-[48px] lg:text-[60px] font-bold leading-[1] tracking-[-0.01em] text-white">
+              <span className="block">{subtitle}</span>
+              <span className="block text-[#EFC368]">{title}</span>
+            </h1>
+            <p className="mb-8 text-lg leading-relaxed text-gray-200 md:text-xl">
+              {description}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link
+                href={primaryCTA.href}
+                className="inline-flex items-center justify-center rounded-lg bg-[#EFC368] px-6 py-3 text-base font-semibold text-black shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d3a74f] hover:shadow-xl"
+              >
+                {primaryCTA.text}
+              </Link>
+              <Link
+                href={secondaryCTA.href}
+                className="inline-flex items-center justify-center rounded-lg border border-white px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-xl"
+              >
+                {secondaryCTA.text}
+              </Link>
+            </div>
           </div>
         </div>
       </div>

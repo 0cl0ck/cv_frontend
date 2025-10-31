@@ -32,3 +32,44 @@ export function initDarkMode() {
     htmlEl.classList.add(theme);
   }
 }
+ 
+const HALLOWEEN_STORAGE_KEY = 'halloween-theme';
+
+export function isHalloweenThemeActive(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  const stored: string | null = localStorage.getItem(HALLOWEEN_STORAGE_KEY);
+  if (stored !== null) {
+    return stored === 'true';
+  }
+  return document.documentElement.classList.contains('theme-halloween');
+}
+
+export function initHalloweenTheme(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const htmlEl = document.documentElement;
+  const stored: string | null = localStorage.getItem(HALLOWEEN_STORAGE_KEY);
+  if (stored === 'true') {
+    htmlEl.classList.add('theme-halloween');
+  } else if (stored === 'false') {
+    htmlEl.classList.remove('theme-halloween');
+  }
+}
+
+export function toggleHalloweenTheme(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const htmlEl = document.documentElement;
+  const active = isHalloweenThemeActive();
+  if (active) {
+    htmlEl.classList.remove('theme-halloween');
+    localStorage.setItem(HALLOWEEN_STORAGE_KEY, 'false');
+  } else {
+    htmlEl.classList.add('theme-halloween');
+    localStorage.setItem(HALLOWEEN_STORAGE_KEY, 'true');
+  }
+}
