@@ -19,14 +19,14 @@ type BonusTier = {
 const BONUS_TIERS: BonusTier[] = [
   {
     amount: GIFT_THRESHOLDS.TIER_1,
-    label: '3g offerts',
+    label: '2g offerts',
     description: 'A partir de 50 EUR de panier',
-    totalGifts: 3,
+    totalGifts: 2,
   },
   {
     amount: GIFT_THRESHOLDS.TIER_2,
     label: '10g + goodies + 1 pre-roll',
-    description: 'A partir de 80 EUR de panier',
+    description: 'A partir de 90 EUR de panier',
     totalGifts: 10,
   },
   {
@@ -50,7 +50,7 @@ type MobileMenuToggleDetail = {
 };
 
 const GIFT_GRAMS: Record<string, number> = {
-  [GIFT_IDS.TIER_1_3G]: 3,
+  [GIFT_IDS.TIER_1_2G]: 2,
   [GIFT_IDS.TIER_2_10G]: 10,
   [GIFT_IDS.TIER_3_20G]: 20,
 };
@@ -73,7 +73,7 @@ function summarizeAutomaticGifts(
 
   const hasTier3 = gifts.some((gift) => gift.id === GIFT_IDS.TIER_3_20G);
   const hasTier2 = gifts.some((gift) => gift.id === GIFT_IDS.TIER_2_10G);
-  const hasTier1 = gifts.some((gift) => gift.id === GIFT_IDS.TIER_1_3G);
+  const hasTier1 = gifts.some((gift) => gift.id === GIFT_IDS.TIER_1_2G);
 
   let headline = '';
   if (hasTier3) {
@@ -81,7 +81,7 @@ function summarizeAutomaticGifts(
   } else if (hasTier2) {
     headline = '10g + goodies + 1 pre-roll offerts';
   } else if (hasTier1) {
-    headline = '3g de fleurs CBD offerts';
+    headline = '2g de fleurs CBD offerts';
   }
 
   const perks = gifts.map((gift) =>
@@ -114,9 +114,9 @@ function computeGifts(subtotal: number): GiftBreakdown {
 
   if (subtotal >= GIFT_THRESHOLDS.TIER_1) {
     return {
-      grams: 3,
-      headline: '3g de fleurs CBD offerts',
-      perks: ['3g de fleurs CBD'],
+      grams: 2,
+      headline: '2g de fleurs CBD offerts',
+      perks: ['2g de fleurs CBD'],
     };
   }
 
@@ -275,14 +275,14 @@ export default function MobileBonusWidget() {
 
   const headline =
     netSubtotal < GIFT_THRESHOLDS.TIER_1
-      ? `Encore ${currencyFormatter.format(Math.ceil(amountToFirstTier))} -> 3g offerts`
+      ? `Encore ${currencyFormatter.format(Math.ceil(amountToFirstTier))} -> 2g offerts`
       : nextTier
         ? `Encore ${currencyFormatter.format(Math.ceil(remainingToNextTier))} -> ${nextTier.label}`
         : 'Bonus Halloween maximal atteint';
 
   const detailLine =
     netSubtotal < GIFT_THRESHOLDS.TIER_1
-      ? 'Promotion Halloween : -30% sur tout le site'
+      ? 'Montant calcule apres remise et fidelite'
       : gifts.grams > 0
         ? gifts.headline
         : 'Montant calcule apres remise et fidelite';

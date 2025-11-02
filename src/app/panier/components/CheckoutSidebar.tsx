@@ -88,7 +88,7 @@ export default function CheckoutSidebar({
     siteDiscountValue > 0
       ? totals?.appliedSitePromotion
         ? `${totals.appliedSitePromotion.label} (-${totals.appliedSitePromotion.percentage}%)`
-        : 'Promotion Halloween (-30%)'
+        : ''
       : null;
   
   // Reconstruction des bénéfices à partir de totals pour rétrocompatibilité UI

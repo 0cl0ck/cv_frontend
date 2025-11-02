@@ -39,16 +39,19 @@ export default function ImageHeroLegacy() {
           <div className="md:hidden w-full text-center mb-6">
             <div className="neon-container backdrop-blur-sm p-3 rounded-lg space-y-2">
               <p className="font-bold text-base flex flex-col items-center justify-center neon-text-animation">
-                PROMO HALLOWEEN
+                CADEAUX AUTOMATIQUES
                 <span className="uppercase tracking-wider text-sm">
-                  -30% sur tout le site
+                  Livraison offerte* + cadeaux
                 </span>
               </p>
               <p className="text-xs text-white/90">
-                50 EUR : 3g offerts / 80 EUR : 10g + goodies + 1 pre-roll / 160 EUR : 20g + 2 pre-rolls + surprise
+                50 EUR : Livraison offerte* + 2g offerts / 90 EUR : Livraison offerte* + 10g + goodies + 1 pre-roll / 160 EUR : Livraison offerte* + 20g + 2 pre-rolls + surprise
               </p>
               <p className="text-[10px] text-white/70 uppercase tracking-wider">
                 Montant calcule apres remises et fidelite
+              </p>
+              <p className="text-[10px] text-white/60 italic mt-1">
+                * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
               </p>
             </div>
           </div>
@@ -71,18 +74,21 @@ export default function ImageHeroLegacy() {
         <div className="hidden md:block text-center mx-auto px-4 md:px-8 lg:px-12 mt-4">
           <div className="neon-container backdrop-blur-sm p-5 rounded-lg text-white">
             <p className="font-bold text-xl lg:text-2xl tracking-wide neon-text-animation">
-              PROMOTION HALLOWEEN
+              CADEAUX AUTOMATIQUES
             </p>
             <p className="mt-2 text-sm uppercase tracking-wider text-emerald-100">
-              -30% sur tout le site
+              Livraison offerte* + cadeaux
             </p>
             <ul className="mt-3 space-y-1 text-sm text-white/90">
-              <li>50 EUR : 3g offerts</li>
-              <li>80 EUR : 10g offerts + 1 pre-roll + goodies</li>
-              <li>160 EUR : 20g offerts + 2 pre-rolls + surprise + goodies</li>
+              <li>50 EUR : Livraison offerte* + 2g offerts</li>
+              <li>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll + goodies</li>
+              <li>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls + surprise + goodies</li>
             </ul>
             <p className="text-xs mt-3 text-white/70 uppercase tracking-wider">
               Montant calcule apres remises et fidelite
+            </p>
+            <p className="text-xs mt-2 text-white/60 italic">
+              * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
             </p>
           </div>
         </div>

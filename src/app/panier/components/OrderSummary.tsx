@@ -58,7 +58,7 @@ export default function OrderSummary({
     siteDiscount > 0
       ? totals?.appliedSitePromotion
         ? `${totals.appliedSitePromotion.label} (-${totals.appliedSitePromotion.percentage}%)`
-        : 'Promotion Halloween (-30%)'
+        : ''
       : null;
 
   return (

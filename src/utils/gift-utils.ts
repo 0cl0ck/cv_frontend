@@ -2,14 +2,14 @@ import { CartItem } from '../types/cart';
 
 // Threshold configuration for automatic gifts (order amount after discounts and loyalty)
 export const GIFT_THRESHOLDS = {
-  TIER_1: 50,  // 3g offered
-  TIER_2: 80,  // 10g + goodies + 1 pre-roll
+  TIER_1: 50,  // 2g offered
+  TIER_2: 90,  // 10g + goodies + 1 pre-roll
   TIER_3: 160, // 20g + goodies + 2 pre-rolls + surprise product
 };
 
 // Unique identifiers for automatic gifts
 export const GIFT_IDS = {
-  TIER_1_3G: 'gift-halloween-tier1-3g',
+  TIER_1_2G: 'gift-halloween-tier1-2g',
   TIER_2_10G: 'gift-halloween-tier2-10g',
   TIER_2_PREROLL: 'gift-halloween-tier2-preroll',
   GOODIES: 'gift-halloween-goodies',
@@ -56,7 +56,7 @@ export const determineGiftsForSubtotal = (subtotalInEuros: number): CartItem[] =
   }
 
   if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_1) {
-    gifts.push(createGiftItem(GIFT_IDS.TIER_1_3G, 'Cadeau: 3g de fleurs CBD'));
+    gifts.push(createGiftItem(GIFT_IDS.TIER_1_2G, 'Cadeau: 2g de fleurs CBD'));
   }
 
   return gifts;

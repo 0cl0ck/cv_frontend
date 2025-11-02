@@ -28,7 +28,7 @@ export default function ImageHero({
     text: "En savoir plus",
     href: "/a-propos",
   },
-  imageUrl = "/images/hero/HeroHalloween.webp",
+  imageUrl = "/images/hero/Hero.webp",
   imageAlt = "CBD Premium - Chanvre Vert",
 }: HeroProps = {}) {
   return (
@@ -58,17 +58,20 @@ export default function ImageHero({
 
       <div className="relative z-20 mx-auto flex min-h-[600px] max-w-7xl items-center px-4 md:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8 items-start md:items-center">
-          {/* Card promotion Halloween - Mobile: en haut, Desktop: à droite */}
+          {/* Card cadeaux automatiques - Mobile: en haut, Desktop: à droite */}
           <div className="w-full md:w-auto md:ml-auto order-first md:order-last">
             <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-white/20">
               <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide neon-text-animation text-center md:text-left">
-                PROMO HALLOWEEN
+                CADEAUX AUTOMATIQUES
               </p>
               <p className="mt-2 text-sm md:text-base uppercase tracking-wider text-[#EFC368] text-center md:text-left">
-                -30% sur tout le site
+                Livraison offerte* + cadeaux
               </p>
               <p className="mt-3 text-xs md:text-sm text-white/90 text-center md:text-left">
-                Cadeaux offerts selon le montant du panier
+                Cadeaux offerts selon le montant du panier après remises
+              </p>
+              <p className="mt-2 text-[10px] md:text-xs text-white/70 italic text-center md:text-left">
+                * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
               </p>
             </div>
           </div>

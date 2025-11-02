@@ -48,7 +48,7 @@ describe('CheckoutSidebar summary (checkout mode)', () => {
             totalCents: 6500,
             currency: 'EUR',
             shippingMethod: 'standard',
-            appliedSitePromotion: { label: 'Promotion Halloween', percentage: 30 },
+            appliedSitePromotion: null,
             automaticGifts: [],
           },
         });
