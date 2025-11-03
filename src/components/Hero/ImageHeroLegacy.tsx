@@ -45,7 +45,7 @@ export default function ImageHeroLegacy() {
                 </span>
               </p>
               <p className="text-xs text-white/90">
-                50 EUR : Livraison offerte* + 2g offerts / 90 EUR : Livraison offerte* + 10g + goodies + 1 pre-roll / 160 EUR : Livraison offerte* + 20g + 2 pre-rolls + surprise
+                50 EUR : Livraison offerte* + 2g offerts / 90 EUR : Livraison offerte* + 10g + 1 pre-roll / 160 EUR : Livraison offerte* + 20g + 2 pre-rolls
               </p>
               <p className="text-[10px] text-white/70 uppercase tracking-wider">
                 Montant calcule apres remises et fidelite
@@ -81,8 +81,8 @@ export default function ImageHeroLegacy() {
             </p>
             <ul className="mt-3 space-y-1 text-sm text-white/90">
               <li>50 EUR : Livraison offerte* + 2g offerts</li>
-              <li>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll + goodies</li>
-              <li>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls + surprise + goodies</li>
+              <li>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll</li>
+              <li>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls</li>
             </ul>
             <p className="text-xs mt-3 text-white/70 uppercase tracking-wider">
               Montant calcule apres remises et fidelite

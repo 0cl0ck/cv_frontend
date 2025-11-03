@@ -3,8 +3,8 @@ import { CartItem } from '../types/cart';
 // Threshold configuration for automatic gifts (order amount after discounts and loyalty)
 export const GIFT_THRESHOLDS = {
   TIER_1: 50,  // 2g offered
-  TIER_2: 90,  // 10g + goodies + 1 pre-roll
-  TIER_3: 160, // 20g + goodies + 2 pre-rolls + surprise product
+  TIER_2: 90,  // 10g + 1 pre-roll
+  TIER_3: 160, // 20g + 2 pre-rolls
 };
 
 // Unique identifiers for automatic gifts
@@ -43,15 +43,12 @@ export const determineGiftsForSubtotal = (subtotalInEuros: number): CartItem[] =
   if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_3) {
     gifts.push(createGiftItem(GIFT_IDS.TIER_3_20G, 'Cadeau: 20g de fleurs CBD'));
     gifts.push(createGiftItem(GIFT_IDS.TIER_3_PREROLL, 'Cadeau: Pre-roll CBD', 2));
-    gifts.push(createGiftItem(GIFT_IDS.TIER_3_SURPRISE, 'Cadeau: Produit surprise'));
-    gifts.push(createGiftItem(GIFT_IDS.GOODIES, 'Cadeau: Goodies exclusifs'));
     return gifts;
   }
 
   if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_2) {
     gifts.push(createGiftItem(GIFT_IDS.TIER_2_10G, 'Cadeau: 10g de fleurs CBD'));
     gifts.push(createGiftItem(GIFT_IDS.TIER_2_PREROLL, 'Cadeau: Pre-roll CBD'));
-    gifts.push(createGiftItem(GIFT_IDS.GOODIES, 'Cadeau: Goodies exclusifs'));
     return gifts;
   }
 

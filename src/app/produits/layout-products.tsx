@@ -507,8 +507,8 @@ function ProductsLayoutContent({
           <p className="text-sm mt-1">Livraison offerte + cadeaux selon le montant du panier.</p>
           <div className="mt-2 space-y-1 text-sm">
             <p>50 EUR : Livraison offerte* + 2g offerts</p>
-            <p>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll + goodies</p>
-            <p>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls + surprise + goodies</p>
+            <p>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll</p>
+            <p>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls</p>
           </div>
           <p className="text-xs mt-3">Montant calcule apres remises et fidelite.</p>
           <p className="text-xs mt-1 italic">* Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.</p>

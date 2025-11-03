@@ -25,13 +25,13 @@ const BONUS_TIERS: BonusTier[] = [
   },
   {
     amount: GIFT_THRESHOLDS.TIER_2,
-    label: '10g + goodies + 1 pre-roll',
+    label: '10g + 1 pre-roll',
     description: 'A partir de 90 EUR de panier',
     totalGifts: 10,
   },
   {
     amount: GIFT_THRESHOLDS.TIER_3,
-    label: '20g + goodies + 2 pre-rolls + surprise',
+    label: '20g + 2 pre-rolls',
     description: 'A partir de 160 EUR de panier',
     totalGifts: 20,
   },
@@ -77,9 +77,9 @@ function summarizeAutomaticGifts(
 
   let headline = '';
   if (hasTier3) {
-    headline = '20g + 2 pre-rolls + surprise + goodies offerts';
+    headline = '20g + 2 pre-rolls offerts';
   } else if (hasTier2) {
-    headline = '10g + goodies + 1 pre-roll offerts';
+    headline = '10g + 1 pre-roll offerts';
   } else if (hasTier1) {
     headline = '2g de fleurs CBD offerts';
   }
@@ -99,16 +99,16 @@ function computeGifts(subtotal: number): GiftBreakdown {
   if (subtotal >= GIFT_THRESHOLDS.TIER_3) {
     return {
       grams: 20,
-      headline: '20g + 2 pre-rolls + surprise + goodies offerts',
-      perks: ['20g de fleurs CBD', '2 pre-rolls CBD', 'Produit surprise', 'Goodies exclusifs'],
+      headline: '20g + 2 pre-rolls offerts',
+      perks: ['20g de fleurs CBD', '2 pre-rolls CBD'],
     };
   }
 
   if (subtotal >= GIFT_THRESHOLDS.TIER_2) {
     return {
       grams: 10,
-      headline: '10g + goodies + 1 pre-roll offerts',
-      perks: ['10g de fleurs CBD', '1 pre-roll CBD', 'Goodies exclusifs'],
+      headline: '10g + 1 pre-roll offerts',
+      perks: ['10g de fleurs CBD', '1 pre-roll CBD'],
     };
   }
 
