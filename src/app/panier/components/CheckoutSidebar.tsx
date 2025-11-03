@@ -220,6 +220,12 @@ export default function CheckoutSidebar({
               <span className="text-[#10B981]">-{formatPrice(loyaltyDiscountValue)}</span>
             </div>
           )}
+          {referralDiscountValue > 0 && (
+            <div className="flex justify-between">
+              <span className="text-[#F4F8F5]">Parrainage</span>
+              <span className="text-[#10B981]">-{formatPrice(referralDiscountValue)}</span>
+            </div>
+          )}
           {isAuthenticated && loyaltyBenefits.active && loyaltyBenefits.message && (
             <div className="mt-3 p-2 bg-[#003545] rounded text-[#F4F8F5] text-xs">
               {loyaltyBenefits.message}
