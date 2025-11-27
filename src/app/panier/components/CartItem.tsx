@@ -4,9 +4,6 @@ import Link from 'next/link';
 import { CartItem as CI } from '@/app/panier/types';
 import { formatPrice } from '@/utils/formatPrice';
 
-// Multiplicateur Black Friday (-30%)
-const BLACK_FRIDAY_MULTIPLIER = 0.7;
-
 interface Props {
   item: CI;
   index: number;
@@ -15,9 +12,6 @@ interface Props {
 }
 
 export default function CartItem({ item, index, onQuantityChange, onRemove }: Props) {
-  // Application du multiplicateur Black Friday pour l'affichage
-  const discountedPrice = item.price * BLACK_FRIDAY_MULTIPLIER;
-  
   return (
     <div key={`${item.productId}-${item.variantId}-${index}`} className="md:grid md:grid-cols-[3fr_1fr_1fr_1fr_auto] gap-4 py-6 border-b border-[#3A4A4F]">
       {/* MOBILE */}
@@ -48,11 +42,11 @@ export default function CartItem({ item, index, onQuantityChange, onRemove }: Pr
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="bg-[#002935] p-3 rounded-md">
             <span className="block text-xs text-[#8A9A9D] mb-1">Prix unitaire</span>
-            <span className="text-[#F4F8F5] font-medium">{formatPrice(discountedPrice)}</span>
+            <span className="text-[#F4F8F5] font-medium">{formatPrice(item.price)}</span>
           </div>
           <div className="bg-[#002935] p-3 rounded-md">
             <span className="block text-xs text-[#8A9A9D] mb-1">Total</span>
-            <span className="text-[#F4F8F5] font-medium">{formatPrice(discountedPrice * item.quantity)}</span>
+            <span className="text-[#F4F8F5] font-medium">{formatPrice(item.price * item.quantity)}</span>
           </div>
         </div>
         {/* Quantité */}
@@ -81,7 +75,7 @@ export default function CartItem({ item, index, onQuantityChange, onRemove }: Pr
       </div>
       <div className="hidden md:flex md:flex-col md:justify-center md:items-center">
         <span className="text-xs text-[#8A9A9D] mb-1">Prix unitaire</span>
-        <span className="text-[#F4F8F5]">{formatPrice(discountedPrice)}</span>
+        <span className="text-[#F4F8F5]">{formatPrice(item.price)}</span>
       </div>
       <div className="hidden md:flex md:justify-center md:items-center">
         <div className="flex items-center border border-[#3A4A4F] rounded-md">
@@ -92,7 +86,7 @@ export default function CartItem({ item, index, onQuantityChange, onRemove }: Pr
       </div>
       <div className="hidden md:flex md:flex-col md:justify-center md:items-center">
         <span className="text-xs text-[#8A9A9D] mb-1">Total</span>
-        <span className="text-[#F4F8F5] font-medium">{formatPrice(discountedPrice * item.quantity)}</span>
+        <span className="text-[#F4F8F5] font-medium">{formatPrice(item.price * item.quantity)}</span>
       </div>
       <div className="hidden md:flex md:justify-center md:items-center">
         <button onClick={() => onRemove(index)} className="text-red-500 hover:text-red-600">
