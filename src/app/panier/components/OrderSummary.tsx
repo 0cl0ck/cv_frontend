@@ -4,9 +4,6 @@ import { formatPrice } from '@/utils/formatPrice';
 import type { Cart, LoyaltyBenefits, PromoResult } from '../types';
 import type { PricingTotals } from '@/lib/pricingClient';
 
-// Multiplicateur Black Friday (-30%)
-const BLACK_FRIDAY_MULTIPLIER = 0.7;
-
 interface Props {
   cart: Cart;
   totals: PricingTotals | null;
