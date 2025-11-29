@@ -26,10 +26,7 @@ export default function CartItem({ item, index, onQuantityChange, onRemove }: Pr
             <h3 className="text-[#F4F8F5] font-medium text-lg">
               <Link href={`/produits/${item.slug}`} className="hover:text-[#D3A74F]">{item.name}</Link>
             </h3>
-            <div className="flex items-center gap-2 mt-1">
-              {item.weight && <span className="inline-block px-2 py-1 bg-[#002935] text-xs text-[#F4F8F5] rounded-full border border-[#3A4A4F]">{item.weight}g</span>}
-              <span className="inline-block px-2 py-1 bg-[#EFC368] text-[#001E27] text-xs font-semibold rounded-full">Black Friday -30%</span>
-            </div>
+            {item.weight && <span className="inline-block mt-1 px-2 py-1 bg-[#002935] text-xs text-[#F4F8F5] rounded-full border border-[#3A4A4F]">{item.weight}g</span>}
           </div>
           <button
             onClick={() => onRemove(index)}
@@ -67,10 +64,7 @@ export default function CartItem({ item, index, onQuantityChange, onRemove }: Pr
           <h3 className="text-[#F4F8F5] font-medium">
             <Link href={`/produits/${item.slug}`} className="hover:text-[#D3A74F]">{item.name}</Link>
           </h3>
-          <div className="flex items-center gap-2 mt-1">
-            {item.weight && <p className="text-sm text-[#F4F8F5]">Poids: {item.weight}g</p>}
-            <span className="inline-block px-2 py-1 bg-[#EFC368] text-[#001E27] text-xs font-semibold rounded-full">Black Friday -30%</span>
-          </div>
+          {item.weight && <p className="text-sm text-[#F4F8F5]">Poids: {item.weight}g</p>}
         </div>
       </div>
       <div className="hidden md:flex md:flex-col md:justify-center md:items-center">

@@ -63,10 +63,7 @@ export default function OrderSummary({
 
   return (
     <div className="bg-[#002935] p-6 rounded-lg border border-[#3A4A4F]">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-[#F4F8F5]">Récapitulatif</h2>
-        <span className="inline-block px-3 py-1 bg-[#EFC368] text-[#001E27] text-xs font-semibold rounded-full">Black Friday -30%</span>
-      </div>
+      <h2 className="text-xl font-bold mb-4 text-[#F4F8F5]">Récapitulatif</h2>
       <div className="space-y-3 mb-6">
         <div className="flex justify-between">
           <span className="text-[#F4F8F5]">Sous-total</span>
