@@ -56,6 +56,7 @@ export default function CartView() {
     errors: checkoutErrors,
     paymentMethod,
     setPaymentMethod,
+    setGuestCustomerId,
   } = useCheckout(
     cart,
     promoResult,
@@ -228,6 +229,7 @@ export default function CartView() {
             isSubmitting={isSubmitting}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
+            onGuestAccountCreated={setGuestCustomerId}
           />
         </div>
       </div>

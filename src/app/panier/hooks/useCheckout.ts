@@ -13,6 +13,7 @@ interface UseCheckoutReturn {
   errors: Record<string, string>;
   paymentMethod: PaymentMethod;
   setPaymentMethod: (method: PaymentMethod) => void;
+  setGuestCustomerId: (id: string | null) => void;
 }
 
 export default function useCheckout(
@@ -27,6 +28,7 @@ export default function useCheckout(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [guestCustomerId, setGuestCustomerId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,13 +172,16 @@ export default function useCheckout(
       });
 
       // Créer l'objet de données pour le checkout
+      // Déterminer le customerId à utiliser : compte connecté > compte créé depuis guest
+      const effectiveCustomerId = isCustomer && userId ? userId : guestCustomerId;
+      
       const checkoutData = {
         order: {
           status: 'pending',
           total: finalAmount,
           items: transformedItems,
-          // ✅ RÈGLE 1 : Utilisateurs connectés = commande associée au compte
-          ...(isCustomer && userId ? { customer: userId } : {}),
+          // ✅ RÈGLE 1 : Associer au compte si connecté OU si compte créé depuis guest
+          ...(effectiveCustomerId ? { customer: effectiveCustomerId } : {}),
           guestInformation: {
             // ✅ RÈGLE 2 : Email = identifiant fidélité (automatiquement celui du compte si connecté)
             email: customerInfo.email, // Déjà forcé à userEmail pour les utilisateurs connectés
@@ -231,7 +236,8 @@ export default function useCheckout(
         userAccountEmail: userEmail,
         checkoutEmail: customerInfo.email,
         emailsMatch: userEmail === customerInfo.email,
-        customerLinked: !!(isCustomer && userId),
+        customerLinked: !!effectiveCustomerId,
+        guestAccountCreated: !!guestCustomerId,
         loyaltyEmail: customerInfo.email // Email utilisé pour la fidélité
       });
 
@@ -357,5 +363,5 @@ export default function useCheckout(
     }
   };
 
-  return { isSubmitting, handleSubmit, errors: formErrors, paymentMethod, setPaymentMethod };
+  return { isSubmitting, handleSubmit, errors: formErrors, paymentMethod, setPaymentMethod, setGuestCustomerId };
 }

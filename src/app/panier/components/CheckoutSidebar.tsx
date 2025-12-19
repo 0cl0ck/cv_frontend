@@ -35,6 +35,7 @@ interface CheckoutSidebarProps {
     setPaymentMethod: (method: PaymentMethod) => void; // Fonction pour changer la méthode de paiement
     walletDiscount?: number;       // Montant de cagnotte appliqué
     onWalletApply?: (amount: number) => void; // Callback pour appliquer le wallet
+    onGuestAccountCreated?: (customerId: string) => void; // Callback quand un guest crée un compte
   }
 
 export default function CheckoutSidebar({
@@ -64,6 +65,7 @@ export default function CheckoutSidebar({
   setPaymentMethod,
   walletDiscount = 0,
   onWalletApply,
+  onGuestAccountCreated,
 }: CheckoutSidebarProps) {
   // Le backend calcule automatiquement TOUTES les remises
   const {
@@ -132,7 +134,10 @@ export default function CheckoutSidebar({
             isAuthenticated
           />
         ) : (
-          <GuestLoyaltyBanner />
+          <GuestLoyaltyBanner 
+            customerInfo={customerInfo}
+            onAccountCreated={onGuestAccountCreated}
+          />
         )}
 
         {/* 3) Cagnotte (wallet) - Uniquement pour les clients connectés */}
@@ -186,7 +191,10 @@ export default function CheckoutSidebar({
           isAuthenticated
         />
       ) : (
-        <GuestLoyaltyBanner />
+        <GuestLoyaltyBanner 
+          customerInfo={customerInfo}
+          onAccountCreated={onGuestAccountCreated}
+        />
       )}
 
       {/* 3) Cagnotte (wallet) - Uniquement pour les clients connectés */}
