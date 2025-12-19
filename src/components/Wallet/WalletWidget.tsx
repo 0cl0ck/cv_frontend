@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { httpClient } from '@/lib/httpClient';
 
 interface WalletHistoryEntry {
   amount: number;
@@ -26,10 +27,17 @@ interface WalletWidgetProps {
   cartTotal?: number; // Total du panier pour le mode panier
 }
 
+// Vérifie si la période d'utilisation est active (janvier 2026)
+const isWalletUsagePeriodActive = (): boolean => {
+  const now = new Date();
+  return now >= new Date('2026-01-01');
+};
+
 export default function WalletWidget({ compact = false, onWalletApply, cartTotal }: WalletWidgetProps) {
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [amountToUse, setAmountToUse] = useState<number>(0);
 
@@ -40,30 +48,29 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
   const fetchWallet = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/wallet', {
-        credentials: 'include',
-      });
+      setError(null);
+      const response = await httpClient.get('/wallet');
       
-      if (!response.ok) {
-        if (response.status === 401) {
-          setError('Connectez-vous pour voir votre cagnotte');
-        } else {
-          setError('Impossible de charger votre cagnotte');
-        }
-        return;
-      }
-      
-      const data = await response.json();
-      if (data.success) {
-        setWallet(data.wallet);
+      if (response.data?.success) {
+        setWallet(response.data.wallet);
+        setIsAuthenticated(true);
         // Initialiser le montant à utiliser avec le minimum entre le solde et le panier
-        if (cartTotal && data.wallet.usableBalance > 0) {
-          setAmountToUse(Math.min(data.wallet.usableBalance, cartTotal));
+        if (cartTotal && response.data.wallet.usableBalance > 0) {
+          setAmountToUse(Math.min(response.data.wallet.usableBalance, cartTotal));
         }
       }
-    } catch (err) {
-      setError('Erreur de connexion');
-      console.error('Erreur wallet:', err);
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        // Non connecté : pas d'erreur, juste pas de données
+        setWallet(null);
+        setIsAuthenticated(false);
+        setError(null);
+      } else {
+        // Erreur serveur : afficher un message d'erreur
+        setWallet(null);
+        setIsAuthenticated(false);
+        setError('Impossible de charger votre cagnotte. Veuillez réessayer.');
+      }
     } finally {
       setLoading(false);
     }
@@ -83,6 +90,7 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
     }
   };
 
+  // Loading state
   if (loading) {
     return (
       <div className={`${compact ? 'p-3' : 'p-4'} bg-[#002935] rounded-lg border border-[#3A4A4F]`}>
@@ -97,16 +105,44 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
     );
   }
 
-  if (error) {
-    return null; // Ne pas afficher si erreur (non connecté, etc.)
-  }
-
-  if (!wallet || wallet.totalBalance === 0) {
-    return null; // Ne pas afficher si pas de cagnotte
-  }
-
-  // Mode compact pour le panier
+  // ===== MODE COMPACT (PANIER) =====
   if (compact) {
+    // Si erreur serveur
+    if (error) {
+      return (
+        <div className="bg-gradient-to-r from-[#1a472a]/30 to-[#002935] rounded-lg border border-red-500/30 p-4">
+          <div className="flex items-center gap-2 text-red-400 text-sm">
+            <span>⚠️</span>
+            <span>{error}</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Si non authentifié : afficher 0€ + message
+    if (!isAuthenticated) {
+      return (
+        <div className="bg-gradient-to-r from-[#1a472a]/30 to-[#002935] rounded-lg border border-[#3A4A4F] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">💰</span>
+              <div>
+                <p className="text-white font-semibold">Ma Cagnotte</p>
+                <p className="text-white/50 font-bold text-lg">0,00 €</p>
+              </div>
+            </div>
+          </div>
+          <p className="text-white/60 text-sm">
+            Connectez-vous pour voir votre cagnotte
+          </p>
+        </div>
+      );
+    }
+
+    // Authentifié - afficher le wallet avec bouton grisé
+    const balance = wallet?.totalBalance || 0;
+    const canApply = isWalletUsagePeriodActive() && balance > 0;
+
     return (
       <div className="bg-gradient-to-r from-[#1a472a]/30 to-[#002935] rounded-lg border border-green-500/30 p-4">
         <div className="flex items-center justify-between mb-3">
@@ -114,50 +150,86 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
             <span className="text-2xl">💰</span>
             <div>
               <p className="text-white font-semibold">Ma Cagnotte</p>
-              <p className="text-green-400 font-bold text-lg">{wallet.totalBalance.toFixed(2)}€</p>
+              <p className={`font-bold text-lg ${balance > 0 ? 'text-green-400' : 'text-white/50'}`}>
+                {balance.toFixed(2)} €
+              </p>
             </div>
           </div>
-          {wallet.canUseWallet && wallet.usableBalance > 0 && (
-            <span className="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full">
-              Utilisable
+          {balance > 0 && !canApply && (
+            <span className="bg-[#EFC368]/20 text-[#EFC368] text-xs px-2 py-1 rounded-full">
+              Bientôt
             </span>
           )}
         </div>
 
-        {wallet.canUseWallet && wallet.usableBalance > 0 && cartTotal && onWalletApply ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min="0"
-                max={Math.min(wallet.usableBalance, cartTotal)}
-                step="0.01"
-                value={amountToUse}
-                onChange={(e) => setAmountToUse(parseFloat(e.target.value))}
-                className="flex-1 h-2 bg-[#3A4A4F] rounded-lg appearance-none cursor-pointer accent-green-500"
-              />
-              <span className="text-white font-bold min-w-[60px] text-right">
-                {amountToUse.toFixed(2)}€
-              </span>
-            </div>
-            <button
-              onClick={handleApplyWallet}
-              disabled={amountToUse <= 0}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-            >
-              Utiliser {amountToUse.toFixed(2)}€ de ma cagnotte
-            </button>
-          </div>
-        ) : !wallet.canUseWallet ? (
-          <p className="text-white/70 text-sm">
-            {wallet.usagePeriod}
-          </p>
-        ) : null}
+        {/* Bouton Appliquer - toujours visible mais grisé avant janvier 2026 */}
+        <button
+          onClick={handleApplyWallet}
+          disabled={!canApply}
+          className={`w-full font-semibold py-2 px-4 rounded-lg transition-colors ${
+            canApply
+              ? 'bg-green-600 hover:bg-green-700 text-white cursor-pointer'
+              : 'bg-gray-600/50 text-white/50 cursor-not-allowed'
+          }`}
+        >
+          {canApply ? 'Appliquer ma cagnotte' : 'Appliquer ma cagnotte'}
+        </button>
+
+        {/* Message explicatif */}
+        <p className="text-white/60 text-xs mt-2 text-center">
+          {canApply
+            ? 'Utilisez votre cagnotte pour réduire le montant de votre commande'
+            : 'Votre cagnotte est cumulée du 20 au 31 décembre et utilisable à partir du 1er janvier 2026.'}
+        </p>
       </div>
     );
   }
 
-  // Mode complet pour la page compte
+  // ===== MODE COMPLET (PAGE COMPTE) =====
+  
+  // Si erreur serveur
+  if (error) {
+    return (
+      <div className="bg-[#002935] rounded-xl border border-red-500/30 p-6">
+        <div className="flex items-center gap-3 text-red-400">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="font-semibold">Erreur</p>
+            <p className="text-sm text-red-400/80">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Si non authentifié (ne devrait pas arriver sur /compte mais on gère quand même)
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  // Si pas de wallet ou solde à 0
+  if (!wallet || wallet.totalBalance === 0) {
+    return (
+      <div className="bg-[#002935] rounded-xl border border-[#3A4A4F] overflow-hidden">
+        <div className="bg-gradient-to-r from-[#1a472a] to-[#002935] p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+              <span className="text-4xl">💰</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">Ma Cagnotte</h2>
+              <p className="text-white/50 text-3xl font-bold">0,00 €</p>
+            </div>
+          </div>
+          <p className="mt-4 text-white/70 text-sm bg-black/20 rounded-lg p-3">
+            Votre cagnotte est cumulée du 20 au 31 décembre et utilisable à partir du 1er janvier 2026.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Affichage normal du mode complet
   return (
     <div className="bg-[#002935] rounded-xl border border-[#3A4A4F] overflow-hidden">
       {/* En-tête */}
@@ -169,7 +241,7 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">Ma Cagnotte</h2>
-              <p className="text-green-400 text-3xl font-bold">{wallet.totalBalance.toFixed(2)}€</p>
+              <p className="text-green-400 text-3xl font-bold">{wallet.totalBalance.toFixed(2)} €</p>
             </div>
           </div>
           <div className="text-right">
@@ -240,7 +312,7 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
                   <span className={`font-bold ${
                     entry.type === 'credit' ? 'text-green-400' : 'text-red-400'
                   }`}>
-                    {entry.type === 'credit' ? '+' : '-'}{entry.amount.toFixed(2)}€
+                    {entry.type === 'credit' ? '+' : '-'}{entry.amount.toFixed(2)} €
                   </span>
                 </div>
               ))
@@ -251,6 +323,3 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
     </div>
   );
 }
-
-
-

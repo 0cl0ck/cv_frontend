@@ -140,14 +140,12 @@ export default function CheckoutSidebar({
           />
         )}
 
-        {/* 3) Cagnotte (wallet) - Uniquement pour les clients connectés */}
-        {isAuthenticated && onWalletApply && (
-          <WalletWidget
-            compact
-            cartTotal={totalAmount}
-            onWalletApply={onWalletApply}
-          />
-        )}
+        {/* 3) Cagnotte (wallet) - Affichage pour tous (connectés ou non) */}
+        <WalletWidget
+          compact
+          cartTotal={totalAmount}
+          onWalletApply={onWalletApply}
+        />
 
         {/* 4) Récapitulatif & checkout */}
         <OrderSummary
@@ -197,14 +195,12 @@ export default function CheckoutSidebar({
         />
       )}
 
-      {/* 3) Cagnotte (wallet) - Uniquement pour les clients connectés */}
-      {isAuthenticated && onWalletApply && (
-        <WalletWidget
-          compact
-          cartTotal={totalAmount}
-          onWalletApply={onWalletApply}
-        />
-      )}
+      {/* 3) Cagnotte (wallet) - Affichage pour tous (connectés ou non) */}
+      <WalletWidget
+        compact
+        cartTotal={totalAmount}
+        onWalletApply={onWalletApply}
+      />
 
       {/* 4) Récapitulatif pour le mode checkout */}
       <div className="mb-4">

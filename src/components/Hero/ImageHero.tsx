@@ -19,13 +19,13 @@ interface HeroProps {
   imageUrl?: string;
 }
 
-// Vérifie si on est dans la période de Noël (19-31 décembre 2024) (TEST: changé de 20 à 19)
+// Vérifie si on est dans la période de Noël (20-31 décembre 2025)
 function isChristmasPeriod(): boolean {
   const now = new Date();
   const year = now.getFullYear();
-  const month = now.getMonth(); // 0-indexed
+  const month = now.getMonth(); // 0-indexed, décembre = 11
   const day = now.getDate();
-  return year === 2025 && month === 12 && day >= 19 && day <= 31;
+  return year === 2025 && month === 11 && day >= 20 && day <= 31;
 }
 
 // Card spéciale Noël
@@ -109,8 +109,8 @@ export default function ImageHero({
   videoUrl = "https://media.chanvre-vert.fr/Noel_ChanvreVert_Snow.mp4",
   imageUrl = "/images/hero/HeroNoel.webp",
 }: HeroProps = {}) {
-  // FORCE: affichage Noël activé
-  const showChristmas = true;
+  // Affichage Noël basé sur la période réelle
+  const showChristmas = isChristmasPeriod();
   
   // État pour savoir si on doit afficher la vidéo (desktop uniquement)
   const [showVideo, setShowVideo] = useState(false);

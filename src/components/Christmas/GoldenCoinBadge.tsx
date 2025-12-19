@@ -10,13 +10,13 @@ interface GoldenCoinBadgeProps {
 // Catégories éligibles à la Chasse à la Pièce d'Or
 const ELIGIBLE_CATEGORY_SLUGS = ['fleurs', 'fleurs-cbd', 'resines', 'resines-cbd', 'hash', 'hashish'];
 
-// Période d'affichage: 19-31 décembre 2024 (TEST: changé de 20 à 19)
+// Période d'affichage: 20-31 décembre 2025
 function isChristmasPeriod(): boolean {
   const now = new Date();
   const year = now.getFullYear();
-  const month = now.getMonth(); // 0-indexed
+  const month = now.getMonth(); // 0-indexed, décembre = 11
   const day = now.getDate();
-  return year === 2024 && month === 11 && day >= 19 && day <= 31;
+  return year === 2025 && month === 11 && day >= 20 && day <= 31;
 }
 
 export default function GoldenCoinBadge({ weight, categorySlug }: GoldenCoinBadgeProps) {
