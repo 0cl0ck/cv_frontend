@@ -106,7 +106,7 @@ export default function ImageHero({
     text: "En savoir plus",
     href: "/a-propos",
   },
-  videoUrl = "https://media.chanvre-vert.fr/videos/Noel_ChanvreVert_Snow.mp4",
+  videoUrl = "https://media.chanvre-vert.fr/Noel_ChanvreVert_Snow.mp4",
   imageUrl = "/images/hero/HeroNoel.webp",
 }: HeroProps = {}) {
   // FORCE: affichage Noël activé
