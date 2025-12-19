@@ -4,6 +4,7 @@ import { Category, Product, ProductVariation } from '@/types/product';
 import { formatPrice } from '@/utils/formatPrice';
 import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
 import AddToCartSection from './AddToCartSection';
+import { GoldenCoinBadge } from '@/components/Christmas';
 
 interface Props {
   product: Product;
@@ -95,6 +96,14 @@ export default function ProductInfo({
             ))}
           </div>
         </div>
+      )}
+
+      {/* Badge Noël - Chasse à la Pièce d'Or */}
+      {selectedVariation?.weight && categoryDisplay.length > 0 && (
+        <GoldenCoinBadge
+          weight={selectedVariation.weight * quantity}
+          categorySlug={categoryDisplay[0]?.slug}
+        />
       )}
 
       <AddToCartSection

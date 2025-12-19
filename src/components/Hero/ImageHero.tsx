@@ -1,4 +1,7 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from "next/link";
 
 type Cta = {
@@ -12,8 +15,83 @@ interface HeroProps {
   description?: string;
   primaryCTA?: Cta;
   secondaryCTA?: Cta;
+  videoUrl?: string;
   imageUrl?: string;
-  imageAlt?: string;
+}
+
+// Vérifie si on est dans la période de Noël (19-31 décembre 2024) (TEST: changé de 20 à 19)
+function isChristmasPeriod(): boolean {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed
+  const day = now.getDate();
+  return year === 2025 && month === 12 && day >= 19 && day <= 31;
+}
+
+// Card spéciale Noël
+function ChristmasHeroCard() {
+  return (
+    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-[#EFC368]/40 bg-gradient-to-br from-[#1a472a]/80 to-[#8B0000]/60">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-2xl animate-bounce">🎄</span>
+        <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide text-[#EFC368] text-center md:text-left">
+          OPÉRATIONS DE NOËL
+        </p>
+        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🎅</span>
+      </div>
+      
+      {/* Pièce d'Or */}
+      <div className="mb-3 pb-3 border-b border-white/20">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🪙</span>
+          <p className="text-sm md:text-base font-semibold text-[#FFD700]">
+            Chasse à la Pièce d&apos;Or
+          </p>
+        </div>
+        <p className="text-xs md:text-sm text-white/80 mt-1">
+          10g achetés = 1 participation<br/>
+          <span className="text-[#EFC368]">3 gagnants = 1 an de CBD offert !</span>
+        </p>
+      </div>
+      
+      {/* Cashback */}
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="text-xl">💰</span>
+          <p className="text-sm md:text-base font-semibold text-green-400">
+            Cashback en cagnotte
+          </p>
+        </div>
+        <p className="text-xs md:text-sm text-white/80 mt-1">
+          25€ → 5€ | 50€ → 10€ | 100€ → 20€
+        </p>
+      </div>
+      
+      <p className="mt-3 text-[10px] md:text-xs text-white/60 italic text-center md:text-left">
+        Du 20 au 31 décembre 2025
+      </p>
+    </div>
+  );
+}
+
+// Card standard (hors période Noël)
+function DefaultHeroCard() {
+  return (
+    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-white/20">
+      <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide neon-text-animation text-center md:text-left">
+        CADEAUX AUTOMATIQUES
+      </p>
+      <p className="mt-2 text-sm md:text-base uppercase tracking-wider text-[#EFC368] text-center md:text-left">
+        Livraison offerte* + cadeaux
+      </p>
+      <p className="mt-3 text-xs md:text-sm text-white/90 text-center md:text-left">
+        Cadeaux offerts selon le montant du panier après remises
+      </p>
+      <p className="mt-2 text-[10px] md:text-xs text-white/70 italic text-center md:text-left">
+        * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
+      </p>
+    </div>
+  );
 }
 
 export default function ImageHero({
@@ -28,22 +106,61 @@ export default function ImageHero({
     text: "En savoir plus",
     href: "/a-propos",
   },
-  imageUrl = "/images/hero/Hero.webp",
-  imageAlt = "CBD Premium - Chanvre Vert",
+  videoUrl = "https://media.chanvre-vert.fr/videos/Noel_ChanvreVert_Snow.mp4",
+  imageUrl = "/images/hero/HeroNoel.webp",
 }: HeroProps = {}) {
+  // FORCE: affichage Noël activé
+  const showChristmas = true;
+  
+  // État pour savoir si on doit afficher la vidéo (desktop uniquement)
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    // Afficher la vidéo uniquement sur desktop (768px+)
+    const checkScreenSize = () => {
+      setShowVideo(window.innerWidth >= 768);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   return (
-    <section className="relative min-h-[600px] overflow-hidden">
+    <section className="relative min-h-[70vh] md:min-h-[600px] overflow-hidden">
       <div className="absolute inset-0 z-0">
+        {/* Image de fond - toujours présente comme fallback */}
         <Image
           src={imageUrl}
-          alt={imageAlt}
+          alt="CBD Premium - Chanvre Vert"
           fill
           sizes="100vw"
-          className="object-cover"
+          className={`object-cover object-center md:object-right transition-opacity duration-500 ${
+            showVideo && videoLoaded ? 'opacity-0' : 'opacity-100'
+          }`}
           priority
-          quality={100}
+          quality={85}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
+        
+        {/* Vidéo - uniquement sur desktop, se superpose à l'image une fois chargée */}
+        {showVideo && (
+          <video
+            src={videoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            onCanPlay={() => setVideoLoaded(true)}
+            onError={() => setVideoLoaded(false)}
+            className={`absolute inset-0 w-full h-full object-cover object-right transition-opacity duration-500 ${
+              videoLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        )}
+        
+        <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black/80 via-black/60 to-black/30 md:to-transparent" />
       </div>
 
       <div className="absolute inset-0 z-10 opacity-5">
@@ -56,36 +173,36 @@ export default function ImageHero({
         />
       </div>
 
-      <div className="relative z-20 mx-auto flex min-h-[600px] max-w-7xl items-center px-4 md:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8 items-start md:items-center">
-          {/* Card cadeaux automatiques - Mobile: en haut, Desktop: à droite */}
-          <div className="w-full md:w-auto md:ml-auto order-first md:order-last">
-            <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-white/20">
-              <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide neon-text-animation text-center md:text-left">
-                CADEAUX AUTOMATIQUES
-              </p>
-              <p className="mt-2 text-sm md:text-base uppercase tracking-wider text-[#EFC368] text-center md:text-left">
-                Livraison offerte* + cadeaux
-              </p>
-              <p className="mt-3 text-xs md:text-sm text-white/90 text-center md:text-left">
-                Cadeaux offerts selon le montant du panier après remises
-              </p>
-              <p className="mt-2 text-[10px] md:text-xs text-white/70 italic text-center md:text-left">
-                * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
-              </p>
-            </div>
+      <div className="relative z-20 mx-auto flex min-h-[70vh] md:min-h-[600px] max-w-7xl items-center px-4 py-8 md:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8 items-center md:items-center">
+          {/* Card dynamique - Noël ou standard - CACHÉE sur mobile (la modale suffit) */}
+          <div className="hidden md:block w-full md:w-auto md:ml-auto order-first md:order-last">
+            {showChristmas ? <ChristmasHeroCard /> : <DefaultHeroCard />}
           </div>
 
+          {/* Bouton Noël mobile - ouvre la modale */}
+          {showChristmas && (
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-christmas-modal'))}
+              className="md:hidden absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#1a472a] to-[#8B0000] rounded-full border border-[#EFC368]/50 shadow-lg animate-pulse hover:animate-none hover:scale-105 transition-transform"
+              aria-label="Voir les opérations de Noël"
+            >
+              <span className="text-xl">🎄</span>
+              <span className="text-xs font-bold text-[#EFC368]">Offres Noël</span>
+              <span className="text-xl">🎁</span>
+            </button>
+          )}
+
           {/* Contenu texte principal */}
-          <div className="max-w-2xl text-white order-last md:order-first">
-            <h1 className="mb-6 text-[36px] md:text-[48px] lg:text-[60px] font-bold leading-[1] tracking-[-0.01em] text-white">
-              <span className="block">{subtitle}</span>
+          <div className="max-w-2xl text-white order-last md:order-first text-center md:text-left">
+            <h1 className="mb-4 md:mb-6 text-[32px] sm:text-[40px] md:text-[48px] lg:text-[60px] font-bold leading-[1.1] tracking-[-0.01em] text-white">
+              <span className="block whitespace-nowrap">{subtitle}</span>
               <span className="block text-[#EFC368]">{title}</span>
             </h1>
-            <p className="mb-8 text-lg leading-relaxed text-gray-200 md:text-xl">
+            <p className="mb-6 md:mb-8 text-base md:text-xl leading-relaxed text-gray-200 px-2 md:px-0">
               {description}
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
               <Link
                 href={primaryCTA.href}
                 className="inline-flex items-center justify-center rounded-lg bg-[#EFC368] px-6 py-3 text-base font-semibold text-black shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d3a74f] hover:shadow-xl"

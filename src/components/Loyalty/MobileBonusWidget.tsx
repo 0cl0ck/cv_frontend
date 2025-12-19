@@ -53,6 +53,10 @@ const GIFT_GRAMS: Record<string, number> = {
   [GIFT_IDS.TIER_1_2G]: 2,
   [GIFT_IDS.TIER_2_10G]: 10,
   [GIFT_IDS.TIER_3_20G]: 20,
+  // Rétrocompatibilité avec les anciens IDs Halloween
+  'gift-halloween-tier1-2g': 2,
+  'gift-halloween-tier2-10g': 10,
+  'gift-halloween-tier3-20g': 20,
 };
 
 function summarizeAutomaticGifts(
@@ -275,10 +279,10 @@ export default function MobileBonusWidget() {
 
   const headline =
     netSubtotal < GIFT_THRESHOLDS.TIER_1
-      ? `Encore ${currencyFormatter.format(Math.ceil(amountToFirstTier))} -> 2g offerts`
+      ? `+${Math.ceil(amountToFirstTier)}€ → 2g offerts`
       : nextTier
-        ? `Encore ${currencyFormatter.format(Math.ceil(remainingToNextTier))} -> ${nextTier.label}`
-        : 'Bonus Halloween maximal atteint';
+        ? `+${Math.ceil(remainingToNextTier)}€ → ${nextTier.label}`
+        : 'Bonus max atteint ! 🎁';
 
   const detailLine =
     netSubtotal < GIFT_THRESHOLDS.TIER_1
@@ -358,13 +362,13 @@ export default function MobileBonusWidget() {
             aria-expanded={isExpanded}
           >
             <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-emerald-400/15 text-sm font-semibold text-emerald-200">
-              {gifts.grams > 0 ? `${gifts.grams}g` : '-30%'}
+              {gifts.grams > 0 ? `${gifts.grams}g` : '🎁'}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-sm font-semibold text-white">
+              <span className="text-[13px] font-semibold text-white leading-tight">
                 {headline}
               </span>
-              <span className="text-xs text-emerald-200/80">{detailLine}</span>
+              <span className="text-[11px] text-emerald-200/80 leading-tight mt-0.5">{detailLine}</span>
               <div className="mt-3">
                 <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                   <div
@@ -579,7 +583,34 @@ export default function MobileBonusWidget() {
                   );
                 })}
               </div>
-              <div className="mt-5 flex flex-col gap-2 text-xs text-white/60">
+              {/* Cashback de Noël - Période du 20-31 décembre */}
+              <div className="mt-4 rounded-2xl border border-[#EFC368]/30 bg-gradient-to-r from-[#1a472a]/30 to-[#8B0000]/20 p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">💰</span>
+                  <span className="text-xs font-semibold text-[#EFC368] uppercase tracking-wide">
+                    Cashback Noël
+                  </span>
+                </div>
+                <p className="text-[11px] text-white/70 mb-2">
+                  Bonus en cagnotte utilisable en janvier !
+                </p>
+                <div className="grid grid-cols-3 gap-1 text-center">
+                  <div className="bg-black/20 rounded-lg py-1.5 px-1">
+                    <p className="text-white text-[10px] font-medium">25€</p>
+                    <p className="text-green-400 text-xs font-bold">→ 5€</p>
+                  </div>
+                  <div className="bg-black/20 rounded-lg py-1.5 px-1">
+                    <p className="text-white text-[10px] font-medium">50€</p>
+                    <p className="text-green-400 text-xs font-bold">→ 10€</p>
+                  </div>
+                  <div className="bg-black/20 rounded-lg py-1.5 px-1">
+                    <p className="text-white text-[10px] font-medium">100€</p>
+                    <p className="text-green-400 text-xs font-bold">→ 20€</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2 text-xs text-white/60">
                 <span>Cadeaux automatiquement ajoutes au panier.</span>
                 <span>Livraison et codes promo compatibles.</span>
                 <span>Montant calcule apres remises et fidelite.</span>

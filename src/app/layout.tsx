@@ -11,6 +11,7 @@ import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import FontLoader from "@/components/Performance/FontLoader";
 import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
 import MobileBonusWidget from '@/components/Loyalty/MobileBonusWidget';
+import { ChristmasBanner } from '@/components/Christmas';
 
 import { getCategories, fallbackCategories } from "@/services/api";
 
@@ -109,6 +110,7 @@ export default async function RootLayout({
             <FontLoader />
             <CsrfInitializer />
             <Header initialCategories={initialCategories} />
+            <ChristmasBanner />
             <MobileBonusWidget />
             <main className="flex-grow bg-[#001E27]">
               {children}

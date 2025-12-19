@@ -7,6 +7,7 @@ import CheckoutForm from './CheckoutForm';
 import { useCartPricing } from '../hooks/useCartPricing';
 import { formatPrice } from '@/utils/formatPrice';
 import { Cart, Address, LoyaltyBenefits, PromoResult, CustomerInfo, FormErrors, PaymentMethod } from '../types';
+import { WalletWidget } from '@/components/Wallet';
 interface CheckoutSidebarProps {
     isAuthenticated: boolean;
     loyaltyBenefits: LoyaltyBenefits;
@@ -32,6 +33,8 @@ interface CheckoutSidebarProps {
     isSubmitting?: boolean;        // Flag pour indiquer si le formulaire est en cours de soumission
     paymentMethod: PaymentMethod;   // Méthode de paiement choisie
     setPaymentMethod: (method: PaymentMethod) => void; // Fonction pour changer la méthode de paiement
+    walletDiscount?: number;       // Montant de cagnotte appliqué
+    onWalletApply?: (amount: number) => void; // Callback pour appliquer le wallet
   }
 
 export default function CheckoutSidebar({
@@ -59,6 +62,8 @@ export default function CheckoutSidebar({
   isSubmitting = false,
   paymentMethod = 'card',
   setPaymentMethod,
+  walletDiscount = 0,
+  onWalletApply,
 }: CheckoutSidebarProps) {
   // Le backend calcule automatiquement TOUTES les remises
   const {
@@ -130,7 +135,16 @@ export default function CheckoutSidebar({
           <GuestLoyaltyBanner />
         )}
 
-        {/* 3) Récapitulatif & checkout */}
+        {/* 3) Cagnotte (wallet) - Uniquement pour les clients connectés */}
+        {isAuthenticated && onWalletApply && (
+          <WalletWidget
+            compact
+            cartTotal={totalAmount}
+            onWalletApply={onWalletApply}
+          />
+        )}
+
+        {/* 4) Récapitulatif & checkout */}
         <OrderSummary
           cart={cart}
           totals={totals}
@@ -175,7 +189,16 @@ export default function CheckoutSidebar({
         <GuestLoyaltyBanner />
       )}
 
-      {/* 3) Récapitulatif pour le mode checkout */}
+      {/* 3) Cagnotte (wallet) - Uniquement pour les clients connectés */}
+      {isAuthenticated && onWalletApply && (
+        <WalletWidget
+          compact
+          cartTotal={totalAmount}
+          onWalletApply={onWalletApply}
+        />
+      )}
+
+      {/* 4) Récapitulatif pour le mode checkout */}
       <div className="mb-4">
         <h2 className="text-xl font-bold mb-2 text-[#F4F8F5]">Récapitulatif</h2>
         {pricingError && (
@@ -224,6 +247,12 @@ export default function CheckoutSidebar({
             <div className="flex justify-between">
               <span className="text-[#F4F8F5]">Parrainage</span>
               <span className="text-[#10B981]">-{formatPrice(referralDiscountValue)}</span>
+            </div>
+          )}
+          {walletDiscount > 0 && (
+            <div className="flex justify-between">
+              <span className="text-[#F4F8F5]">💰 Cagnotte</span>
+              <span className="text-[#10B981]">-{formatPrice(walletDiscount)}</span>
             </div>
           )}
           {isAuthenticated && loyaltyBenefits.active && loyaltyBenefits.message && (

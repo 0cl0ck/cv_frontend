@@ -9,13 +9,13 @@ export const GIFT_THRESHOLDS = {
 
 // Unique identifiers for automatic gifts
 export const GIFT_IDS = {
-  TIER_1_2G: 'gift-halloween-tier1-2g',
-  TIER_2_10G: 'gift-halloween-tier2-10g',
-  TIER_2_PREROLL: 'gift-halloween-tier2-preroll',
-  GOODIES: 'gift-halloween-goodies',
-  TIER_3_20G: 'gift-halloween-tier3-20g',
-  TIER_3_PREROLL: 'gift-halloween-tier3-preroll',
-  TIER_3_SURPRISE: 'gift-halloween-tier3-surprise',
+  TIER_1_2G: 'gift-tier1-2g',
+  TIER_2_10G: 'gift-tier2-10g',
+  TIER_2_PREROLL: 'gift-tier2-preroll',
+  GOODIES: 'gift-goodies',
+  TIER_3_20G: 'gift-tier3-20g',
+  TIER_3_PREROLL: 'gift-tier3-preroll',
+  TIER_3_SURPRISE: 'gift-tier3-surprise',
 } as const;
 
 // Factory helper for gift line items
