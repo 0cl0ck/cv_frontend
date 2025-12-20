@@ -205,7 +205,7 @@ export default function CartView() {
           <div className="flex-1">
             <h3 className="text-white font-bold text-lg mb-1">Cashback Noël 2025</h3>
             <p className="text-white/90 text-sm mb-2">
-              Gagnez jusqu'à <span className="text-green-400 font-bold">20€ de cashback</span> sur vos commandes !
+              Gagnez jusqu&apos;à <span className="text-green-400 font-bold">20€ de cashback</span> sur vos commandes !
             </p>
             <div className="flex flex-wrap gap-2 text-xs text-white/70">
               <span className="bg-green-500/20 px-2 py-1 rounded">25€ → 5€</span>

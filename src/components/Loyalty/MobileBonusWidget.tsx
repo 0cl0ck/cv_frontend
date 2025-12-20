@@ -162,7 +162,7 @@ export default function MobileBonusWidget() {
     [backendGiftSummary, netSubtotal],
   );
 
-  const currencyFormatter = useMemo(
+  const _currencyFormatter = useMemo(
     () =>
       new Intl.NumberFormat('fr-FR', {
         style: 'currency',

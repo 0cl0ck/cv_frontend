@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { httpClient } from '@/lib/httpClient';
 
 interface WalletHistoryEntry {
@@ -41,11 +41,7 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
   const [showHistory, setShowHistory] = useState(false);
   const [amountToUse, setAmountToUse] = useState<number>(0);
 
-  useEffect(() => {
-    fetchWallet();
-  }, []);
-
-  const fetchWallet = async () => {
+  const fetchWallet = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -59,8 +55,9 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
           setAmountToUse(Math.min(response.data.wallet.usableBalance, cartTotal));
         }
       }
-    } catch (err: any) {
-      if (err.response?.status === 401) {
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { status?: number } };
+      if (axiosError.response?.status === 401) {
         // Non connecté : pas d'erreur, juste pas de données
         setWallet(null);
         setIsAuthenticated(false);
@@ -74,7 +71,11 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
     } finally {
       setLoading(false);
     }
-  };
+  }, [cartTotal]);
+
+  useEffect(() => {
+    fetchWallet();
+  }, [fetchWallet]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {

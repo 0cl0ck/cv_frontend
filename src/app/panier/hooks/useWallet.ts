@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface WalletHistoryEntry {
   amount: number;
@@ -32,11 +32,7 @@ export function useWallet(cartTotal: number) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  useEffect(() => {
-    fetchWallet()
-  }, [])
-  
-  const fetchWallet = async () => {
+  const fetchWallet = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -72,7 +68,11 @@ export function useWallet(cartTotal: number) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [cartTotal])
+  
+  useEffect(() => {
+    fetchWallet()
+  }, [fetchWallet])
   
   return {
     requestedWalletAmount,
