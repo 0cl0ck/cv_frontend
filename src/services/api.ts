@@ -1,4 +1,5 @@
 import { Category, Product } from '@/types/product';
+import { Post, PostsResponse } from '@/types/blog';
 import { httpClient } from '@/lib/httpClient';
 
 // Données de secours pour les produits en cas d'erreur API
@@ -405,5 +406,95 @@ export async function searchProducts(query: string, options: { limit?: number } 
       docs: fallbackMatches.slice(0, limit),
       totalDocs: fallbackMatches.length,
     };
+  }
+}
+
+// ============================================================================
+// BLOG API
+// ============================================================================
+
+/**
+ * Service pour récupérer les articles de blog publiés
+ * Le filtrage sur status === published et publishedAt <= now est fait côté API
+ */
+export async function getPosts(params?: {
+  page?: number;
+  limit?: number;
+  isPillar?: boolean;
+}): Promise<PostsResponse> {
+  try {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.isPillar !== undefined) {
+      queryParams.append('where[isPillar][equals]', params.isPillar.toString());
+    }
+    
+    // Tri par date de publication décroissante
+    queryParams.append('sort', '-publishedAt');
+    // Depth pour récupérer les relations (catégories, produits, image)
+    queryParams.append('depth', '2');
+
+    const { data } = await httpClient.get(`/posts?${queryParams.toString()}`);
+    return data;
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    
+    // Retourner une réponse vide en cas d'erreur
+    return {
+      docs: [],
+      totalDocs: 0,
+      limit: params?.limit || 10,
+      totalPages: 0,
+      page: params?.page || 1,
+      pagingCounter: 1,
+      hasPrevPage: false,
+      hasNextPage: false,
+      prevPage: null,
+      nextPage: null,
+    };
+  }
+}
+
+/**
+ * Service pour récupérer un article par son slug
+ */
+export async function getPostBySlug(slug: string): Promise<Post> {
+  try {
+    const queryParams = new URLSearchParams();
+    queryParams.append('where[slug][equals]', slug);
+    // Depth pour récupérer les relations complètes
+    queryParams.append('depth', '2');
+
+    const { data } = await httpClient.get(`/posts?${queryParams.toString()}`);
+    
+    if (!data.docs || data.docs.length === 0) {
+      throw new Error('Post not found');
+    }
+
+    return data.docs[0];
+  } catch (error) {
+    console.error('Error fetching post by slug:', error);
+    throw error;
+  }
+}
+
+/**
+ * Service pour récupérer tous les slugs des articles publiés (pour generateStaticParams)
+ */
+export async function getAllPostSlugs(): Promise<string[]> {
+  try {
+    const queryParams = new URLSearchParams();
+    queryParams.append('limit', '1000');
+    queryParams.append('depth', '0');
+    // On ne récupère que les slugs
+    
+    const { data } = await httpClient.get(`/posts?${queryParams.toString()}`);
+    
+    return data.docs.map((post: { slug: string }) => post.slug);
+  } catch (error) {
+    console.error('Error fetching post slugs:', error);
+    return [];
   }
 }

@@ -90,8 +90,22 @@ const parrainageHighlights: NavChild[] = [
   },
 ];
 
+const blogHighlights: NavChild[] = [
+  {
+    name: "Tous les articles",
+    link: "/blog",
+    description: "Guides, conseils et actualités sur le CBD.",
+  },
+  {
+    name: "Articles piliers",
+    link: "/blog?pillar=true",
+    description: "Nos guides complets pour bien débuter.",
+  },
+];
+
 const mobileNavConfig: MobileNavItem[] = [
   { label: "Produits", url: "/produits" },
+  { label: "Blog", url: "/blog" },
   { label: "Parrainage", url: "/parrainage" },
   { label: "Panier", url: "/panier" },
 ];
@@ -125,6 +139,11 @@ export default function Header({ initialCategories }: HeaderProps): JSX.Element 
         name: "Produits",
         link: "/produits",
         children: productHighlights,
+      },
+      {
+        name: "Blog",
+        link: "/blog",
+        children: blogHighlights,
       },
       {
         name: "Parrainage",
