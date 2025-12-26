@@ -127,3 +127,8 @@ export default function RelatedProducts({ products, title = 'Produits recommand√
   );
 }
 
+
+
+
+
+
