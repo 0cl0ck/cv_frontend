@@ -6,7 +6,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.chanvre-vert.fr'
 /**
  * GET /api/cart/sync - Récupère le panier sauvegardé du client
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('payload-token')?.value;
