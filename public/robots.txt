@@ -1,9 +1,18 @@
+# Chanvre-Vert Robots.txt
 User-agent: *
-Disallow: /compte
-Disallow: /panier
-Disallow: /api
-Disallow: /connexion
-Disallow: /inscription
 Allow: /
 
+# Bloquer les routes internes et sensibles
+Disallow: /api/
+Disallow: /compte/
+Disallow: /panier/
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /paiement-reussi
+Disallow: /paiement-echoue
+Disallow: /confirmation
+Disallow: /reinitialiser-mot-de-passe
+Disallow: /mot-de-passe-oublie
 
+# Sitemap
+Sitemap: https://chanvre-vert.fr/sitemap.xml

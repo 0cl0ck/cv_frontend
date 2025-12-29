@@ -1,11 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
 import Script from "next/script";
-import { getProductBySlug } from "@/services/api";
-import ProductPageClient from "@/app/produits/[slug]/product-page-client";
+import { getProductBySlug, getRelatedProducts, getCategories } from "@/services/api";
+import ProductDetailView from "./product-detail-view";
 import { config } from "@/config/site";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RichTextContent } from "@/types/product";
 
 export async function generateMetadata({
   params,
@@ -48,8 +46,21 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
 
-  // --- fetch server side pour le fallback SWR
+  // Fetch produit d'abord (nécessaire pour les category IDs)
   const product = await getProductBySlug(slug);
+
+  // Extraire les IDs de catégorie pour les produits associés
+  const categoryIds = Array.isArray(product.category)
+    ? product.category.map((cat) => (typeof cat === "string" ? cat : cat.id))
+    : product.category
+      ? [typeof product.category === "string" ? product.category : product.category.id]
+      : [];
+
+  // Fetch parallèle des données secondaires
+  const [categories, relatedProducts] = await Promise.all([
+    getCategories(),
+    getRelatedProducts(product.id, categoryIds, 4),
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org/",
@@ -82,7 +93,12 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ProductPageClient slug={slug} />
+      <ProductDetailView
+        product={product}
+        relatedProducts={relatedProducts}
+        categories={categories}
+      />
     </>
   );
 }
+
