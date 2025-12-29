@@ -161,6 +161,28 @@ export default function CheckoutSidebar({
           onClearCart={clearCart}
           country={customerInfo.country}
         />
+
+        {/* 5) Réassurance */}
+        <div className="mt-4 p-4 bg-[#001E27] rounded-lg border border-[#3A4A4F]">
+          <div className="space-y-2.5 text-sm">
+            <div className="flex items-center gap-3 text-gray-300">
+              <span className="text-[#03745C] text-lg">🚚</span>
+              <span>Livraison offerte dès 50€</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-300">
+              <span className="text-[#03745C] text-lg">🔒</span>
+              <span>Paiement 100% sécurisé</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-300">
+              <span className="text-[#03745C] text-lg">📦</span>
+              <span>Expédition sous 24-48h</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-300">
+              <span className="text-[#03745C] text-lg">💬</span>
+              <span>Support client réactif</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
