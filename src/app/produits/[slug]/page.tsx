@@ -5,6 +5,25 @@ import { getProductBySlug, getRelatedProducts, getCategories } from "@/services/
 import ProductDetailView from "./product-detail-view";
 import { config } from "@/config/site";
 
+// ISR: Revalidate pages every hour
+export const revalidate = 3600;
+
+// Pre-generate top products at build time
+export async function generateStaticParams() {
+  try {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.chanvre-vert.fr';
+    const res = await fetch(
+      `${API_URL}/api/products?limit=50&where[isActive][equals]=true`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.docs || []).map((p: { slug: string }) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
