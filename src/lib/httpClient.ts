@@ -3,20 +3,36 @@ import axios from 'axios';
 // Instance axios configurée pour notre API
 // En développement : pointe vers backend PayloadCMS sur port 8080
 // En production : utilise les routes BFF Next.js (/api/*) comme proxy vers le backend
+// Pendant le BUILD (SSG) : appelle directement le backend pour éviter les 401
 // BaseURL dynamique: absolue côté serveur (SSR), relative côté navigateur
+
 const isServer = typeof window === 'undefined';
+const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
 const devPort = process.env.PORT || '3000';
+
+// Pendant le build, utiliser directement le backend pour éviter les BFF routes
+// qui ne sont pas disponibles pendant la génération statique
+const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 const siteUrl = isServer
-  ? (process.env.NEXT_PUBLIC_SITE_URL
-      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${devPort}`))
+  ? (isBuildTime 
+      ? backendUrl  // Build: appeler directement le backend
+      : (process.env.NEXT_PUBLIC_SITE_URL
+          || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${devPort}`)))
   : '';
 
+// Pendant le build, on appelle directement /api du backend
+// Sinon on utilise les routes BFF du frontend
+const baseURL = isServer 
+  ? (isBuildTime ? `${backendUrl}/api` : `${siteUrl}/api`)
+  : '/api';
+
 export const httpClient = axios.create({
-  baseURL: isServer ? `${siteUrl}/api` : '/api',
-  // CORS: toujours envoyer les cookies (httpOnly)
-  withCredentials: true,
+  baseURL,
+  // CORS: toujours envoyer les cookies (httpOnly) - sauf pendant build
+  withCredentials: !isBuildTime,
   // Timeout raisonnable
-  timeout: 10000,
+  timeout: 15000, // Plus long pour le build
   // Headers par défaut
   headers: {
     'Content-Type': 'application/json',
