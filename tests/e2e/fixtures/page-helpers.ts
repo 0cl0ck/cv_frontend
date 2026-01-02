@@ -1,0 +1,168 @@
+/**
+ * Page helpers and common actions for E2E tests
+ */
+
+import { Page, expect } from '@playwright/test';
+
+/**
+ * Click a button/element only if it's visible within timeout
+ */
+export async function clickIfVisible(
+  locator: ReturnType<Page['locator']>,
+  timeout = 2000
+): Promise<boolean> {
+  try {
+    await locator.first().waitFor({ state: 'visible', timeout });
+    await locator.first().click({ trial: false });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Accept age verification and cookie banners
+ */
+export async function acceptBanners(page: Page): Promise<void> {
+  await clickIfVisible(
+    page.getByRole('button', { name: "J'ai 18 ans ou plus" }),
+    2500
+  );
+  await clickIfVisible(
+    page.getByRole('button', { name: /Tout accepter|Accepter tous les cookies/i }),
+    2500
+  );
+}
+
+/**
+ * Fill an input field that follows a label
+ */
+export async function fillByLabel(
+  page: Page,
+  labelText: RegExp,
+  value: string
+): Promise<void> {
+  const input = page
+    .locator('label')
+    .filter({ hasText: labelText })
+    .first()
+    .locator('xpath=following-sibling::input[1]');
+  await expect(input).toBeVisible();
+  await input.fill(value);
+}
+
+/**
+ * Select country in a dropdown
+ */
+export async function selectCountry(page: Page, country: string): Promise<void> {
+  const select = page
+    .locator('label')
+    .filter({ hasText: /^Pays$/i })
+    .first()
+    .locator('xpath=following-sibling::select[1]');
+  await expect(select).toBeVisible();
+  await select.selectOption({ label: country });
+}
+
+/**
+ * Wait for cart to have at least one item in localStorage
+ */
+export async function ensureCartHasItem(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      try {
+        const raw = localStorage.getItem('chanvre_vert_cart');
+        if (!raw) return false;
+        const c = JSON.parse(raw);
+        return Array.isArray(c.items) && c.items.length > 0;
+      } catch {
+        return false;
+      }
+    },
+    null,
+    { timeout: 10000 }
+  );
+}
+
+/**
+ * Add a product to cart from product page
+ */
+export async function addProductToCart(page: Page, productSlug: string): Promise<void> {
+  await page.goto(`/produits/${productSlug}`);
+  await acceptBanners(page);
+  await page.waitForLoadState('networkidle');
+  
+  const addBtn = page.getByRole('button', { name: 'Ajouter au panier' }).first();
+  await expect(addBtn).toBeVisible({ timeout: 15000 });
+  await addBtn.click();
+  await ensureCartHasItem(page);
+}
+
+/**
+ * Fill guest checkout form with provided data
+ */
+export async function fillCheckoutForm(
+  page: Page,
+  data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    postalCode: string;
+    city: string;
+    country: string;
+  }
+): Promise<void> {
+  await expect(page.getByText('Informations de contact')).toBeVisible({ timeout: 15000 });
+  
+  await fillByLabel(page, /^Prénom$/i, data.firstName);
+  await fillByLabel(page, /^Nom$/i, data.lastName);
+  await fillByLabel(page, /^Email$/i, data.email);
+  await fillByLabel(page, /^Téléphone$/i, data.phone);
+  await fillByLabel(page, /^Adresse$/i, data.address);
+  await fillByLabel(page, /^Code Postal$/i, data.postalCode);
+  await fillByLabel(page, /^Ville$/i, data.city);
+  await selectCountry(page, data.country);
+}
+
+/**
+ * Complete VivaWallet payment with test card
+ */
+export async function completeVivaPayment(
+  page: Page,
+  card: { number: string; cvv: string; expiry: string }
+): Promise<void> {
+  // Wait for VivaWallet checkout page
+  await page.waitForURL(/https:\/\/demo\.vivapayments\.com\/.+/, {
+    waitUntil: 'domcontentloaded',
+    timeout: 120000,
+  });
+  
+  // Fill card details
+  await page.locator('#card-number').fill(card.number);
+  await page.locator('#card-expiration').fill(card.expiry);
+  await page.locator('#cvv').fill(card.cvv);
+  
+  // Submit payment
+  await page.locator('#pay-btn-amount').click();
+}
+
+/**
+ * Login as customer
+ */
+export async function loginAsCustomer(
+  page: Page,
+  email: string,
+  password: string
+): Promise<void> {
+  await page.goto('/connexion');
+  await acceptBanners(page);
+  
+  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="password"]', password);
+  await page.click('button[type="submit"]');
+  
+  // Wait for redirect to account page
+  await page.waitForURL(/\/compte/, { timeout: 15000 });
+}
