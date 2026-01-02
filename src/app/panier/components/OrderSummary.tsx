@@ -78,8 +78,8 @@ export default function OrderSummary({
               {loadingTotals
                 ? 'Calcul...'
                 : calculatedShipping === 0
-                ? 'Gratuit'
-                : formatPrice(calculatedShipping)}
+                  ? 'Gratuit'
+                  : formatPrice(calculatedShipping)}
             </span>
           </div>
         ) : (
@@ -114,6 +114,12 @@ export default function OrderSummary({
             <span className="text-[#10B981]">-{formatPrice(referralDiscount)}</span>
           </div>
         )}
+        {(totals?.walletDiscount ?? 0) > 0 && (
+          <div className="flex justify-between">
+            <span className="text-[#F4F8F5]">💰 Cagnotte utilisée</span>
+            <span className="text-[#10B981]">-{formatPrice(totals?.walletDiscount ?? 0)}</span>
+          </div>
+        )}
         {isAuthenticated && loyaltyBenefits.active && loyaltyBenefits.message && (
           <div className="mt-4 p-2 bg-[#003545] rounded text-[#F4F8F5] text-sm">
             {loyaltyBenefits.message}
@@ -130,9 +136,13 @@ export default function OrderSummary({
         <div className="space-y-3 mt-6">
           <button
             onClick={onCheckout}
-            className="w-full bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27] py-3 rounded-md"
+            disabled={loadingTotals || displayTotal <= 0}
+            className={`w-full py-3 rounded-md transition-colors ${loadingTotals || displayTotal <= 0
+              ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+              : 'bg-[#EFC368] hover:bg-[#D3A74F] text-[#001E27]'
+              }`}
           >
-            Procéder au paiement
+            {loadingTotals ? 'Calcul...' : 'Procéder au paiement'}
           </button>
           <Link href="/produits" className="block text-center text-[#F4F8F5]">
             Continuer mes achats

@@ -28,9 +28,12 @@ interface WalletWidgetProps {
 }
 
 // Vérifie si la période d'utilisation est active (janvier 2026)
+// TEMPORAIREMENT: toujours actif pour test
 const isWalletUsagePeriodActive = (): boolean => {
-  const now = new Date();
-  return now >= new Date('2026-01-01');
+  // TODO: Réactiver pour la prod
+  // const now = new Date();
+  // return now >= new Date('2026-01-01');
+  return true; // Temporairement activé pour test
 };
 
 export default function WalletWidget({ compact = false, onWalletApply, cartTotal }: WalletWidgetProps) {
@@ -46,7 +49,7 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
       setLoading(true);
       setError(null);
       const response = await httpClient.get('/wallet');
-      
+
       if (response.data?.success) {
         setWallet(response.data.wallet);
         setIsAuthenticated(true);
@@ -142,7 +145,10 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
 
     // Authentifié - afficher le wallet avec bouton grisé
     const balance = wallet?.totalBalance || 0;
-    const canApply = isWalletUsagePeriodActive() && balance > 0;
+    const cartTotalBeforeWallet = cartTotal || 0;
+    // Wallet applicable si : période active + solde > 0 + panier >= 50€
+    const canApply = isWalletUsagePeriodActive() && balance > 0 && cartTotalBeforeWallet >= 50;
+    const cartTooLow = balance > 0 && cartTotalBeforeWallet < 50;
 
     return (
       <div className="bg-gradient-to-r from-[#1a472a]/30 to-[#002935] rounded-lg border border-green-500/30 p-4">
@@ -156,38 +162,39 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
               </p>
             </div>
           </div>
-          {balance > 0 && !canApply && (
+          {balance > 0 && !canApply && !cartTooLow && (
             <span className="bg-[#EFC368]/20 text-[#EFC368] text-xs px-2 py-1 rounded-full">
               Bientôt
             </span>
           )}
         </div>
 
-        {/* Bouton Appliquer - toujours visible mais grisé avant janvier 2026 */}
+        {/* Bouton Appliquer - grisé si panier < 50€ ou hors période */}
         <button
           onClick={handleApplyWallet}
           disabled={!canApply}
-          className={`w-full font-semibold py-2 px-4 rounded-lg transition-colors ${
-            canApply
-              ? 'bg-green-600 hover:bg-green-700 text-white cursor-pointer'
-              : 'bg-gray-600/50 text-white/50 cursor-not-allowed'
-          }`}
+          className={`w-full font-semibold py-2 px-4 rounded-lg transition-colors ${canApply
+            ? 'bg-green-600 hover:bg-green-700 text-white cursor-pointer'
+            : 'bg-gray-600/50 text-white/50 cursor-not-allowed'
+            }`}
         >
-          {canApply ? 'Appliquer ma cagnotte' : 'Appliquer ma cagnotte'}
+          Appliquer ma cagnotte
         </button>
 
         {/* Message explicatif */}
         <p className="text-white/60 text-xs mt-2 text-center">
-          {canApply
-            ? 'Utilisez votre cagnotte pour réduire le montant de votre commande'
-            : 'Votre cagnotte est cumulée du 20 au 31 décembre et utilisable à partir du 1er janvier 2026.'}
+          {cartTooLow
+            ? `Panier minimum de 50€ requis pour utiliser la cagnotte (actuel: ${cartTotalBeforeWallet.toFixed(2)}€)`
+            : canApply
+              ? 'Réduisez votre commande avec votre cagnotte (minimum 50€ après remise)'
+              : 'Votre cagnotte est utilisable dès janvier 2026.'}
         </p>
       </div>
     );
   }
 
   // ===== MODE COMPLET (PAGE COMPTE) =====
-  
+
   // Si erreur serveur
   if (error) {
     return (
@@ -257,7 +264,7 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
             )}
           </div>
         </div>
-        
+
         {!wallet.canUseWallet && (
           <p className="mt-4 text-white/70 text-sm bg-black/20 rounded-lg p-3">
             {wallet.usagePeriod}
@@ -290,11 +297,10 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
               wallet.history.map((entry, index) => (
                 <div
                   key={index}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
-                    entry.type === 'credit' 
-                      ? 'bg-green-500/10 border border-green-500/20' 
-                      : 'bg-red-500/10 border border-red-500/20'
-                  }`}
+                  className={`flex items-center justify-between p-3 rounded-lg ${entry.type === 'credit'
+                    ? 'bg-green-500/10 border border-green-500/20'
+                    : 'bg-red-500/10 border border-red-500/20'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">
@@ -310,9 +316,8 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
                       )}
                     </div>
                   </div>
-                  <span className={`font-bold ${
-                    entry.type === 'credit' ? 'text-green-400' : 'text-red-400'
-                  }`}>
+                  <span className={`font-bold ${entry.type === 'credit' ? 'text-green-400' : 'text-red-400'
+                    }`}>
                     {entry.type === 'credit' ? '+' : '-'}{entry.amount.toFixed(2)} €
                   </span>
                 </div>

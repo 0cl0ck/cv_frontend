@@ -23,6 +23,8 @@ const emptyTotals: PricingTotals = {
   promoDiscountCents: 0,
   referralDiscount: 0,
   referralDiscountCents: 0,
+  walletDiscount: 0,
+  walletDiscountCents: 0,
   total: 0,
   totalCents: 0,
   currency: 'EUR',
@@ -31,6 +33,7 @@ const emptyTotals: PricingTotals = {
   appliedPromo: null,
   appliedLoyalty: null,
   appliedReferral: null,
+  appliedWallet: null,
   automaticGifts: [],
 };
 
@@ -38,12 +41,13 @@ export function useCartPricing(
   cart: Cart,
   country: string | undefined,
   promoCode?: string,
+  applyWallet?: boolean,
 ): UseCartPricingResult {
   const [totals, setTotals] = useState<PricingTotals | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Recalculer lorsque le panier, le pays ou le code promo changent
+  // Recalculer lorsque le panier, le pays, le code promo ou l'état wallet changent
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +68,7 @@ export function useCartPricing(
           cart,
           country: country || 'FR',
           promoCode,
+          applyWallet,
         });
         if (!cancelled) {
           setTotals(data);
@@ -86,7 +91,7 @@ export function useCartPricing(
     return () => {
       cancelled = true;
     };
-  }, [cart, country, promoCode]);
+  }, [cart, country, promoCode, applyWallet]);
 
   return {
     totals,
