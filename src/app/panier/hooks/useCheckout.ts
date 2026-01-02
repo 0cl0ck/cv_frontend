@@ -22,7 +22,8 @@ export default function useCheckout(
   loyaltyBenefits: LoyaltyBenefits,
   customerInfo: CustomerInfo,
   clearCart: () => void,
-  setErrors?: (errors: Record<string, string>) => void // Nouveau paramètre pour mettre à jour les erreurs dans le composant parent
+  setErrors?: (errors: Record<string, string>) => void, // Paramètre pour mettre à jour les erreurs dans le composant parent
+  walletApplied?: boolean // Si true, la cagnotte est appliquée au calcul du paiement
 ): UseCheckoutReturn {
   const isSubmittingRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,21 +34,21 @@ export default function useCheckout(
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmittingRef.current) return;
-    
+
     // Réinitialiser les erreurs
     const newErrors: Record<string, string> = {};
-    
+
     // Validation des données avant envoi
     // Vérification informations personnelles
     if (!customerInfo.firstName) newErrors.firstName = "Le prénom est requis";
     if (!customerInfo.lastName) newErrors.lastName = "Le nom est requis";
     if (!customerInfo.email) newErrors.email = "L'email est requis";
-    
+
     // Vérification de l'adresse
     if (!customerInfo.address) newErrors.address = "L'adresse est requise";
     if (!customerInfo.city) newErrors.city = "La ville est requise";
     if (!customerInfo.postalCode) newErrors.postalCode = "Le code postal est requis";
-    
+
     // Vérification du téléphone (format français : 10 chiffres commençant par 0)
     if (!customerInfo.phone) {
       newErrors.phone = "Le numéro de téléphone est requis";
@@ -57,28 +58,28 @@ export default function useCheckout(
         newErrors.phone = "Format invalide (ex: 0612345678)";
       }
     }
-    
+
     // Si des erreurs sont présentes, on les affiche et on arrête la soumission
     if (Object.keys(newErrors).length > 0) {
       // Mettre à jour l'état des erreurs local
       setFormErrors(newErrors);
-      
+
       // Si une fonction pour mettre à jour les erreurs parent est fournie, l'utiliser
       if (setErrors) {
         setErrors(newErrors);
       }
-      
+
       // Faire défiler vers le premier champ avec erreur
       const firstErrorField = document.querySelector(`[name="${Object.keys(newErrors)[0]}"]`);
       if (firstErrorField) {
         firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-      
+
       isSubmittingRef.current = false;
       setIsSubmitting(false);
       return;
     }
-    
+
     // Aucune erreur, on continue la soumission
     isSubmittingRef.current = true;
     setIsSubmitting(true);
@@ -89,10 +90,12 @@ export default function useCheckout(
     try {
       // Utiliser l'utilitaire centralisé pour calculer tous les éléments de prix
       // Le backend gère automatiquement: fidélité (JWT), parrainage (cookie), promo (code)
+      // Si walletApplied est true, le wallet est déduit du total
       const priceDetails = await calculateCartTotals({
         cart,
         country: customerInfo.country,
         promoCode: promoResult.applied ? promoResult.code : undefined,
+        applyWallet: walletApplied,
       });
 
       // Décodage token
@@ -106,14 +109,14 @@ export default function useCheckout(
       try {
         const parts = token.split('.');
         if (parts.length === 3) {
-          const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
           if (payload.collection === 'customers' && payload.id) {
             userId = payload.id;
             userEmail = payload.email;
             isCustomer = true;
           }
         }
-      } catch {}
+      } catch { }
 
       // ✅ RÈGLE 1 & 2 : Les utilisateurs connectés DOIVENT utiliser leur email de compte
       if (isCustomer && userEmail) {
@@ -130,7 +133,7 @@ export default function useCheckout(
 
       // Utiliser le montant total calculé par l'utilitaire (déjà validé comme positif)
       const finalAmount = Math.max(0.01, priceDetails.total);
-      
+
       // Log pour vérifier les données avant envoi
       logger.debug('Données de paiement à envoyer', {
         finalAmount,
@@ -146,12 +149,12 @@ export default function useCheckout(
         const productId = item.isGift && !isValidMongoId(item.productId)
           ? '000000000000000000000000' // ID factice mais valide pour MongoDB
           : item.productId;
-        
+
         // Même correction pour variantId si présent
         const variantId = item.variantId && !isValidMongoId(item.variantId)
           ? null // null pour variantId car optionnel
           : item.variantId;
-        
+
         return {
           productId,
           variantId,
@@ -174,7 +177,7 @@ export default function useCheckout(
       // Créer l'objet de données pour le checkout
       // Déterminer le customerId à utiliser : compte connecté > compte créé depuis guest
       const effectiveCustomerId = isCustomer && userId ? userId : guestCustomerId;
-      
+
       const checkoutData = {
         order: {
           status: 'pending',
@@ -225,7 +228,9 @@ export default function useCheckout(
           customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
           promoCode: promoResult.applied ? promoResult.code : undefined,
           discountAmount:
-            priceDetails.siteDiscount + priceDetails.loyaltyDiscount + priceDetails.promoDiscount,
+            priceDetails.siteDiscount + priceDetails.loyaltyDiscount + priceDetails.promoDiscount + priceDetails.walletDiscount,
+          walletDiscount: priceDetails.walletDiscount || 0,
+          applyWallet: walletApplied || false, // Flag pour appliquer la cagnotte
           paymentMethod: paymentMethod // 'card' ou 'bank_transfer'
         }
       };
@@ -254,7 +259,7 @@ export default function useCheckout(
         totalCents: checkoutData.payment.amountCents,
         itemsCount: checkoutData.order.items.length
       });
-      
+
       // Toujours utiliser /payment/create - le backend gère la méthode
       const response = await httpClient.post('/payment/create', checkoutData, {
         withCsrf: true,
@@ -262,11 +267,11 @@ export default function useCheckout(
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         }
       });
-      
+
       // Traiter la réponse selon la méthode de paiement
       const paymentResponse = response.data;
       clearCart(); // Dans tous les cas, on vide le panier
-      
+
       if (paymentMethod === 'card') {
         // Pour carte bancaire, redirection vers VivaWallet
         if (paymentResponse.smartCheckoutUrl) {
@@ -306,7 +311,7 @@ export default function useCheckout(
       }
     } catch (err) {
       console.error('Checkout error:', err);
-      
+
       // Log détaillé de l'erreur pour débogage
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { status?: number, data?: unknown, headers?: Record<string, unknown> } };
@@ -315,20 +320,20 @@ export default function useCheckout(
           data: JSON.stringify(axiosError.response?.data, null, 2)
         });
       }
-      
+
       // Analyser l'erreur pour voir si c'est un problème de validation
       try {
         // Avec axios, les erreurs HTTP sont dans err.response.data
         if (err && typeof err === 'object' && 'response' in err) {
           const axiosError = err as { response?: { data?: { details?: Record<string, string>, message?: string } } };
           const errorData = axiosError.response?.data;
-          
+
           if (errorData?.details && errorData.details['order.guestInformation.phone']) {
             // Erreur spécifique de validation de téléphone
             const phoneError = { phone: errorData.details['order.guestInformation.phone'] };
             setFormErrors(phoneError);
             if (setErrors) setErrors(phoneError);
-            
+
             // Faire défiler jusqu'au champ de téléphone
             const phoneField = document.querySelector('[name="phone"]');
             if (phoneField) {

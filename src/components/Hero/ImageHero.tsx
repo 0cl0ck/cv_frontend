@@ -1,6 +1,4 @@
 'use client';
-
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from "next/link";
 
@@ -19,56 +17,51 @@ interface HeroProps {
   imageUrl?: string;
 }
 
-// Vérifie si on est dans la période de Noël (20-31 décembre 2025)
+// Vérifie si on est dans la période de Noël (20-31 décembre 2025) ou Janvier 2026
+// TEMPORAIREMENT: toujours afficher pour test
 function isChristmasPeriod(): boolean {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-indexed, décembre = 11
-  const day = now.getDate();
-  return year === 2025 && month === 11 && day >= 20 && day <= 31;
+  // Pour test - affiche toujours la card spéciale
+  return true;
 }
 
-// Card spéciale Noël
+// Card spéciale Janvier - Bonne Année
 function ChristmasHeroCard() {
   return (
-    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-[#EFC368]/40 bg-gradient-to-br from-[#1a472a]/80 to-[#8B0000]/60">
+    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-green-500/40 bg-gradient-to-br from-[#1a472a]/80 to-[#2d5a3d]/60">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-2xl animate-bounce">🎄</span>
-        <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide text-[#EFC368] text-center md:text-left">
-          OPÉRATIONS DE NOËL
+        <span className="text-2xl animate-bounce">🎉</span>
+        <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide text-green-400 text-center md:text-left">
+          BONNE ANNÉE 2026 !
         </p>
-        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🎅</span>
+        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🥳</span>
       </div>
-      
-      {/* Pièce d'Or */}
+
+      {/* Cashback disponible */}
       <div className="mb-3 pb-3 border-b border-white/20">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🪙</span>
-          <p className="text-sm md:text-base font-semibold text-[#FFD700]">
-            Chasse à la Pièce d&apos;Or
-          </p>
-        </div>
-        <p className="text-xs md:text-sm text-white/80 mt-1">
-          10g achetés = 1 participation<br/>
-          <span className="text-[#EFC368]">3 gagnants = 1 an de CBD offert !</span>
-        </p>
-      </div>
-      
-      {/* Cashback */}
-      <div>
         <div className="flex items-center gap-2">
           <span className="text-xl">💰</span>
           <p className="text-sm md:text-base font-semibold text-green-400">
-            Cashback en cagnotte
+            Votre Cashback est Disponible !
           </p>
         </div>
         <p className="text-xs md:text-sm text-white/80 mt-1">
-          25€ → 5€ | 50€ → 10€ | 100€ → 20€
+          Utilisez votre cagnotte de Noël<br />
+          <span className="text-green-400">directement dans votre panier !</span>
         </p>
       </div>
-      
+
+      {/* Info */}
+      <div>
+        <p className="text-xs md:text-sm text-white/80">
+          🛒 Réduction appliquée automatiquement
+        </p>
+        <p className="text-xs md:text-sm text-white/60 mt-1">
+          💡 Utilisable si panier &ge; 50€ après remises
+        </p>
+      </div>
+
       <p className="mt-3 text-[10px] md:text-xs text-white/60 italic text-center md:text-left">
-        Du 20 au 31 décembre 2025
+        Valable tout le mois de janvier 2026
       </p>
     </div>
   );
@@ -106,27 +99,15 @@ export default function ImageHero({
     text: "En savoir plus",
     href: "/a-propos",
   },
-  videoUrl = "https://media.chanvre-vert.fr/Noel_ChanvreVert_Snow.mp4",
-  imageUrl = "/images/hero/HeroNoel.webp",
+  // videoUrl supprimé - vidéo désactivée pour janvier
+  imageUrl = "/images/hero/HeroHiver.webp",
 }: HeroProps = {}) {
-  // Affichage Noël basé sur la période réelle
+  // Affichage card spéciale basé sur la période
   const showChristmas = isChristmasPeriod();
-  
-  // État pour savoir si on doit afficher la vidéo (desktop uniquement)
-  const [showVideo, setShowVideo] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
 
-  useEffect(() => {
-    // Afficher la vidéo uniquement sur desktop (768px+)
-    const checkScreenSize = () => {
-      setShowVideo(window.innerWidth >= 768);
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  // Vidéo désactivée pour janvier
+  const showVideo = false;
+  const videoLoaded = false;
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[600px] overflow-hidden">
@@ -137,29 +118,14 @@ export default function ImageHero({
           alt="CBD Premium - Chanvre Vert"
           fill
           sizes="100vw"
-          className={`object-cover object-center md:object-right transition-opacity duration-500 ${
-            showVideo && videoLoaded ? 'opacity-0' : 'opacity-100'
-          }`}
+          className={`object-cover object-center md:object-right transition-opacity duration-500 ${showVideo && videoLoaded ? 'opacity-0' : 'opacity-100'
+            }`}
           priority
           quality={85}
         />
-        
-        {/* Vidéo - uniquement sur desktop, se superpose à l'image une fois chargée */}
-        {showVideo && (
-          <video
-            src={videoUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            onCanPlay={() => setVideoLoaded(true)}
-            onError={() => setVideoLoaded(false)}
-            className={`absolute inset-0 w-full h-full object-cover object-right transition-opacity duration-500 ${
-              videoLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-        )}
-        
+
+        {/* Vidéo désactivée pour janvier */}
+
         <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black/80 via-black/60 to-black/30 md:to-transparent" />
       </div>
 

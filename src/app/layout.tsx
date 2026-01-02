@@ -11,7 +11,7 @@ import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import FontLoader from "@/components/Performance/FontLoader";
 import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
 import MobileBonusWidget from '@/components/Loyalty/MobileBonusWidget';
-import { ChristmasBanner } from '@/components/Christmas';
+import { JanuaryBanner } from '@/components/Christmas';
 
 import { getCategories, fallbackCategories } from "@/services/api";
 
@@ -74,9 +74,10 @@ export default async function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#126E62" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-        
+
         {/* Optimize font loading with minimal FOUT */}
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           /* Prevent Flash of Unstyled Text with font-display strategy */
           @font-face {
             font-family: 'Geist';
@@ -110,7 +111,7 @@ export default async function RootLayout({
             <FontLoader />
             <CsrfInitializer />
             <Header initialCategories={initialCategories} />
-            <ChristmasBanner />
+            <JanuaryBanner />
             <MobileBonusWidget />
             <main className="flex-grow bg-[#001E27]">
               {children}

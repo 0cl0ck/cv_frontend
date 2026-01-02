@@ -18,6 +18,7 @@ export default function CartView() {
   const { cart, clearCart } = useCartContext();
   const { isAuthenticated, user } = useAuthContext();
   const [checkoutMode, setCheckoutMode] = useState(false);
+  const [walletApplied, setWalletApplied] = useState(false);
 
   // customer info + erreurs
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -63,7 +64,8 @@ export default function CartView() {
     loyaltyBenefits,
     customerInfo,
     clearCart,
-    setErrors
+    setErrors,
+    walletApplied
   );
 
   // Initialiser l'email du compte pour les utilisateurs connectés
@@ -86,6 +88,7 @@ export default function CartView() {
   // UI handlers
   const handleCheckout = () => setCheckoutMode(true);
   const handleBack = () => setCheckoutMode(false);
+  const handleWalletApply = () => setWalletApplied(true);
 
   const handleSelectAddress = (addr: Address) => {
     const ALLOWED_COUNTRIES = [
@@ -106,13 +109,13 @@ export default function CartView() {
       const n = normalize(c);
       if (!n) return "France";
       if (n === 'fr' || n.startsWith('fr') || n === 'france') return "France";
-      if (['be','bel','belgique','belgium','belgie','belge'].includes(n)) return "Belgique";
-      if (['ch','che','suisse','switzerland','schweiz','svizzera'].includes(n)) return "Suisse";
-      if (['lu','luxembourg','ltz'].includes(n)) return "Luxembourg";
-      if (['es','esp','espagne','spain','espana','espana','espanol'].includes(n)) return "Espagne";
-      if (['pt','prt','portugal'].includes(n)) return "Portugal";
+      if (['be', 'bel', 'belgique', 'belgium', 'belgie', 'belge'].includes(n)) return "Belgique";
+      if (['ch', 'che', 'suisse', 'switzerland', 'schweiz', 'svizzera'].includes(n)) return "Suisse";
+      if (['lu', 'luxembourg', 'ltz'].includes(n)) return "Luxembourg";
+      if (['es', 'esp', 'espagne', 'spain', 'espana', 'espana', 'espanol'].includes(n)) return "Espagne";
+      if (['pt', 'prt', 'portugal'].includes(n)) return "Portugal";
       if (
-        ['nl','nld','netherlands','holland','hollande','nederland','pays bas','pays-bas'].includes(n)
+        ['nl', 'nld', 'netherlands', 'holland', 'hollande', 'nederland', 'pays bas', 'pays-bas'].includes(n)
       ) return "Pays Bas";
       const label = (ALLOWED_COUNTRIES as readonly string[]).find(
         (x) => normalize(x) === n
@@ -250,6 +253,8 @@ export default function CartView() {
             isSubmitting={isSubmitting}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
+            walletApplied={walletApplied}
+            onWalletApply={handleWalletApply}
             onGuestAccountCreated={setGuestCustomerId}
           />
         </div>

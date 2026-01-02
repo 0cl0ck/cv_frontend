@@ -9,34 +9,34 @@ import { formatPrice } from '@/utils/formatPrice';
 import { Cart, Address, LoyaltyBenefits, PromoResult, CustomerInfo, FormErrors, PaymentMethod } from '../types';
 import { WalletWidget } from '@/components/Wallet';
 interface CheckoutSidebarProps {
-    isAuthenticated: boolean;
-    loyaltyBenefits: LoyaltyBenefits;
-    loadingLoyalty: boolean;
-    promoCode: string;
-    setPromoCode: (c: string) => void;
-    promoResult: PromoResult;
-    isApplying: boolean;            // Nom utilisé dans cart-view.tsx
-    onApply: (e: React.FormEvent) => Promise<void>; // Nom utilisé dans cart-view.tsx
-    onCancel: () => void;          // Nom utilisé dans cart-view.tsx
-    cart: Cart;
-    customerInfo: CustomerInfo;
-    errors: FormErrors;            // Type FormErrors correct
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    selectedAddressId: string | null;
-    userAddresses: Address[];
-    handleSelectAddress: (a: Address) => void;
-    checkoutMode: boolean;
-    onCheckout: () => void;
-    onBackToCart: () => void;      // Fonction pour revenir au panier
-    onPaymentSubmit: (e: React.FormEvent) => Promise<void>;
-    clearCart: () => void;
-    isSubmitting?: boolean;        // Flag pour indiquer si le formulaire est en cours de soumission
-    paymentMethod: PaymentMethod;   // Méthode de paiement choisie
-    setPaymentMethod: (method: PaymentMethod) => void; // Fonction pour changer la méthode de paiement
-    walletDiscount?: number;       // Montant de cagnotte appliqué
-    onWalletApply?: (amount: number) => void; // Callback pour appliquer le wallet
-    onGuestAccountCreated?: (customerId: string) => void; // Callback quand un guest crée un compte
-  }
+  isAuthenticated: boolean;
+  loyaltyBenefits: LoyaltyBenefits;
+  loadingLoyalty: boolean;
+  promoCode: string;
+  setPromoCode: (c: string) => void;
+  promoResult: PromoResult;
+  isApplying: boolean;            // Nom utilisé dans cart-view.tsx
+  onApply: (e: React.FormEvent) => Promise<void>; // Nom utilisé dans cart-view.tsx
+  onCancel: () => void;          // Nom utilisé dans cart-view.tsx
+  cart: Cart;
+  customerInfo: CustomerInfo;
+  errors: FormErrors;            // Type FormErrors correct
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedAddressId: string | null;
+  userAddresses: Address[];
+  handleSelectAddress: (a: Address) => void;
+  checkoutMode: boolean;
+  onCheckout: () => void;
+  onBackToCart: () => void;      // Fonction pour revenir au panier
+  onPaymentSubmit: (e: React.FormEvent) => Promise<void>;
+  clearCart: () => void;
+  isSubmitting?: boolean;        // Flag pour indiquer si le formulaire est en cours de soumission
+  paymentMethod: PaymentMethod;   // Méthode de paiement choisie
+  setPaymentMethod: (method: PaymentMethod) => void; // Fonction pour changer la méthode de paiement
+  walletApplied?: boolean;       // Si true, la cagnotte est appliquée au calcul
+  onWalletApply?: (amount: number) => void; // Callback pour appliquer le wallet
+  onGuestAccountCreated?: (customerId: string) => void; // Callback quand un guest crée un compte
+}
 
 export default function CheckoutSidebar({
   isAuthenticated,
@@ -63,7 +63,7 @@ export default function CheckoutSidebar({
   isSubmitting = false,
   paymentMethod = 'card',
   setPaymentMethod,
-  walletDiscount = 0,
+  walletApplied = false,
   onWalletApply,
   onGuestAccountCreated,
 }: CheckoutSidebarProps) {
@@ -72,7 +72,7 @@ export default function CheckoutSidebar({
     totals,
     loading: pricingLoading,
     error: pricingError,
-  } = useCartPricing(cart, customerInfo.country, promoResult.applied ? promoResult.code : undefined);
+  } = useCartPricing(cart, customerInfo.country, promoResult.applied ? promoResult.code : undefined, walletApplied);
 
   const subtotal = totals?.subtotal ?? cart.subtotal ?? 0;
   const shippingCost = totals?.shippingCost ?? 0;
@@ -80,16 +80,18 @@ export default function CheckoutSidebar({
   const loyaltyDiscountValue = totals?.loyaltyDiscount ?? 0;
   const promoDiscountValue = totals?.promoDiscount ?? 0;
   const referralDiscountValue = totals?.referralDiscount ?? 0;
+  const walletDiscountValue = totals?.walletDiscount ?? 0;
   const totalAmount =
     totals?.total ??
     Math.max(
       0,
       subtotal +
-        shippingCost -
-        siteDiscountValue -
-        loyaltyDiscountValue -
-        promoDiscountValue -
-        referralDiscountValue,
+      shippingCost -
+      siteDiscountValue -
+      loyaltyDiscountValue -
+      promoDiscountValue -
+      referralDiscountValue -
+      walletDiscountValue,
     );
   const sitePromotionLabel =
     siteDiscountValue > 0
@@ -97,17 +99,17 @@ export default function CheckoutSidebar({
         ? `${totals.appliedSitePromotion.label} (-${totals.appliedSitePromotion.percentage}%)`
         : ''
       : null;
-  
+
   // Reconstruction des bénéfices à partir de totals pour rétrocompatibilité UI
   const actualLoyaltyBenefits: LoyaltyBenefits = {
     ...loyaltyBenefits,
     discountAmount: loyaltyDiscountValue,
     active: loyaltyDiscountValue > 0,
-    message: totals?.appliedLoyalty?.tier === 'silver' 
+    message: totals?.appliedLoyalty?.tier === 'silver'
       ? 'Fidélité Argent : -10% sur votre commande'
       : totals?.appliedLoyalty?.tier === 'bronze'
-      ? 'Fidélité Bronze : -5% sur votre commande'
-      : loyaltyBenefits.message,
+        ? 'Fidélité Bronze : -5% sur votre commande'
+        : loyaltyBenefits.message,
   };
 
   if (!checkoutMode) {
@@ -134,7 +136,7 @@ export default function CheckoutSidebar({
             isAuthenticated
           />
         ) : (
-          <GuestLoyaltyBanner 
+          <GuestLoyaltyBanner
             customerInfo={customerInfo}
             onAccountCreated={onGuestAccountCreated}
           />
@@ -211,7 +213,7 @@ export default function CheckoutSidebar({
           isAuthenticated
         />
       ) : (
-        <GuestLoyaltyBanner 
+        <GuestLoyaltyBanner
           customerInfo={customerInfo}
           onAccountCreated={onGuestAccountCreated}
         />
@@ -245,8 +247,8 @@ export default function CheckoutSidebar({
               {pricingLoading
                 ? 'Calcul...'
                 : shippingCost === 0
-                ? 'Gratuit'
-                : formatPrice(shippingCost)}
+                  ? 'Gratuit'
+                  : formatPrice(shippingCost)}
             </span>
           </div>
           {siteDiscountValue > 0 && (
@@ -275,10 +277,10 @@ export default function CheckoutSidebar({
               <span className="text-[#10B981]">-{formatPrice(referralDiscountValue)}</span>
             </div>
           )}
-          {walletDiscount > 0 && (
+          {walletDiscountValue > 0 && (
             <div className="flex justify-between">
               <span className="text-[#F4F8F5]">💰 Cagnotte</span>
-              <span className="text-[#10B981]">-{formatPrice(walletDiscount)}</span>
+              <span className="text-[#10B981]">-{formatPrice(walletDiscountValue)}</span>
             </div>
           )}
           {isAuthenticated && loyaltyBenefits.active && loyaltyBenefits.message && (
@@ -348,8 +350,8 @@ export default function CheckoutSidebar({
 
       {/* Actions du formulaire */}
       <div className="flex flex-col space-y-3 mt-4">
-        <button 
-          onClick={onBackToCart} 
+        <button
+          onClick={onBackToCart}
           className="text-sm text-[#F4F8F5] hover:text-[#10B981] flex items-center self-start"
         >
           <span className="mr-1">←</span> Retour au panier
