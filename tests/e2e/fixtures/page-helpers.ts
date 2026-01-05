@@ -21,16 +21,29 @@ export async function clickIfVisible(
 }
 
 /**
- * Accept age verification and cookie banners
+ * Accept age verification, cookie banners, and close promotional popups
  */
 export async function acceptBanners(page: Page): Promise<void> {
+  // Age verification
   await clickIfVisible(
     page.getByRole('button', { name: "J'ai 18 ans ou plus" }),
     2500
   );
+  // Cookie consent
   await clickIfVisible(
     page.getByRole('button', { name: /Tout accepter|Accepter tous les cookies/i }),
     2500
+  );
+  // New Year / promotional popup - try multiple selectors
+  // Option 1: Click "Voir mes produits" button
+  await clickIfVisible(
+    page.locator('button:has-text("Voir mes produits")'),
+    1500
+  );
+  // Option 2: Click close button (X)
+  await clickIfVisible(
+    page.locator('button:has(svg), button.close, [role="dialog"] button >> nth=0'),
+    1000
   );
 }
 

@@ -247,13 +247,24 @@
         - link "CGV" [ref=e263] [cursor=pointer]:
           - /url: /cgv
   - alert [ref=e264]
-  - generic [ref=e267]:
-    - generic [ref=e268]:
-      - paragraph [ref=e269]: Nous utilisons des cookies 🍪
-      - paragraph [ref=e270]: Ce site utilise des cookies pour améliorer votre expérience de navigation, analyser le trafic et personnaliser le contenu. Vous pouvez accepter tous les cookies, les refuser ou personnaliser vos choix.
-    - generic [ref=e271]:
-      - button "Personnaliser mes choix de cookies" [ref=e272]: Personnaliser
-      - generic [ref=e273]:
-        - button "Refuser tous les cookies" [ref=e274]: Tout refuser
-        - button "Accepter tous les cookies" [ref=e275]: Tout accepter
+  - generic [ref=e269] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e270] [cursor=pointer]:
+      - img [ref=e271] [cursor=pointer]
+    - generic [ref=e274] [cursor=pointer]:
+      - button "Open issues overlay" [ref=e275] [cursor=pointer]:
+        - generic [ref=e276] [cursor=pointer]:
+          - generic [ref=e277] [cursor=pointer]: "0"
+          - generic [ref=e278] [cursor=pointer]: "1"
+        - generic [ref=e279] [cursor=pointer]: Issue
+      - button "Collapse issues badge" [ref=e280] [cursor=pointer]:
+        - img [ref=e281] [cursor=pointer]
+  - generic [ref=e285]:
+    - generic [ref=e286]:
+      - paragraph [ref=e287]: Nous utilisons des cookies 🍪
+      - paragraph [ref=e288]: Ce site utilise des cookies pour améliorer votre expérience de navigation, analyser le trafic et personnaliser le contenu. Vous pouvez accepter tous les cookies, les refuser ou personnaliser vos choix.
+    - generic [ref=e289]:
+      - button "Personnaliser mes choix de cookies" [ref=e290]: Personnaliser
+      - generic [ref=e291]:
+        - button "Refuser tous les cookies" [ref=e292]: Tout refuser
+        - button "Accepter tous les cookies" [ref=e293]: Tout accepter
 ```

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
@@ -70,6 +71,7 @@ export default async function RootLayout({
 
   return (
     <html lang="fr" className="optimize-fonts">
+      <GoogleTagManager gtmId="GTM-M3HTFJZD" />
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#126E62" />
