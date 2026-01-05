@@ -12,14 +12,14 @@ import { defineConfig, devices } from "@playwright/test";
  */
 
 // Staging environment URLs
-const STAGING_FRONTEND = "https://chanvre-vert-front-jkoaxswuv-hughsaweds-projects.vercel.app";
+const STAGING_FRONTEND = "https://chanvre-vert-front-git-staging-hughsaweds-projects.vercel.app";
 const STAGING_BACKEND = "https://cv-backend-1-5nru.onrender.com";
 
 // Disable webServer for staging/CI runs
 const useWebServer = !process.env.CI && !process.env.PLAYWRIGHT_NO_WEBSERVER;
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/e2e",
   timeout: 120_000,
   expect: { timeout: 15_000 },
   fullyParallel: true,

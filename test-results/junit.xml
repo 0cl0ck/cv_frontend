@@ -1,2 +1,562 @@
-<testsuites id="" name="" tests="0" failures="0" skipped="0" errors="0" time="0.009776000000000068">
+<testsuites id="" name="" tests="14" failures="12" skipped="1" errors="0" time="121.268996">
+<testsuite name="api\webhook-tests.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="3" failures="1" skipped="1" time="0.361" errors="0">
+<testcase name="VivaWallet Webhook - API Tests › webhook endpoint returns verification key on GET @critical" classname="api\webhook-tests.spec.ts" time="0.179">
+</testcase>
+<testcase name="VivaWallet Webhook - API Tests › webhook endpoint accepts POST with valid payload @critical" classname="api\webhook-tests.spec.ts" time="0.182">
+<failure message="webhook-tests.spec.ts:52:7 webhook endpoint accepts POST with valid payload @critical" type="FAILURE">
+<![CDATA[  [staging] › api\webhook-tests.spec.ts:52:7 › VivaWallet Webhook - API Tests › webhook endpoint accepts POST with valid payload @critical 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected value: 401
+    Received array: [200, 404]
+
+      69 |     
+      70 |     // Should return 200 or 404 (order not found is acceptable for mock)
+    > 71 |     expect([200, 404]).toContain(response.status());
+         |                        ^
+      72 |   });
+      73 |   
+      74 |   test('webhook processes real order correctly @regression @slow', async ({ request }) => {
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\api\webhook-tests.spec.ts:71:24
+]]>
+</failure>
+</testcase>
+<testcase name="VivaWallet Webhook - Integration Flow › payment success webhook updates order to paid @critical" classname="api\webhook-tests.spec.ts" time="0">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="auth\registration.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="1" failures="1" skipped="0" time="120.294" errors="0">
+<testcase name="User Registration › create new account successfully @critical @regression" classname="auth\registration.spec.ts" time="120.294">
+<failure message="registration.spec.ts:16:7 create new account successfully @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › auth\registration.spec.ts:16:7 › User Registration › create new account successfully @critical @regression 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.fill: Target page, context or browser has been closed
+
+      22 |     
+      23 |     // Fill registration form
+    > 24 |     await page.fill('input[name="firstName"]', customerData.firstName);
+         |                ^
+      25 |     await page.fill('input[name="lastName"]', customerData.lastName);
+      26 |     await page.fill('input[name="email"]', customerData.email);
+      27 |     await page.fill('input[name="password"]', customerData.password);
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\auth\registration.spec.ts:24:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\auth-registration-User-Reg-8dfc9-ssfully-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\auth-registration-User-Reg-8dfc9-ssfully-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\auth-registration-User-Reg-8dfc9-ssfully-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|auth-registration-User-Reg-8dfc9-ssfully-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|auth-registration-User-Reg-8dfc9-ssfully-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|auth-registration-User-Reg-8dfc9-ssfully-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="checkout\guest-checkout-failure.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="1" failures="1" skipped="0" time="28.033" errors="0">
+<testcase name="Guest Checkout - Card Payment Failure › failed payment redirects to failure page @critical @regression" classname="checkout\guest-checkout-failure.spec.ts" time="28.033">
+<failure message="guest-checkout-failure.spec.ts:26:7 failed payment redirects to failure page @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\guest-checkout-failure.spec.ts:26:7 › Guest Checkout - Card Payment Failure › failed payment redirects to failure page @critical @regression 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('button', { name: 'Ajouter au panier' }).first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Ajouter au panier' }).first()
+
+
+       at fixtures\page-helpers.ts:96
+
+      94 |   
+      95 |   const addBtn = page.getByRole('button', { name: 'Ajouter au panier' }).first();
+    > 96 |   await expect(addBtn).toBeVisible({ timeout: 15000 });
+         |                        ^
+      97 |   await addBtn.click();
+      98 |   await ensureCartHasItem(page);
+      99 | }
+        at addProductToCart (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:96:24)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\guest-checkout-failure.spec.ts:30:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-guest-checkout-fa-cb59f-re-page-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-guest-checkout-fa-cb59f-re-page-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-guest-checkout-fa-cb59f-re-page-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-guest-checkout-fa-cb59f-re-page-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-guest-checkout-fa-cb59f-re-page-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-guest-checkout-fa-cb59f-re-page-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="checkout\guest-checkout-success.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="1" failures="1" skipped="0" time="27.722" errors="0">
+<testcase name="Guest Checkout - Card Payment Success › complete guest checkout with card payment @critical @regression" classname="checkout\guest-checkout-success.spec.ts" time="27.722">
+<failure message="guest-checkout-success.spec.ts:31:7 complete guest checkout with card payment @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\guest-checkout-success.spec.ts:31:7 › Guest Checkout - Card Payment Success › complete guest checkout with card payment @critical @regression 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('button', { name: 'Ajouter au panier' }).first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Ajouter au panier' }).first()
+
+
+       at fixtures\page-helpers.ts:96
+
+      94 |   
+      95 |   const addBtn = page.getByRole('button', { name: 'Ajouter au panier' }).first();
+    > 96 |   await expect(addBtn).toBeVisible({ timeout: 15000 });
+         |                        ^
+      97 |   await addBtn.click();
+      98 |   await ensureCartHasItem(page);
+      99 | }
+        at addProductToCart (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:96:24)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\guest-checkout-success.spec.ts:35:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-guest-checkout-su-ea43f-payment-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-guest-checkout-su-ea43f-payment-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-guest-checkout-su-ea43f-payment-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-guest-checkout-su-ea43f-payment-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-guest-checkout-su-ea43f-payment-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-guest-checkout-su-ea43f-payment-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="checkout\loyalty.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="2" failures="2" skipped="0" time="240.601" errors="0">
+<testcase name="Loyalty/Cagnotte - Authenticated User › authenticated user sees wallet balance in cart @critical @regression" classname="checkout\loyalty.spec.ts" time="120.322">
+<failure message="loyalty.spec.ts:37:7 authenticated user sees wallet balance in cart @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\loyalty.spec.ts:37:7 › Loyalty/Cagnotte - Authenticated User › authenticated user sees wallet balance in cart @critical @regression 
+
+    Test timeout of 120000ms exceeded while running "beforeEach" hook.
+
+      30 | test.describe('Loyalty/Cagnotte - Authenticated User', () => {
+      31 |   
+    > 32 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      33 |     // Login as test customer
+      34 |     await loginAsCustomer(page, E2E_TEST_CUSTOMER.email, E2E_TEST_CUSTOMER.password);
+      35 |   });
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\loyalty.spec.ts:32:8
+
+    Error: page.fill: Target page, context or browser has been closed
+
+       at fixtures\page-helpers.ts:162
+
+      160 |   await acceptBanners(page);
+      161 |   
+    > 162 |   await page.fill('input[name="email"]', email);
+          |              ^
+      163 |   await page.fill('input[name="password"]', password);
+      164 |   await page.click('button[type="submit"]');
+      165 |   
+        at loginAsCustomer (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:162:14)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\loyalty.spec.ts:34:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-loyalty-Loyalty-C-25509-in-cart-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-loyalty-Loyalty-C-25509-in-cart-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-loyalty-Loyalty-C-25509-in-cart-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-loyalty-Loyalty-C-25509-in-cart-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-loyalty-Loyalty-C-25509-in-cart-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-loyalty-Loyalty-C-25509-in-cart-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Loyalty/Cagnotte - Authenticated User › user can apply partial cagnotte to payment @critical @regression" classname="checkout\loyalty.spec.ts" time="120.279">
+<failure message="loyalty.spec.ts:59:7 user can apply partial cagnotte to payment @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\loyalty.spec.ts:59:7 › Loyalty/Cagnotte - Authenticated User › user can apply partial cagnotte to payment @critical @regression 
+
+    Test timeout of 120000ms exceeded while running "beforeEach" hook.
+
+      30 | test.describe('Loyalty/Cagnotte - Authenticated User', () => {
+      31 |   
+    > 32 |   test.beforeEach(async ({ page }) => {
+         |        ^
+      33 |     // Login as test customer
+      34 |     await loginAsCustomer(page, E2E_TEST_CUSTOMER.email, E2E_TEST_CUSTOMER.password);
+      35 |   });
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\loyalty.spec.ts:32:8
+
+    Error: page.fill: Target page, context or browser has been closed
+
+       at fixtures\page-helpers.ts:162
+
+      160 |   await acceptBanners(page);
+      161 |   
+    > 162 |   await page.fill('input[name="email"]', email);
+          |              ^
+      163 |   await page.fill('input[name="password"]', password);
+      164 |   await page.click('button[type="submit"]');
+      165 |   
+        at loginAsCustomer (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:162:14)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\loyalty.spec.ts:34:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-loyalty-Loyalty-C-9d040-payment-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-loyalty-Loyalty-C-9d040-payment-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-loyalty-Loyalty-C-9d040-payment-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-loyalty-Loyalty-C-9d040-payment-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-loyalty-Loyalty-C-9d040-payment-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-loyalty-Loyalty-C-9d040-payment-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="checkout\promo-code.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="2" failures="2" skipped="0" time="52.859" errors="0">
+<testcase name="Promo Code - Valid Codes › apply valid promo code reduces total @critical @regression" classname="checkout\promo-code.spec.ts" time="26.59">
+<failure message="promo-code.spec.ts:31:7 apply valid promo code reduces total @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\promo-code.spec.ts:31:7 › Promo Code - Valid Codes › apply valid promo code reduces total @critical @regression 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('button', { name: 'Ajouter au panier' }).first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Ajouter au panier' }).first()
+
+
+       at fixtures\page-helpers.ts:96
+
+      94 |   
+      95 |   const addBtn = page.getByRole('button', { name: 'Ajouter au panier' }).first();
+    > 96 |   await expect(addBtn).toBeVisible({ timeout: 15000 });
+         |                        ^
+      97 |   await addBtn.click();
+      98 |   await ensureCartHasItem(page);
+      99 | }
+        at addProductToCart (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:96:24)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\promo-code.spec.ts:33:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-promo-code-Promo--aed53-s-total-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-promo-code-Promo--aed53-s-total-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-promo-code-Promo--aed53-s-total-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-promo-code-Promo--aed53-s-total-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-promo-code-Promo--aed53-s-total-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-promo-code-Promo--aed53-s-total-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Promo Code - Checkout Integration › promo discount persists through checkout @critical @regression" classname="checkout\promo-code.spec.ts" time="26.269">
+<failure message="promo-code.spec.ts:127:7 promo discount persists through checkout @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\promo-code.spec.ts:127:7 › Promo Code - Checkout Integration › promo discount persists through checkout @critical @regression 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('button', { name: 'Ajouter au panier' }).first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Ajouter au panier' }).first()
+
+
+       at fixtures\page-helpers.ts:96
+
+      94 |   
+      95 |   const addBtn = page.getByRole('button', { name: 'Ajouter au panier' }).first();
+    > 96 |   await expect(addBtn).toBeVisible({ timeout: 15000 });
+         |                        ^
+      97 |   await addBtn.click();
+      98 |   await ensureCartHasItem(page);
+      99 | }
+        at addProductToCart (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:96:24)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\promo-code.spec.ts:128:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-promo-code-Promo--7c8f2-heckout-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-promo-code-Promo--7c8f2-heckout-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-promo-code-Promo--7c8f2-heckout-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-promo-code-Promo--7c8f2-heckout-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-promo-code-Promo--7c8f2-heckout-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-promo-code-Promo--7c8f2-heckout-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="checkout\referral.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="3" failures="3" skipped="0" time="176.612" errors="0">
+<testcase name="Referral Code - Guest User › guest can apply valid referral code @critical @regression" classname="checkout\referral.spec.ts" time="28.193">
+<failure message="referral.spec.ts:33:7 guest can apply valid referral code @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\referral.spec.ts:33:7 › Referral Code - Guest User › guest can apply valid referral code @critical @regression 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('button', { name: 'Ajouter au panier' }).first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Ajouter au panier' }).first()
+
+
+       at fixtures\page-helpers.ts:96
+
+      94 |   
+      95 |   const addBtn = page.getByRole('button', { name: 'Ajouter au panier' }).first();
+    > 96 |   await expect(addBtn).toBeVisible({ timeout: 15000 });
+         |                        ^
+      97 |   await addBtn.click();
+      98 |   await ensureCartHasItem(page);
+      99 | }
+        at addProductToCart (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:96:24)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\referral.spec.ts:35:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-referral-Referral-7b069-al-code-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-referral-Referral-7b069-al-code-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-referral-Referral-7b069-al-code-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-referral-Referral-7b069-al-code-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-referral-Referral-7b069-al-code-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-referral-Referral-7b069-al-code-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Referral Code - Authenticated User › user cannot use their own referral code @critical @regression" classname="checkout\referral.spec.ts" time="120.288">
+<failure message="referral.spec.ts:74:7 user cannot use their own referral code @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\referral.spec.ts:74:7 › Referral Code - Authenticated User › user cannot use their own referral code @critical @regression 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.fill: Target page, context or browser has been closed
+
+       at fixtures\page-helpers.ts:162
+
+      160 |   await acceptBanners(page);
+      161 |   
+    > 162 |   await page.fill('input[name="email"]', email);
+          |              ^
+      163 |   await page.fill('input[name="password"]', password);
+      164 |   await page.click('button[type="submit"]');
+      165 |   
+        at loginAsCustomer (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:162:14)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\referral.spec.ts:76:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-referral-Referral-27fcd-al-code-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-referral-Referral-27fcd-al-code-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-referral-Referral-27fcd-al-code-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-referral-Referral-27fcd-al-code-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-referral-Referral-27fcd-al-code-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-referral-Referral-27fcd-al-code-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Referral Code - Checkout Integration › referral discount persists through checkout @critical @regression" classname="checkout\referral.spec.ts" time="28.131">
+<failure message="referral.spec.ts:121:7 referral discount persists through checkout @critical @regression" type="FAILURE">
+<![CDATA[  [staging] › checkout\referral.spec.ts:121:7 › Referral Code - Checkout Integration › referral discount persists through checkout @critical @regression 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('button', { name: 'Ajouter au panier' }).first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('button', { name: 'Ajouter au panier' }).first()
+
+
+       at fixtures\page-helpers.ts:96
+
+      94 |   
+      95 |   const addBtn = page.getByRole('button', { name: 'Ajouter au panier' }).first();
+    > 96 |   await expect(addBtn).toBeVisible({ timeout: 15000 });
+         |                        ^
+      97 |   await addBtn.click();
+      98 |   await ensureCartHasItem(page);
+      99 | }
+        at addProductToCart (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:96:24)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\referral.spec.ts:122:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-referral-Referral-ebfc4-heckout-critical-regression-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-referral-Referral-ebfc4-heckout-critical-regression-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-referral-Referral-ebfc4-heckout-critical-regression-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-referral-Referral-ebfc4-heckout-critical-regression-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-referral-Referral-ebfc4-heckout-critical-regression-staging\video.webm]]
+
+[[ATTACHMENT|checkout-referral-Referral-ebfc4-heckout-critical-regression-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="checkout\wallet-checkout.spec.ts" timestamp="2026-01-05T09:45:07.545Z" hostname="staging" tests="1" failures="1" skipped="0" time="120.29" errors="0">
+<testcase name="Logged-in Checkout with Wallet › complete authenticated checkout with wallet @critical" classname="checkout\wallet-checkout.spec.ts" time="120.29">
+<failure message="wallet-checkout.spec.ts:63:7 complete authenticated checkout with wallet @critical" type="FAILURE">
+<![CDATA[  [staging] › checkout\wallet-checkout.spec.ts:63:7 › Logged-in Checkout with Wallet › complete authenticated checkout with wallet @critical 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.fill: Target page, context or browser has been closed
+
+       at fixtures\page-helpers.ts:162
+
+      160 |   await acceptBanners(page);
+      161 |   
+    > 162 |   await page.fill('input[name="email"]', email);
+          |              ^
+      163 |   await page.fill('input[name="password"]', password);
+      164 |   await page.click('button[type="submit"]');
+      165 |   
+        at loginAsCustomer (C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\fixtures\page-helpers.ts:162:14)
+        at C:\Users\hugod\Documents\dev\apps\chanvre-vert\cv_frontend\tests\e2e\checkout\wallet-checkout.spec.ts:64:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-wallet-checkout-L-6c48a-eckout-with-wallet-critical-staging\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\checkout-wallet-checkout-L-6c48a-eckout-with-wallet-critical-staging\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\checkout-wallet-checkout-L-6c48a-eckout-with-wallet-critical-staging\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|checkout-wallet-checkout-L-6c48a-eckout-with-wallet-critical-staging\test-failed-1.png]]
+
+[[ATTACHMENT|checkout-wallet-checkout-L-6c48a-eckout-with-wallet-critical-staging\video.webm]]
+
+[[ATTACHMENT|checkout-wallet-checkout-L-6c48a-eckout-with-wallet-critical-staging\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
 </testsuites>

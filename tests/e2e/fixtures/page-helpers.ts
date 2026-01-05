@@ -166,3 +166,78 @@ export async function loginAsCustomer(
   // Wait for redirect to account page
   await page.waitForURL(/\/compte/, { timeout: 15000 });
 }
+
+/**
+ * Apply a promo code in cart page
+ */
+export async function applyPromoCode(page: Page, code: string): Promise<void> {
+  // Look for promo code input
+  const promoInput = page.locator('input[name="promoCode"], input[placeholder*="promo" i], input[placeholder*="code" i]').first();
+  await expect(promoInput).toBeVisible({ timeout: 5000 });
+  await promoInput.fill(code);
+  
+  // Click apply button
+  const applyBtn = page.getByRole('button', { name: /appliquer|valider/i }).first();
+  await applyBtn.click();
+  
+  await page.waitForTimeout(1000);
+}
+
+/**
+ * Apply referral code in cart page
+ */
+export async function applyReferralCode(page: Page, code: string): Promise<void> {
+  // Look for referral/parrainage input
+  const referralInput = page.locator('input[name="referralCode"], input[placeholder*="parrain" i]').first();
+  
+  if (await referralInput.count() > 0) {
+    await referralInput.fill(code);
+    
+    // Click apply button
+    const applyBtn = page.locator('button').filter({ hasText: /appliquer|valider/i }).first();
+    await applyBtn.click();
+    
+    await page.waitForTimeout(1000);
+  }
+}
+
+/**
+ * Apply loyalty/cagnotte to cart
+ */
+export async function applyLoyalty(page: Page): Promise<void> {
+  // Look for "use cagnotte" button/checkbox
+  const loyaltyBtn = page.getByRole('button', { name: /utiliser.*cagnotte|appliquer.*cagnotte/i }).first();
+  const loyaltyCheckbox = page.locator('input[type="checkbox"]').filter({ hasText: /cagnotte/i }).first();
+  
+  if (await loyaltyBtn.count() > 0) {
+    await loyaltyBtn.click();
+  } else if (await loyaltyCheckbox.count() > 0) {
+    await loyaltyCheckbox.check();
+  }
+  
+  await page.waitForTimeout(1000);
+}
+
+/**
+ * Get displayed wallet balance from page
+ */
+export async function getWalletBalance(page: Page): Promise<number | null> {
+  const balanceText = page.locator('[data-testid="wallet-balance"], .wallet-balance, .cagnotte-balance').first();
+  
+  if (await balanceText.count() === 0) {
+    // Try to find it in text
+    const cagnotteText = await page.getByText(/cagnotte.*€|€.*cagnotte/i).first().textContent();
+    if (cagnotteText) {
+      const match = cagnotteText.match(/(\d+[,.]?\d*)\s*€/);
+      if (match) {
+        return parseFloat(match[1].replace(',', '.'));
+      }
+    }
+    return null;
+  }
+  
+  const text = await balanceText.textContent();
+  const match = text?.match(/(\d+[,.]?\d*)/);
+  return match ? parseFloat(match[1].replace(',', '.')) : null;
+}
+

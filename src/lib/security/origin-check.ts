@@ -9,7 +9,7 @@ const ALLOWED_ORIGINS = [
   'https://chanvre-vert.fr',
   'https://www.chanvre-vert.fr',
   // Staging
-  'https://chanvre-vert-front-jkoaxswuv-hughsaweds-projects.vercel.app',
+  'https://chanvre-vert-front-git-staging-hughsaweds-projects.vercel.app',
   // Development
   'http://localhost:3001',
   'http://127.0.0.1:3001',

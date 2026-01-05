@@ -1,0 +1,205 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "Chanvre Vert Logo Chanvre Vert" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Chanvre Vert Logo" [ref=e6] [cursor=pointer]
+        - generic [ref=e7] [cursor=pointer]: Chanvre Vert
+      - generic [ref=e8]:
+        - navigation [ref=e9]:
+          - link "Produits" [ref=e11] [cursor=pointer]:
+            - /url: /produits
+            - generic [ref=e12] [cursor=pointer]: Produits
+            - img [ref=e13] [cursor=pointer]
+          - link "Blog" [ref=e16] [cursor=pointer]:
+            - /url: /blog
+            - generic [ref=e17] [cursor=pointer]: Blog
+            - img [ref=e18] [cursor=pointer]
+          - link "Parrainage" [ref=e21] [cursor=pointer]:
+            - /url: /parrainage
+            - generic [ref=e22] [cursor=pointer]: Parrainage
+            - img [ref=e23] [cursor=pointer]
+        - generic [ref=e25]:
+          - link "Voir le panier" [ref=e26] [cursor=pointer]:
+            - /url: /panier
+            - img [ref=e27] [cursor=pointer]
+          - link "Connexion" [ref=e32] [cursor=pointer]:
+            - /url: /connexion
+            - img [ref=e33] [cursor=pointer]
+            - generic [ref=e36] [cursor=pointer]: Connexion
+  - generic [ref=e37]:
+    - generic [ref=e38]:
+      - img "Chanvre Vert Logo" [ref=e39]
+      - paragraph [ref=e40]: Menu
+      - button "Fermer le menu" [ref=e41]:
+        - img [ref=e42]
+    - navigation [ref=e45]:
+      - link "Produits" [ref=e46] [cursor=pointer]:
+        - /url: /produits
+      - link "Blog" [ref=e47] [cursor=pointer]:
+        - /url: /blog
+      - link "Parrainage" [ref=e48] [cursor=pointer]:
+        - /url: /parrainage
+      - link "Panier" [ref=e49] [cursor=pointer]:
+        - /url: /panier
+      - generic [ref=e50]:
+        - paragraph [ref=e51]: Categories
+        - link "Packs CBD" [ref=e52] [cursor=pointer]:
+          - /url: /produits/categorie/packs-cbd
+        - link "Gélules CBD" [ref=e53] [cursor=pointer]:
+          - /url: /produits/categorie/gelules-cbd
+        - link "Infusions CBD" [ref=e54] [cursor=pointer]:
+          - /url: /produits/categorie/infusions-cbd
+        - link "Huiles CBD" [ref=e55] [cursor=pointer]:
+          - /url: /produits/categorie/huiles-cbd
+        - link "Résines CBD" [ref=e56] [cursor=pointer]:
+          - /url: /produits/categorie/resines-cbd
+        - link "Fleurs CBD" [ref=e57] [cursor=pointer]:
+          - /url: /produits/categorie/fleurs-cbd
+      - link "Connexion" [ref=e58] [cursor=pointer]:
+        - /url: /connexion
+        - img [ref=e59] [cursor=pointer]
+        - text: Connexion
+  - generic [ref=e65]:
+    - button "Fermer" [ref=e66]:
+      - img [ref=e67]
+    - generic [ref=e69]:
+      - generic:
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+        - generic: ❄
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - generic [ref=e72]: 🎄
+          - heading "Opérations de Noël" [level=2] [ref=e73]
+          - generic [ref=e74]: 🎅
+        - paragraph [ref=e75]: Du 20 au 31 décembre 2025
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e79]: 🪙
+            - heading "La Chasse à la Pièce d'Or" [level=3] [ref=e80]
+          - paragraph [ref=e81]:
+            - generic [ref=e82]: 3 pièces d'or à trouver
+            - text: =
+            - generic [ref=e83]: 1 an de CBD offert !
+          - paragraph [ref=e85]:
+            - generic [ref=e86]: Comment participer ?
+            - text: Chaque
+            - generic [ref=e87]: 10g de fleurs ou résines
+            - text: achetés =
+            - generic [ref=e88]: 1 participation
+        - generic [ref=e89]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: 💰
+            - heading "Cashback de Noël" [level=3] [ref=e92]
+          - paragraph [ref=e93]:
+            - text: Recevez un
+            - generic [ref=e94]: bonus en cagnotte
+            - text: utilisable en janvier !
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - paragraph [ref=e97]: 25€
+              - paragraph [ref=e98]: → 5€
+            - generic [ref=e99]:
+              - paragraph [ref=e100]: 50€
+              - paragraph [ref=e101]: → 10€
+            - generic [ref=e102]:
+              - paragraph [ref=e103]: 100€
+              - paragraph [ref=e104]: → 20€
+      - generic [ref=e105]:
+        - button "🎁 J'en profite !" [ref=e106]
+        - paragraph [ref=e107]: "* Cashback utilisable en janvier 2026 uniquement."
+  - main [ref=e108]:
+    - generic [ref=e110]:
+      - heading "Créer un compte" [level=1] [ref=e111]
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - generic [ref=e115]: Prénom
+            - textbox "Prénom" [ref=e116]
+          - generic [ref=e117]:
+            - generic [ref=e118]: Nom
+            - textbox "Nom" [ref=e119]
+        - generic [ref=e120]:
+          - generic [ref=e121]: Email
+          - textbox "Email" [ref=e122]
+        - generic [ref=e123]:
+          - generic [ref=e124]: Mot de passe
+          - textbox "Mot de passe" [ref=e125]
+          - paragraph [ref=e126]: 8 caractères minimum, incluant lettres, chiffres et caractères spéciaux
+        - generic [ref=e127]:
+          - generic [ref=e128]: Confirmer le mot de passe
+          - textbox "Confirmer le mot de passe" [ref=e129]
+        - generic [ref=e130]:
+          - generic [ref=e131]: Code parrainage (optionnel)
+          - textbox "Code parrainage (optionnel)" [ref=e133]
+        - generic [ref=e134]:
+          - generic [ref=e135]:
+            - checkbox "J'accepte les conditions générales de vente" [ref=e136]
+            - generic [ref=e137]:
+              - text: J'accepte les
+              - link "conditions générales de vente" [ref=e138] [cursor=pointer]:
+                - /url: /conditions-generales
+          - generic [ref=e139]:
+            - checkbox "J'accepte la politique de confidentialité" [ref=e140]
+            - generic [ref=e141]:
+              - text: J'accepte la
+              - link "politique de confidentialité" [ref=e142] [cursor=pointer]:
+                - /url: /politique-confidentialite
+        - button "Créer mon compte" [ref=e143]
+      - paragraph [ref=e145]:
+        - text: Vous avez déjà un compte ?
+        - link "Se connecter" [ref=e146] [cursor=pointer]:
+          - /url: /connexion
+  - contentinfo [ref=e147]:
+    - generic [ref=e148]:
+      - link "Chanvre Vert Logo Chanvre Vert" [ref=e149] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e150] [cursor=pointer]:
+          - img "Chanvre Vert Logo" [ref=e151] [cursor=pointer]
+          - generic [ref=e152] [cursor=pointer]: Chanvre Vert
+      - navigation [ref=e154]:
+        - link "À propos" [ref=e155] [cursor=pointer]:
+          - /url: /a-propos
+        - link "Contact" [ref=e156] [cursor=pointer]:
+          - /url: /contact
+        - link "Mentions légales" [ref=e157] [cursor=pointer]:
+          - /url: /legal
+    - generic [ref=e159]:
+      - paragraph [ref=e160]: © 2026 Chanvre Vert - Tous droits réservés
+      - generic [ref=e161]:
+        - link "Politique de confidentialité" [ref=e162] [cursor=pointer]:
+          - /url: /confidentialite
+        - link "Politique de cookies" [ref=e163] [cursor=pointer]:
+          - /url: /cookies
+        - link "Conditions d'utilisation" [ref=e164] [cursor=pointer]:
+          - /url: /terms
+        - link "CGV" [ref=e165] [cursor=pointer]:
+          - /url: /cgv
+  - alert [ref=e166]
+  - generic [ref=e169]:
+    - generic [ref=e170]:
+      - paragraph [ref=e171]: Nous utilisons des cookies 🍪
+      - paragraph [ref=e172]: Ce site utilise des cookies pour améliorer votre expérience de navigation, analyser le trafic et personnaliser le contenu. Vous pouvez accepter tous les cookies, les refuser ou personnaliser vos choix.
+    - generic [ref=e173]:
+      - button "Personnaliser mes choix de cookies" [ref=e174]: Personnaliser
+      - generic [ref=e175]:
+        - button "Refuser tous les cookies" [ref=e176]: Tout refuser
+        - button "Accepter tous les cookies" [ref=e177]: Tout accepter
+```
