@@ -107,7 +107,7 @@ export default function JanuaryBanner() {
                             <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/20">
                                 <p className="text-white/80 text-sm text-center">
                                     <span className="text-2xl">🛒</span><br />
-                                    La réduction sera <span className="font-semibold text-green-400">automatiquement appliquée</span> à votre panier.
+                                    La réduction sera <span className="font-semibold text-green-400">disponible</span> dans le récapitulatif de votre panier.
                                 </p>
                             </div>
                         </div>

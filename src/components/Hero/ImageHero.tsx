@@ -53,7 +53,7 @@ function ChristmasHeroCard() {
       {/* Info */}
       <div>
         <p className="text-xs md:text-sm text-white/80">
-          🛒 Réduction appliquée automatiquement
+          🛒 Réduction disponible dans le récapitulatif de votre panier
         </p>
         <p className="text-xs md:text-sm text-white/60 mt-1">
           💡 Utilisable si panier &ge; 50€ après remises

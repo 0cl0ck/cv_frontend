@@ -585,9 +585,6 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
               <p className="text-sm text-[#BEC3CA] mb-3">
                 {userInfo.loyalty.currentReward.description}
               </p>
-              <p className="text-xs text-[#10B981]">
-                Sera automatiquement appliquée lors de votre prochaine commande
-              </p>
             </div>
           </div>
         </div>
