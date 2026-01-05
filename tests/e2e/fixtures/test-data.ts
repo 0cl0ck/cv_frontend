@@ -18,6 +18,33 @@ export function uniqueTestId(): string {
   return `e2e-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 }
 
+// ============================================
+// E2E TEST CONSTANTS (must match seed script)
+// ============================================
+
+/**
+ * Seeded E2E test customer - created by seed-e2e-data.mjs
+ * Has 20€ wallet balance and referral code
+ */
+export const E2E_TEST_CUSTOMER = {
+  email: 'e2e-test@chanvre-vert.local',
+  password: 'E2eTest2026!',
+};
+
+/**
+ * Promo codes created by seed script
+ */
+export const E2E_PROMO_CODES = {
+  valid: 'PROMO10E2E',      // 10% discount, active
+  expired: 'PROMOEXPIRED',   // Expired end date
+  invalid: 'INVALIDCODE123', // Does not exist
+};
+
+/**
+ * Referral code of E2E test customer
+ */
+export const E2E_REFERRAL_CODE = 'E2ETEST2026';
+
 // Guest test data with unique email
 export function createGuestData(uniqueId: string = uniqueTestId()) {
   return {

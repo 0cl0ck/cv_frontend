@@ -1,7 +1,7 @@
 ﻿import { test, expect, Page } from "@playwright/test";
 
 const FRONT = process.env.FRONT_BASE_URL || "http://localhost:3001";
-const PRODUCT_SLUG = "/produits/produit-vedette-3";
+const PRODUCT_SLUG = "/produits/test";
 
 const GUEST = {
   firstName: "Hugo",

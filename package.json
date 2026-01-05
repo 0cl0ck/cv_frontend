@@ -10,9 +10,12 @@
     "lint": "next lint",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "e2e": "playwright test --project=chromium",
-    "e2e:ui": "playwright test --ui --project=chromium",
-    "e2e:headed": "playwright test --headed --project=chromium"
+    "e2e": "playwright test --project=local",
+    "e2e:ui": "playwright test --ui --project=local",
+    "e2e:headed": "playwright test --headed --project=local",
+    "e2e:staging": "cross-env PLAYWRIGHT_NO_WEBSERVER=1 playwright test --project=staging",
+    "e2e:staging:ui": "cross-env PLAYWRIGHT_NO_WEBSERVER=1 playwright test --project=staging --ui",
+    "e2e:staging:critical": "cross-env PLAYWRIGHT_NO_WEBSERVER=1 playwright test --project=staging --grep @critical"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",

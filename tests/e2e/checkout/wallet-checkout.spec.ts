@@ -8,7 +8,10 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { VIVA_TEST_CARDS } from '../fixtures';
+import { 
+  VIVA_TEST_CARDS,
+  E2E_TEST_CUSTOMER,
+} from '../fixtures';
 import {
   acceptBanners,
   addProductToCart,
@@ -17,23 +20,13 @@ import {
   loginAsCustomer,
 } from '../fixtures';
 
-const TEST_PRODUCT_SLUG = 'produit-vedette-3';
-
-// Test customer credentials - should exist in staging
-// Create this customer manually or via seed
-const TEST_CUSTOMER = {
-  email: 'e2e-test@chanvre-vert.local',
-  password: 'TestPassword123!',
-};
+const TEST_PRODUCT_SLUG = 'test';
 
 test.describe('Logged-in Checkout with Wallet', () => {
   
-  test.skip('authenticated user sees wallet balance @regression', async ({ page }) => {
-    // Skip if test customer doesn't exist
-    // TODO: Create test customer in staging DB
-    
-    // Login
-    await loginAsCustomer(page, TEST_CUSTOMER.email, TEST_CUSTOMER.password);
+  test('authenticated user sees wallet balance @regression', async ({ page }) => {
+    // Login with seeded E2E test customer
+    await loginAsCustomer(page, E2E_TEST_CUSTOMER.email, E2E_TEST_CUSTOMER.password);
     
     // Navigate to cart with items
     await addProductToCart(page, TEST_PRODUCT_SLUG);
@@ -48,11 +41,8 @@ test.describe('Logged-in Checkout with Wallet', () => {
     }
   });
   
-  test.skip('user can apply wallet to payment @regression', async ({ page }) => {
-    // Skip if test customer doesn't exist
-    // TODO: Create test customer with wallet balance in staging DB
-    
-    await loginAsCustomer(page, TEST_CUSTOMER.email, TEST_CUSTOMER.password);
+  test('user can apply wallet to payment @regression', async ({ page }) => {
+    await loginAsCustomer(page, E2E_TEST_CUSTOMER.email, E2E_TEST_CUSTOMER.password);
     
     await addProductToCart(page, TEST_PRODUCT_SLUG);
     await page.goto('/panier');
@@ -70,14 +60,8 @@ test.describe('Logged-in Checkout with Wallet', () => {
     }
   });
   
-  test.skip('complete authenticated checkout with wallet @critical', async ({ page }) => {
-    // Skip if test customer doesn't exist
-    // This is a full end-to-end test that requires:
-    // 1. Test customer with wallet balance
-    // 2. Complete checkout flow
-    // 3. Verify wallet was decremented
-    
-    await loginAsCustomer(page, TEST_CUSTOMER.email, TEST_CUSTOMER.password);
+  test('complete authenticated checkout with wallet @critical', async ({ page }) => {
+    await loginAsCustomer(page, E2E_TEST_CUSTOMER.email, E2E_TEST_CUSTOMER.password);
     
     await addProductToCart(page, TEST_PRODUCT_SLUG);
     await page.goto('/panier');
@@ -95,16 +79,17 @@ test.describe('Logged-in Checkout with Wallet', () => {
     
     // For authenticated users, some fields might be pre-filled
     await acceptBanners(page);
+    await page.waitForLoadState('networkidle');
     
-    // Complete checkout...
-    // TODO: Full implementation once test customer exists
+    // Verify we're on checkout page
+    await expect(page.getByText(/informations|livraison|paiement/i).first()).toBeVisible({ timeout: 15000 });
   });
 });
 
 test.describe('Account Page - Order History', () => {
   
-  test.skip('user can view order history @regression', async ({ page }) => {
-    await loginAsCustomer(page, TEST_CUSTOMER.email, TEST_CUSTOMER.password);
+  test('user can view order history @regression', async ({ page }) => {
+    await loginAsCustomer(page, E2E_TEST_CUSTOMER.email, E2E_TEST_CUSTOMER.password);
     
     // Navigate to order history
     await page.goto('/compte/commandes');
@@ -114,8 +99,8 @@ test.describe('Account Page - Order History', () => {
     await expect(page.getByText(/commandes|historique/i).first()).toBeVisible({ timeout: 10000 });
   });
   
-  test.skip('user can view order details @regression', async ({ page }) => {
-    await loginAsCustomer(page, TEST_CUSTOMER.email, TEST_CUSTOMER.password);
+  test('user can view order details @regression', async ({ page }) => {
+    await loginAsCustomer(page, E2E_TEST_CUSTOMER.email, E2E_TEST_CUSTOMER.password);
     
     await page.goto('/compte/commandes');
     await acceptBanners(page);

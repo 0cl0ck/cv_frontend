@@ -19,7 +19,7 @@ import {
   completeVivaPayment,
 } from '../fixtures';
 
-const TEST_PRODUCT_SLUG = 'produit-vedette-3';
+const TEST_PRODUCT_SLUG = 'test';
 
 test.describe('Guest Checkout - Card Payment Failure', () => {
   

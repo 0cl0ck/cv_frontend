@@ -5,11 +5,23 @@ import { NextRequest, NextResponse } from 'next/server';
  * Protection CSRF supplémentaire via vérification Origin/Referer
  */
 const ALLOWED_ORIGINS = [
+  // Production
   'https://chanvre-vert.fr',
   'https://www.chanvre-vert.fr',
-  'http://localhost:3001', // Frontend dev
+  // Staging
+  'https://chanvre-vert-front-git-staging-hughsaweds-projects.vercel.app',
+  // Development
+  'http://localhost:3001',
   'http://127.0.0.1:3001',
 ];
+
+// Ajouter dynamiquement NEXT_PUBLIC_SITE_URL si défini
+if (process.env.NEXT_PUBLIC_SITE_URL) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!ALLOWED_ORIGINS.includes(siteUrl)) {
+    ALLOWED_ORIGINS.push(siteUrl);
+  }
+}
 
 // En développement, autoriser localhost avec n'importe quel port
 if (process.env.NODE_ENV === 'development') {

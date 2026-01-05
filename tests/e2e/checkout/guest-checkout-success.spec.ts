@@ -24,7 +24,7 @@ import {
 } from '../fixtures';
 
 // Test product slug - should exist in staging DB
-const TEST_PRODUCT_SLUG = 'produit-vedette-3';
+const TEST_PRODUCT_SLUG = 'test';
 
 test.describe('Guest Checkout - Card Payment Success', () => {
   
