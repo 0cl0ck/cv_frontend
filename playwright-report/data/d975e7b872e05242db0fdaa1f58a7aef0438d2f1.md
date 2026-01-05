@@ -1,0 +1,122 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "Chanvre Vert Logo Chanvre Vert" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Chanvre Vert Logo" [ref=e6] [cursor=pointer]
+        - generic [ref=e7] [cursor=pointer]: Chanvre Vert
+      - generic [ref=e8]:
+        - navigation [ref=e9]:
+          - link "Produits" [ref=e11] [cursor=pointer]:
+            - /url: /produits
+            - generic [ref=e12] [cursor=pointer]: Produits
+            - img [ref=e13] [cursor=pointer]
+          - link "Blog" [ref=e16] [cursor=pointer]:
+            - /url: /blog
+            - generic [ref=e17] [cursor=pointer]: Blog
+            - img [ref=e18] [cursor=pointer]
+          - link "Parrainage" [ref=e21] [cursor=pointer]:
+            - /url: /parrainage
+            - generic [ref=e22] [cursor=pointer]: Parrainage
+            - img [ref=e23] [cursor=pointer]
+        - generic [ref=e25]:
+          - link "Voir le panier" [ref=e26] [cursor=pointer]:
+            - /url: /panier
+            - img [ref=e27] [cursor=pointer]
+          - link "Connexion" [ref=e32] [cursor=pointer]:
+            - /url: /connexion
+            - img [ref=e33] [cursor=pointer]
+            - generic [ref=e36] [cursor=pointer]: Connexion
+  - generic [ref=e37]:
+    - generic [ref=e38]:
+      - img "Chanvre Vert Logo" [ref=e39]
+      - paragraph [ref=e40]: Menu
+      - button "Fermer le menu" [ref=e41]:
+        - img [ref=e42]
+    - navigation [ref=e45]:
+      - link "Produits" [ref=e46] [cursor=pointer]:
+        - /url: /produits
+      - link "Blog" [ref=e47] [cursor=pointer]:
+        - /url: /blog
+      - link "Parrainage" [ref=e48] [cursor=pointer]:
+        - /url: /parrainage
+      - link "Panier" [ref=e49] [cursor=pointer]:
+        - /url: /panier
+      - generic [ref=e50]:
+        - paragraph [ref=e51]: Categories
+        - link "Packs CBD" [ref=e52] [cursor=pointer]:
+          - /url: /produits/categorie/packs-cbd
+        - link "Gélules CBD" [ref=e53] [cursor=pointer]:
+          - /url: /produits/categorie/gelules-cbd
+        - link "Infusions CBD" [ref=e54] [cursor=pointer]:
+          - /url: /produits/categorie/infusions-cbd
+        - link "Huiles CBD" [ref=e55] [cursor=pointer]:
+          - /url: /produits/categorie/huiles-cbd
+        - link "Résines CBD" [ref=e56] [cursor=pointer]:
+          - /url: /produits/categorie/resines-cbd
+        - link "Fleurs CBD" [ref=e57] [cursor=pointer]:
+          - /url: /produits/categorie/fleurs-cbd
+      - link "Connexion" [ref=e58] [cursor=pointer]:
+        - /url: /connexion
+        - img [ref=e59] [cursor=pointer]
+        - text: Connexion
+  - main [ref=e63]:
+    - generic [ref=e65]:
+      - heading "Paiement échoué" [level=1] [ref=e66]
+      - generic [ref=e67]:
+        - paragraph [ref=e68]: Le paiement n'a pas pu être effectué
+        - paragraph [ref=e69]: Une erreur est survenue lors du traitement de votre paiement.
+      - generic [ref=e70]:
+        - heading "Que faire maintenant ?" [level=2] [ref=e71]
+        - list [ref=e72]:
+          - listitem [ref=e73]: Vérifiez que les informations de votre carte bancaire sont correctes
+          - listitem [ref=e74]: Assurez-vous que votre carte est active et autorisée pour les paiements en ligne
+          - listitem [ref=e75]: Vérifiez que vous disposez des fonds suffisants sur votre compte
+          - listitem [ref=e76]: Essayez avec une autre carte bancaire si possible
+          - listitem [ref=e77]: Si le problème persiste, contactez votre banque ou notre service client
+      - generic [ref=e78]:
+        - link "Retourner au panier" [ref=e79] [cursor=pointer]:
+          - /url: /panier
+        - link "Contacter le support" [ref=e80] [cursor=pointer]:
+          - /url: /contact
+  - contentinfo [ref=e81]:
+    - generic [ref=e82]:
+      - link "Chanvre Vert Logo Chanvre Vert" [ref=e83] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e84] [cursor=pointer]:
+          - img "Chanvre Vert Logo" [ref=e85] [cursor=pointer]
+          - generic [ref=e86] [cursor=pointer]: Chanvre Vert
+      - navigation [ref=e88]:
+        - link "À propos" [ref=e89] [cursor=pointer]:
+          - /url: /a-propos
+        - link "Contact" [ref=e90] [cursor=pointer]:
+          - /url: /contact
+        - link "Mentions légales" [ref=e91] [cursor=pointer]:
+          - /url: /legal
+    - generic [ref=e93]:
+      - paragraph [ref=e94]: © 2026 Chanvre Vert - Tous droits réservés
+      - generic [ref=e95]:
+        - link "Politique de confidentialité" [ref=e96] [cursor=pointer]:
+          - /url: /confidentialite
+        - link "Politique de cookies" [ref=e97] [cursor=pointer]:
+          - /url: /cookies
+        - link "Conditions d'utilisation" [ref=e98] [cursor=pointer]:
+          - /url: /terms
+        - link "CGV" [ref=e99] [cursor=pointer]:
+          - /url: /cgv
+  - alert [ref=e100]
+  - generic [ref=e105] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e106] [cursor=pointer]:
+      - img [ref=e107] [cursor=pointer]
+    - generic [ref=e110] [cursor=pointer]:
+      - button "Open issues overlay" [ref=e111] [cursor=pointer]:
+        - generic [ref=e112] [cursor=pointer]:
+          - generic [ref=e113] [cursor=pointer]: "0"
+          - generic [ref=e114] [cursor=pointer]: "1"
+        - generic [ref=e115] [cursor=pointer]: Issue
+      - button "Collapse issues badge" [ref=e116] [cursor=pointer]:
+        - img [ref=e117] [cursor=pointer]
+```

@@ -181,14 +181,16 @@ export default function WalletWidget({ compact = false, onWalletApply, cartTotal
           Appliquer ma cagnotte
         </button>
 
-        {/* Message explicatif */}
-        <p className="text-white/60 text-xs mt-2 text-center">
-          {cartTooLow
-            ? `Panier minimum de 50€ requis pour utiliser la cagnotte (actuel: ${cartTotalBeforeWallet.toFixed(2)}€)`
-            : canApply
-              ? 'Réduisez votre commande avec votre cagnotte (minimum 50€ après remise)'
-              : 'Votre cagnotte est utilisable dès janvier 2026.'}
-        </p>
+        {/* Message explicatif - seulement si solde > 0 */}
+        {balance > 0 && (
+          <p className="text-white/60 text-xs mt-2 text-center">
+            {cartTooLow
+              ? `Panier minimum de 50€ requis pour utiliser la cagnotte (actuel: ${cartTotalBeforeWallet.toFixed(2)}€)`
+              : canApply
+                ? 'Réduisez votre commande avec votre cagnotte (minimum 50€ après remise)'
+                : 'Votre cagnotte est utilisable dès janvier 2026.'}
+          </p>
+        )}
       </div>
     );
   }
