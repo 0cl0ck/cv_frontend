@@ -68,115 +68,92 @@
       - img [ref=e67]
     - generic [ref=e69]:
       - generic:
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
-        - generic: ❄
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
+        - generic: ✨
       - generic [ref=e70]:
         - generic [ref=e71]:
-          - generic [ref=e72]: 🎄
-          - heading "Opérations de Noël" [level=2] [ref=e73]
-          - generic [ref=e74]: 🎅
-        - paragraph [ref=e75]: Du 20 au 31 décembre 2025
-      - generic [ref=e76]:
-        - generic [ref=e77]:
-          - generic [ref=e78]:
-            - generic [ref=e79]: 🪙
-            - heading "La Chasse à la Pièce d'Or" [level=3] [ref=e80]
-          - paragraph [ref=e81]:
-            - generic [ref=e82]: 3 pièces d'or à trouver
-            - text: =
-            - generic [ref=e83]: 1 an de CBD offert !
-          - paragraph [ref=e85]:
-            - generic [ref=e86]: Comment participer ?
-            - text: Chaque
-            - generic [ref=e87]: 10g de fleurs ou résines
-            - text: achetés =
-            - generic [ref=e88]: 1 participation
-        - generic [ref=e89]:
-          - generic [ref=e90]:
-            - generic [ref=e91]: 💰
-            - heading "Cashback de Noël" [level=3] [ref=e92]
-          - paragraph [ref=e93]:
-            - text: Recevez un
-            - generic [ref=e94]: bonus en cagnotte
-            - text: utilisable en janvier !
-          - generic [ref=e95]:
-            - generic [ref=e96]:
-              - paragraph [ref=e97]: 25€
-              - paragraph [ref=e98]: → 5€
-            - generic [ref=e99]:
-              - paragraph [ref=e100]: 50€
-              - paragraph [ref=e101]: → 10€
-            - generic [ref=e102]:
-              - paragraph [ref=e103]: 100€
-              - paragraph [ref=e104]: → 20€
-      - generic [ref=e105]:
-        - button "🎁 J'en profite !" [ref=e106]
-        - paragraph [ref=e107]: "* Cashback utilisable en janvier 2026 uniquement."
-  - main [ref=e108]:
-    - generic [ref=e110]:
-      - heading "Connexion" [level=1] [ref=e111]
-      - generic [ref=e112]:
-        - generic [ref=e113]:
-          - generic [ref=e114]: Email
-          - textbox "Email" [ref=e115]
-        - generic [ref=e116]:
-          - generic [ref=e117]: Mot de passe
-          - textbox "Mot de passe" [ref=e118]
-        - button "Se connecter" [ref=e119]
-      - generic [ref=e120]:
-        - paragraph [ref=e121]:
+          - generic [ref=e72]: 🎉
+          - heading "Bonne Année 2026 !" [level=2] [ref=e73]
+          - generic [ref=e74]: 🥳
+        - paragraph [ref=e75]: Votre cadeau de Noël vous attend !
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: 💰
+          - heading "Votre Cashback est Disponible !" [level=3] [ref=e80]
+        - paragraph [ref=e81]:
+          - text: Votre cagnotte de Noël est maintenant
+          - generic [ref=e82]: utilisable sur vos commandes
+          - text: tout au long du mois de janvier !
+        - paragraph [ref=e84]:
+          - generic [ref=e85]: 🛒
+          - text: La réduction sera
+          - generic [ref=e86]: automatiquement appliquée
+          - text: à votre panier.
+      - generic [ref=e87]:
+        - button "🎁 Voir mes produits" [ref=e88]
+        - paragraph [ref=e89]: "* Cashback valable jusqu'au 31 janvier 2026."
+  - main [ref=e90]:
+    - generic [ref=e92]:
+      - heading "Connexion" [level=1] [ref=e93]
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]: Email
+          - textbox "Email" [ref=e97]
+        - generic [ref=e98]:
+          - generic [ref=e99]: Mot de passe
+          - textbox "Mot de passe" [ref=e100]
+        - button "Se connecter" [ref=e101]
+      - generic [ref=e102]:
+        - paragraph [ref=e103]:
           - text: Vous n'avez pas de compte ?
-          - link "Créer un compte" [ref=e122] [cursor=pointer]:
+          - link "Créer un compte" [ref=e104] [cursor=pointer]:
             - /url: /inscription
-        - paragraph [ref=e123]:
-          - link "Mot de passe oublié ?" [ref=e124] [cursor=pointer]:
+        - paragraph [ref=e105]:
+          - link "Mot de passe oublié ?" [ref=e106] [cursor=pointer]:
             - /url: /mot-de-passe-oublie
-  - contentinfo [ref=e125]:
-    - generic [ref=e126]:
-      - link "Chanvre Vert Logo Chanvre Vert" [ref=e127] [cursor=pointer]:
+  - contentinfo [ref=e107]:
+    - generic [ref=e108]:
+      - link "Chanvre Vert Logo Chanvre Vert" [ref=e109] [cursor=pointer]:
         - /url: /
-        - generic [ref=e128] [cursor=pointer]:
-          - img "Chanvre Vert Logo" [ref=e129] [cursor=pointer]
-          - generic [ref=e130] [cursor=pointer]: Chanvre Vert
-      - navigation [ref=e132]:
-        - link "À propos" [ref=e133] [cursor=pointer]:
+        - generic [ref=e110] [cursor=pointer]:
+          - img "Chanvre Vert Logo" [ref=e111] [cursor=pointer]
+          - generic [ref=e112] [cursor=pointer]: Chanvre Vert
+      - navigation [ref=e114]:
+        - link "À propos" [ref=e115] [cursor=pointer]:
           - /url: /a-propos
-        - link "Contact" [ref=e134] [cursor=pointer]:
+        - link "Contact" [ref=e116] [cursor=pointer]:
           - /url: /contact
-        - link "Mentions légales" [ref=e135] [cursor=pointer]:
+        - link "Mentions légales" [ref=e117] [cursor=pointer]:
           - /url: /legal
-    - generic [ref=e137]:
-      - paragraph [ref=e138]: © 2026 Chanvre Vert - Tous droits réservés
-      - generic [ref=e139]:
-        - link "Politique de confidentialité" [ref=e140] [cursor=pointer]:
+    - generic [ref=e119]:
+      - paragraph [ref=e120]: © 2026 Chanvre Vert - Tous droits réservés
+      - generic [ref=e121]:
+        - link "Politique de confidentialité" [ref=e122] [cursor=pointer]:
           - /url: /confidentialite
-        - link "Politique de cookies" [ref=e141] [cursor=pointer]:
+        - link "Politique de cookies" [ref=e123] [cursor=pointer]:
           - /url: /cookies
-        - link "Conditions d'utilisation" [ref=e142] [cursor=pointer]:
+        - link "Conditions d'utilisation" [ref=e124] [cursor=pointer]:
           - /url: /terms
-        - link "CGV" [ref=e143] [cursor=pointer]:
+        - link "CGV" [ref=e125] [cursor=pointer]:
           - /url: /cgv
-  - alert [ref=e144]
-  - generic [ref=e147]:
-    - generic [ref=e148]:
-      - paragraph [ref=e149]: Nous utilisons des cookies 🍪
-      - paragraph [ref=e150]: Ce site utilise des cookies pour améliorer votre expérience de navigation, analyser le trafic et personnaliser le contenu. Vous pouvez accepter tous les cookies, les refuser ou personnaliser vos choix.
-    - generic [ref=e151]:
-      - button "Personnaliser mes choix de cookies" [ref=e152]: Personnaliser
-      - generic [ref=e153]:
-        - button "Refuser tous les cookies" [ref=e154]: Tout refuser
-        - button "Accepter tous les cookies" [ref=e155]: Tout accepter
+  - alert [ref=e126]
+  - generic [ref=e129]:
+    - generic [ref=e130]:
+      - paragraph [ref=e131]: Nous utilisons des cookies 🍪
+      - paragraph [ref=e132]: Ce site utilise des cookies pour améliorer votre expérience de navigation, analyser le trafic et personnaliser le contenu. Vous pouvez accepter tous les cookies, les refuser ou personnaliser vos choix.
+    - generic [ref=e133]:
+      - button "Personnaliser mes choix de cookies" [ref=e134]: Personnaliser
+      - generic [ref=e135]:
+        - button "Refuser tous les cookies" [ref=e136]: Tout refuser
+        - button "Accepter tous les cookies" [ref=e137]: Tout accepter
 ```

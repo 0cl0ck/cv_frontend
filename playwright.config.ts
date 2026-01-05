@@ -64,6 +64,8 @@ export default defineConfig({
           "x-backend-url": STAGING_BACKEND,
         },
       },
+      // Limit parallel tests for staging (avoid overloading Render/Vercel)
+      fullyParallel: false,
     },
     // Staging with Firefox (secondary)
     {
