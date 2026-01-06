@@ -1,10 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'Mentions légales | Chanvre Vert',
+export const metadata = generatePageMetadata({
+  title: 'Mentions légales',
   description: 'Mentions légales de Chanvre Vert, spécialiste du CBD en France',
-};
+  path: '/legal',
+});
 
 export default function LegalPage() {
   return (

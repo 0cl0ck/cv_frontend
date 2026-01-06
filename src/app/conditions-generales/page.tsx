@@ -1,9 +1,11 @@
 import React from 'react';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'Conditions Générales de Vente | Chanvre Vert',
+export const metadata = generatePageMetadata({
+  title: 'Conditions Générales de Vente',
   description: 'Conditions générales de vente du site Chanvre Vert, spécialiste du CBD en France',
-};
+  path: '/conditions-generales',
+});
 
 export default function ConditionsGeneralesPage() {
   return (

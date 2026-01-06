@@ -1,10 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'Conditions Générales de Vente | Chanvre Vert',
+export const metadata = generatePageMetadata({
+  title: 'Conditions Générales de Vente',
   description: 'Conditions Générales de Vente de Chanvre Vert, spécialiste du CBD en France',
-};
+  path: '/cgv',
+});
 
 export default function CGVPage() {
   return (

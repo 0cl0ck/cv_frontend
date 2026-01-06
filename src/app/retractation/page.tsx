@@ -1,9 +1,11 @@
 import React from 'react';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'Formulaire de Rétractation | Chanvre Vert',
+export const metadata = generatePageMetadata({
+  title: 'Formulaire de Rétractation',
   description: 'Exercez votre droit de rétractation pour une commande Chanvre Vert.',
-};
+  path: '/retractation',
+});
 
 export default function RetractationPage() {
   return (
