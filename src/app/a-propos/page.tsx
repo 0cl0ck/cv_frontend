@@ -1,10 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'À propos | Chanvre Vert',
+export const metadata = generatePageMetadata({
+  title: 'À propos',
   description: 'À propos de Chanvre Vert, spécialiste du CBD en France basée dans les Hauts de France',
-};
+  path: '/a-propos',
+});
 
 const VideoCard = ({ src }: { src: string }) => {
   return (
