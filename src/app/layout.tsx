@@ -99,6 +99,38 @@ export default async function RootLayout({
             opacity: 1;
           }
         ` }} />
+        
+        {/* Organization JSON-LD for rich snippets */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Chanvre Vert",
+              "url": "https://chanvre-vert.fr",
+              "logo": "https://chanvre-vert.fr/logo.png",
+              "description": "Spécialiste du CBD en France - Fleurs, huiles, infusions et résines de haute qualité",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "5 rue d'Ypres",
+                "addressLocality": "Bergues",
+                "postalCode": "59380",
+                "addressCountry": "FR"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "email": "contact@chanvre-vert.fr",
+                "contactType": "customer service",
+                "availableLanguage": "French"
+              },
+              "sameAs": [
+                "https://www.facebook.com/CBDBerguois",
+                "https://www.instagram.com/chanvre_vert_officiel_/"
+              ]
+            })
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-950 text-gray-50`}
