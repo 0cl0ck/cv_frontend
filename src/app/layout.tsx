@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header/Header";
@@ -12,6 +13,7 @@ import FontLoader from "@/components/Performance/FontLoader";
 import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
 import MobileBonusWidget from '@/components/Loyalty/MobileBonusWidget';
 import { JanuaryBanner } from '@/components/Christmas';
+import OAuthExchange from '@/components/auth/OAuthExchange';
 
 import { getCategories, fallbackCategories } from "@/services/api";
 
@@ -142,6 +144,9 @@ export default async function RootLayout({
           <CartProvider>
             <FontLoader />
             <CsrfInitializer />
+            <Suspense fallback={null}>
+              <OAuthExchange />
+            </Suspense>
             <Header initialCategories={initialCategories} />
             <JanuaryBanner />
             <MobileBonusWidget />
