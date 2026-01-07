@@ -13,7 +13,7 @@ import FontLoader from "@/components/Performance/FontLoader";
 import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
 import MobileBonusWidget from '@/components/Loyalty/MobileBonusWidget';
 import { JanuaryBanner } from '@/components/Christmas';
-import OAuthExchange from '@/components/auth/OAuthExchange';
+// OAuthExchange removed - handled by dedicated /compte/oauth page
 
 import { getCategories, fallbackCategories } from "@/services/api";
 
@@ -144,9 +144,7 @@ export default async function RootLayout({
           <CartProvider>
             <FontLoader />
             <CsrfInitializer />
-            <Suspense fallback={null}>
-              <OAuthExchange />
-            </Suspense>
+
             <Header initialCategories={initialCategories} />
             <JanuaryBanner />
             <MobileBonusWidget />
