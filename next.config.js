@@ -166,7 +166,7 @@ const nextConfig = {
       headers: [
         {
           key: 'Content-Security-Policy',
-          value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://api.chanvre-vert.fr; media-src 'self' https://media.chanvre-vert.fr https://*.cloudfront.net; frame-ancestors 'none';"
+          value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://api.chanvre-vert.fr https://cv-backend-1-5nru.onrender.com; media-src 'self' https://media.chanvre-vert.fr https://*.cloudfront.net; frame-ancestors 'none';"
         },
         {
           key: 'X-Frame-Options',
