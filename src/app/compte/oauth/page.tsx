@@ -1,20 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 
 /**
- * OAuth Callback Page
- * 
- * This page handles the OAuth token exchange for cross-domain authentication.
- * It's a client-only page that:
- * 1. Reads oauth_token from URL
- * 2. Exchanges it for a session via the backend
- * 3. Redirects to /compte on success
+ * OAuth Token Exchange Component (inner)
+ * Handles the actual token exchange logic
  */
-export default function OAuthCallbackPage() {
+function OAuthExchangeInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refreshAuth } = useAuthContext();
@@ -74,46 +69,66 @@ export default function OAuthCallbackPage() {
 
   if (status === 'exchanging') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#001A1F]">
-        <div className="bg-[#002930] rounded-lg p-8 text-center shadow-xl border border-[#155757]">
-          <Loader2 className="w-12 h-12 animate-spin text-[#10B981] mx-auto mb-4" />
-          <p className="text-white text-lg">Connexion avec Google en cours...</p>
-          <p className="text-[#BEC3CA] text-sm mt-2">Veuillez patienter</p>
-        </div>
+      <div className="bg-[#002930] rounded-lg p-8 text-center shadow-xl border border-[#155757]">
+        <Loader2 className="w-12 h-12 animate-spin text-[#10B981] mx-auto mb-4" />
+        <p className="text-white text-lg">Connexion avec Google en cours...</p>
+        <p className="text-[#BEC3CA] text-sm mt-2">Veuillez patienter</p>
       </div>
     );
   }
 
   if (status === 'error') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#001A1F] px-4">
-        <div className="bg-[#002930] rounded-lg p-8 text-center shadow-xl border border-[#155757] max-w-md">
-          <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">❌</span>
-          </div>
-          <p className="text-white text-lg mb-2">Erreur de connexion</p>
-          <p className="text-red-300 text-sm mb-4">{error}</p>
-          <button
-            onClick={() => router.push('/connexion')}
-            className="bg-[#007A72] hover:bg-[#059669] text-white px-6 py-2 rounded-md"
-          >
-            Retour à la connexion
-          </button>
+      <div className="bg-[#002930] rounded-lg p-8 text-center shadow-xl border border-[#155757] max-w-md">
+        <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">❌</span>
         </div>
+        <p className="text-white text-lg mb-2">Erreur de connexion</p>
+        <p className="text-red-300 text-sm mb-4">{error}</p>
+        <button
+          onClick={() => router.push('/connexion')}
+          className="bg-[#007A72] hover:bg-[#059669] text-white px-6 py-2 rounded-md"
+        >
+          Retour à la connexion
+        </button>
       </div>
     );
   }
 
-  // Success state - brief message before redirect
+  // Success state
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#001A1F]">
-      <div className="bg-[#002930] rounded-lg p-8 text-center shadow-xl border border-[#155757]">
-        <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl">✓</span>
-        </div>
-        <p className="text-white text-lg">Connexion réussie !</p>
-        <p className="text-[#BEC3CA] text-sm mt-2">Redirection...</p>
+    <div className="bg-[#002930] rounded-lg p-8 text-center shadow-xl border border-[#155757]">
+      <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+        <span className="text-2xl">✓</span>
       </div>
+      <p className="text-white text-lg">Connexion réussie !</p>
+      <p className="text-[#BEC3CA] text-sm mt-2">Redirection...</p>
+    </div>
+  );
+}
+
+/**
+ * Loading fallback for Suspense
+ */
+function LoadingFallback() {
+  return (
+    <div className="bg-[#002930] rounded-lg p-8 text-center shadow-xl border border-[#155757]">
+      <Loader2 className="w-12 h-12 animate-spin text-[#10B981] mx-auto mb-4" />
+      <p className="text-white text-lg">Chargement...</p>
+    </div>
+  );
+}
+
+/**
+ * OAuth Callback Page
+ * Wrapped in Suspense for useSearchParams
+ */
+export default function OAuthCallbackPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#001A1F] px-4">
+      <Suspense fallback={<LoadingFallback />}>
+        <OAuthExchangeInner />
+      </Suspense>
     </div>
   );
 }
