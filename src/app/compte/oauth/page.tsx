@@ -43,6 +43,14 @@ function OAuthExchangeInner() {
           throw new Error(data.error || 'Erreur lors de l\'authentification');
         }
 
+        // Store the token client-side for cross-domain auth
+        if (data.token) {
+          // Set cookie on frontend domain
+          document.cookie = `payload-token=${data.token}; path=/; max-age=${60 * 60 * 24}; samesite=lax`;
+          // Also store in localStorage as backup
+          localStorage.setItem('payload-token', data.token);
+        }
+
         setStatus('success');
         
         // Refresh auth context
