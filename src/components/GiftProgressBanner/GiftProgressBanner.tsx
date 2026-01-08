@@ -4,7 +4,7 @@ import React from "react";
 
 /**
  * Bannière simple et élégante pour les cadeaux automatiques
- * Cards horizontales, sans progress bar, lisible sur tous devices
+ * Desktop: 3 cards égales (1/3) avec détails | Mobile: cards en colonne
  */
 export default function GiftProgressBanner() {
   return (
@@ -15,33 +15,41 @@ export default function GiftProgressBanner() {
         <span className="text-[#EFC368]">Cadeaux automatiques</span>
       </h3>
 
-      {/* Tiers en ligne horizontale - scrollable sur mobile */}
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+      {/* Tiers: colonne sur mobile, grille 3 colonnes égales sur desktop */}
+      <div className="flex flex-col md:grid md:grid-cols-3 gap-3">
         {/* Tier 50€ */}
-        <div className="flex-shrink-0 flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/20 min-w-fit">
-          <span className="text-[#EFC368] font-bold text-sm">50€</span>
-          <span className="text-white/60 text-xs">→</span>
-          <span className="text-white/90 text-xs">🚚 Livraison* + 🌿 2g</span>
+        <div className="bg-white/10 rounded-lg p-3 border border-white/20 text-center">
+          <div className="text-[#EFC368] font-bold text-lg mb-2">50€</div>
+          <div className="space-y-1 text-sm text-white/90">
+            <p>🚚 Livraison offerte*</p>
+            <p>🌿 2g offerts</p>
+          </div>
         </div>
 
         {/* Tier 90€ */}
-        <div className="flex-shrink-0 flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/20 min-w-fit">
-          <span className="text-[#EFC368] font-bold text-sm">90€</span>
-          <span className="text-white/60 text-xs">→</span>
-          <span className="text-white/90 text-xs">🚚 Livraison* + 🌿 10g + 🎁 1 pre-roll</span>
+        <div className="bg-white/10 rounded-lg p-3 border border-white/20 text-center">
+          <div className="text-[#EFC368] font-bold text-lg mb-2">90€</div>
+          <div className="space-y-1 text-sm text-white/90">
+            <p>🚚 Livraison offerte*</p>
+            <p>🌿 10g offerts</p>
+            <p>🎁 1 pre-roll</p>
+          </div>
         </div>
 
         {/* Tier 160€ */}
-        <div className="flex-shrink-0 flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/20 min-w-fit">
-          <span className="text-[#EFC368] font-bold text-sm">160€</span>
-          <span className="text-white/60 text-xs">→</span>
-          <span className="text-white/90 text-xs">🚚 Livraison* + 🌿 20g + 🎁 2 pre-rolls</span>
+        <div className="bg-white/10 rounded-lg p-3 border border-white/20 text-center">
+          <div className="text-[#EFC368] font-bold text-lg mb-2">160€</div>
+          <div className="space-y-1 text-sm text-white/90">
+            <p>🚚 Livraison offerte*</p>
+            <p>🌿 20g offerts</p>
+            <p>🎁 2 pre-rolls</p>
+          </div>
         </div>
       </div>
 
       {/* Footer */}
-      <p className="text-white/40 text-[10px] mt-2">
-        Après remises et fidélité • *50€ France, 200€ autres pays
+      <p className="text-white/40 text-[10px] mt-3 text-center">
+        Montant calculé après remises et fidélité • *Livraison offerte : 50€ France, 200€ autres pays
       </p>
     </div>
   );
