@@ -4,6 +4,7 @@ import { formatPrice } from '@/utils/formatPrice';
 import { Product, ProductVariation } from '@/types/product';
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useCartContext } from '@/context/CartContext';
 import { ChevronDown, ShoppingCart } from 'lucide-react';
 import ProductImage from './ProductImage';
@@ -23,6 +24,10 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   const [selectedVariant, setSelectedVariant] = useState<ProductVariation | null>(null);
   // Référence pour le menu déroulant (pour la fermeture au clic extérieur)
   const dropdownRef = useRef<HTMLDivElement>(null);
+  // Référence pour le bouton trigger du dropdown (pour positionnement Portal)
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  // État pour stocker la position du dropdown (Portal)
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   // Contexte du panier
   const { addItem } = useCartContext();
   
@@ -42,7 +47,10 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   // Fermer le dropdown quand on clique en dehors
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      // Vérifier si le clic est en dehors du dropdown ET du bouton trigger
+      const isOutsideDropdown = dropdownRef.current && !dropdownRef.current.contains(event.target as Node);
+      const isOutsideButton = buttonRef.current && !buttonRef.current.contains(event.target as Node);
+      if (isOutsideDropdown && isOutsideButton) {
         setIsDropdownOpen(false);
       }
     };
@@ -52,6 +60,34 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Mettre à jour la position du dropdown quand il s'ouvre ou lors du scroll/resize
+  useEffect(() => {
+    if (!isDropdownOpen || !buttonRef.current) {
+      setDropdownPosition(null);
+      return;
+    }
+
+    const updatePosition = () => {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + window.scrollY + 4, // 4px de marge
+          left: rect.left + window.scrollX,
+          width: rect.width,
+        });
+      }
+    };
+
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isDropdownOpen]);
 
   // getImageUrl est maintenant géré par le composant ProductImage
 
@@ -220,9 +256,10 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
         {/* Dropdown des variantes et ajout au panier */}
         <div className="mt-auto">
           {product.productType === 'variable' && product.variants && product.variants.length > 0 ? (
-            <div ref={dropdownRef} className="relative mb-2" style={{ position: 'relative', zIndex: 40 }}>
+            <div className="relative mb-2">
               {/* Bouton pour ouvrir le dropdown */}
               <button
+                ref={buttonRef}
                 className="flex w-full items-center justify-between rounded-md border border-white/20 bg-[#00352f] p-2 text-white text-sm md:text-base"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
@@ -230,9 +267,19 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
                 <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               
-              {/* Dropdown des variantes */}
-              {isDropdownOpen && (
-                <div className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-md border border-white/20 bg-[#00352f] shadow-lg" style={{ position: 'absolute', zIndex: 999 }}>
+              {/* Dropdown des variantes - rendu via Portal pour échapper aux stacking contexts */}
+              {isDropdownOpen && dropdownPosition && typeof document !== 'undefined' && createPortal(
+                <div 
+                  ref={dropdownRef}
+                  className="max-h-60 overflow-y-auto rounded-md border border-white/20 bg-[#00352f] shadow-lg"
+                  style={{ 
+                    position: 'fixed',
+                    top: dropdownPosition.top - window.scrollY,
+                    left: dropdownPosition.left,
+                    width: dropdownPosition.width,
+                    zIndex: 9999,
+                  }}
+                >
                   {product.variants.map((variant, idx) => (
                     <button
                       key={idx}
@@ -253,7 +300,8 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
                       </span>
                     </button>
                   ))}
-                </div>
+                </div>,
+                document.body
               )}
             </div>
           ) : (
