@@ -2,10 +2,14 @@ import { Suspense } from 'react';
 import ImageHero from "@/components/Hero/ImageHero";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
 import { generatePageMetadata } from '@/lib/metadata';
+import { getCategories, fallbackCategories } from '@/services/api';
+import type { Category } from '@/types/product';
 
-// Static category data for SSR (no API call needed)
 import Link from 'next/link';
 import Image from 'next/image';
+
+// ISR: Revalidate every hour (3600 seconds)
+export const revalidate = 3600;
 
 // SEO metadata with canonical URL
 export const metadata = generatePageMetadata({
@@ -14,18 +18,33 @@ export const metadata = generatePageMetadata({
   path: '/',
 });
 
-// Category data (static, no SSR cost)
-const categories = [
-  { title: "Huiles CBD", src: "/images/categories/categorie_huile_cbd.webp", href: "/produits/categorie/huiles-cbd" },
-  { title: "Fleurs CBD", src: "/images/categories/categorie_fleurs_cbd.webp", href: "/produits/categorie/fleurs-cbd" },
-  { title: "Infusions CBD", src: "/images/categories/categorie_infusion_cbd.webp", href: "/produits/categorie/infusions-cbd" },
-  { title: "Résine CBD", src: "/images/categories/categorie_resine_cbd.webp", href: "/produits/categorie/resine-cbd" },
-  { title: "Gélules CBD", src: "/images/categories/categorie_gelules_cbd.webp", href: "/produits/categorie/gelules-cbd" },
-  { title: "Packs CBD", src: "/images/categories/categorie_packs_cbd.webp", href: "/produits/categorie/packs-cbd" },
-];
+// Helper to extract image URL from category
+function getCategoryImageUrl(category: Category): string {
+  const rawImage = category.image;
+  if (typeof rawImage === 'string') return rawImage;
+  if (rawImage && typeof rawImage === 'object') {
+    return rawImage.sizes?.card?.url ?? rawImage.sizes?.thumbnail?.url ?? rawImage.url ?? '/images/categories/placeholder.webp';
+  }
+  return '/images/categories/placeholder.webp';
+}
 
-// SSR Category Grid (no 'use client')
-function CategoryGrid() {
+// SSR Category Grid with dynamic data
+async function CategoryGrid() {
+  // Fetch categories server-side (with fallback on error)
+  let categories: Category[];
+  try {
+    categories = await getCategories();
+    // Filter only active categories
+    categories = categories.filter((cat) => cat.isActive !== false);
+  } catch {
+    categories = fallbackCategories;
+  }
+
+  // Fallback if no categories returned
+  if (!categories || categories.length === 0) {
+    categories = fallbackCategories;
+  }
+
   return (
     <section className="relative overflow-hidden bg-[#00333e] py-16">
       <div className="absolute top-0 left-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#004942] opacity-5" />
@@ -50,12 +69,12 @@ function CategoryGrid() {
 
         <div className="grid grid-cols-1 gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
-            <Link key={category.title} href={category.href} className="block group">
+            <Link key={category.id} href={`/produits/categorie/${category.slug}`} className="block group">
               <div className="relative flex flex-col overflow-hidden rounded-lg bg-[#004942] shadow-md transition-transform duration-300 hover:scale-[1.02]">
                 <div className="relative aspect-[16/10] overflow-hidden">
                   <Image
-                    src={category.src}
-                    alt={category.title}
+                    src={getCategoryImageUrl(category)}
+                    alt={category.name}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -63,7 +82,7 @@ function CategoryGrid() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#004942] to-transparent opacity-30 group-hover:opacity-50 transition-opacity" />
                 </div>
                 <div className="flex flex-grow items-center justify-between p-4">
-                  <h3 className="text-lg font-medium text-white">{category.title}</h3>
+                  <h3 className="text-lg font-medium text-white">{category.name}</h3>
                   <div className="rounded-full bg-white/10 p-2 text-white group-hover:bg-white/20 transition-colors">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

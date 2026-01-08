@@ -17,6 +17,7 @@ import {
   IconSearch,
   IconLoader2,
 } from "@tabler/icons-react";
+import { GiftProgressBanner } from "@/components/GiftProgressBanner";
 
 // Types pour les props du composant
 interface ProductsLayoutProps {
@@ -501,18 +502,8 @@ function ProductsLayoutContent({
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full border border-white/20"></div>
           <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full border border-white/20"></div>
         </div>
-        {/* Banniere promotionnelle temporaire */}
-        <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
-          <p className="text-lg font-bold uppercase">Cadeaux automatiques</p>
-          <p className="text-sm mt-1">Livraison offerte + cadeaux selon le montant du panier.</p>
-          <div className="mt-2 space-y-1 text-sm">
-            <p>50 EUR : Livraison offerte* + 2g offerts</p>
-            <p>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll</p>
-            <p>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls</p>
-          </div>
-          <p className="text-xs mt-3">Montant calcule apres remises et fidelite.</p>
-          <p className="text-xs mt-1 italic">* Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.</p>
-        </div>
+        {/* Bannière progression cadeaux */}
+        <GiftProgressBanner compact />
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
             className="text-center"

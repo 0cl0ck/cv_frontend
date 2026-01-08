@@ -13,6 +13,7 @@ import {
   useCheckout,
 } from "./hooks";
 import { CustomerInfo, FormErrors, Address } from "./types";
+import { GiftProgressBanner } from "@/components/GiftProgressBanner";
 
 export default function CartView() {
   const { cart, clearCart } = useCartContext();
@@ -186,18 +187,8 @@ export default function CartView() {
 
   return (
     <div className="container mx-auto px-4 py-8 bg-[#001E27]">
-      {/* Bannière promotionnelle temporaire */}
-      <div className="bg-[#EFC368] text-[#001E27] p-4 rounded-md mb-6 shadow-md border-2 border-[#F4F8F5] text-center">
-        <p className="text-lg font-bold uppercase">Cadeaux automatiques</p>
-        <p className="text-sm mt-1">Livraison offerte + cadeaux selon le montant du panier.</p>
-        <div className="mt-2 space-y-1 text-sm">
-          <p>50 EUR : Livraison offerte* + 2g offerts</p>
-          <p>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll</p>
-          <p>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls</p>
-        </div>
-        <p className="text-xs mt-3">Montant calcule apres remises et fidelite.</p>
-        <p className="text-xs mt-1 italic">* Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.</p>
-      </div>
+      {/* Bannière progression cadeaux */}
+      <GiftProgressBanner />
 
       <h1 className="text-3xl font-bold mb-8 text-[#F4F8F5]">Votre panier</h1>
 
