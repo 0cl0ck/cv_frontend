@@ -25,7 +25,7 @@ export default function GiftProgressBanner({
   
   // Déterminer le palier atteint
   const currentTierIndex = TIERS.findIndex((t) => currentAmount < t.threshold);
-  const reachedTierIndex = currentTierIndex === -1 ? TIERS.length - 1 : currentTierIndex - 1;
+  const _reachedTierIndex = currentTierIndex === -1 ? TIERS.length - 1 : currentTierIndex - 1;
   
   // Prochain palier à atteindre
   const nextTier = currentTierIndex >= 0 ? TIERS[currentTierIndex] : null;
