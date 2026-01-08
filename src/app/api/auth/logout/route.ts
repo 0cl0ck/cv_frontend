@@ -40,12 +40,18 @@ export async function POST(request: NextRequest) {
     });
     
     // Supprimer le cookie d'authentification
+    // Le domain doit correspondre à celui utilisé lors de la création du cookie
+    const cookieDomain = process.env.NODE_ENV === 'production' 
+      ? (process.env.COOKIE_DOMAIN || 'chanvre-vert.fr')
+      : undefined;
+    
     response.cookies.set('payload-token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires: new Date(0), // Date dans le passé pour forcer l'expiration
       path: '/',
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
     });
     
     return response;
@@ -59,12 +65,17 @@ export async function POST(request: NextRequest) {
       success: false
     }, { status: 500 });
     
+    const cookieDomainError = process.env.NODE_ENV === 'production' 
+      ? (process.env.COOKIE_DOMAIN || 'chanvre-vert.fr')
+      : undefined;
+    
     response.cookies.set('payload-token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires: new Date(0),
       path: '/',
+      ...(cookieDomainError ? { domain: cookieDomainError } : {}),
     });
     
     return response;
