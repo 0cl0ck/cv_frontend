@@ -1,10 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'Conditions d\'utilisation | Chanvre Vert',
-  description: 'Conditions d\'utilisation du site Chanvre Vert, spécialiste du CBD en France',
-};
+export const metadata = generatePageMetadata({
+  title: "Conditions d'utilisation",
+  description: "Conditions d'utilisation du site Chanvre Vert, spécialiste du CBD en France",
+  path: '/terms',
+});
 
 export default function TermsPage() {
   return (

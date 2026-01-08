@@ -1,11 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
 import CookieButton from '@/components/CookieConsent/CookieButton';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'Politique de Cookies | Chanvre Vert',
+export const metadata = generatePageMetadata({
+  title: 'Politique de Cookies',
   description: 'Politique de gestion des cookies et traceurs de Chanvre Vert, conforme à la recommandation CNIL 2020-092',
-};
+  path: '/cookies',
+});
 
 export default function CookiesPage() {
   return (

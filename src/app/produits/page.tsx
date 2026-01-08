@@ -2,11 +2,20 @@ import { getProducts, getCategories } from '@/services/api';
 import ProductsLayout from '@/app/produits/layout-products';
 import { Metadata } from 'next';
 import { Category } from '@/types/product';
+import { generatePaginatedMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
-  title: 'Tous nos produits CBD | Chanvre Vert',
-  description: 'Découvrez notre gamme complète de produits CBD de haute qualité - fleurs, huiles, infusions et plus encore.',
-};
+// Generate metadata with pagination support (noindex on page 2+)
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }): Promise<Metadata> {
+  const params = await searchParams;
+  const page = parseInt(params.page || '1', 10);
+  
+  return generatePaginatedMetadata({
+    title: 'Tous nos produits CBD',
+    description: 'Découvrez notre gamme complète de produits CBD de haute qualité - fleurs, huiles, infusions et plus encore.',
+    path: '/produits',
+    page,
+  });
+}
 
 // Désactiver la génération statique si nécessaire
 export const dynamic = 'force-dynamic';

@@ -1,12 +1,12 @@
-﻿import { Metadata } from "next";
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Gift, Users, Sparkles, TicketPercent, Leaf, Clock, ShieldCheck } from "lucide-react";
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
-  title: "Programme de parrainage | Chanvre Vert",
-  description:
-    "Invitez vos proches à découvrir Chanvre Vert : -15% pour leur première commande et un bon -30% pour vous remercier.",
-};
+export const metadata = generatePageMetadata({
+  title: 'Programme de parrainage',
+  description: 'Invitez vos proches à découvrir Chanvre Vert : -15% pour leur première commande et un bon -30% pour vous remercier.',
+  path: '/parrainage',
+});
 
 const highlights = [
   {

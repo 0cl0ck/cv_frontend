@@ -3,26 +3,20 @@ import Link from 'next/link';
 import { getPosts } from '@/services/api';
 import { PostCard } from '@/components/Blog';
 import { Pagination } from '@/components/Pagination/Pagination';
+import { generatePaginatedMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
-  title: 'Blog CBD | Chanvre Vert - Guides et Conseils',
-  description: 'Découvrez nos articles sur le CBD : guides d\'achat, conseils d\'utilisation, bienfaits et actualités du chanvre. Tout savoir sur le cannabidiol.',
-  openGraph: {
-    title: 'Blog CBD | Chanvre Vert - Guides et Conseils',
-    description: 'Découvrez nos articles sur le CBD : guides d\'achat, conseils d\'utilisation, bienfaits et actualités du chanvre.',
-    type: 'website',
-    locale: 'fr_FR',
-    siteName: 'Chanvre Vert',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Blog CBD | Chanvre Vert',
-    description: 'Guides, conseils et actualités sur le CBD et le chanvre.',
-  },
-  alternates: {
-    canonical: 'https://chanvre-vert.fr/blog',
-  },
-};
+// Generate metadata with pagination support (noindex on page 2+)
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ page?: string }> }): Promise<Metadata> {
+  const params = await searchParams;
+  const page = parseInt(params.page || '1', 10);
+  
+  return generatePaginatedMetadata({
+    title: 'Blog CBD - Guides et Conseils',
+    description: 'Découvrez nos articles sur le CBD : guides d\'achat, conseils d\'utilisation, bienfaits et actualités du chanvre. Tout savoir sur le cannabidiol.',
+    path: '/blog',
+    page,
+  });
+}
 
 // ISR: revalider toutes les heures
 export const revalidate = 3600;

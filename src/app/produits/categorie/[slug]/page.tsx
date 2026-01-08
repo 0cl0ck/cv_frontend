@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import ProductsLayout from '@/app/produits/layout-products';
 import { headers } from 'next/headers';
 import { secureLogger as logger } from '@/utils/logger';
+import { siteMetadata } from '@/lib/metadata';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,12 +21,17 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     const category = await getCategoryBySlug(slug).catch(() => null);
     
     if (category) {
+      const canonicalUrl = `${siteMetadata.baseUrl}/produits/categorie/${slug}`;
       return {
-        title: `${category.name} | Produits CBD | Chanvre Vert`,
+        title: `${category.name} | Chanvre Vert`,
         description: `Découvrez notre sélection de ${category.name} CBD de haute qualité - Chanvre Vert`,
+        alternates: {
+          canonical: canonicalUrl,
+        },
         openGraph: {
-          title: `${category.name} | Produits CBD | Chanvre Vert`,
-          description: `Découvrez notre sélection de ${category.name} CBD de haute qualité - Chanvre Vert`,
+          title: `${category.name} | Chanvre Vert`,
+          description: `Découvrez notre sélection de ${category.name} CBD de haute qualité`,
+          url: canonicalUrl,
         },
       };
     }

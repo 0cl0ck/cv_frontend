@@ -2,20 +2,26 @@ import React from 'react';
 import Link from 'next/link';
 import { getProducts } from '@/services/api';
 import { ProductCard } from '@/components/ProductCard/ProductCard';
+import type { Product } from '@/types/product';
 
 // Nombre maximum de produits à afficher dans la section des produits vedettes
 const MAX_FEATURED_PRODUCTS = 3;
 
 export default async function FeaturedProducts() {
-  // Récupérer les produits mis en avant depuis l'API
-  const featuredProductsData = await getProducts({
-    featured: true,
-    limit: MAX_FEATURED_PRODUCTS,
-    sort: '-createdAt', // Trier par date de création (les plus récents d'abord)
-  });
-
-  // Extraire les produits de la réponse
-  const featuredProducts = featuredProductsData.docs || [];
+  // Récupérer les produits mis en avant depuis l'API avec gestion d'erreur
+  let featuredProducts: Product[] = [];
+  
+  try {
+    const featuredProductsData = await getProducts({
+      featured: true,
+      limit: MAX_FEATURED_PRODUCTS,
+      sort: '-createdAt', // Trier par date de création (les plus récents d'abord)
+    });
+    featuredProducts = featuredProductsData.docs || [];
+  } catch (error) {
+    console.error('Error fetching featured products:', error);
+    // Return empty array - will show fallback UI
+  }
 
   return (
     <section className="w-full bg-[#00333e] py-16 text-white relative overflow-hidden">

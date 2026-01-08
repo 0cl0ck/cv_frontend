@@ -270,11 +270,16 @@ export default function useCheckout(
 
       // Traiter la réponse selon la méthode de paiement
       const paymentResponse = response.data;
-      clearCart(); // Dans tous les cas, on vide le panier
+      // NOTE: clearCart() est déplacé APRÈS la validation de la redirection
+      // pour éviter de vider le panier si le paiement échoue
 
       if (paymentMethod === 'card') {
         // Pour carte bancaire, redirection vers VivaWallet
         if (paymentResponse.smartCheckoutUrl) {
+          // Vider le panier JUSTE AVANT la redirection VivaWallet
+          // Si l'utilisateur annule/échoue, il devra refaire son panier
+          // (comportement cohérent avec l'expérience e-commerce standard)
+          clearCart();
           window.location.href = paymentResponse.smartCheckoutUrl;
         } else {
           throw new Error('URL de paiement VivaWallet non reçue');
@@ -305,6 +310,8 @@ export default function useCheckout(
           console.warn("Impossible de sauvegarder les informations de virement dans sessionStorage", storageError);
         }
 
+        // Vider le panier avant redirection vers la page de confirmation virement
+        clearCart();
         window.location.href = `/confirmation/virement?order=${encodeURIComponent(orderReference)}`;
       } else {
         throw new Error('Méthode de paiement non reconnue');

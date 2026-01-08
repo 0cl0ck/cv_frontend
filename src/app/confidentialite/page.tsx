@@ -1,10 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
+import { generatePageMetadata } from '@/lib/metadata';
 
-export const metadata = {
-  title: 'Confidentialité | Chanvre Vert',
+export const metadata = generatePageMetadata({
+  title: 'Politique de Confidentialité',
   description: 'Politique de confidentialité de Chanvre Vert, spécialiste du CBD en France',
-};
+  path: '/confidentialite',
+});
 
 export default function ConfidentialitePage() {
   return (
