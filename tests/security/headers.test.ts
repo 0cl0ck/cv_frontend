@@ -66,11 +66,11 @@ describe('Sécurité Headers - Headers essentiels', () => {
 describe('Sécurité Headers - Content-Security-Policy détaillée', () => {
   const cspDirectives = {
     'default-src': ["'self'"],
-    'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'"], // Note: unsafe-inline à améliorer
+    'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'", 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
     'style-src': ["'self'", "'unsafe-inline'"],
-    'img-src': ["'self'", 'data:', 'https:', 'blob:'],
+    'img-src': ["'self'", 'data:', 'https:', 'blob:', 'https://www.google-analytics.com'],
     'font-src': ["'self'", 'data:'],
-    'connect-src': ["'self'", 'https://api.chanvre-vert.fr'],
+    'connect-src': ["'self'", 'https://api.chanvre-vert.fr', 'https://www.google-analytics.com', 'https://analytics.google.com'],
     'frame-ancestors': ["'none'"], // Équivalent à X-Frame-Options: DENY
   };
 
@@ -121,6 +121,16 @@ describe('Sécurité Headers - Content-Security-Policy détaillée', () => {
       {
         type: 'images data: URI',
         src: 'data:image/png;base64,...',
+        allowed: true,
+      },
+      {
+        type: 'Google Tag Manager',
+        src: 'https://www.googletagmanager.com/gtm.js',
+        allowed: true,
+      },
+      {
+        type: 'Google Analytics',
+        src: 'https://www.google-analytics.com/analytics.js',
         allowed: true,
       },
     ];

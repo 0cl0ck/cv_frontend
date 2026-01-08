@@ -166,7 +166,19 @@ const nextConfig = {
       headers: [
         {
           key: 'Content-Security-Policy',
-          value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://api.chanvre-vert.fr https://cv-backend-1-5nru.onrender.com; media-src 'self' https://media.chanvre-vert.fr https://*.cloudfront.net; frame-ancestors 'none';"
+          value: [
+            "default-src 'self'",
+            // Scripts: self + Google Tag Manager/Analytics
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
+            "style-src 'self' 'unsafe-inline'",
+            // Images: inclut Google Analytics tracking pixels
+            "img-src 'self' data: https: blob: https://www.google-analytics.com https://www.googletagmanager.com",
+            "font-src 'self' data:",
+            // Connexions: API + Google Analytics
+            "connect-src 'self' https://api.chanvre-vert.fr https://cv-backend-1-5nru.onrender.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net",
+            "media-src 'self' https://media.chanvre-vert.fr https://*.cloudfront.net",
+            "frame-ancestors 'none'"
+          ].join('; ')
         },
         {
           key: 'X-Frame-Options',
