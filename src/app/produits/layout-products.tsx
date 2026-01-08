@@ -502,9 +502,10 @@ function ProductsLayoutContent({
           <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full border border-white/20"></div>
           <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full border border-white/20"></div>
         </div>
-        {/* Bannière progression cadeaux */}
-        <GiftProgressBanner compact />
         <div className="max-w-7xl mx-auto relative z-10">
+          {/* Bannière cadeaux */}
+          <GiftProgressBanner />
+          
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: -20 }}
