@@ -150,9 +150,13 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
             case 'link':
               Element = 'a';
               break;
+            case 'paragraph':
             case 'p':
-            default:
               Element = 'p';
+              break;
+            default:
+              // Utiliser div comme fallback pour éviter les <p> imbriqués (invalide HTML, mauvais SEO)
+              Element = 'div';
               break;
           }
 
