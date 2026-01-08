@@ -16,13 +16,12 @@ export default function LegalPage() {
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Éditeur du site</h2>
         <p className="mb-2"><span className="font-medium">Nom commercial :</span> Chanvre Vert</p>
-        <p className="mb-2"><span className="font-medium">Statut juridique :</span> Entreprise Individuelle</p>
-        <p className="mb-2"><span className="font-medium">Société :</span> Hugo Dewas EI</p>
-        <p className="mb-2"><span className="font-medium">Adresse :</span> 5 rue d&apos;Ypres, 59380 Bergues</p>
-        <p className="mb-2"><span className="font-medium">RCS :</span> Dunkerque 978 589 893</p>
-        <p className="mb-2"><span className="font-medium">N° TVA intracommunautaire :</span> Non-assujetti (art. 293 B CGI)</p>
+        <p className="mb-2"><span className="font-medium">Raison sociale :</span> Dewas Studio</p>
+        <p className="mb-2"><span className="font-medium">Forme juridique :</span> SAS (Société par actions simplifiée unipersonnelle)</p>
+        <p className="mb-2"><span className="font-medium">Adresse du siège :</span> 60 rue François 1er, 75008 Paris</p>
+        <p className="mb-2"><span className="font-medium">RCS :</span> Paris 993 396 225</p>
+        <p className="mb-2"><span className="font-medium">N° TVA intracommunautaire :</span> FR69993396225</p>
         <p className="mb-2"><span className="font-medium">Adresse e-mail :</span> contact@chanvre-vert.fr</p>
-        <p className="mb-2"><span className="font-medium">IDU REP Emballages :</span> [À COMPLÉTER AVEC VOTRE NUMÉRO IDU]</p>
       </div>
 
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
