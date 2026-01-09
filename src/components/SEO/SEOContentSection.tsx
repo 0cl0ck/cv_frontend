@@ -21,20 +21,22 @@ export default function SEOContentSection({ content, className = '' }: SEOConten
 
   return (
     <section 
-      className={`bg-[#00454f] rounded-lg border border-[#005965] p-6 md:p-8 ${className}`}
+      className={`bg-[#00454f] rounded-lg border border-[#005965] p-6 md:p-8 overflow-hidden ${className}`}
       aria-label="Informations complémentaires"
     >
+      {/* overflow-hidden crée un BFC et empêche le margin collapsing des enfants */}
       <div className="prose prose-invert max-w-none text-white/90 
                       prose-headings:text-white prose-headings:font-bold
-                      prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-4
-                      prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2
-                      prose-p:mb-4 prose-p:leading-relaxed
-                      prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4
-                      prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-4
+                      prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-4 first:prose-h2:mt-0
+                      prose-h3:text-lg prose-h3:mt-4 prose-h3:mb-2 first:prose-h3:mt-0
+                      prose-p:mb-4 prose-p:leading-relaxed last:prose-p:mb-0
+                      prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4 last:prose-ul:mb-0
+                      prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-4 last:prose-ol:mb-0
                       prose-li:mb-2
                       prose-a:text-[#EFC368] prose-a:no-underline hover:prose-a:underline
                       prose-strong:text-white prose-strong:font-semibold
-                      prose-blockquote:border-l-4 prose-blockquote:border-[#EFC368] prose-blockquote:pl-4 prose-blockquote:italic">
+                      prose-blockquote:border-l-4 prose-blockquote:border-[#EFC368] prose-blockquote:pl-4 prose-blockquote:italic
+                      [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
         <RichTextRenderer content={content} />
       </div>
     </section>

@@ -1,197 +1,269 @@
 'use client';
 
-import React, { ElementType } from 'react';
-import DOMPurify from 'isomorphic-dompurify';
+import React, { ElementType, ReactNode } from 'react';
 import { RichTextContent } from '@/types/product';
 
 interface RichTextRendererProps {
-  content: string | RichTextContent | undefined;
+  content: string | RichTextContent | undefined | null;
+  /** Classe CSS pour le container */
+  className?: string;
+}
+
+// ============================================================================
+// Types Lexical (Internal)
+// ============================================================================
+
+interface LexicalTextNode {
+  type?: 'text';
+  text?: string;
+  format?: number;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  code?: boolean;
+  [key: string]: unknown;
+}
+
+interface LexicalElementNode {
+  type?: string;
+  tag?: string;
+  listType?: string;
+  format?: string;
+  textAlign?: string;
+  url?: string;
+  linkType?: string;
+  doc?: unknown;
+  children?: LexicalNode[];
+  [key: string]: unknown;
+}
+
+type LexicalNode = LexicalTextNode | LexicalElementNode;
+
+// ============================================================================
+// Format Bits (Lexical uses bitmask for text formatting)
+// ============================================================================
+
+const FORMAT_BOLD = 1;       // 0001
+const FORMAT_ITALIC = 2;     // 0010
+const FORMAT_STRIKETHROUGH = 4; // 0100
+const FORMAT_UNDERLINE = 8;  // 1000
+const FORMAT_CODE = 16;      // 10000
+const FORMAT_SUBSCRIPT = 32;
+const FORMAT_SUPERSCRIPT = 64;
+
+// ============================================================================
+// Text Node Renderer (handles combined formatting)
+// ============================================================================
+
+/**
+ * Rend un nœud texte avec formatage combiné (gras + italique, etc.)
+ * Utilise des balises sémantiques imbriquées : <strong><em>texte</em></strong>
+ */
+function renderTextNode(node: LexicalTextNode, key: number): ReactNode {
+  const text = node.text;
+  
+  // Ignorer les nœuds vides
+  if (text === undefined || text === null || text === '') {
+    return null;
+  }
+
+  // Déterminer le format (bitmask ou booleans legacy)
+  const format = node.format ?? 0;
+  const isBold = (format & FORMAT_BOLD) !== 0 || node.bold === true;
+  const isItalic = (format & FORMAT_ITALIC) !== 0 || node.italic === true;
+  const isUnderline = (format & FORMAT_UNDERLINE) !== 0 || node.underline === true;
+  const isStrikethrough = (format & FORMAT_STRIKETHROUGH) !== 0 || node.strikethrough === true;
+  const isCode = (format & FORMAT_CODE) !== 0 || node.code === true;
+  const isSubscript = (format & FORMAT_SUBSCRIPT) !== 0;
+  const isSuperscript = (format & FORMAT_SUPERSCRIPT) !== 0;
+
+  // Si aucun formatage, retourner le texte brut (pas de span inutile)
+  if (!isBold && !isItalic && !isUnderline && !isStrikethrough && !isCode && !isSubscript && !isSuperscript) {
+    return <React.Fragment key={key}>{text}</React.Fragment>;
+  }
+
+  // Construire les balises imbriquées de l'intérieur vers l'extérieur
+  let content: ReactNode = text;
+
+  // Ordre d'imbrication : code > sub/sup > underline > strikethrough > italic > bold
+  if (isCode) {
+    content = <code>{content}</code>;
+  }
+  if (isSubscript) {
+    content = <sub>{content}</sub>;
+  }
+  if (isSuperscript) {
+    content = <sup>{content}</sup>;
+  }
+  if (isUnderline) {
+    content = <u>{content}</u>;
+  }
+  if (isStrikethrough) {
+    content = <s>{content}</s>;
+  }
+  if (isItalic) {
+    content = <em>{content}</em>;
+  }
+  if (isBold) {
+    content = <strong>{content}</strong>;
+  }
+
+  return <React.Fragment key={key}>{content}</React.Fragment>;
+}
+
+// ============================================================================
+// Element Node Renderer
+// ============================================================================
+
+/**
+ * Map des types de nœuds Lexical vers les éléments HTML sémantiques
+ */
+function getElementForNode(node: LexicalElementNode): ElementType {
+  const type = node.type;
+
+  switch (type) {
+    // Headings - Lexical utilise 'heading' avec tag property
+    case 'heading':
+      return (node.tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') || 'h2';
+    
+    // Fallback legacy headings
+    case 'h1': return 'h1';
+    case 'h2': return 'h2';
+    case 'h3': return 'h3';
+    case 'h4': return 'h4';
+    case 'h5': return 'h5';
+    case 'h6': return 'h6';
+
+    // Paragraph
+    case 'paragraph':
+    case 'p':
+      return 'p';
+
+    // Lists
+    case 'list':
+      return node.listType === 'number' ? 'ol' : 'ul';
+    case 'ul': return 'ul';
+    case 'ol': return 'ol';
+    case 'listitem':
+    case 'li':
+      return 'li';
+
+    // Quote
+    case 'quote':
+    case 'blockquote':
+      return 'blockquote';
+
+    // Link
+    case 'link':
+      return 'a';
+
+    // Horizontal rule
+    case 'horizontalrule':
+      return 'hr';
+
+    // Default: div (block element for unknown types)
+    default:
+      return 'div';
+  }
 }
 
 /**
- * Composant pour rendre correctement le contenu riche (RichTextContent)
+ * Extrait les props spécifiques pour certains éléments (liens, etc.)
  */
-export const RichTextRenderer: React.FC<RichTextRendererProps> = ({ content }) => {
-  // Si le contenu est vide ou undefined
-  if (!content) {
-    return <p>Description non disponible</p>;
-  }
+function getPropsForNode(node: LexicalElementNode): Record<string, unknown> {
+  const props: Record<string, unknown> = {};
 
-  // Si le contenu est une chaîne simple
-  if (typeof content === 'string') {
-    // Permettre à la fois le HTML et les caractères d'émojis
-    // Le HTML sera interprété correctement et les émojis seront affichés comme des caractères normaux
-    const formattedContent = processTextWithEmojis(content);
-    
-    // Sanitiser le contenu avec DOMPurify pour prévenir les attaques XSS
-    const sanitized = DOMPurify.sanitize(formattedContent, {
-      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'span', 'div'],
-      ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style']
-    });
-    
-    return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;
-  }
-
-  // Si le contenu est un objet RichTextContent
-  try {
-    if (content.root && content.root.children) {
-      return <RichTextNode nodes={content.root.children} />;
+  if (node.type === 'link') {
+    if (node.linkType === 'internal' && node.doc) {
+      // Lien interne PayloadCMS
+      props.href = `/produits/${node.doc}`;
+    } else if (node.url) {
+      // Lien externe
+      props.href = node.url;
+      props.target = '_blank';
+      props.rel = 'noopener noreferrer';
     }
-  } catch (error) {
-    console.error('Erreur lors du rendu du texte riche:', error);
   }
 
-  return <p>Découvrez ce produit de qualité</p>;
-};
-
-/**
- * Fonction pour traiter le texte et s'assurer que les émojis et autres caractères spéciaux
- * sont correctement affichés
- */
-function processTextWithEmojis(text: string): string {
-  // Détecter si le texte est déjà du HTML
-  const isHTML = /<[a-z][\s\S]*>/i.test(text);
-  
-  // Si c'est déjà du HTML, le retourner tel quel
-  if (isHTML) {
-    return text;
+  // Text alignment
+  if (node.textAlign && ['center', 'right', 'justify'].includes(node.textAlign)) {
+    props.style = { textAlign: node.textAlign };
   }
-  
-  // Sinon, convertir les sauts de ligne en balises <br />
-  const withLineBreaks = text.replace(/\n/g, '<br />');
-  
-  // Détection de patterns markdown basiques
-  // Transformer **texte** en <strong>texte</strong>
-  const withBold = withLineBreaks.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  
-  // Transformer *texte* en <em>texte</em>
-  const withItalic = withBold.replace(/(\s|^)\*([^\*\s].+?[^\*\s])\*(\s|$)/g, '$1<em>$2</em>$3');
-  
-  // Les émojis sont des caractères Unicode et seront affichés naturellement
-  
-  return withItalic;
+
+  return props;
 }
 
 /**
- * Composant pour rendre récursivement les nœuds du contenu riche
+ * Vérifie si un nœud élément est "vide" (pas de contenu textuel visible)
  */
-const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nodes }) => {
-  if (!nodes || !Array.isArray(nodes)) {
+function isEmptyElement(node: LexicalElementNode): boolean {
+  if (!node.children || node.children.length === 0) {
+    return true;
+  }
+
+  // Vérifier si tous les enfants sont des textes vides ou whitespace
+  const hasContent = node.children.some(child => {
+    if ('text' in child && typeof child.text === 'string') {
+      return child.text.trim().length > 0;
+    }
+    // Si l'enfant a lui-même des enfants, le considérer comme non-vide
+    if ('children' in child && Array.isArray(child.children)) {
+      return !isEmptyElement(child as LexicalElementNode);
+    }
+    return false;
+  });
+
+  return !hasContent;
+}
+
+// ============================================================================
+// Recursive Node Renderer
+// ============================================================================
+
+interface LexicalNodeRendererProps {
+  nodes: LexicalNode[];
+}
+
+/**
+ * Rend récursivement les nœuds Lexical en HTML sémantique
+ */
+const LexicalNodeRenderer: React.FC<LexicalNodeRendererProps> = ({ nodes }) => {
+  if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
     return null;
   }
 
   return (
     <>
       {nodes.map((node, index) => {
-        // Nœud texte simple
-        if (node.text) {
-          const textContent = node.text as string;
-          const style: React.CSSProperties = {};
-
-          // Appliquer les styles en fonction des attributs du nœud
-          // Payload CMS utilise ces propriétés pour le formatage
-          if (node.bold) style.fontWeight = 'bold';
-          if (node.italic) style.fontStyle = 'italic';
-          if (node.underline) style.textDecoration = 'underline';
-          if (node.strikethrough) style.textDecoration = 'line-through';
-          if (node.code) style.fontFamily = 'monospace';
-          if (node.color) style.color = node.color as string;
-
-          return (
-            <span key={index} style={style}>
-              {textContent}
-            </span>
-          );
+        // Nœud texte
+        if ('text' in node && node.text !== undefined) {
+          return renderTextNode(node as LexicalTextNode, index);
         }
 
-        // Nœuds avec des enfants
-        if (node.children && Array.isArray(node.children)) {
-          let Element: ElementType = 'div';
-          
-          // Déterminer le type d'élément en fonction du type de nœud
-          // Payload CMS Lexical utilise ces types de nœuds
-          switch (node.type as string) {
-            // Lexical utilise 'heading' avec un 'tag' property pour h1-h6
-            case 'heading':
-              Element = (node.tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') || 'h2';
-              break;
-            // Fallback pour anciens formats
-            case 'h1':
-              Element = 'h1';
-              break;
-            case 'h2':
-              Element = 'h2';
-              break;
-            case 'h3':
-              Element = 'h3';
-              break;
-            case 'h4':
-              Element = 'h4';
-              break;
-            case 'h5':
-              Element = 'h5';
-              break;
-            case 'h6':
-              Element = 'h6';
-              break;
-            case 'quote':
-            case 'blockquote':
-              Element = 'blockquote';
-              break;
-            case 'list':
-              // Lexical liste: listType peut être 'bullet' ou 'number'
-              Element = node.listType === 'number' ? 'ol' : 'ul';
-              break;
-            case 'ul':
-              Element = 'ul';
-              break;
-            case 'ol':
-              Element = 'ol';
-              break;
-            case 'listitem':
-            case 'li':
-              Element = 'li';
-              break;
-            case 'relationship':
-              // Traitement spécial pour les relations, à compléter selon vos besoins
-              return null;
-            case 'upload':
-              // Traitement spécial pour les uploads, à compléter selon vos besoins
-              return null;
-            case 'link':
-              Element = 'a';
-              break;
-            case 'paragraph':
-            case 'p':
-              Element = 'p';
-              break;
-            default:
-              // Utiliser div comme fallback pour éviter les <p> imbriqués (invalide HTML, mauvais SEO)
-              Element = 'div';
-              break;
+        // Nœud élément avec enfants
+        if ('children' in node && Array.isArray(node.children)) {
+          const elementNode = node as LexicalElementNode;
+
+          // Ignorer les paragraphes vides (fix background bug)
+          if (
+            (elementNode.type === 'paragraph' || elementNode.type === 'p') &&
+            isEmptyElement(elementNode)
+          ) {
+            return null;
           }
 
-          // Attributs spécifiques pour certains éléments
-          const props: Record<string, unknown> = {};
-          if (node.type === 'link' && node.linkType === 'internal' && node.doc) {
-            // Pour les liens internes
-            props.href = `/produits/${node.doc}`;
-          } else if (node.type === 'link' && node.url) {
-            // Pour les liens externes
-            props.href = node.url as string;
-            props.target = '_blank';
-            props.rel = 'noopener noreferrer';
+          const Element = getElementForNode(elementNode);
+          const props = getPropsForNode(elementNode);
+
+          // Cas spécial : hr n'a pas d'enfants
+          if (Element === 'hr') {
+            return <hr key={index} />;
           }
 
-          // Style en fonction des attributs du nœud
-          const style: React.CSSProperties = {};
-          if (node.textAlign === 'center') style.textAlign = 'center';
-          if (node.textAlign === 'right') style.textAlign = 'right';
-          if (node.textAlign === 'justify') style.textAlign = 'justify';
-          
           return (
-            <Element key={index} style={style} {...props}>
-              <RichTextNode nodes={node.children as Array<Record<string, unknown>>} />
+            <Element key={index} {...props}>
+              <LexicalNodeRenderer nodes={elementNode.children as LexicalNode[]} />
             </Element>
           );
         }
@@ -201,3 +273,87 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
     </>
   );
 };
+
+// ============================================================================
+// String Fallback Renderer (for legacy string content)
+// ============================================================================
+
+/**
+ * Convertit une string brute en HTML sémantique (paragraphes)
+ * Utilisé comme fallback pour les données non migrées
+ */
+function renderStringContent(text: string): ReactNode {
+  const trimmed = text.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  // Séparer par doubles sauts de ligne → paragraphes
+  const paragraphs = trimmed
+    .split(/\n\n+/)
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
+
+  if (paragraphs.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index}>
+          {paragraph.split('\n').map((line, lineIndex, arr) => (
+            <React.Fragment key={lineIndex}>
+              {line}
+              {lineIndex < arr.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </p>
+      ))}
+    </>
+  );
+}
+
+// ============================================================================
+// Main Component Export
+// ============================================================================
+
+/**
+ * Composant pour rendre correctement le contenu RichText Lexical de PayloadCMS
+ * 
+ * Supporte:
+ * - Contenu Lexical JSON (structure complète)
+ * - Fallback string (legacy, convertit en paragraphes)
+ * - Contenu null/undefined (render nothing)
+ * 
+ * @example
+ * <RichTextRenderer content={category.description} />
+ */
+export const RichTextRenderer: React.FC<RichTextRendererProps> = ({ content, className }) => {
+  // Contenu null ou undefined
+  if (!content) {
+    return null;
+  }
+
+  // Contenu string (fallback legacy)
+  if (typeof content === 'string') {
+    const rendered = renderStringContent(content);
+    if (!rendered) return null;
+    return <div className={className}>{rendered}</div>;
+  }
+
+  // Contenu Lexical JSON
+  if (content.root && content.root.children && Array.isArray(content.root.children)) {
+    return (
+      <div className={className}>
+        <LexicalNodeRenderer nodes={content.root.children as LexicalNode[]} />
+      </div>
+    );
+  }
+
+  // Fallback: contenu invalide
+  return null;
+};
+
+// Default export for backwards compatibility
+export default RichTextRenderer;
