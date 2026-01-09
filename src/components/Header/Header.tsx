@@ -62,15 +62,12 @@ const mapCategoryToNavChild = (category: Category): NavChild => {
         rawImage?.url ??
         null;
 
-  const description =
-    typeof category.description === "string" && category.description.trim().length > 0
-      ? category.description.trim()
-      : undefined;
-
+  // Note: On n'inclut pas la description pour les catégories produits
+  // Le dropdown doit afficher uniquement image + nom (UX clean)
   return {
     name: category.name,
     link: `/produits/categorie/${category.slug}`,
-    description,
+    // description volontairement omis pour les produits
     image: imageUrl ?? undefined,
   };
 };
