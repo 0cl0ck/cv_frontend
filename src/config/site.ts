@@ -5,7 +5,7 @@
 export const config = {
   name: 'Chanvre Vert',
   description: 'Votre boutique de produits au CBD de qualité',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://chanvre-vert.fr',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr',
   
   auth: {
     // Nom du cookie d'authentification

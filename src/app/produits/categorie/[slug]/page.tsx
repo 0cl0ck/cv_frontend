@@ -5,6 +5,15 @@ import ProductsLayout from '@/app/produits/layout-products';
 import { headers } from 'next/headers';
 import { secureLogger as logger } from '@/utils/logger';
 import { siteMetadata } from '@/lib/metadata';
+// SEO Components
+import { 
+  FAQAccordion, 
+  FAQSchema, 
+  SEOContentSection, 
+  BreadcrumbSchema, 
+  CollectionPageSchema,
+  generateBreadcrumbs 
+} from '@/components/SEO';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,16 +31,25 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     
     if (category) {
       const canonicalUrl = `${siteMetadata.baseUrl}/produits/categorie/${slug}`;
+      
+      // Use SEO plugin meta fields with fallbacks
+      const seoTitle = category.meta?.title || `${category.name} | Chanvre Vert`;
+      const seoDescription = category.meta?.description 
+        || category.description 
+        || `Découvrez notre sélection de ${category.name} CBD de haute qualité - Chanvre Vert`;
+      const seoImage = category.meta?.image?.url || (typeof category.image === 'object' ? category.image?.url : undefined);
+      
       return {
-        title: `${category.name} | Chanvre Vert`,
-        description: `Découvrez notre sélection de ${category.name} CBD de haute qualité - Chanvre Vert`,
+        title: seoTitle,
+        description: seoDescription,
         alternates: {
           canonical: canonicalUrl,
         },
         openGraph: {
-          title: `${category.name} | Chanvre Vert`,
-          description: `Découvrez notre sélection de ${category.name} CBD de haute qualité`,
+          title: seoTitle,
+          description: seoDescription,
           url: canonicalUrl,
+          ...(seoImage && { images: [{ url: seoImage }] }),
         },
       };
     }
@@ -75,7 +93,7 @@ export default async function CategoryPage(props) {
   
   // Fallback pour éviter l'erreur de construction URL
   const baseUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://www.chanvre-vert.fr' 
+    ? (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr')
     : 'http://localhost:3000';
   let searchParams = new URLSearchParams();
   
@@ -226,29 +244,74 @@ export default async function CategoryPage(props) {
     
     // Formater le titre et la description
     const title = formatWithCBD(category.name);
-    const description = `Découvrez notre sélection de ${category.name.toLowerCase().replace(' cbd', '')} CBD de haute qualité`;
+    // Utiliser la description de la catégorie du CMS, sinon fallback générique
+    const description = category.description && category.description.trim().length > 0
+      ? category.description.trim()
+      : `Découvrez notre sélection de ${category.name.toLowerCase().replace(' cbd', '')} CBD de haute qualité`;
     
     // Informations de rendu final (logs supprimés pour la production)
     
+    // Generate base URL for schemas
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr';
+    const categoryUrl = `${baseUrl}/produits/categorie/${slug}`;
+    
+    // Generate breadcrumb items
+    const breadcrumbItems = generateBreadcrumbs(baseUrl, [
+      { name: 'Produits', path: '/produits' },
+      { name: title, path: `/produits/categorie/${slug}` },
+    ]);
+    
+    // Get category image URL if available
+    const categoryImage = typeof category.image === 'object' && category.image?.url 
+      ? category.image.url 
+      : undefined;
+    
     return (
-      <ProductsLayout
-        // Propriétés pour le mode pagination côté serveur (requises par le type)
-        products={productsData.docs.slice((currentPage - 1) * limit, currentPage * limit)}
-        currentPage={currentPage}
-        totalPages={Math.ceil(productsData.docs.length / limit)}
+      <>
+        {/* JSON-LD Structured Data */}
+        <BreadcrumbSchema items={breadcrumbItems} />
+        <CollectionPageSchema
+          name={title}
+          description={description}
+          url={categoryUrl}
+          numberOfItems={productsData.docs.length}
+          image={categoryImage}
+        />
+        {category.faq && category.faq.length > 0 && (
+          <FAQSchema items={category.faq} />
+        )}
         
-        // Propriétés pour le mode pagination côté client 
-        allProducts={productsData.docs} // Tous les produits sont passés au client
-        requestedPage={currentPage} // Page demandée initialement
-        productsPerPage={limit} // Nombre de produits par page
+        {/* Main Layout */}
+        <ProductsLayout
+          // Propriétés pour le mode pagination côté serveur (requises par le type)
+          products={productsData.docs.slice((currentPage - 1) * limit, currentPage * limit)}
+          currentPage={currentPage}
+          totalPages={Math.ceil(productsData.docs.length / limit)}
+          
+          // Propriétés pour le mode pagination côté client 
+          allProducts={productsData.docs} // Tous les produits sont passés au client
+          requestedPage={currentPage} // Page demandée initialement
+          productsPerPage={limit} // Nombre de produits par page
+          
+          // Propriétés communes
+          categories={categories}
+          totalProducts={productsData.docs.length}
+          title={title}
+          description={description}
+          activeCategory={slug}
+        />
         
-        // Propriétés communes
-        categories={categories}
-        totalProducts={productsData.docs.length}
-        title={title}
-        description={description}
-        activeCategory={slug}
-      />
+        {/* SEO Content Section - Below product grid */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-8">
+          {category.seoBottomContent && (
+            <SEOContentSection content={category.seoBottomContent} />
+          )}
+          
+          {category.faq && category.faq.length > 0 && (
+            <FAQAccordion items={category.faq} />
+          )}
+        </div>
+      </>
     );
   } catch (error) {
     console.error(`Erreur lors de la récupération de la catégorie ${slug}:`, error);

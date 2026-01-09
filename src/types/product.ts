@@ -36,6 +36,13 @@ export type ProductVariation = {
   isActive?: boolean;
 };
 
+// FAQ Item for category FAQ sections
+export type FAQItem = {
+  id?: string;
+  question: string;
+  answer: RichTextContent;
+};
+
 export type Category = {
   id: string;
   name: string;
@@ -43,9 +50,17 @@ export type Category = {
   isActive?: boolean;
   description?: string | null;
   image?: Media | string | null;
-  meta?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
+  // SEO Plugin Fields (@payloadcms/plugin-seo)
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    image?: Media | null;
+  } | null;
+  // Custom SEO Fields
+  seoBottomContent?: RichTextContent | null;
+  faq?: FAQItem[] | null;
 };
 
 export type ProductDetails = Record<string, unknown>;

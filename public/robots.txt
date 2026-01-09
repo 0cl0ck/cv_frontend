@@ -15,4 +15,4 @@ Disallow: /reinitialiser-mot-de-passe
 Disallow: /mot-de-passe-oublie
 
 # Sitemap
-Sitemap: https://chanvre-vert.fr/sitemap.xml
+Sitemap: https://www.chanvre-vert.fr/sitemap.xml

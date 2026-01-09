@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://chanvre-vert.fr';
+// Use environment variables with fallbacks for build-time and runtime
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.chanvre-vert.fr';
 
 interface ProductDoc {

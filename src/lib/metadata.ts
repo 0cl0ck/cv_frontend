@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 
 const SITE_NAME = 'Chanvre Vert';
-const BASE_URL = 'https://chanvre-vert.fr';
+// Use environment variable with fallback for production
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr';
 const DEFAULT_DESCRIPTION = 'Découvrez notre sélection de produits CBD de haute qualité : fleurs, huiles, infusions et résines. Livraison rapide en France.';
 
 interface PageMetadataOptions {
