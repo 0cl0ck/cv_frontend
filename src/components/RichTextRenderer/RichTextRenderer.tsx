@@ -109,8 +109,13 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
           let Element: ElementType = 'div';
           
           // Déterminer le type d'élément en fonction du type de nœud
-          // Payload CMS utilise ces types de nœuds
+          // Payload CMS Lexical utilise ces types de nœuds
           switch (node.type as string) {
+            // Lexical utilise 'heading' avec un 'tag' property pour h1-h6
+            case 'heading':
+              Element = (node.tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') || 'h2';
+              break;
+            // Fallback pour anciens formats
             case 'h1':
               Element = 'h1';
               break;
@@ -129,8 +134,13 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
             case 'h6':
               Element = 'h6';
               break;
+            case 'quote':
             case 'blockquote':
               Element = 'blockquote';
+              break;
+            case 'list':
+              // Lexical liste: listType peut être 'bullet' ou 'number'
+              Element = node.listType === 'number' ? 'ol' : 'ul';
               break;
             case 'ul':
               Element = 'ul';
@@ -138,6 +148,7 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
             case 'ol':
               Element = 'ol';
               break;
+            case 'listitem':
             case 'li':
               Element = 'li';
               break;

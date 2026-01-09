@@ -48,7 +48,7 @@ export type Category = {
   name: string;
   slug: string;
   isActive?: boolean;
-  description?: string | null;
+  description?: RichTextContent | string | null; // Now supports RichText
   image?: Media | string | null;
   createdAt?: string;
   updatedAt?: string;

@@ -5,6 +5,7 @@ import ProductsLayout from '@/app/produits/layout-products';
 import { headers } from 'next/headers';
 import { secureLogger as logger } from '@/utils/logger';
 import { siteMetadata } from '@/lib/metadata';
+import { RichTextContent } from '@/types/product';
 // SEO Components
 import { 
   FAQAccordion, 
@@ -14,6 +15,25 @@ import {
   CollectionPageSchema,
   generateBreadcrumbs 
 } from '@/components/SEO';
+
+// Helper to extract plain text from RichTextContent for SEO metadata
+function extractTextFromRichText(content: RichTextContent | string | null | undefined): string {
+  if (!content) return '';
+  if (typeof content === 'string') return content.trim();
+  if (!content.root || !content.root.children) return '';
+  
+  const extractText = (nodes: Array<Record<string, unknown>>): string => {
+    return nodes.map(node => {
+      if (typeof node.text === 'string') return node.text;
+      if (Array.isArray(node.children)) {
+        return extractText(node.children as Array<Record<string, unknown>>);
+      }
+      return '';
+    }).join(' ');
+  };
+  
+  return extractText(content.root.children).trim();
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -34,8 +54,10 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
       
       // Use SEO plugin meta fields with fallbacks
       const seoTitle = category.meta?.title || `${category.name} | Chanvre Vert`;
+      // Extract plain text for meta description (SEO requires plain text)
+      const descriptionText = extractTextFromRichText(category.description);
       const seoDescription = category.meta?.description 
-        || category.description 
+        || (descriptionText.length > 0 ? descriptionText : null)
         || `Découvrez notre sélection de ${category.name} CBD de haute qualité - Chanvre Vert`;
       const seoImage = category.meta?.image?.url || (typeof category.image === 'object' ? category.image?.url : undefined);
       
@@ -242,11 +264,12 @@ export default async function CategoryPage(props) {
       return text.includes('CBD') ? text : `${text} CBD`;
     };
     
-    // Formater le titre et la description
+    // Formater le titre et la description (texte brut pour les props)
     const title = formatWithCBD(category.name);
-    // Utiliser la description de la catégorie du CMS, sinon fallback générique
-    const description = category.description && category.description.trim().length > 0
-      ? category.description.trim()
+    // Utiliser la description de la catégorie du CMS, sinon fallback générique (texte brut pour schema)
+    const descriptionPlainText = extractTextFromRichText(category.description);
+    const description = descriptionPlainText.length > 0
+      ? descriptionPlainText
       : `Découvrez notre sélection de ${category.name.toLowerCase().replace(' cbd', '')} CBD de haute qualité`;
     
     // Informations de rendu final (logs supprimés pour la production)
@@ -298,6 +321,7 @@ export default async function CategoryPage(props) {
           totalProducts={productsData.docs.length}
           title={title}
           description={description}
+          descriptionRichText={typeof category.description === 'object' ? category.description : null}
           activeCategory={slug}
         />
         

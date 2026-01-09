@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { ProductCard } from "@/components/ProductCard/ProductCard";
 import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
 import Pagination from "@/components/Pagination/Pagination";
-import { Product, Category } from "@/types/product";
+import { Product, Category, RichTextContent } from "@/types/product";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   IconFilter,
@@ -18,6 +18,7 @@ import {
   IconLoader2,
 } from "@tabler/icons-react";
 import { GiftProgressBanner } from "@/components/GiftProgressBanner";
+import { RichTextRenderer } from "@/components/RichTextRenderer/RichTextRenderer";
 
 // Types pour les props du composant
 interface ProductsLayoutProps {
@@ -35,7 +36,8 @@ interface ProductsLayoutProps {
   categories: Category[];
   totalProducts: number;
   title: string;
-  description?: string;
+  description?: string; // Plain text fallback for schemas/metadata
+  descriptionRichText?: RichTextContent | null; // RichText for visual display
   activeCategory?: string;
 
   // Parametres de tri et filtrage
@@ -100,6 +102,7 @@ function ProductsLayoutContent({
   totalProducts,
   title,
   description,
+  descriptionRichText,
   activeCategory,
   initialSearchTerm,
 }: ProductsLayoutProps) {
@@ -515,7 +518,12 @@ function ProductsLayoutContent({
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
               {title}
             </h1>
-            {description && (
+            {/* Afficher la description RichText si disponible, sinon texte brut */}
+            {descriptionRichText ? (
+              <div className="text-white/80 max-w-2xl mx-auto prose prose-invert prose-sm prose-p:my-1 prose-headings:mt-2 prose-headings:mb-1">
+                <RichTextRenderer content={descriptionRichText} />
+              </div>
+            ) : description && (
               <p className="text-white/80 max-w-2xl mx-auto">{description}</p>
             )}
           </motion.div>
