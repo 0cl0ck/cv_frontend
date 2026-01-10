@@ -4,6 +4,7 @@ import { Category, Product, ProductVariation } from '@/types/product';
 import { formatPrice } from '@/utils/formatPrice';
 import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
 import AddToCartSection from './AddToCartSection';
+import ProductCertificates from './ProductCertificates';
 import { GoldenCoinBadge } from '@/components/Christmas';
 
 interface Props {
@@ -139,7 +140,7 @@ export default function ProductInfo({
         )}
         {product.productDetails && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-            {product.productDetails && typeof product.productDetails.cbdContent === 'number' && (
+            {product.productDetails.cbdContent !== undefined && (
               <div className="flex items-center">
                 <span className="text-sm text-[#F4F8F5] mr-2">Taux de CBD:</span>
                 <span className="text-sm font-medium text-[#F4F8F5]">
@@ -147,7 +148,7 @@ export default function ProductInfo({
                 </span>
               </div>
             )}
-            {product.productDetails && typeof product.productDetails.thcContent === 'number' && (
+            {product.productDetails.thcContent !== undefined && (
               <div className="flex items-center">
                 <span className="text-sm text-[#F4F8F5] mr-2">Taux de THC:</span>
                 <span className="text-sm font-medium text-[#F4F8F5]">
@@ -155,7 +156,7 @@ export default function ProductInfo({
                 </span>
               </div>
             )}
-            {product.productDetails && typeof product.productDetails.strain === 'string' && product.productDetails.strain !== 'na' && (
+            {product.productDetails.strain && product.productDetails.strain !== 'na' && (
               <div className="flex items-center">
                 <span className="text-sm text-[#F4F8F5] mr-2">Type de souche:</span>
                 <span className="text-sm font-medium text-[#F4F8F5]">
@@ -169,7 +170,7 @@ export default function ProductInfo({
                 </span>
               </div>
             )}
-            {product.productDetails && typeof product.productDetails.origin === 'string' && (
+            {product.productDetails.origin && (
               <div className="flex items-center">
                 <span className="text-sm text-[#F4F8F5] mr-2">Origine:</span>
                 <span className="text-sm font-medium text-[#F4F8F5]">
@@ -177,7 +178,7 @@ export default function ProductInfo({
                 </span>
               </div>
             )}
-            {product.productDetails && typeof product.productDetails.cultivation === 'string' && (
+            {product.productDetails.cultivation && (
               <div className="flex items-center">
                 <span className="text-sm text-[#F4F8F5] mr-2">Mode de culture:</span>
                 <span className="text-sm font-medium text-[#F4F8F5]">
@@ -193,7 +194,13 @@ export default function ProductInfo({
             )}
           </div>
         )}
+
+        {/* Section Certificats */}
+        {product.metaInfo?.certificates && product.metaInfo.certificates.length > 0 && (
+          <ProductCertificates certificates={product.metaInfo.certificates} />
+        )}
       </div>
     </div>
   );
 }
+

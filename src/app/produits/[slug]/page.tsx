@@ -52,7 +52,12 @@ export async function generateMetadata({
       ? product.description
       : `Découvrez notre produit ${product.name}`;
   const imageUrl =
-    product.mainImage?.url || product.galleryImages?.[0]?.url || "";
+    product.mainImage?.url || 
+    (product.galleryImages?.[0]?.image && typeof product.galleryImages[0].image !== 'string' 
+      ? product.galleryImages[0].image.url 
+      : typeof product.galleryImages?.[0]?.image === 'string' 
+        ? product.galleryImages[0].image 
+        : "");
 
   return {
     title: `${product.name} | Chanvre Vert`,

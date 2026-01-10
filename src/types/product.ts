@@ -26,6 +26,43 @@ export type Media = {
   thumbnailURL?: string | null;
 };
 
+// Document type pour les PDFs et fichiers non-images
+export type Document = {
+  id?: string;
+  url: string;
+  title?: string;
+  description?: string;
+  filename?: string;
+  mimeType?: string;
+  filesize?: number;
+};
+
+// Cannabinoid result from lab analysis
+export type CannabinoidResult = {
+  id?: string;
+  compound: string;
+  value?: number;
+  belowLOQ?: boolean;
+};
+
+// Certificate avec structure enrichie du backend
+export type Certificate = {
+  id?: string;
+  name: string;
+  file?: Document | string;
+  rawData?: string;
+  labName?: string;
+  testDate?: string;
+  validatedBy?: string;
+  cannabinoidResults?: CannabinoidResult[];
+};
+
+// GalleryImage wrapper (structure backend)
+export type GalleryImage = {
+  id?: string;
+  image: Media | string;
+};
+
 export type ProductVariation = {
   id: string;
   weight?: number;
@@ -63,11 +100,17 @@ export type Category = {
   faq?: FAQItem[] | null;
 };
 
-export type ProductDetails = Record<string, unknown>;
+export type ProductDetails = {
+  cbdContent?: number;
+  thcContent?: number;
+  strain?: 'sativa' | 'indica' | 'hybrid' | 'na';
+  origin?: string;
+  cultivation?: 'indoor' | 'outdoor' | 'greenhouse';
+};
 
 export type MetaInfo = {
   legalWarning?: string;
-  certificates?: string[];
+  certificates?: Certificate[];
 };
 
 export type ReviewStats = {
@@ -106,7 +149,7 @@ export type Product = {
   createdAt?: string;
   updatedAt?: string;
   mainImage?: Media;
-  galleryImages?: Media[];
+  galleryImages?: GalleryImage[];
   category?: Category | string;
   isFeatured?: boolean;
   isActive?: boolean;
@@ -117,3 +160,4 @@ export type Product = {
   metaInfo?: MetaInfo;
   reviewStats?: ReviewStats;
 };
+

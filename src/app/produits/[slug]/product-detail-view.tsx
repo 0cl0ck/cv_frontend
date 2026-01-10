@@ -25,7 +25,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | null>(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
-  const [mainImage, setMainImage] = useState<Media | string | undefined>(product.mainImage || (product.galleryImages && product.galleryImages.length > 0 ? product.galleryImages[0] : undefined));
+  const [mainImage, setMainImage] = useState<Media | undefined>(product.mainImage);
   const [quantity, setQuantity] = useState(1);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);

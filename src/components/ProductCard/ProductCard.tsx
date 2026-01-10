@@ -1,7 +1,7 @@
 'use client';
 
 import { formatPrice } from '@/utils/formatPrice';
-import { Product, ProductVariation } from '@/types/product';
+import { Product, ProductVariation, GalleryImage, Media } from '@/types/product';
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -13,6 +13,15 @@ type Props = {
   product: Product;
   index: number;
   showFeaturedBadge?: boolean; // Prop optionnel pour contrôler l'affichage du badge (n'est pas utilisé dans ce composant actuellement)
+};
+
+// Helper pour extraire Media depuis GalleryImage
+const unwrapGalleryImage = (item: GalleryImage | undefined): Media | undefined => {
+  if (!item || !item.image) return undefined;
+  if (typeof item.image === 'string') {
+    return { url: item.image };
+  }
+  return item.image;
 };
 
 export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge }) => {
@@ -33,7 +42,7 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
   
   // Utiliser mainImage comme image principale et la première image de la galerie comme image au survol
   const mainImage = product.mainImage;
-  const hoverImage = product.galleryImages?.[0];
+  const hoverImage = unwrapGalleryImage(product.galleryImages?.[0]);
   
   // Initialiser la variante sélectionnée au chargement
   useEffect(() => {
