@@ -241,16 +241,21 @@ const LexicalNodeRenderer: React.FC<LexicalNodeRendererProps> = ({ nodes }) => {
           return renderTextNode(node as LexicalTextNode, index);
         }
 
+        // Nœud linebreak (Shift+Entrée dans l'éditeur)
+        if ('type' in node && node.type === 'linebreak') {
+          return <br key={index} />;
+        }
+
         // Nœud élément avec enfants
         if ('children' in node && Array.isArray(node.children)) {
           const elementNode = node as LexicalElementNode;
 
-          // Ignorer les paragraphes vides (fix background bug)
+          // Paragraphes vides : rendre avec espace insécable pour espacement visuel
           if (
             (elementNode.type === 'paragraph' || elementNode.type === 'p') &&
             isEmptyElement(elementNode)
           ) {
-            return null;
+            return <p key={index}>&nbsp;</p>;
           }
 
           const Element = getElementForNode(elementNode);

@@ -520,7 +520,7 @@ function ProductsLayoutContent({
             </h1>
             {/* Afficher la description RichText si disponible, sinon texte brut */}
             {descriptionRichText ? (
-              <div className="text-white/80 max-w-2xl mx-auto prose prose-invert prose-sm prose-p:my-1 prose-headings:mt-2 prose-headings:mb-1">
+              <div className="text-white/80 max-w-2xl mx-auto prose prose-invert prose-sm prose-p:my-4 prose-headings:mt-2 prose-headings:mb-1">
                 <RichTextRenderer content={descriptionRichText} />
               </div>
             ) : description && (
