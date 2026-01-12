@@ -1,8 +1,59 @@
-# Chanvre-Vert Robots.txt
+# ==========================================
+# ROBOTS DE RECHERCHE (TRAFIC & SEO)
+# ==========================================
+
+# Google Search & AI Overviews
+User-agent: Googlebot
+Allow: /
+
+# Bing Search & Copilot
+User-agent: Bingbot
+Allow: /
+
+# OpenAI Search (ChatGPT Search - source de trafic)
+User-agent: OAI-SearchBot
+Allow: /
+
+# Perplexity (moteur de réponse)
+User-agent: PerplexityBot
+Allow: /
+
+# ==========================================
+# ROBOTS GÉNÉRATIFS (VISIBILITÉ MARQUE)
+# ==========================================
+
+# Google Gemini / Vertex AI
+User-agent: Google-Extended
+Allow: /
+
+# ChatGPT (Entraînement & Navigation)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Claude (Anthropic)
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+# ==========================================
+# RÈGLES GLOBALES
+# ==========================================
+
 User-agent: *
 Allow: /
 
-# Bloquer les routes internes et sensibles
+# Bloquer les pages sensibles
 Disallow: /api/
 Disallow: /compte/
 Disallow: /panier/
