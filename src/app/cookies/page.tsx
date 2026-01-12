@@ -16,12 +16,12 @@ export default function CookiesPage() {
       <p className="text-center text-sm mb-6 text-gray-400">
         Version 1.0 - Dernière mise à jour le 09/05/2025
       </p>
-      
+
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Qu&apos;est-ce qu&apos;un cookie ?</h2>
         <p className="mb-4">
-          Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) 
-          lors de votre visite sur notre site. Il nous permet de collecter des informations sur votre navigation 
+          Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone)
+          lors de votre visite sur notre site. Il nous permet de collecter des informations sur votre navigation
           afin d&apos;améliorer votre expérience et nos services.
         </p>
         <p className="mb-4">
@@ -35,7 +35,7 @@ export default function CookiesPage() {
 
       <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Les cookies que nous utilisons</h2>
-        
+
         <div className="mb-6">
           <h3 className="text-lg font-medium mb-2">1. Cookies strictement nécessaires</h3>
           <div className="pl-4">
@@ -45,7 +45,7 @@ export default function CookiesPage() {
             <p><span className="font-medium">Émetteur(s) :</span> Chanvre Vert</p>
           </div>
         </div>
-        
+
         <div className="mb-6">
           <h3 className="text-lg font-medium mb-2">2. Cookies de mesure d&apos;audience</h3>
           <div className="pl-4">
@@ -55,7 +55,7 @@ export default function CookiesPage() {
             <p><span className="font-medium">Émetteur(s) :</span> Google Analytics</p>
           </div>
         </div>
-        
+
         <div className="mb-6">
           <h3 className="text-lg font-medium mb-2">3. Cookies de personnalisation</h3>
           <div className="pl-4">
@@ -65,7 +65,7 @@ export default function CookiesPage() {
             <p><span className="font-medium">Émetteur(s) :</span> Chanvre Vert</p>
           </div>
         </div>
-        
+
         <div>
           <h3 className="text-lg font-medium mb-2">4. Cookies de réseaux sociaux et publicitaires</h3>
           <div className="pl-4">
@@ -98,7 +98,7 @@ export default function CookiesPage() {
         </p>
         <ul className="list-disc pl-5 space-y-2 mt-2">
           <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">Google Chrome</a></li>
-          <li><a href="https://support.mozilla.org/fr/kb/protection-renforcee-contre-pistage-firefox" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">Mozilla Firefox</a></li>
+          <li><a href="https://support.mozilla.org/fr/kb/effacer-cookies-donnees-site-firefox" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">Mozilla Firefox</a></li>
           <li><a href="https://support.apple.com/fr-fr/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">Safari</a></li>
           <li><a href="https://support.microsoft.com/fr-fr/microsoft-edge/supprimer-les-cookies-dans-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">Microsoft Edge</a></li>
         </ul>

@@ -12,26 +12,28 @@ import { IconSun, IconMoon } from '@tabler/icons-react';
 export default function Footer() {
   // État pour le thème (simplifié par rapport au ThemeSelector)
   const [isDarkMode, setIsDarkMode] = useState(false);
-  
+
   // Fonction simplifiée pour basculer le thème (préparée pour une fonctionnalité future)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const toggleTheme = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    
+
     // Mettre à jour les classes sur l'élément HTML
     document.documentElement.classList.toggle('dark', newMode);
     document.documentElement.classList.toggle('light', !newMode);
-    
+
     // Stocker la préférence
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
   };
-  
+
   // Navigation items statiques
   const navItems = [
     { label: 'À propos', url: '/a-propos' },
+    { label: 'Blog', url: '/blog' },
     { label: 'Contact', url: '/contact' },
     { label: 'Mentions légales', url: '/legal' },
+    { label: 'Rétractation', url: '/retractation' },
   ];
 
   return (
@@ -39,10 +41,10 @@ export default function Footer() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-8 gap-8 flex flex-col items-center md:flex-row md:justify-between">
         <Link className="flex items-center justify-center" href="/">
           <div className="flex items-center">
-            <Image 
-              src="/logo.png" 
-              alt="Chanvre Vert Logo" 
-              width={70} 
+            <Image
+              src="/logo.png"
+              alt="Chanvre Vert Logo"
+              width={70}
               height={70}
               className="transition-transform duration-300 hover:scale-105"
             />
@@ -66,12 +68,12 @@ export default function Footer() {
           >
             {isDarkMode ? <IconSun size={20} /> : <IconMoon size={20} />}
           </button> */}
-          
+
           {/* Navigation */}
           <nav className="flex justify-center items-center flex-col md:flex-row gap-4">
             {navItems.map((item, i) => (
-              <Link 
-                key={i} 
+              <Link
+                key={i}
                 href={item.url}
                 className="text-white hover:text-green-200 transition-colors"
               >
@@ -81,14 +83,14 @@ export default function Footer() {
           </nav>
         </div>
       </div>
-      
+
       {/* Section des informations légales supplémentaires */}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-4 border-t border-white/20">
         <div className="flex flex-col items-center md:flex-row md:justify-between gap-4">
           <p className="text-sm text-white/70">
             &copy; {new Date().getFullYear()} Chanvre Vert - Tous droits réservés
           </p>
-          
+
           <div className="flex gap-4 flex-wrap justify-center md:justify-end">
             <Link href="/confidentialite" className="text-sm text-white/70 hover:text-white">
               Politique de confidentialité
