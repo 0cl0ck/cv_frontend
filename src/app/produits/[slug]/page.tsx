@@ -193,6 +193,8 @@ export default async function ProductPage({
       "@type": "Offer",
       priceCurrency: config.payment.currency,
       price: productPrice,
+      priceValidUntil: "2026-12-31",
+      itemCondition: "https://schema.org/NewCondition",
       availability: isInStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
@@ -200,6 +202,41 @@ export default async function ProductPage({
       seller: {
         "@type": "Organization",
         name: "Chanvre Vert",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: 0,
+          currency: "EUR",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "FR",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 2,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 2,
+            maxValue: 5,
+            unitCode: "DAY",
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "FR",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 14,
+        returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+        returnMethod: "https://schema.org/ReturnByMail",
       },
     },
     // aggregateRating seulement si avis existent
