@@ -34,10 +34,12 @@ export default function ProductInfo({
 }: Props) {
   return (
     <div className="md:w-1/2 p-6 md:border-l border-[#3A4A4F]">
-      <h1 className="text-3xl font-bold text-[#F4F8F5] mb-4">{product.name}</h1>
+      {/* Titre */}
+      <h1 className="text-3xl font-bold text-[#F4F8F5] mb-3">{product.name}</h1>
 
+      {/* Catégories */}
       {categoryDisplay.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-3 flex flex-wrap gap-2">
           {categoryDisplay.map((cat, index) => (
             <Link
               key={index}
@@ -50,28 +52,22 @@ export default function ProductInfo({
         </div>
       )}
 
-      <div className="mb-6">
+      {/* Prix - plus visible */}
+      <div className="mb-4">
         {product.productType === 'variable' ? (
-          <div className="text-2xl font-bold text-[#EFC368]">
+          <div className="text-3xl font-bold text-[#EFC368]">
             {selectedVariation ? formatPrice(selectedVariation.price) : 'Sélectionnez une option'}
           </div>
         ) : (
-          <div className="text-2xl font-bold text-[#EFC368]">
+          <div className="text-3xl font-bold text-[#EFC368]">
             {product.price ? formatPrice(product.price) : 'Prix sur demande'}
           </div>
         )}
       </div>
 
-      {product.description && (
-        <div className='mb-6'>
-          <div className="prose prose-invert !text-white prose-p:text-white prose-headings:text-white prose-li:text-white prose-strong:text-white">
-            <RichTextRenderer content={product.description} />
-          </div>
-        </div>
-      )}
-
+      {/* Options/Variants - juste après le prix */}
       {product.productType === 'variable' && product.variants && product.variants.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block text-sm font-medium text-[#F4F8F5] mb-2">
             Options
           </label>
@@ -107,6 +103,7 @@ export default function ProductInfo({
         />
       )}
 
+      {/* BOUTON AJOUTER AU PANIER - Remonté pour être visible sans scroll sur mobile */}
       <AddToCartSection
         quantity={quantity}
         onQuantityChange={onQuantityChange}
@@ -115,6 +112,16 @@ export default function ProductInfo({
         isAddingToCart={isAddingToCart}
         isAddedToCart={isAddedToCart}
       />
+
+      {/* Description - après le bouton sur mobile */}
+      {product.description && (
+        <div className='mt-6 pt-6 border-t border-[#3A4A4F]'>
+          <h2 className="text-lg font-semibold text-[#F4F8F5] mb-3">Description</h2>
+          <div className="prose prose-invert !text-white prose-p:text-white prose-headings:text-white prose-li:text-white prose-strong:text-white prose-sm">
+            <RichTextRenderer content={product.description} />
+          </div>
+        </div>
+      )}
 
       <div className="border-t border-[#3A4A4F] pt-6 mt-6">
         <h2 className="text-lg font-semibold text-[#F4F8F5] mb-4">Informations produit</h2>
