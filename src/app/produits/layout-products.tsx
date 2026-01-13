@@ -16,6 +16,7 @@ import {
   IconArrowUp,
   IconSearch,
   IconLoader2,
+  IconX,
 } from "@tabler/icons-react";
 import { GiftProgressBanner } from "@/components/GiftProgressBanner";
 import { RichTextRenderer } from "@/components/RichTextRenderer/RichTextRenderer";
@@ -621,62 +622,88 @@ function ProductsLayoutContent({
           {/* Produits et pagination */}
           <motion.section className="md:w-3/4" variants={itemVariants}>
 
-                        <div className="mb-6">
+            {/* Barre de recherche premium */}
+            <div className="mb-8">
               <label htmlFor="product-search-input" className="sr-only">
-                Search products
+                Rechercher un produit
               </label>
 
-              <div className="relative">
-                <IconSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={18} />
-                <input
-                  id="product-search-input"
-                  type="search"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder='Rechercher &quot;fleurs cbd&quot; ou &quot;amnesia&quot;'
-                  className="w-full rounded-full bg-[#002732] py-3 pl-11 pr-12 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#EFC368]"
-                  autoComplete="off"
-                  inputMode="search"
-                />
-                {searchBusy ? (
-                  <IconLoader2
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#EFC368] animate-spin"
-                    size={18}
+              <div className="relative group">
+                {/* Glow effect on focus */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#EFC368] to-[#d4a84b] rounded-2xl opacity-0 group-focus-within:opacity-30 blur transition-opacity duration-300" />
+                
+                <div className="relative flex items-center bg-gradient-to-r from-[#003845] to-[#002d38] rounded-2xl border border-[#EFC368]/30 shadow-lg overflow-hidden">
+                  <IconSearch 
+                    className="absolute left-5 text-[#EFC368]" 
+                    size={22} 
+                    stroke={2}
                   />
-                ) : null}
+                  <input
+                    id="product-search-input"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Rechercher un produit..."
+                    className="w-full bg-transparent py-4 pl-14 pr-14 text-base text-white placeholder:text-white/50 focus:outline-none"
+                    autoComplete="off"
+                    inputMode="search"
+                  />
+                  {searchBusy ? (
+                    <IconLoader2
+                      className="absolute right-5 text-[#EFC368] animate-spin"
+                      size={22}
+                    />
+                  ) : searchQuery.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-5 text-white/50 hover:text-white transition-colors"
+                      aria-label="Effacer la recherche"
+                    >
+                      <IconX size={20} />
+                    </button>
+                  ) : null}
+                </div>
               </div>
 
-              <div className="mt-2 min-h-[1.25rem] text-sm text-white/70">
-                {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 ? (
-                  <span>Tapez au moins 3 caracteres pour lancer la recherche.</span>
+              {/* Feedback de recherche */}
+              <div className="mt-3 min-h-[1.5rem] text-sm flex items-center gap-2">
+                {searchQuery.trim().length > 0 && searchQuery.trim().length < 2 ? (
+                  <span className="text-white/60">
+                    <span className="inline-block w-1.5 h-1.5 bg-[#EFC368] rounded-full mr-2" />
+                    Tapez au moins 2 caractères...
+                  </span>
                 ) : searchActive ? (
                   searchBusy ? (
-                    <span>Recherche en cours...</span>
+                    <span className="text-[#EFC368]">
+                      <span className="inline-block w-1.5 h-1.5 bg-[#EFC368] rounded-full mr-2 animate-pulse" />
+                      Recherche en cours...
+                    </span>
                   ) : activeFilteredTotal > 0 ? (
-                    <span>
-                      {activeFilteredTotal} resultat{pluralSuffix} pour &quot;
-                      <span className="font-semibold">{debouncedQuery}</span>
-                      &quot;
+                    <span className="text-emerald-400">
+                      <span className="inline-block w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2" />
+                      <span className="font-semibold">{activeFilteredTotal}</span> résultat{pluralSuffix} pour &quot;<span className="text-white">{debouncedQuery}</span>&quot;
                     </span>
                   ) : (
-                    <span>
-                      Aucun resultat pour &quot;
-                      <span className="font-semibold">{debouncedQuery}</span>
-                      &quot;.
+                    <span className="text-orange-400">
+                      <span className="inline-block w-1.5 h-1.5 bg-orange-400 rounded-full mr-2" />
+                      Aucun résultat pour &quot;<span className="text-white">{debouncedQuery}</span>&quot;
                     </span>
                   )
                 ) : (
                   <span className="text-white/40">
-                    Astuce : essayez des mots-cles comme &quot;fleurs cbd&quot; ou &quot;amnesia&quot;.
+                    <span className="inline-block w-1.5 h-1.5 bg-white/30 rounded-full mr-2" />
+                    Ex: &quot;fleurs cbd&quot;, &quot;amnesia&quot;, &quot;huile&quot;...
                   </span>
                 )}
               </div>
 
               {searchIsError ? (
-                <p className="mt-1 text-sm text-red-400">
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-2">
+                  <span className="inline-block w-1.5 h-1.5 bg-red-400 rounded-full" />
                   {searchError instanceof Error
                     ? searchError.message
-                    : 'Impossible de charger les resultats. Veuillez reessayer.'}
+                    : 'Impossible de charger les résultats. Veuillez réessayer.'}
                 </p>
               ) : null}
             </div>

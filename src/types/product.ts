@@ -136,6 +136,8 @@ export type RichTextContent = {
   };
 };
 
+export type AvailabilityStatus = 'in_stock' | 'out_of_stock' | 'preorder' | 'discontinued';
+
 export type Product = {
   id: string;
   name: string;
@@ -152,6 +154,11 @@ export type Product = {
   galleryImages?: GalleryImage[];
   category?: Category | string;
   isFeatured?: boolean;
+  // SEO-safe availability fields
+  availabilityStatus?: AvailabilityStatus;
+  isSellable?: boolean;
+  redirectTo?: Product | string; // Product to redirect to if discontinued
+  // Legacy field - deprecated, use availabilityStatus instead
   isActive?: boolean;
   productType?: 'simple' | 'variable';
   variants?: ProductVariation[];

@@ -19,9 +19,17 @@ interface PostDoc {
   updatedAt?: string;
 }
 
+interface UseCaseDoc {
+  slug: string;
+  updatedAt?: string;
+}
+
 async function fetchProducts(): Promise<ProductDoc[]> {
   try {
-    const res = await fetch(`${API_URL}/api/products?limit=1000&where[isActive][equals]=true`, {
+    // CRITICAL SEO FIX: Include ALL products in sitemap, not just isActive=true
+    // Out-of-stock products maintain their SEO equity
+    // Truly discontinued products should use 301 redirects, not sitemap exclusion
+    const res = await fetch(`${API_URL}/api/products?limit=1000`, {
       next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
@@ -31,6 +39,7 @@ async function fetchProducts(): Promise<ProductDoc[]> {
     return [];
   }
 }
+
 
 async function fetchPosts(): Promise<PostDoc[]> {
   try {
@@ -58,11 +67,25 @@ async function fetchCategories(): Promise<CategoryDoc[]> {
   }
 }
 
+async function fetchUseCases(): Promise<UseCaseDoc[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/use-cases?limit=100&where[status][equals]=published`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.docs || [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, posts, categories] = await Promise.all([
+  const [products, posts, categories, useCases] = await Promise.all([
     fetchProducts(),
     fetchPosts(),
     fetchCategories(),
+    fetchUseCases(),
   ]);
 
   const now = new Date();
@@ -71,6 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
     { url: `${BASE_URL}/produits`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE_URL}/solutions`, lastModified: now, changeFrequency: 'weekly', priority: 0.75 },
     { url: `${BASE_URL}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE_URL}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE_URL}/a-propos`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
@@ -92,6 +116,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Pages solutions (pSEO)
+  const solutionPages: MetadataRoute.Sitemap = useCases.map((uc) => ({
+    url: `${BASE_URL}/solutions/${uc.slug}`,
+    lastModified: uc.updatedAt ? new Date(uc.updatedAt) : now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
   // Pages blog
   const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
@@ -100,5 +132,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...productPages, ...categoryPages, ...blogPages];
+  return [...staticPages, ...productPages, ...categoryPages, ...solutionPages, ...blogPages];
 }

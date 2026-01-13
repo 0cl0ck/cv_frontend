@@ -63,8 +63,11 @@ export const dynamicParams = true;
 export async function generateStaticParams() {
   try {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.chanvre-vert.fr';
+    // SEO FIX: Pre-generate popular products, but ALL slugs accessible via SSR fallback
+    // We don't filter by isActive - out-of-stock products keep their pages
+    // Limiting to 50 for build speed; other pages generated on-demand via `dynamicParams = true`
     const res = await fetch(
-      `${API_URL}/api/products?limit=50&where[isActive][equals]=true`,
+      `${API_URL}/api/products?limit=50&sort=-updatedAt`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -76,6 +79,7 @@ export async function generateStaticParams() {
     return [];
   }
 }
+
 
 export async function generateMetadata({
   params,

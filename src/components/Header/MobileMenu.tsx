@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { IconX, IconUser, IconPackage, IconLogout, IconLogin } from '@tabler/icons-react';
 import { useAuthContext } from '@/context/AuthContext';
+import { GlobalSearch } from '@/components/GlobalSearch/GlobalSearch';
 
 type NavLinkItem = { label: string; url: string };
 
@@ -20,7 +21,7 @@ export default function MobileMenu({ menuOpen, setMenuOpen, navItems, categoryIt
 
   return (
     <div
-      className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#00343f] transform transition-transform duration-300 ease-in-out ${
+      className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#00343f] transform transition-transform duration-300 ease-in-out ${
         menuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -35,7 +36,17 @@ export default function MobileMenu({ menuOpen, setMenuOpen, navItems, categoryIt
           <IconX className="h-6 w-6" />
         </button>
       </div>
-      <nav className="flex h-[calc(100vh-70px)] flex-col space-y-4 overflow-y-auto px-4 py-4">
+      
+      {/* Barre de recherche mobile - tout en haut */}
+      <div className="px-4 py-3 border-b border-[#004a59]">
+        <GlobalSearch 
+          variant="mobile" 
+          placeholder="Rechercher..."
+          onResultClick={() => setMenuOpen(false)}
+        />
+      </div>
+      
+      <nav className="flex h-[calc(100vh-140px)] flex-col space-y-4 overflow-y-auto px-4 py-4">
         {navItems.map((item) => (
           <Link
             key={item.url}

@@ -307,9 +307,8 @@ export default async function SolutionPage({
   // ========================================
   // Layout variant styling
   // ========================================
-  const isWellness = useCase.layoutVariant === 'wellness'
-  const bgClass = isWellness ? 'bg-emerald-50' : 'bg-white'
-  const accentColor = isWellness ? 'emerald' : 'green'
+  // Layout variant no longer affects colors - using site-wide dark theme
+  const _isWellness = useCase.layoutVariant === 'wellness'
 
   return (
     <>
@@ -330,7 +329,7 @@ export default async function SolutionPage({
       {/* LEGAL DISCLAIMER - MANDATORY */}
       <LegalDisclaimer variant="prominent" />
 
-      <article className={`min-h-screen ${bgClass}`}>
+      <article className="min-h-screen bg-[#001E27]">
         {/* Hero Header */}
         <header className="relative bg-[#001E27] text-white">
           {/* Featured Image */}
@@ -391,21 +390,21 @@ export default async function SolutionPage({
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
           {/* Word count indicator (admin/dev only in noindex state) */}
           {useCase.metaRobots === 'noindex' && (
-            <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+            <div className="mb-6 p-3 bg-amber-900/30 border border-amber-500/50 rounded-lg text-sm text-amber-200">
               <strong>⚠️ Page non indexée:</strong> Cette page contient{' '}
               {useCase.wordCount || 0} mots (minimum 800 requis pour l&apos;indexation).
             </div>
           )}
 
           {/* Article Content */}
-          <div className="prose prose-lg prose-green max-w-none">
+          <div className="prose prose-lg prose-invert prose-headings:text-white prose-p:text-white/80 prose-strong:text-white prose-li:text-white/80 max-w-none">
             <RichTextRenderer content={useCase.content as RichTextContent} />
           </div>
 
           {/* Expert Full Card (E-E-A-T) */}
           {expert && (
-            <section className="mt-12 pt-8 border-t border-gray-200">
-              <h2 className={`text-xl font-semibold text-${accentColor}-800 mb-4`}>
+            <section className="mt-12 pt-8 border-t border-white/10">
+              <h2 className="text-xl font-semibold text-white mb-4">
                 À propos de l&apos;auteur
               </h2>
               <ExpertAuthorCard author={expert} variant="full" />
@@ -414,8 +413,8 @@ export default async function SolutionPage({
 
           {/* Related Products (Cross-Sell) */}
           {relatedProducts.length > 0 && (
-            <section className="mt-12 pt-8 border-t border-gray-200">
-              <h2 className={`text-xl font-semibold text-${accentColor}-800 mb-6`}>
+            <section className="mt-12 pt-8 border-t border-white/10">
+              <h2 className="text-xl font-semibold text-white mb-6">
                 Produits recommandés
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -426,7 +425,8 @@ export default async function SolutionPage({
               <div className="mt-6 text-center">
                 <Link
                   href="/produits"
-                  className={`inline-flex items-center text-${accentColor}-700 hover:text-${accentColor}-800 font-medium`}
+                  className="inline-flex items-center font-medium transition-colors hover:underline"
+                  style={{ color: '#EFC368' }}
                 >
                   Voir tous nos produits →
                 </Link>
@@ -436,15 +436,15 @@ export default async function SolutionPage({
 
           {/* FAQ Section */}
           {useCase.faqItems && useCase.faqItems.length > 0 && (
-            <section className="mt-12 pt-8 border-t border-gray-200">
-              <h2 className={`text-xl font-semibold text-${accentColor}-800 mb-6`}>
+            <section className="mt-12 pt-8 border-t border-white/10">
+              <h2 className="text-xl font-semibold text-white mb-6">
                 Questions fréquentes
               </h2>
               <dl className="space-y-4">
                 {useCase.faqItems.map((item, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-4">
-                    <dt className="font-medium text-gray-900">{item.question}</dt>
-                    <dd className="mt-2 text-gray-600">
+                  <div key={index} className="bg-white/5 border border-white/10 rounded-lg p-4">
+                    <dt className="font-medium text-white">{item.question}</dt>
+                    <dd className="mt-2 text-white/70">
                       <RichTextRenderer content={item.answer as RichTextContent} />
                     </dd>
                   </div>
@@ -455,8 +455,8 @@ export default async function SolutionPage({
 
           {/* Related Topics (Internal Linking) */}
           {relatedUseCases.length > 0 && (
-            <section className="mt-12 pt-8 border-t border-gray-200">
-              <h2 className={`text-xl font-semibold text-${accentColor}-800 mb-4`}>
+            <section className="mt-12 pt-8 border-t border-white/10">
+              <h2 className="text-xl font-semibold text-white mb-4">
                 Sujets connexes
               </h2>
               <ul className="flex flex-wrap gap-2">
@@ -464,7 +464,8 @@ export default async function SolutionPage({
                   <li key={related.slug}>
                     <Link
                       href={`/solutions/${related.slug}`}
-                      className={`inline-block px-4 py-2 rounded-full border border-${accentColor}-200 text-${accentColor}-700 hover:bg-${accentColor}-50 text-sm transition-colors`}
+                      className="inline-block px-4 py-2 rounded-full border text-sm transition-colors hover:bg-[#EFC368] hover:text-black hover:border-[#EFC368]"
+                      style={{ borderColor: '#EFC368', color: '#EFC368' }}
                     >
                       {related.title}
                     </Link>
@@ -473,6 +474,25 @@ export default async function SolutionPage({
               </ul>
             </section>
           )}
+
+          {/* Navigation */}
+          <nav className="mt-12 border-t border-white/10 pt-8">
+            <Link
+              href="/solutions"
+              className="inline-flex items-center font-medium transition-colors hover:underline"
+              style={{ color: '#EFC368' }}
+            >
+              <svg
+                className="mr-2 h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Retour aux solutions
+            </Link>
+          </nav>
         </div>
 
         {/* CTA Section */}

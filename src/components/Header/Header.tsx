@@ -19,6 +19,7 @@ import { useCartContext } from "@/context/CartContext";
 import { getCategories, fallbackCategories } from "@/services/api";
 import MobileMenu from "./MobileMenu";
 import UserAccountMenu from "./UserAccountMenu";
+import { GlobalSearch } from "@/components/GlobalSearch/GlobalSearch";
 import { cn } from "@/utils/utils";
 
 type NavChild = {
@@ -89,19 +90,25 @@ const parrainageHighlights: NavChild[] = [
 
 const blogHighlights: NavChild[] = [
   {
-    name: "Tous les articles",
+    name: "Actualités",
     link: "/blog",
-    description: "Guides, conseils et actualités sur le CBD.",
+    description: "Guides, conseils et nouveautés",
   },
   {
-    name: "Articles piliers",
+    name: "Guides Pratiques",
     link: "/blog?pillar=true",
-    description: "Nos guides complets pour bien débuter.",
+    description: "Tout comprendre pour bien débuter",
+  },
+  {
+    name: "Solutions par besoin",
+    link: "/solutions",
+    description: "Dormir, Récupérer, Se détendre...",
   },
 ];
 
 const mobileNavConfig: MobileNavItem[] = [
   { label: "Produits", url: "/produits" },
+  { label: "Solutions", url: "/solutions" },
   { label: "Blog", url: "/blog" },
   { label: "Parrainage", url: "/parrainage" },
   { label: "Panier", url: "/panier" },
@@ -282,6 +289,9 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
             </MenuItem>
           ))}
         </Menu>
+
+        {/* Barre de recherche globale */}
+        <GlobalSearch variant="header" placeholder="Rechercher..." />
 
         <div className="flex items-center gap-4">
           <Link

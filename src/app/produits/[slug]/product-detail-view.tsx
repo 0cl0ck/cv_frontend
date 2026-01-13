@@ -190,7 +190,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
           />
         </div>
 
-        <RelatedProducts relatedProducts={relatedProducts} />
+        <RelatedProducts relatedProducts={relatedProducts} isMainProductOutOfStock={!isInStock()} />
       </div>
     </div>
   );
