@@ -10,6 +10,50 @@ export type SEOMeta = {
 };
 
 /**
+ * Type pour un auteur expert (E-E-A-T)
+ */
+export type ExpertAuthor = {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  photo: {
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+  };
+  linkedInUrl?: string | null;
+  websiteUrl?: string | null;
+  credentials?: Array<{
+    title: string;
+    year?: number | null;
+  }> | null;
+  expertise?: Array<'cbd' | 'wellness' | 'nutrition' | 'regulation' | 'quality'> | null;
+};
+
+/**
+ * Type léger pour référencer un UseCase (Solution pSEO)
+ */
+export type UseCaseRef = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+};
+
+/**
+ * Type léger pour référencer un Post (pour relatedPosts)
+ */
+export type PostRef = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  featuredImage?: Media;
+};
+
+/**
  * Type pour un article de blog
  */
 export type Post = {
@@ -22,9 +66,12 @@ export type Post = {
   status: 'draft' | 'published';
   publishedAt?: string | null;
   isPillar: boolean;
-  author: string;
+  expert?: ExpertAuthor | string | null; // E-E-A-T: Expert author (preferred)
+  author?: string; // Fallback: simple author name
   relatedCategories?: Category[] | string[];
   relatedProducts?: Product[] | string[];
+  relatedPosts?: PostRef[] | string[]; // Cluster SEO: Blog → Blog
+  relatedUseCases?: UseCaseRef[] | string[]; // Bridge Linking: Blog → Solutions
   meta?: SEOMeta;
   createdAt: string;
   updatedAt: string;

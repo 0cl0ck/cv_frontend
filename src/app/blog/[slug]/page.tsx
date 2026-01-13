@@ -6,8 +6,9 @@ import Script from 'next/script';
 import { getPostBySlug, getAllPostSlugs } from '@/services/api';
 import { extractHeadings, shouldShowTableOfContents } from '@/lib/lexical-utils';
 import { TableOfContents, RelatedProducts, BlogRichText } from '@/components/Blog';
+import { ExpertAuthorCard } from '@/components/solutions/ExpertAuthorCard';
 import type { Product } from '@/types/product';
-import type { LexicalRoot } from '@/types/blog';
+import type { LexicalRoot, ExpertAuthor } from '@/types/blog';
 
 // ISR: revalider toutes les heures
 export const revalidate = 3600;
@@ -42,7 +43,7 @@ export async function generateMetadata({
         type: 'article',
         publishedTime: post.publishedAt || undefined,
         modifiedTime: post.updatedAt,
-        authors: [post.author],
+        authors: [typeof post.expert === 'object' && post.expert ? post.expert.name : (post.author || 'Chanvre Vert')],
         images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630, alt: post.title }] : [],
         locale: 'fr_FR',
         siteName: 'Chanvre Vert',
@@ -106,7 +107,14 @@ export default async function BlogPostPage({
     (c) => typeof c === 'object' && c !== null && 'name' in c
   );
 
-  // JSON-LD Article schema
+  // E-E-A-T: Résoudre l'auteur expert (si disponible)
+  const expert: ExpertAuthor | null = 
+    typeof post.expert === 'object' && post.expert ? post.expert : null;
+  
+  // Nom d'affichage de l'auteur (expert ou fallback)
+  const authorDisplayName = expert?.name || post.author || 'Chanvre Vert';
+
+  // JSON-LD Article schema (E-E-A-T enhanced)
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -115,10 +123,18 @@ export default async function BlogPostPage({
     image: post.featuredImage?.url || '',
     datePublished: post.publishedAt || post.createdAt,
     dateModified: post.updatedAt,
-    author: {
-      '@type': 'Person',
-      name: post.author,
-    },
+    // E-E-A-T: Prefer expert author with full Person schema
+    author: expert
+      ? {
+          '@type': 'Person',
+          name: expert.name,
+          jobTitle: expert.role,
+          url: expert.linkedInUrl || undefined,
+        }
+      : {
+          '@type': 'Person',
+          name: authorDisplayName,
+        },
     publisher: {
       '@type': 'Organization',
       name: 'Chanvre Vert',
@@ -189,7 +205,7 @@ export default async function BlogPostPage({
                   </time>
                 )}
                 <span>•</span>
-                <span>Par {post.author}</span>
+                <span>Par {authorDisplayName}</span>
               </div>
             </div>
           </div>
@@ -225,6 +241,16 @@ export default async function BlogPostPage({
           <div className="mt-8">
             <BlogRichText content={post.content} />
           </div>
+
+          {/* E-E-A-T: Expert Author Card */}
+          {expert && (
+            <section className="mt-12 pt-8 border-t border-white/10">
+              <h2 className="text-xl font-semibold text-white mb-4">
+                À propos de l&apos;auteur
+              </h2>
+              <ExpertAuthorCard author={expert} variant="full" />
+            </section>
+          )}
 
           {/* Produits liés */}
           {relatedProducts.length > 0 && (

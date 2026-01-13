@@ -166,5 +166,18 @@ export type Product = {
   tags?: string[];
   metaInfo?: MetaInfo;
   reviewStats?: ReviewStats;
+  // Silo Hybride: Internal linking
+  relatedProducts?: Product[] | string[];
+  relatedUseCases?: UseCaseRef[] | string[]; // Bridge Linking: Product → Solutions pSEO
+};
+
+/**
+ * Type léger pour référencer un UseCase (Solution pSEO) - Silo Hybride
+ */
+export type UseCaseRef = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
 };
 
