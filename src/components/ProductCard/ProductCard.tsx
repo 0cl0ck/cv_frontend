@@ -9,6 +9,93 @@ import { useCartContext } from '@/context/CartContext';
 import { ChevronDown, ShoppingCart } from 'lucide-react';
 import ProductImage from './ProductImage';
 
+// Mapping des pays vers leur code ISO 2 lettres et nom réel
+// Le nom affiché sur desktop est calculé dynamiquement (<8 chars = nom complet, sinon code ISO)
+const COUNTRY_DATA: Record<string, { isoCode: string; realName: string }> = {
+  'france': { isoCode: 'fr', realName: 'France' },
+  'italie': { isoCode: 'it', realName: 'Italie' },
+  'italy': { isoCode: 'it', realName: 'Italie' },
+  'suisse': { isoCode: 'ch', realName: 'Suisse' },
+  'switzerland': { isoCode: 'ch', realName: 'Suisse' },
+  'espagne': { isoCode: 'es', realName: 'Espagne' },
+  'spain': { isoCode: 'es', realName: 'Espagne' },
+  'allemagne': { isoCode: 'de', realName: 'Allemagne' },
+  'germany': { isoCode: 'de', realName: 'Allemagne' },
+  'pays-bas': { isoCode: 'nl', realName: 'Pays-Bas' },
+  'netherlands': { isoCode: 'nl', realName: 'Pays-Bas' },
+  'hollande': { isoCode: 'nl', realName: 'Pays-Bas' },
+  'états-unis': { isoCode: 'us', realName: 'États-Unis' },
+  'etats-unis': { isoCode: 'us', realName: 'États-Unis' },
+  'usa': { isoCode: 'us', realName: 'USA' },
+  'portugal': { isoCode: 'pt', realName: 'Portugal' },
+  'autriche': { isoCode: 'at', realName: 'Autriche' },
+  'austria': { isoCode: 'at', realName: 'Autriche' },
+  'belgique': { isoCode: 'be', realName: 'Belgique' },
+  'belgium': { isoCode: 'be', realName: 'Belgique' },
+  'royaume-uni': { isoCode: 'gb', realName: 'Royaume-Uni' },
+  'uk': { isoCode: 'gb', realName: 'UK' },
+  'pologne': { isoCode: 'pl', realName: 'Pologne' },
+  'poland': { isoCode: 'pl', realName: 'Pologne' },
+  'tchéquie': { isoCode: 'cz', realName: 'Tchéquie' },
+  'republique tcheque': { isoCode: 'cz', realName: 'Tchéquie' },
+  'czech republic': { isoCode: 'cz', realName: 'Tchéquie' },
+  'maroc': { isoCode: 'ma', realName: 'Maroc' },
+  'morocco': { isoCode: 'ma', realName: 'Maroc' },
+  'canada': { isoCode: 'ca', realName: 'Canada' },
+};
+
+/**
+ * Récupère les données du pays pour l'affichage du badge
+ * @param origin - Le pays d'origine du produit
+ * @returns Objet avec isoCode, desktopName (nom si <8 chars, sinon code) et mobileName (toujours code)
+ */
+const getCountryData = (origin: string): { isoCode: string; desktopName: string; mobileName: string } | null => {
+  if (!origin) return null;
+  
+  const normalizedOrigin = origin.toLowerCase().trim();
+  const countryInfo = COUNTRY_DATA[normalizedOrigin];
+  
+  if (countryInfo) {
+    const code = countryInfo.isoCode.toUpperCase();
+    // Desktop: nom complet si <8 caractères, sinon code ISO
+    const desktopName = countryInfo.realName.length < 8 ? countryInfo.realName : code;
+    return { isoCode: countryInfo.isoCode, desktopName, mobileName: code };
+  }
+  
+  // Fallback: retourner le texte brut avec abréviation tronquée
+  const code = origin.length <= 3 ? origin.toUpperCase() : origin.substring(0, 2).toUpperCase();
+  const desktopName = origin.length < 8 ? origin : code;
+  return { isoCode: '', desktopName, mobileName: code };
+};
+
+/**
+ * Composant pour afficher le badge pays avec drapeau PNG
+ * Responsive: mobile (<768px) = abréviation, tablet/desktop (≥768px) = nom si <8 chars
+ */
+const CountryBadge: React.FC<{ origin: string }> = ({ origin }) => {
+  const countryData = getCountryData(origin);
+  if (!countryData) return null;
+  
+  return (
+    <div className="flex items-center gap-1 px-2 py-1 text-xs md:gap-1.5 md:px-3 md:py-1.5 md:text-sm font-semibold text-black" style={{ backgroundColor: '#EFC368' }}>
+      {countryData.isoCode && (
+        <img 
+          src={`https://flagcdn.com/w20/${countryData.isoCode}.png`}
+          srcSet={`https://flagcdn.com/w40/${countryData.isoCode}.png 2x`}
+          width="16" 
+          height="12" 
+          alt={countryData.desktopName}
+          className="inline-block md:w-5 md:h-[15px]"
+          style={{ objectFit: 'cover' }}
+        />
+      )}
+      {/* Mobile = abréviation, Tablet/Desktop = nom si <8 chars */}
+      <span className="hidden md:inline">{countryData.desktopName}</span>
+      <span className="inline md:hidden">{countryData.mobileName}</span>
+    </div>
+  );
+};
+
 type Props = {
   product: Product;
   index: number;
@@ -199,10 +286,9 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
             BEST-SELLER
           </div>
         )}
-        {isWeightBasedCategory() && product.productDetails && typeof product.productDetails === 'object' && 'cultivation' in product.productDetails && (
-          <div className="px-3 py-1.5 text-sm font-medium text-black" style={{ backgroundColor: '#EFC368' }}>
-            {String(product.productDetails.cultivation).charAt(0).toUpperCase() + String(product.productDetails.cultivation).slice(1)}
-          </div>
+        {/* Badge pays d'origine (remplace le mode de culture pour éviter la redondance avec le titre SEO) */}
+        {isWeightBasedCategory() && product.productDetails && typeof product.productDetails === 'object' && 'origin' in product.productDetails && product.productDetails.origin && (
+          <CountryBadge origin={String(product.productDetails.origin)} />
         )}
       </div>
       
