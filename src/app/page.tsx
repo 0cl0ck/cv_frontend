@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import ImageHero from "@/components/Hero/ImageHero";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import { GlobalSearch } from "@/components/GlobalSearch/GlobalSearch";
 import { generatePageMetadata } from '@/lib/metadata';
 import { getCategories, fallbackCategories } from '@/services/api';
 import type { Category } from '@/types/product';
@@ -276,6 +277,14 @@ export default function Home() {
     <>
       {/* Hero section - SSR (already was) */}
       <ImageHero />
+      
+      {/* Mobile Search - visible only on mobile */}
+      <section className="md:hidden bg-[#00333e] py-6 px-4">
+        <GlobalSearch 
+          variant="hero" 
+          placeholder="Rechercher un produit..." 
+        />
+      </section>
       
       {/* Featured Products - SSR with Suspense fallback */}
       <Suspense fallback={<FeaturedProductsSkeleton />}>
