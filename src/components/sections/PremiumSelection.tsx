@@ -60,15 +60,16 @@ export default async function PremiumSelection() {
           </p>
         </div>
         
-        {/* Grille de produits Premium */}
-        <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Grille de produits Premium - centrée quand moins de 4 produits */}
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-12">
           {premiumProducts.map((product, index) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              index={index} 
-              showFeaturedBadge={false} 
-            />
+            <div key={product.id} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]">
+              <ProductCard 
+                product={product} 
+                index={index} 
+                showFeaturedBadge={false} 
+              />
+            </div>
           ))}
         </div>
         
