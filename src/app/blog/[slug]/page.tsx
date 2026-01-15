@@ -182,13 +182,13 @@ export default async function BlogPostPage({
           {/* Contenu du header */}
           <div className="absolute bottom-0 left-0 right-0">
             <div className="mx-auto max-w-4xl px-4 pb-8 sm:px-6 lg:px-8">
-              {/* Badge article pilier */}
+              {/* Badge guide */}
               {post.isPillar && (
                 <div 
                   className="mb-4 inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-black"
                   style={{ backgroundColor: '#EFC368' }}
                 >
-                  Article pilier
+                  Guide
                 </div>
               )}
 

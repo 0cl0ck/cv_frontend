@@ -54,10 +54,10 @@ export default function PostCard({ post, index = 0 }: PostCardProps) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        {/* Badge article pilier */}
+        {/* Badge guide */}
         {post.isPillar && (
           <div className="absolute left-0 top-4 z-10 px-3 py-1.5 text-sm font-semibold text-black" style={{ backgroundColor: '#EFC368' }}>
-            ARTICLE PILIER
+            GUIDE
           </div>
         )}
       </Link>

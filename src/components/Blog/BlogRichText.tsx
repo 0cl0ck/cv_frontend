@@ -3,6 +3,7 @@
 import React, { ElementType } from 'react';
 import DOMPurify from 'isomorphic-dompurify';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { RichTextContent } from '@/types/product';
 
 interface BlogRichTextProps {
@@ -36,6 +37,22 @@ function extractText(nodes: Array<Record<string, unknown>>): string {
     }
   }
   return text;
+}
+
+/**
+ * Convertit la valeur format de Lexical en classe Tailwind d'alignement
+ */
+function getAlignmentClass(format: unknown): string {
+  switch (format) {
+    case 'center':
+      return 'text-center';
+    case 'right':
+      return 'text-right';
+    case 'justify':
+      return 'text-justify';
+    default:
+      return ''; // left ou undefined = pas de classe spéciale
+  }
 }
 
 /**
@@ -125,9 +142,41 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
           );
         }
 
+        // Images uploadées (bloc upload de Lexical) - traité AVANT les noeuds avec children
+        // car les uploads n'ont pas de children, ils utilisent node.value directement
+        const nodeType = node.type as string;
+        if (nodeType === 'upload') {
+          const value = node.value as { url?: string; alt?: string; caption?: string; width?: number; height?: number; sizes?: { card?: { url?: string; width?: number; height?: number }; tablet?: { url?: string } } } | undefined;
+          // Préférer la taille "card" (640px) pour les articles, sinon tablet, sinon original
+          const imageUrl = value?.sizes?.card?.url || value?.sizes?.tablet?.url || value?.url;
+          const imageWidth = value?.sizes?.card?.width || 640;
+          const imageHeight = value?.sizes?.card?.height || 480;
+          if (imageUrl) {
+            return (
+              <figure key={index} className="my-8 flex flex-col items-center">
+                <div className="relative overflow-hidden rounded-lg" style={{ maxWidth: '640px', width: '100%' }}>
+                  <Image
+                    src={imageUrl}
+                    alt={value?.alt || 'Image de l\'article'}
+                    width={imageWidth}
+                    height={imageHeight}
+                    className="w-full h-auto object-cover rounded-lg"
+                    sizes="(max-width: 640px) 100vw, 640px"
+                  />
+                </div>
+                {value?.caption && (
+                  <figcaption className="mt-3 text-center text-sm text-white/60 italic max-w-lg">
+                    {value.caption}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          }
+          return null;
+        }
+
         // Nœuds avec des enfants
         if (node.children && Array.isArray(node.children)) {
-          const nodeType = node.type as string;
           const tag = node.tag as string | undefined;
           
           // Headings avec ancres pour la table des matières
@@ -135,6 +184,7 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
             const headingText = extractText(node.children as Array<Record<string, unknown>>);
             const id = slugify(headingText);
             const HeadingTag = tag as ElementType;
+            const alignClass = getAlignmentClass(node.format);
             
             const headingClasses: Record<string, string> = {
               h1: 'text-3xl font-bold mt-8 mb-4 scroll-mt-24',
@@ -146,7 +196,7 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
             };
 
             return (
-              <HeadingTag key={index} id={id} className={headingClasses[tag] || ''}>
+              <HeadingTag key={index} id={id} className={`${headingClasses[tag] || ''} ${alignClass}`.trim()}>
                 <RichTextNode nodes={node.children as Array<Record<string, unknown>>} />
               </HeadingTag>
             );
@@ -154,8 +204,14 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
 
           // Paragraphes
           if (nodeType === 'paragraph') {
+            // Ignorer les paragraphes vides (créés par des retours à la ligne dans l'éditeur)
+            const paragraphText = extractText(node.children as Array<Record<string, unknown>>);
+            if (!paragraphText.trim()) {
+              return null;
+            }
+            const alignClass = getAlignmentClass(node.format);
             return (
-              <p key={index} className="mb-4 leading-relaxed">
+              <p key={index} className={`mb-4 leading-relaxed ${alignClass}`.trim()}>
                 <RichTextNode nodes={node.children as Array<Record<string, unknown>>} />
               </p>
             );
@@ -189,8 +245,9 @@ const RichTextNode: React.FC<{ nodes: Array<Record<string, unknown>> }> = ({ nod
 
           // Citation
           if (nodeType === 'quote') {
+            const alignClass = getAlignmentClass(node.format);
             return (
-              <blockquote key={index} className="border-l-4 border-[#EFC368] pl-4 my-6 italic text-white/80">
+              <blockquote key={index} className={`border-l-4 border-[#EFC368] pl-4 my-6 italic text-white/80 ${alignClass}`.trim()}>
                 <RichTextNode nodes={node.children as Array<Record<string, unknown>>} />
               </blockquote>
             );

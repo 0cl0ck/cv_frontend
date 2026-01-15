@@ -78,7 +78,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               <aside className="hidden lg:block">
                 <div className="sticky top-8 rounded-lg border border-white/10 bg-[#003830] p-5">
                   <h2 className="mb-4 text-lg font-semibold text-white">
-                    Articles piliers
+                    Guides
                   </h2>
                   <p className="mb-4 text-sm text-white/60">
                     Nos guides complets pour bien débuter
@@ -117,7 +117,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         : 'border border-white/20 text-white hover:border-[#EFC368] hover:text-[#EFC368]'
                     }`}
                   >
-                    {showPillarOnly ? 'Tous les articles' : 'Articles piliers'}
+                    {showPillarOnly ? 'Tous les articles' : 'Guides'}
                   </a>
                 </div>
               </div>
