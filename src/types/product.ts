@@ -138,6 +138,8 @@ export type RichTextContent = {
 
 export type AvailabilityStatus = 'in_stock' | 'out_of_stock' | 'preorder' | 'discontinued';
 
+export type QualityTier = 'standard' | 'premium' | 'limited-edition';
+
 export type Product = {
   id: string;
   name: string;
@@ -154,6 +156,7 @@ export type Product = {
   galleryImages?: GalleryImage[];
   category?: Category | string;
   isFeatured?: boolean;
+  qualityTier?: QualityTier;
   // SEO-safe availability fields
   availabilityStatus?: AvailabilityStatus;
   isSellable?: boolean;

@@ -44,29 +44,64 @@ export const CategoryFilter: React.FC<Props> = ({ categories, activeCategory, is
         <li>
           <Link
             href="/produits"
-            className={`block w-full p-2 rounded-md transition-colors ${
-              !activeCategory
+            className={`block w-full p-2 rounded-md transition-colors flex items-center gap-2 ${
+              !activeCategory && !searchParams.get('tier')
                 ? 'bg-[#00878a] text-white font-medium'
                 : 'hover:bg-neutral-100 dark:hover:bg-[#005965] text-white dark:text-white/80'
             }`}
           >
-            Tous les produits
+            <span>🛒</span>
+            <span>Tous les produits</span>
           </Link>
         </li>
-        {categories.map((category) => (
-          <li key={category.id}>
-            <Link
-              href={`/produits/categorie/${category.slug}`}
-              className={`block w-full p-2 rounded-md transition-colors ${
-                activeCategory === category.slug
-                  ? 'bg-[#00878a] text-white font-medium'
-                  : 'hover:bg-neutral-100 dark:hover:bg-[#005965] text-white dark:text-white/80'
-              }`}
-            >
-              {category.name}
-            </Link>
-          </li>
-        ))}
+        {/* Premium filter with gold styling */}
+        <li>
+          <Link
+            href="/produits?tier=premium"
+            className={`block w-full p-2 rounded-md transition-colors flex items-center gap-2 ${
+              searchParams.get('tier') === 'premium'
+                ? 'font-medium'
+                : 'hover:opacity-90'
+            }`}
+            style={{
+              background: searchParams.get('tier') === 'premium' 
+                ? 'linear-gradient(135deg, #D4AF37 0%, #F5D76E 50%, #D4AF37 100%)'
+                : 'transparent',
+              color: searchParams.get('tier') === 'premium' ? '#1A1A1A' : '#D4AF37',
+            }}
+          >
+            <span>⭐</span>
+            <span>PREMIUM</span>
+          </Link>
+        </li>
+        {categories.map((category) => {
+          // Map category slugs to emojis
+          const categoryEmojis: Record<string, string> = {
+            'packs-cbd': '📦',
+            'gelules-cbd': '💊',
+            'infusions-cbd': '🍵',
+            'huiles-cbd': '💧',
+            'resines-cbd': '🧱',
+            'fleurs-cbd': '🌸',
+          };
+          const emoji = categoryEmojis[category.slug] || '🌿';
+          
+          return (
+            <li key={category.id}>
+              <Link
+                href={`/produits/categorie/${category.slug}`}
+                className={`block w-full p-2 rounded-md transition-colors flex items-center gap-2 ${
+                  activeCategory === category.slug
+                    ? 'bg-[#00878a] text-white font-medium'
+                    : 'hover:bg-neutral-100 dark:hover:bg-[#005965] text-white dark:text-white/80'
+                }`}
+              >
+                <span>{emoji}</span>
+                <span>{category.name}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

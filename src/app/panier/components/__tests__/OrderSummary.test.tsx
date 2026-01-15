@@ -48,6 +48,8 @@ describe('OrderSummary referral', () => {
       promoDiscountCents: 0,
       referralDiscount: 0,
       referralDiscountCents: 0,
+      walletDiscount: 0,
+      walletDiscountCents: 0,
       total: 60,
       totalCents: 6000,
       currency: 'EUR',

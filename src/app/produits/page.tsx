@@ -32,6 +32,7 @@ export default async function ProductsPage(props) {
     const priceRaw = params.price;
     const pricePerGramSortRaw = params.pricePerGramSort;
     const searchRaw = params.search;
+    const tierRaw = params.tier;
 
     // 3️⃣ On normalise en string, avec fallback si besoin
     const pageStr  = Array.isArray(pageRaw)  ? pageRaw[0]  : pageRaw  ?? '1';
@@ -39,6 +40,7 @@ export default async function ProductsPage(props) {
     const price    = Array.isArray(priceRaw) ? priceRaw[0] : priceRaw ?? 'all';
     const pricePerGramSort = Array.isArray(pricePerGramSortRaw) ? pricePerGramSortRaw[0] : pricePerGramSortRaw ?? 'none';
     const sortParam = Array.isArray(params.sort) ? params.sort[0] : params.sort ?? 'newest';
+    const tierFilter = Array.isArray(tierRaw) ? tierRaw[0] : tierRaw;
     const initialSearchTerm = typeof searchRaw === 'string'
       ? searchRaw
       : Array.isArray(searchRaw) && searchRaw.length > 0
@@ -71,12 +73,13 @@ export default async function ProductsPage(props) {
     const apiSortParam = '-createdAt'; // Par défaut, tri par nouveautés (le plus récent d'abord)
     let needsGlobalSorting = false;
     
-    // Vérifier si nous avons besoin d'un tri qui nécessite de récupérer tous les produits
+    // Vérifier si nous avons besoin d'un tri ou filtre qui nécessite de récupérer tous les produits
     const shouldSortByPricePerGram = pricePerGramSort && pricePerGramSort !== 'none';
     const shouldSortByPrice = sortParam === 'price-asc' || sortParam === 'price-desc';
+    const shouldFilterByTier = tierFilter === 'premium';
     
-    // Dans ces cas, nous devons récupérer TOUS les produits pour faire un tri global
-    needsGlobalSorting = shouldSortByPricePerGram || shouldSortByPrice;
+    // Dans ces cas, nous devons récupérer TOUS les produits pour faire un tri/filtre global
+    needsGlobalSorting = shouldSortByPricePerGram || shouldSortByPrice || shouldFilterByTier;
     
     // Récupérer les données avec gestion d'erreur
     let productsData;
@@ -115,7 +118,15 @@ export default async function ProductsPage(props) {
       categories = [];
     }
 
-    // 7️⃣ Traitement des produits pour le tri par prix par gramme
+    // 7️⃣ Filtrage par tier Premium si demandé
+    if (shouldFilterByTier && productsData.docs.length > 0) {
+      productsData.docs = productsData.docs.filter(
+        product => product.qualityTier === 'premium' || product.qualityTier === 'limited-edition'
+      );
+      productsData.totalDocs = productsData.docs.length;
+    }
+
+    // 8️⃣ Traitement des produits pour le tri par prix par gramme
     if (shouldSortByPricePerGram && productsData.docs.length > 0) {
       // Vérifier quelles catégories sont concernees par le prix au gramme
       const weightBasedCategorySlugs = ['fleurs-cbd', 'resines-cbd', 'packs-cbd', 'fleurs%20CBD', 'résines%20CBD', 'packs%20CBD'];

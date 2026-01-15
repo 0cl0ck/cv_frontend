@@ -8,6 +8,8 @@ import { createPortal } from 'react-dom';
 import { useCartContext } from '@/context/CartContext';
 import { ChevronDown, ShoppingCart } from 'lucide-react';
 import ProductImage from './ProductImage';
+import PremiumBadge from '@/components/PremiumBadge/PremiumBadge';
+import GlareCard from '@/components/ui/GlareCard';
 
 // Mapping des pays vers leur code ISO 2 lettres et nom réel
 // Le nom affiché sur desktop est calculé dynamiquement (<8 chars = nom complet, sinon code ISO)
@@ -268,9 +270,14 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
     return product.variants.every(v => typeof v.stock === 'number' && v.stock <= 0);
   };
 
-  return (
+  // Check if product is premium for special styling
+  const isPremiumProduct = product.qualityTier === 'premium' || product.qualityTier === 'limited-edition';
+
+  const cardContent = (
     <div 
-      className="product-card group relative flex h-full flex-col rounded-lg bg-background shadow-sm transition-all hover:shadow-md hover:scale-105"
+      className={`product-card group relative flex h-full flex-col rounded-lg bg-background shadow-sm transition-all hover:shadow-md ${
+        isPremiumProduct ? '' : 'hover:scale-105'
+      }`}
       style={{ 
         opacity: 1,
         transform: `translateY(0)`,
@@ -292,9 +299,22 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
         )}
       </div>
       
-      {/* Badge CBD */}
+      {/* Badge Premium (top-right, above CBD) */}
+      {product.qualityTier && product.qualityTier !== 'standard' && (
+        <div className="absolute right-0 top-2 z-10">
+          <PremiumBadge tier={product.qualityTier} />
+        </div>
+      )}
+      
+      {/* Badge CBD (décalé si Premium présent) */}
       {typeof product.productDetails === 'object' && product.productDetails && 'cbdContent' in product.productDetails && (
-        <div className="absolute right-0 top-2 z-10 px-3 py-1.5 text-sm font-semibold text-black" style={{ backgroundColor: '#EFC368' }}>
+        <div 
+          className="absolute right-0 z-10 px-3 py-1.5 text-sm font-semibold text-black" 
+          style={{ 
+            backgroundColor: '#EFC368',
+            top: product.qualityTier && product.qualityTier !== 'standard' ? '2.75rem' : '0.5rem'
+          }}
+        >
           {String(product.productDetails.cbdContent)}% CBD
         </div>
       )}
@@ -428,4 +448,15 @@ export const ProductCard: React.FC<Props> = ({ product, index, showFeaturedBadge
       </div>
     </div>
   );
+
+  // Wrap with GlareCard for premium products
+  if (isPremiumProduct) {
+    return (
+      <GlareCard className="h-full">
+        {cardContent}
+      </GlareCard>
+    );
+  }
+
+  return cardContent;
 };

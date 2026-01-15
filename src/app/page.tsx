@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import ImageHero from "@/components/Hero/ImageHero";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import PremiumSelection from "@/components/sections/PremiumSelection";
 import { GlobalSearch } from "@/components/GlobalSearch/GlobalSearch";
 import { generatePageMetadata } from '@/lib/metadata';
 import { getCategories, fallbackCategories } from '@/services/api';
@@ -289,6 +290,11 @@ export default function Home() {
       {/* Featured Products - SSR with Suspense fallback */}
       <Suspense fallback={<FeaturedProductsSkeleton />}>
         <FeaturedProducts />
+      </Suspense>
+      
+      {/* Premium Selection - SSR (after featured) */}
+      <Suspense fallback={null}>
+        <PremiumSelection />
       </Suspense>
       
       {/* Category Grid - SSR (static data) */}
