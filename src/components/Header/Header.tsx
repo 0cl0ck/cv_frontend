@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 import React, { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -256,6 +257,12 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
   setAccountMenuOpen,
 }) => {
   const [active, setActive] = useState<string | null>(null);
+  const pathname = usePathname();
+  
+  // Hide the header GlobalSearch only on product LISTING pages (not individual product pages)
+  // The listings have their own premium search bar that writes to the same URL param
+  // Individual product pages (/produits/[slug]) should still show GlobalSearch
+  const isOnProductListingPage = pathname === '/produits' || pathname?.startsWith('/produits/categorie');
 
   return (
     <div className="hidden items-center justify-between py-4 md:flex">
@@ -290,8 +297,10 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
           ))}
         </Menu>
 
-        {/* Barre de recherche globale */}
-        <GlobalSearch variant="header" placeholder="Rechercher..." />
+        {/* Barre de recherche globale - masquée sur /produits car cette page a sa propre barre */}
+        {!isOnProductListingPage && (
+          <GlobalSearch variant="header" placeholder="Rechercher..." />
+        )}
 
         <div className="flex items-center gap-4">
           <Link

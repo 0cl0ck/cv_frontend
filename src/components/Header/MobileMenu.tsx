@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { IconX, IconUser, IconPackage, IconLogout, IconLogin } from '@tabler/icons-react';
 import { useAuthContext } from '@/context/AuthContext';
@@ -18,6 +19,12 @@ type MobileMenuProps = {
 
 export default function MobileMenu({ menuOpen, setMenuOpen, navItems, categoryItems }: MobileMenuProps) {
   const { isAuthenticated, logout } = useAuthContext();
+  const pathname = usePathname();
+  
+  // Hide the GlobalSearch only on product LISTING pages (not individual product pages)
+  // The listings have their own premium search bar
+  // Individual product pages (/produits/[slug]) should still show GlobalSearch
+  const isOnProductListingPage = pathname === '/produits' || pathname?.startsWith('/produits/categorie');
 
   return (
     <div
@@ -37,14 +44,16 @@ export default function MobileMenu({ menuOpen, setMenuOpen, navItems, categoryIt
         </button>
       </div>
       
-      {/* Barre de recherche mobile - tout en haut */}
-      <div className="px-4 py-3 border-b border-[#004a59]">
-        <GlobalSearch 
-          variant="mobile" 
-          placeholder="Rechercher..."
-          onResultClick={() => setMenuOpen(false)}
-        />
-      </div>
+      {/* Barre de recherche mobile - masquée sur /produits car cette page a sa propre barre */}
+      {!isOnProductListingPage && (
+        <div className="px-4 py-3 border-b border-[#004a59]">
+          <GlobalSearch 
+            variant="mobile" 
+            placeholder="Rechercher..."
+            onResultClick={() => setMenuOpen(false)}
+          />
+        </div>
+      )}
       
       <nav className="flex h-[calc(100vh-140px)] flex-col space-y-4 overflow-y-auto px-4 py-4">
         {navItems.map((item) => (
