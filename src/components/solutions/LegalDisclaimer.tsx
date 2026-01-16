@@ -56,29 +56,33 @@ export function LegalDisclaimer({
 
   if (isDismissed) return null
 
-  // Prominent variant - full-width banner
+  // Prominent variant - full-width banner with site colors
   if (variant === 'prominent') {
     return (
       <div
-        className={`w-full bg-amber-50 border-b border-amber-200 ${className}`}
+        className={`w-full bg-[#003830] ${className}`}
         role="alert"
         aria-live="polite"
       >
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 mt-0.5">
-              <AlertTriangle className="h-6 w-6 text-amber-600" aria-hidden="true" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-sm font-semibold text-amber-800 mb-1">
-                {LEGAL_TEXT.title}
-              </h2>
-              <p className="text-sm text-amber-700 leading-relaxed">
-                {LEGAL_TEXT.mainText}
-              </p>
-              <p className="text-xs text-amber-600 mt-2">
-                {LEGAL_TEXT.secondaryText}
-              </p>
+        <div className="container mx-auto px-4 py-4 sm:py-5">
+          <div className="bg-[#004942]/60 border border-[#EFC368]/30 rounded-xl px-5 py-4 backdrop-blur-sm">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="p-2 bg-[#EFC368]/20 rounded-full">
+                  <AlertTriangle className="h-5 w-5 text-[#EFC368]" aria-hidden="true" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-sm font-semibold text-[#EFC368] mb-1.5">
+                  {LEGAL_TEXT.title}
+                </h2>
+                <p className="text-sm text-white/90 leading-relaxed">
+                  {LEGAL_TEXT.mainText}
+                </p>
+                <p className="text-xs text-white/60 mt-2">
+                  {LEGAL_TEXT.secondaryText}
+                </p>
+              </div>
             </div>
           </div>
         </div>
