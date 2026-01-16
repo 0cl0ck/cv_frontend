@@ -113,6 +113,7 @@ const fallbackProducts: Product[] = [
 ];
 
 // Données de secours pour les catégories en cas d'erreur API
+// Ordre: Fleurs, Résines, Packs, Infusions, Huiles, Gélules
 export const fallbackCategories: Category[] = [
   {
     id: '1',
@@ -122,11 +123,18 @@ export const fallbackCategories: Category[] = [
     image: '/images/categories/categorie_fleurs_cbd.webp',
   },
   {
-    id: '2',
-    name: 'Huiles CBD',
-    slug: 'huiles-cbd',
-    description: 'Découvrez nos huiles full spectrum et broad spectrum.',
-    image: '/images/categories/categorie_huile_cbd.webp',
+    id: '4',
+    name: 'Résines CBD',
+    slug: 'resines-cbd',
+    description: 'Textures onctueuses et taux de CBD maîtrisés.',
+    image: '/images/categories/categorie_resine_cbd.webp',
+  },
+  {
+    id: '6',
+    name: 'Packs CBD',
+    slug: 'packs-cbd',
+    description: 'Composez votre routine bien-être à prix doux.',
+    image: '/images/categories/categorie_packs_cbd.webp',
   },
   {
     id: '3',
@@ -136,11 +144,11 @@ export const fallbackCategories: Category[] = [
     image: '/images/categories/categorie_infusion_cbd.webp',
   },
   {
-    id: '4',
-    name: 'Résines CBD',
-    slug: 'resine-cbd',
-    description: 'Textures onctueuses et taux de CBD maîtrisés.',
-    image: '/images/categories/categorie_resine_cbd.webp',
+    id: '2',
+    name: 'Huiles CBD',
+    slug: 'huiles-cbd',
+    description: 'Découvrez nos huiles full spectrum et broad spectrum.',
+    image: '/images/categories/categorie_huile_cbd.webp',
   },
   {
     id: '5',
@@ -148,13 +156,6 @@ export const fallbackCategories: Category[] = [
     slug: 'gelules-cbd',
     description: 'Dosage précis et facile à emporter au quotidien.',
     image: '/images/categories/categorie_gelules_cbd.webp',
-  },
-  {
-    id: '6',
-    name: 'Packs CBD',
-    slug: 'packs-cbd',
-    description: 'Composez votre routine bien-être à prix doux.',
-    image: '/images/categories/categorie_packs_cbd.webp',
   },
 ];
 
@@ -290,7 +291,7 @@ export async function getProductBySlug(slug: string): Promise<Product> {
  */
 export async function getCategories(): Promise<Category[]> {
   try {
-    const { data } = await httpClient.get('/categories');
+    const { data } = await httpClient.get('/categories?sort=displayOrder');
     return data.docs;
   } catch (error) {
     console.error('Error fetching categories:', error);
