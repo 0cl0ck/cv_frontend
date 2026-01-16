@@ -388,13 +388,6 @@ export default async function SolutionPage({
 
         {/* Main Content */}
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-          {/* Word count indicator (admin/dev only in noindex state) */}
-          {useCase.metaRobots === 'noindex' && (
-            <div className="mb-6 p-3 bg-amber-900/30 border border-amber-500/50 rounded-lg text-sm text-amber-200">
-              <strong>⚠️ Page non indexée:</strong> Cette page contient{' '}
-              {useCase.wordCount || 0} mots (minimum 800 requis pour l&apos;indexation).
-            </div>
-          )}
 
           {/* Article Content */}
           <div className="prose prose-lg prose-invert prose-headings:text-white prose-p:text-white/80 prose-strong:text-white prose-li:text-white/80 max-w-none">
