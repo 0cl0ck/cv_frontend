@@ -6,9 +6,9 @@ import Script from 'next/script'
 
 import { LegalDisclaimer } from '@/components/solutions/LegalDisclaimer'
 import { ExpertAuthorCard } from '@/components/solutions/ExpertAuthorCard'
-import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer'
+import { BlogRichText } from '@/components/Blog'
 import { ProductCard } from '@/components/ProductCard/ProductCard'
-import type { Product, RichTextContent } from '@/types/product'
+import type { Product } from '@/types/product'
 
 // ============================================================
 // CONFIGURATION
@@ -398,7 +398,7 @@ export default async function SolutionPage({
 
           {/* Article Content */}
           <div className="prose prose-lg prose-invert prose-headings:text-white prose-p:text-white/80 prose-strong:text-white prose-li:text-white/80 max-w-none">
-            <RichTextRenderer content={useCase.content as RichTextContent} />
+            <BlogRichText content={useCase.content as Parameters<typeof BlogRichText>[0]['content']} />
           </div>
 
           {/* Expert Full Card (E-E-A-T) */}
@@ -445,7 +445,7 @@ export default async function SolutionPage({
                   <div key={index} className="bg-white/5 border border-white/10 rounded-lg p-4">
                     <dt className="font-medium text-white">{item.question}</dt>
                     <dd className="mt-2 text-white/70">
-                      <RichTextRenderer content={item.answer as RichTextContent} />
+                      <BlogRichText content={item.answer as Parameters<typeof BlogRichText>[0]['content']} />
                     </dd>
                   </div>
                 ))}
