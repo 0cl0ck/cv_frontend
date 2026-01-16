@@ -58,7 +58,7 @@ export function ExpertAuthorCard({
   variant = 'header',
   className = '',
 }: ExpertAuthorCardProps) {
-  // Header variant - compact horizontal
+  // Header variant - compact horizontal (for dark backgrounds)
   if (variant === 'header') {
     return (
       <div className={`flex items-center gap-3 ${className}`}>
@@ -67,13 +67,13 @@ export function ExpertAuthorCard({
             src={author.photo.url}
             alt={author.photo.alt || `Photo de ${author.name}`}
             fill
-            className="rounded-full object-cover"
+            className="rounded-full object-cover ring-2 ring-white/20"
             sizes="48px"
           />
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-900 truncate">
+            <span className="text-sm font-medium text-white truncate">
               {author.name}
             </span>
             {author.linkedInUrl && (
@@ -81,14 +81,14 @@ export function ExpertAuthorCard({
                 href={author.linkedInUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-700"
+                className="text-[#EFC368] hover:text-[#d3a74f]"
                 aria-label={`Profil LinkedIn de ${author.name}`}
               >
                 <Linkedin className="h-4 w-4" />
               </a>
             )}
           </div>
-          <p className="text-xs text-gray-500 truncate">{author.role}</p>
+          <p className="text-xs text-white/70 truncate">{author.role}</p>
         </div>
       </div>
     )

@@ -401,6 +401,25 @@ export default async function SolutionPage({
             <BlogRichText content={useCase.content as Parameters<typeof BlogRichText>[0]['content']} />
           </div>
 
+          {/* FAQ Section - placed early for quick answers */}
+          {useCase.faqItems && useCase.faqItems.length > 0 && (
+            <section className="mt-12 pt-8 border-t border-white/10">
+              <h2 className="text-xl font-semibold text-white mb-6">
+                Questions fréquentes
+              </h2>
+              <dl className="space-y-4">
+                {useCase.faqItems.map((item, index) => (
+                  <div key={index} className="bg-white/5 border border-white/10 rounded-lg p-4">
+                    <dt className="font-medium text-white">{item.question}</dt>
+                    <dd className="mt-2 text-white/70">
+                      <BlogRichText content={item.answer as Parameters<typeof BlogRichText>[0]['content']} />
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+
           {/* Expert Full Card (E-E-A-T) */}
           {expert && (
             <section className="mt-12 pt-8 border-t border-white/10">
@@ -431,25 +450,6 @@ export default async function SolutionPage({
                   Voir tous nos produits →
                 </Link>
               </div>
-            </section>
-          )}
-
-          {/* FAQ Section */}
-          {useCase.faqItems && useCase.faqItems.length > 0 && (
-            <section className="mt-12 pt-8 border-t border-white/10">
-              <h2 className="text-xl font-semibold text-white mb-6">
-                Questions fréquentes
-              </h2>
-              <dl className="space-y-4">
-                {useCase.faqItems.map((item, index) => (
-                  <div key={index} className="bg-white/5 border border-white/10 rounded-lg p-4">
-                    <dt className="font-medium text-white">{item.question}</dt>
-                    <dd className="mt-2 text-white/70">
-                      <BlogRichText content={item.answer as Parameters<typeof BlogRichText>[0]['content']} />
-                    </dd>
-                  </div>
-                ))}
-              </dl>
             </section>
           )}
 
