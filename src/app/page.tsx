@@ -160,17 +160,17 @@ function SocialProofSection() {
       name: "Chanvre Vert Bergues",
       location: "Bergues, Nord",
       rating: 4.9,
-      reviewCount: 127,
-      googleLink: "https://g.page/r/CQbZdFkj-OQSEB0/review",
+      reviewCount: 126,
+      googleLink: "https://www.google.com/search?rlz=1C1GCEA_enFR1194FR1194&sca_esv=903e5a2d5ddaaca0&sxsrf=ANbL-n4Lk9QmJvLwHaV9iLkIwSfkJDrSzQ:1768557870321&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qORt4ZOlKQ85VoGFnBxgdfnJb_VMPY5XULgSnSMJrfMiCHtDogt0QTbK4E6f8Zqgzz2_am1vvV8vzWaxI1BlTvthbJky_cv50TIUtRiiO7nmp0Wj8Zg%3D%3D&q=CHANVRE+VERT+by+CBD+BERGUOIS+Avis",
       reviewText: "Très bons produits, personnel compétent et accueillant. Je recommande vivement !",
       reviewAuthor: "Marie D."
     },
     {
       name: "Chanvre Vert Wormhout",
       location: "Wormhout, Nord",
-      rating: 4.8,
-      reviewCount: 98,
-      googleLink: "https://g.page/r/CQbZdFkj-OQSEB0/review",
+      rating: 4.9,
+      reviewCount: 56,
+      googleLink: "https://www.google.com/search?sca_esv=903e5a2d5ddaaca0&rlz=1C1GCEA_enFR1194FR1194&sxsrf=ANbL-n6eREXFdCmDwNiQSX5bILB7C17kSg:1768557836551&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOY0h6GGcX94HOqOD1PS-sEXr8bZqE360JiGcnsL0X8bGsvxQ9h382aV0jmTx6teOWSnD_QkHPNd05vURNGsSXLyUV8mYV9-gv3LcyWsPKQAvGInrTw%3D%3D&q=Chanvre-vert+Wormhout+Avis",
       reviewText: "Superbe boutique avec un large choix. Les conseils sont précieux et adaptés à mes besoins.",
       reviewAuthor: "Thomas L."
     }
