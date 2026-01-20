@@ -136,7 +136,7 @@ export type RichTextContent = {
   };
 };
 
-export type AvailabilityStatus = 'in_stock' | 'out_of_stock' | 'preorder' | 'discontinued';
+export type AvailabilityStatus = 'in_stock' | 'temporarily_unavailable' | 'out_of_stock' | 'preorder' | 'discontinued';
 
 export type QualityTier = 'standard' | 'premium' | 'limited-edition';
 

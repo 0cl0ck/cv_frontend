@@ -33,7 +33,7 @@ export default function ClientFeaturedProducts() {
     const fetchProducts = async () => {
       try {
         // Only make one request with all the parameters in the query string
-        const response = await fetch('/api/products?limit=3&where[isFeatured][equals]=true&where[isActive][equals]=true&sort=-createdAt');
+        const response = await fetch('/api/products?limit=3&where[isFeatured][equals]=true&where[availabilityStatus][not_equals]=discontinued&sort=-createdAt');
         
         if (!response.ok) throw new Error('Failed to fetch products');
         

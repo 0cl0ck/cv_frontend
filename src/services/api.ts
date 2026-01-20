@@ -21,7 +21,7 @@ const fallbackProducts: Product[] = [
     category: { id: '1', name: 'Fleurs CBD', slug: 'fleurs-cbd' },
     stock: 42,
     sku: 'CBD-FL-001',
-    isActive: true
+    availabilityStatus: 'in_stock'
   },
   {
     id: '2',
@@ -39,7 +39,7 @@ const fallbackProducts: Product[] = [
     category: { id: '1', name: 'Fleurs CBD', slug: 'fleurs-cbd' },
     stock: 27,
     sku: 'CBD-FL-002',
-    isActive: true
+    availabilityStatus: 'in_stock'
   },
   {
     id: '3',
@@ -57,7 +57,7 @@ const fallbackProducts: Product[] = [
     category: { id: '1', name: 'Fleurs CBD', slug: 'fleurs-cbd' },
     stock: 15,
     sku: 'CBD-FL-003',
-    isActive: true
+    availabilityStatus: 'in_stock'
   },
   {
     id: '4',
@@ -74,7 +74,7 @@ const fallbackProducts: Product[] = [
     productType: 'simple',
     category: { id: '2', name: 'Huiles CBD', slug: 'huiles-cbd' },
     sku: 'CBD-OIL-001',
-    isActive: true
+    availabilityStatus: 'in_stock'
   },
   {
     id: '5',
@@ -91,7 +91,7 @@ const fallbackProducts: Product[] = [
     productType: 'simple',
     category: { id: '3', name: 'Infusions CBD', slug: 'infusions-cbd' },
     sku: 'CBD-INF-001',
-    isActive: true
+    availabilityStatus: 'in_stock'
   },
   {
     id: '6',
@@ -108,7 +108,7 @@ const fallbackProducts: Product[] = [
     productType: 'simple',
     category: { id: '4', name: 'Résines CBD', slug: 'resine-cbd' },
     sku: 'CBD-RES-001',
-    isActive: true
+    availabilityStatus: 'in_stock'
   },
 ];
 
@@ -178,8 +178,8 @@ export async function getProducts(params?: {
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.category) queryParams.append('where[category][contains]', params.category);
     if (params?.featured) queryParams.append('where[isFeatured][equals]', 'true');
-    // Assurons-nous que seuls les produits actifs sont affichés
-    queryParams.append('where[isActive][equals]', 'true');
+    // Only show products that are not discontinued (visible in catalog)
+    queryParams.append('where[availabilityStatus][not_equals]', 'discontinued');
     if (params?.sort) queryParams.append('sort', params.sort);
     
     // Filtres de prix
@@ -211,8 +211,8 @@ export async function getProducts(params?: {
       filteredProducts = filteredProducts.filter(product => product.isFeatured === true);
     }
     
-    // Toujours filtrer les produits inactifs (supprimés)
-    filteredProducts = filteredProducts.filter(product => product.isActive !== false);
+    // Filter out discontinued products (not visible in catalog)
+    filteredProducts = filteredProducts.filter(product => product.availabilityStatus !== 'discontinued');
     
     // Filtres de prix pour les données de secours
     if (params?.minPrice) {

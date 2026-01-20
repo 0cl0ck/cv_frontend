@@ -44,7 +44,7 @@ export async function GET() {
   try {
     // 2. Récupération des données depuis PayloadCMS
     const [productsRes, categoriesRes, postsRes] = await Promise.all([
-      fetch(`${API_URL}/api/products?limit=100&where[isActive][equals]=true&depth=1`, {
+      fetch(`${API_URL}/api/products?limit=100&where[availabilityStatus][not_equals]=discontinued&depth=1`, {
         next: { revalidate: 3600 },
       }),
       fetch(`${API_URL}/api/categories?limit=50`, {
