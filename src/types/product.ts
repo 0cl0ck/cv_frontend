@@ -161,8 +161,6 @@ export type Product = {
   availabilityStatus?: AvailabilityStatus;
   isSellable?: boolean;
   redirectTo?: Product | string; // Product to redirect to if discontinued
-  // Legacy field - deprecated, use availabilityStatus instead
-  isActive?: boolean;
   productType?: 'simple' | 'variable';
   variants?: ProductVariation[];
   productDetails?: ProductDetails;
