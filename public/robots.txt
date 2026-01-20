@@ -65,5 +65,12 @@ Disallow: /confirmation
 Disallow: /reinitialiser-mot-de-passe
 Disallow: /mot-de-passe-oublie
 
+# Bloquer les paramètres de filtres (optimisation crawl budget)
+# NE PAS bloquer ?page= - Google doit crawler pour découvrir les produits
+Disallow: /*?price=
+Disallow: /*?sort=
+Disallow: /*?pricePerGramSort=
+Disallow: /*?limit=
+
 # Sitemap
 Sitemap: https://www.chanvre-vert.fr/sitemap.xml

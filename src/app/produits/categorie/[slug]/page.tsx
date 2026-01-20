@@ -35,7 +35,9 @@ function extractTextFromRichText(content: RichTextContent | string | null | unde
   return extractText(content.root.children).trim();
 }
 
-export const dynamic = 'force-dynamic';
+// ISR: Revalidate every hour (better crawl efficiency than force-dynamic)
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 // SEO - Utilise une approche qui ne générera pas d'erreur bloquante
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {

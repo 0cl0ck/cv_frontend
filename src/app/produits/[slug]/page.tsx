@@ -113,6 +113,9 @@ export async function generateMetadata({
   return {
     title: `${product.name} | Chanvre Vert`,
     description: descriptionText,
+    alternates: {
+      canonical: `https://www.chanvre-vert.fr/produits/${product.slug}`,
+    },
     openGraph: {
       title: `${product.name} | Chanvre Vert`,
       description: descriptionText,

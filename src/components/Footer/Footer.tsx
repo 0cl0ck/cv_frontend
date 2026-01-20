@@ -27,13 +27,19 @@ export default function Footer() {
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
   };
 
+  // Liens catégories (SEO - 3 liens naturels max)
+  const categoryLinks = [
+    { label: 'Fleurs CBD', url: '/produits/categorie/fleurs-cbd' },
+    { label: 'Huiles CBD', url: '/produits/categorie/huiles-cbd' },
+    { label: 'Résines CBD', url: '/produits/categorie/resines-cbd' },
+  ];
+
   // Navigation items statiques
   const navItems = [
     { label: 'À propos', url: '/a-propos' },
     { label: 'Blog', url: '/blog' },
     { label: 'Contact', url: '/contact' },
     { label: 'Mentions légales', url: '/legal' },
-    { label: 'Rétractation', url: '/retractation' },
   ];
 
   return (
@@ -71,6 +77,16 @@ export default function Footer() {
 
           {/* Navigation */}
           <nav className="flex justify-center items-center flex-col md:flex-row gap-4">
+            {categoryLinks.map((item, i) => (
+              <Link
+                key={`cat-${i}`}
+                href={item.url}
+                className="text-white hover:text-green-200 transition-colors font-medium"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <span className="hidden md:inline text-white/30">|</span>
             {navItems.map((item, i) => (
               <Link
                 key={i}
