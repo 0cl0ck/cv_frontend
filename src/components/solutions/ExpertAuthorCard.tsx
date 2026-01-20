@@ -122,7 +122,7 @@ export function ExpertAuthorCard({
             </a>
           )}
         </div>
-        <p className="text-sm text-gray-600 mt-3 line-clamp-3">{author.bio}</p>
+        <p className="text-sm text-gray-600 mt-3 line-clamp-3 whitespace-pre-line">{author.bio}</p>
       </div>
     )
   }
@@ -181,7 +181,7 @@ export function ExpertAuthorCard({
           <p className="text-sm text-green-700 font-medium mb-2" itemProp="jobTitle">
             {author.role}
           </p>
-          <p className="text-sm text-gray-600 leading-relaxed" itemProp="description">
+          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line" itemProp="description">
             {author.bio}
           </p>
         </div>
