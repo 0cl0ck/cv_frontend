@@ -328,6 +328,8 @@ export default function useCheckout(
             response?: { 
               data?: { 
                 details?: Record<string, string>;
+                code?: string;  // Direct code at root level
+                field?: string; // Direct field at root level
                 data?: { code?: string; field?: string };
                 message?: string;
                 errors?: Array<{ message?: string; data?: { code?: string; field?: string } }>;
@@ -337,9 +339,14 @@ export default function useCheckout(
           const errorData = axiosError.response?.data;
 
           // 🛡️ Gestion des erreurs de validation d'adresse de livraison
-          const shippingError = errorData?.errors?.find(e => e.data?.code === 'POSTAL_CODE_MISMATCH');
-          if (shippingError || errorData?.data?.code === 'POSTAL_CODE_MISMATCH') {
-            const errorMessage = shippingError?.message || errorData?.message || 
+          // Check for POSTAL_CODE_MISMATCH at root level (new format) or in nested structures
+          const isPostalCodeError = 
+            errorData?.code === 'POSTAL_CODE_MISMATCH' ||
+            errorData?.data?.code === 'POSTAL_CODE_MISMATCH' ||
+            errorData?.errors?.find(e => e.data?.code === 'POSTAL_CODE_MISMATCH');
+          
+          if (isPostalCodeError) {
+            const errorMessage = errorData?.message || 
               "Le code postal ne correspond pas au pays sélectionné.";
             const postalCodeError = { postalCode: errorMessage };
             setFormErrors(postalCodeError);
