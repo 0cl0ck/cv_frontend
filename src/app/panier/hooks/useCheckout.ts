@@ -307,7 +307,7 @@ export default function useCheckout(
             sessionStorage.setItem('chanvre_vert.bank_transfer', JSON.stringify(bankTransferPayload));
           }
         } catch (storageError) {
-          console.warn("Impossible de sauvegarder les informations de virement dans sessionStorage", storageError);
+          logger.warn("Impossible de sauvegarder les informations de virement", { error: String(storageError) });
         }
 
         // Vider le panier avant redirection vers la page de confirmation virement
@@ -317,25 +317,40 @@ export default function useCheckout(
         throw new Error('Méthode de paiement non reconnue');
       }
     } catch (err) {
-      console.error('Checkout error:', err);
-
-      // Log détaillé de l'erreur pour débogage
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosError = err as { response?: { status?: number, data?: unknown, headers?: Record<string, unknown> } };
-        logger.error('🔴 ERREUR CHECKOUT DÉTAILLÉE', {
-          status: axiosError.response?.status,
-          data: JSON.stringify(axiosError.response?.data, null, 2)
-        });
-      }
+      // Log silencieux pour monitoring (pas d'exposition en console)
+      logger.warn('[useCheckout] Checkout error', { error: String(err) });
 
       // Analyser l'erreur pour voir si c'est un problème de validation
       try {
         // Avec axios, les erreurs HTTP sont dans err.response.data
         if (err && typeof err === 'object' && 'response' in err) {
-          const axiosError = err as { response?: { data?: { details?: Record<string, string>, message?: string } } };
+          const axiosError = err as { 
+            response?: { 
+              data?: { 
+                details?: Record<string, string>;
+                data?: { code?: string; field?: string };
+                message?: string;
+                errors?: Array<{ message?: string; data?: { code?: string; field?: string } }>;
+              } 
+            } 
+          };
           const errorData = axiosError.response?.data;
 
-          if (errorData?.details && errorData.details['order.guestInformation.phone']) {
+          // 🛡️ Gestion des erreurs de validation d'adresse de livraison
+          const shippingError = errorData?.errors?.find(e => e.data?.code === 'POSTAL_CODE_MISMATCH');
+          if (shippingError || errorData?.data?.code === 'POSTAL_CODE_MISMATCH') {
+            const errorMessage = shippingError?.message || errorData?.message || 
+              "Le code postal ne correspond pas au pays sélectionné.";
+            const postalCodeError = { postalCode: errorMessage };
+            setFormErrors(postalCodeError);
+            if (setErrors) setErrors(postalCodeError);
+
+            // Faire défiler jusqu'au champ de code postal
+            const postalCodeField = document.querySelector('[name="postalCode"]');
+            if (postalCodeField) {
+              postalCodeField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          } else if (errorData?.details && errorData.details['order.guestInformation.phone']) {
             // Erreur spécifique de validation de téléphone
             const phoneError = { phone: errorData.details['order.guestInformation.phone'] };
             setFormErrors(phoneError);

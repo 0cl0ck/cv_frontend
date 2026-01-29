@@ -86,9 +86,15 @@ httpClient.interceptors.response.use(
       console.error('[httpClient] Erreur réseau - vérifiez CORS/backend:', error);
     }
     
-    if (error.response?.status === 401 && typeof window !== 'undefined') {
-      // Token expiré ou invalide - déclencher refresh auth
-      window.dispatchEvent(new CustomEvent('auth-expired'));
+    // 401 Unauthorized: retourner comme réponse normale pour éviter les logs d'erreur
+    // Le AuthContext gère le status 401 sans passer par le catch block
+    if (error.response?.status === 401) {
+      if (typeof window !== 'undefined') {
+        // Token expiré ou invalide - déclencher refresh auth
+        window.dispatchEvent(new CustomEvent('auth-expired'));
+      }
+      // Retourner la réponse 401 au lieu de rejeter - pas de log d'erreur console
+      return error.response;
     }
     
     return Promise.reject(error);
