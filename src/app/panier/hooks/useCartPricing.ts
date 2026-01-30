@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Cart } from '../types';
 import type { PricingTotals } from '@/lib/pricingClient';
 import { calculateCartTotals } from '@/lib/pricingClient';
+import { secureLogger as logger } from '@/utils/logger';
 
 type UseCartPricingResult = {
   totals: PricingTotals | null;
@@ -75,7 +76,7 @@ export function useCartPricing(
         }
       } catch (err) {
         if (!cancelled) {
-          console.error('[useCartPricing] Échec du calcul du panier', err);
+          logger.warn('[useCartPricing] Échec du calcul du panier', { error: String(err) });
           setError("Impossible de recalculer le panier pour le moment. Merci de réessayer.");
           setTotals(emptyTotals);
         }

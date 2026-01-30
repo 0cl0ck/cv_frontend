@@ -7,7 +7,8 @@ import Footer from "@/components/Footer/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import CsrfInitializer from "@/components/CsrfInitializer";
-import ResourcePreload from "@/components/Performance/ResourcePreload";
+// ResourcePreload supprimé - causait des warnings "preloaded but not used"
+// Les fonts sont gérées via next/font avec display:swap
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import FontLoader from "@/components/Performance/FontLoader";
 import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
@@ -56,19 +57,7 @@ export default async function RootLayout({
 }>) {
   const initialCategories = await getCategories().catch(() => fallbackCategories);
 
-  // Define critical resources to preload
-  const criticalResources = [
-    {
-      href: "/Chanvre_Vert_Hero_3.png",
-      as: "image" as const,
-      importance: "high" as const
-    },
-    {
-      href: "/logo.png",
-      as: "image" as const,
-      importance: "high" as const
-    }
-  ];
+  // criticalResources et ResourcePreload supprimés - voir commentaire ligne 10
 
   return (
     <html lang="fr" className="optimize-fonts">
@@ -139,9 +128,8 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-950 text-gray-50`}
       >
-        {/* Preload critical resources */}
+        {/* Preload supprimé */}
         <AgeVerificationModal />
-        <ResourcePreload resources={criticalResources} />
         <AuthProvider>
           <CartProvider>
             <FontLoader />

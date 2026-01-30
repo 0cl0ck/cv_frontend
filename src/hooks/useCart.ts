@@ -8,6 +8,7 @@ import {
 } from "../utils/gift-utils";
 import { calculateCartTotals } from "@/lib/pricingClient";
 import type { PricingTotals } from "@/lib/pricingClient";
+import { secureLogger as logger } from "@/utils/logger";
 
 const STORAGE_KEY = "chanvre_vert_cart";
 const PROMO_STORAGE_KEY = "chanvre_vert_promo";
@@ -105,7 +106,7 @@ const persistCart = (cart: Cart) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
   } catch (error) {
-    console.error("[useCart] Échec de la persistance du panier", error);
+    logger.warn("[useCart] Échec de la persistance du panier", { error: String(error) });
   }
 };
 
@@ -154,7 +155,7 @@ export const useCart = () => {
       setCart(updatedCart);
       if (persist) persistCart(updatedCart);
     } catch (error) {
-      console.error("[useCart] Impossible de récupérer les cadeaux automatiques", error);
+      logger.warn("[useCart] Impossible de récupérer les cadeaux automatiques", { error: String(error) });
       if (refreshRequestRef.current !== requestId) return;
       setAutomaticGiftItems([]);
       setPricingTotals(null);
@@ -191,7 +192,7 @@ export const useCart = () => {
           }
         }
       } catch (error) {
-        console.error("[useCart] Erreur lors de la restauration du panier", error);
+        logger.warn("[useCart] Erreur lors de la restauration du panier", { error: String(error) });
       } finally {
         setIsLoading(false);
       }
@@ -221,7 +222,7 @@ export const useCart = () => {
   ) => {
     // @ts-expect-error - certains produits étendus peuvent porter ce flag
     if (product.isGift === true) {
-      console.warn("Tentative d'ajout manuel d'un article cadeau ignorée");
+      logger.debug("[useCart] Tentative d'ajout manuel d'un article cadeau ignorée");
       return;
     }
 

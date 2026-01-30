@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Category, Media, Product, ProductVariation } from '@/types/product';
 import { useCartContext } from '@/context/CartContext';
 import { ProductReviews } from '@/components/Reviews';
+import { secureLogger as logger } from '@/utils/logger';
 import {
   ProductGallery,
   ProductInfo,
@@ -99,7 +100,7 @@ export default function ProductDetailView({ product, relatedProducts, categories
       // Confirmer visuellement l'action réussie
       setIsAddedToCart(true);
     } catch (error) {
-      console.error("Erreur lors de l'ajout au panier:", error);
+      logger.warn("[ProductDetailView] Erreur lors de l'ajout au panier", { error: String(error) });
     } finally {
       // Toujours réactiver le bouton et masquer la confirmation après délai
       setTimeout(() => setIsAddingToCart(false), 500);

@@ -71,7 +71,19 @@ export function maskSensitiveData(data: GenericObject | null | undefined): Gener
 }
 
 // Extensions pour le logger avec masquage automatique des données sensibles
-export const secureLogger = {
+// En production côté client, on désactive complètement les logs pour éviter de polluer la console
+const isProductionClient = typeof window !== 'undefined' && process.env.NODE_ENV === 'production';
+
+// No-op function for production client
+const noop = () => {};
+
+export const secureLogger = isProductionClient ? {
+  debug: noop,
+  info: noop,
+  warn: noop,
+  error: noop,
+  fatal: noop,
+} : {
   debug: (msg: string, data?: GenericObject) => logger.debug(data ? { ...maskSensitiveData(data) } : emptyObject, msg),
   info: (msg: string, data?: GenericObject) => logger.info(data ? { ...maskSensitiveData(data) } : emptyObject, msg),
   warn: (msg: string, data?: GenericObject) => logger.warn(data ? { ...maskSensitiveData(data) } : emptyObject, msg),
