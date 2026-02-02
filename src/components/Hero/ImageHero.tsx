@@ -18,11 +18,14 @@ interface HeroProps {
 }
 
 // Vérifie si on est dans la période de la Saint-Valentin (7-14 février 2026)
-// TEMPORAIREMENT: toujours afficher pour test
 function isValentinePeriod(): boolean {
-  // TODO: Remettre la vraie condition avant mise en prod
-  // return year === 2026 && month === 1 && day >= 7 && day <= 14;
-  return true;
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed (février = 1)
+  const day = now.getDate();
+  
+  // Février 2026, du 7 au 14
+  return year === 2026 && month === 1 && day >= 7 && day <= 14;
 }
 
 // Card spéciale Saint-Valentin
