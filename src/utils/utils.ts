@@ -23,7 +23,7 @@ export function toggleDarkMode() {
 export function initDarkMode() {
   if (typeof window !== 'undefined') {
     const htmlEl = document.documentElement;
-    const theme = localStorage.getItem('theme') || 'light';
+    const theme = localStorage.getItem('theme') || 'dark';
     
     // Clear any existing theme classes
     htmlEl.classList.remove('light', 'dark');

@@ -8,7 +8,7 @@ import { LoyaltyReward } from '@/types/loyalty';
 import { User } from '@/lib/auth/auth';
 import { useAuthContext } from '@/context/AuthContext';
 import { httpClient } from '@/lib/httpClient';
-import { WalletWidget } from '@/components/Wallet';
+
 
 // Type pour les informations de l'utilisateur
 type UserInfo = {
@@ -688,10 +688,7 @@ export default function ClientDashboard({ initialUser }: { initialUser: User }) 
 </div>
         </div>
         
-        {/* Cagnotte Noël */}
-        <div className="bg-[#002B33] rounded-lg p-6 shadow-md">
-          <WalletWidget />
-        </div>
+
       </div>
       </div>
       

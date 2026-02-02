@@ -7,7 +7,7 @@ import CheckoutForm from './CheckoutForm';
 import { useCartPricing } from '../hooks/useCartPricing';
 import { formatPrice } from '@/utils/formatPrice';
 import { Cart, Address, LoyaltyBenefits, PromoResult, CustomerInfo, FormErrors, PaymentMethod } from '../types';
-import { WalletWidget } from '@/components/Wallet';
+
 interface CheckoutSidebarProps {
   isAuthenticated: boolean;
   loyaltyBenefits: LoyaltyBenefits;
@@ -142,12 +142,7 @@ export default function CheckoutSidebar({
           />
         )}
 
-        {/* 3) Cagnotte (wallet) - Affichage pour tous (connectés ou non) */}
-        <WalletWidget
-          compact
-          cartTotal={totalAmount}
-          onWalletApply={onWalletApply}
-        />
+
 
         {/* 4) Récapitulatif & checkout */}
         <OrderSummary
@@ -219,12 +214,7 @@ export default function CheckoutSidebar({
         />
       )}
 
-      {/* 3) Cagnotte (wallet) - Affichage pour tous (connectés ou non) */}
-      <WalletWidget
-        compact
-        cartTotal={totalAmount}
-        onWalletApply={onWalletApply}
-      />
+
 
       {/* 4) Récapitulatif pour le mode checkout */}
       <div className="mb-4">

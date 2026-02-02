@@ -2,7 +2,18 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 
-const STORAGE_KEY = 'january-modal-closed-2026';
+const STORAGE_KEY = 'valentine-modal-closed-2026';
+
+// Vérifie si on est dans la période de la Saint-Valentin (7-14 février 2026)
+function isValentinePeriod(): boolean {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0-indexed (février = 1)
+    const day = now.getDate();
+    
+    // Février 2026, du 7 au 14
+    return year === 2026 && month === 1 && day >= 7 && day <= 14;
+}
 
 export default function JanuaryBanner() {
     const [isVisible, setIsVisible] = useState(false);
@@ -13,6 +24,9 @@ export default function JanuaryBanner() {
     }, []);
 
     useEffect(() => {
+        // Ne pas afficher si hors période Valentine
+        if (!isValentinePeriod()) return;
+
         // Vérifier si déjà fermé (seulement pour l'affichage auto au chargement)
         const isClosed = localStorage.getItem(STORAGE_KEY) === 'true';
         if (!isClosed) {
@@ -22,11 +36,13 @@ export default function JanuaryBanner() {
 
         // Écouter l'événement custom pour ouvrir la modale manuellement
         const handleOpenEvent = () => openModal();
+        window.addEventListener('open-valentine-modal', handleOpenEvent);
+        // Compatibilité avec les anciens événements
         window.addEventListener('open-january-modal', handleOpenEvent);
-        // Aussi écouter l'ancien événement pour compatibilité
         window.addEventListener('open-christmas-modal', handleOpenEvent);
 
         return () => {
+            window.removeEventListener('open-valentine-modal', handleOpenEvent);
             window.removeEventListener('open-january-modal', handleOpenEvent);
             window.removeEventListener('open-christmas-modal', handleOpenEvent);
         };
@@ -61,20 +77,20 @@ export default function JanuaryBanner() {
                 </button>
 
                 {/* Contenu de la modale */}
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a472a] via-[#0d3320] to-[#2d5a3d] shadow-2xl border border-green-500/30">
-                    {/* Confettis/étoiles animés */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-600 via-rose-500 to-red-600 shadow-2xl border border-pink-400/30">
+                    {/* Coeurs animés */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
                         {[...Array(12)].map((_, i) => (
                             <div
                                 key={i}
-                                className="absolute text-yellow-400 text-xl animate-pulse"
+                                className="absolute text-white text-xl animate-pulse"
                                 style={{
                                     left: `${Math.random() * 100}%`,
                                     top: `${Math.random() * 100}%`,
                                     animationDelay: `${Math.random() * 2}s`,
                                 }}
                             >
-                                ✨
+                                💕
                             </div>
                         ))}
                     </div>
@@ -82,32 +98,32 @@ export default function JanuaryBanner() {
                     {/* Header */}
                     <div className="relative text-center pt-8 pb-4 px-6">
                         <div className="flex items-center justify-center gap-3 mb-2">
-                            <span className="text-4xl animate-bounce">🎉</span>
-                            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-400 via-emerald-300 to-green-400 bg-clip-text text-transparent">
-                                Bonne Année 2026 !
+                            <span className="text-4xl animate-bounce">💝</span>
+                            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-pink-100 to-white bg-clip-text text-transparent">
+                                Saint-Valentin 💕
                             </h2>
-                            <span className="text-4xl animate-bounce" style={{ animationDelay: '0.5s' }}>🥳</span>
+                            <span className="text-4xl animate-bounce" style={{ animationDelay: '0.5s' }}>🌹</span>
                         </div>
-                        <p className="text-white/70 text-sm">Votre cadeau de Noël vous attend !</p>
+                        <p className="text-white/80 text-sm">Offre exclusive du 7 au 14 février !</p>
                     </div>
 
                     {/* Corps */}
                     <div className="relative px-6 pb-8">
-                        {/* Cashback disponible */}
-                        <div className="bg-black/30 backdrop-blur-sm rounded-xl p-5 border border-green-500/30">
+                        {/* Promo -20% */}
+                        <div className="bg-black/30 backdrop-blur-sm rounded-xl p-5 border border-pink-300/30">
                             <div className="flex items-center gap-3 mb-3">
-                                <span className="text-4xl animate-pulse">💰</span>
-                                <h3 className="text-xl font-bold text-green-400">
-                                    Votre Cashback est Disponible !
+                                <span className="text-4xl">🎁</span>
+                                <h3 className="text-xl font-bold text-white">
+                                    -20% sur tout le site !
                                 </h3>
                             </div>
                             <p className="text-white/90 text-sm mb-4">
-                                Votre cagnotte de Noël est maintenant <span className="font-bold text-green-400">utilisable sur vos commandes</span> tout au long du mois de janvier !
+                                Profitez de <span className="font-bold text-pink-200">-20% de réduction</span> sur l&apos;ensemble de notre gamme CBD pour la Saint-Valentin !
                             </p>
-                            <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/20">
+                            <div className="bg-white/10 rounded-lg p-4 border border-white/20">
                                 <p className="text-white/80 text-sm text-center">
-                                    <span className="text-2xl">🛒</span><br />
-                                    La réduction sera <span className="font-semibold text-green-400">disponible</span> dans le récapitulatif de votre panier.
+                                    <span className="text-2xl">✨</span><br />
+                                    Réduction <span className="font-semibold text-pink-200">automatique</span> appliquée dans votre panier.
                                 </p>
                             </div>
                         </div>
@@ -117,12 +133,12 @@ export default function JanuaryBanner() {
                     <div className="relative text-center pb-6 px-6">
                         <button
                             onClick={handleClose}
-                            className="inline-flex items-center justify-center px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
+                            className="inline-flex items-center justify-center px-8 py-3 bg-white hover:bg-pink-50 text-pink-600 font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
                         >
-                            🎁 Voir mes produits
+                            💕 Voir les produits
                         </button>
-                        <p className="text-white/50 text-xs mt-4">
-                            * Cashback valable jusqu&apos;au 31 janvier 2026.
+                        <p className="text-white/60 text-xs mt-4">
+                            * Offre valable du 7 au 14 février 2026, hors packs CBD.
                         </p>
                     </div>
                 </div>
@@ -148,3 +164,4 @@ export default function JanuaryBanner() {
         </div>
     );
 }
+
