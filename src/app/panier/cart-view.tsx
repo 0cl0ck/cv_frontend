@@ -192,22 +192,17 @@ export default function CartView() {
 
       <h1 className="text-3xl font-bold mb-8 text-[#F4F8F5]">Votre panier</h1>
 
-      {/* Bannière Cashback Noël */}
-      <div className="mb-6 bg-gradient-to-r from-[#1a472a] to-[#002935] border border-green-500/30 rounded-lg p-4 shadow-lg">
+      {/* Bannière Saint-Valentin */}
+      <div className="mb-6 bg-gradient-to-r from-pink-600 to-red-600 border border-pink-400/30 rounded-lg p-4 shadow-lg">
         <div className="flex items-start gap-3">
-          <span className="text-3xl">🎄</span>
+          <span className="text-3xl">💝</span>
           <div className="flex-1">
-            <h3 className="text-white font-bold text-lg mb-1">Cashback Noël 2025</h3>
+            <h3 className="text-white font-bold text-lg mb-1">-20% Saint-Valentin</h3>
             <p className="text-white/90 text-sm mb-2">
-              Gagnez jusqu&apos;à <span className="text-green-400 font-bold">20€ de cashback</span> sur vos commandes !
+              Profitez de <span className="text-pink-200 font-bold">-20% de réduction</span> sur tout le site !
             </p>
-            <div className="flex flex-wrap gap-2 text-xs text-white/70">
-              <span className="bg-green-500/20 px-2 py-1 rounded">25€ → 5€</span>
-              <span className="bg-green-500/20 px-2 py-1 rounded">50€ → 10€</span>
-              <span className="bg-green-500/20 px-2 py-1 rounded">100€ → 20€</span>
-            </div>
-            <p className="text-white/60 text-xs mt-2">
-              💰 Valable du 19-31 décembre • Utilisable en janvier 2026
+            <p className="text-white/70 text-xs">
+              ✨ Du 7 au 14 février 2026 • Hors packs CBD
             </p>
           </div>
         </div>

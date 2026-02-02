@@ -17,51 +17,52 @@ interface HeroProps {
   imageUrl?: string;
 }
 
-// Vérifie si on est dans la période de Noël (20-31 décembre 2025) ou Janvier 2026
+// Vérifie si on est dans la période de la Saint-Valentin (7-14 février 2026)
 // TEMPORAIREMENT: toujours afficher pour test
-function isChristmasPeriod(): boolean {
-  // Pour test - affiche toujours la card spéciale
+function isValentinePeriod(): boolean {
+  // TODO: Remettre la vraie condition avant mise en prod
+  // return year === 2026 && month === 1 && day >= 7 && day <= 14;
   return true;
 }
 
-// Card spéciale Janvier - Bonne Année
-function ChristmasHeroCard() {
+// Card spéciale Saint-Valentin
+function ValentineHeroCard() {
   return (
-    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-green-500/40 bg-gradient-to-br from-[#1a472a]/80 to-[#2d5a3d]/60">
+    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-pink-400/40 bg-gradient-to-br from-pink-600/80 to-red-600/60">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-2xl animate-bounce">🎉</span>
-        <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide text-green-400 text-center md:text-left">
-          BONNE ANNÉE 2026 !
+        <span className="text-2xl animate-bounce">💝</span>
+        <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide text-white text-center md:text-left">
+          -20% SAINT-VALENTIN
         </p>
-        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🥳</span>
+        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🌹</span>
       </div>
 
-      {/* Cashback disponible */}
+      {/* Promo description */}
       <div className="mb-3 pb-3 border-b border-white/20">
         <div className="flex items-center gap-2">
-          <span className="text-xl">💰</span>
-          <p className="text-sm md:text-base font-semibold text-green-400">
-            Votre Cashback est Disponible !
+          <span className="text-xl">🎁</span>
+          <p className="text-sm md:text-base font-semibold text-pink-200">
+            Sur tout le site !
           </p>
         </div>
         <p className="text-xs md:text-sm text-white/80 mt-1">
-          Utilisez votre cagnotte de Noël<br />
-          <span className="text-green-400">directement dans votre panier !</span>
+          Réduction automatique appliquée<br />
+          <span className="text-pink-200">dans votre panier !</span>
         </p>
       </div>
 
       {/* Info */}
       <div>
         <p className="text-xs md:text-sm text-white/80">
-          🛒 Réduction disponible dans le récapitulatif de votre panier
+          ✨ Offre valable du 7 au 14 février
         </p>
         <p className="text-xs md:text-sm text-white/60 mt-1">
-          💡 Utilisable si panier &ge; 50€ après remises
+          💡 Hors packs CBD
         </p>
       </div>
 
       <p className="mt-3 text-[10px] md:text-xs text-white/60 italic text-center md:text-left">
-        Valable tout le mois de janvier 2026
+        Du 7 au 14 février 2026
       </p>
     </div>
   );
@@ -103,7 +104,7 @@ export default function ImageHero({
   imageUrl = "/images/hero/HeroHiver.webp",
 }: HeroProps = {}) {
   // Affichage card spéciale basé sur la période
-  const showChristmas = isChristmasPeriod();
+  const showValentine = isValentinePeriod();
 
   // Vidéo désactivée pour janvier
   const showVideo = false;
@@ -141,21 +142,21 @@ export default function ImageHero({
 
       <div className="relative z-20 mx-auto flex min-h-[70vh] md:min-h-[600px] max-w-7xl items-center px-4 py-8 md:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8 items-center md:items-center">
-          {/* Card dynamique - Noël ou standard - CACHÉE sur mobile (la modale suffit) */}
+          {/* Card dynamique - Valentine ou standard - CACHÉE sur mobile (la modale suffit) */}
           <div className="hidden md:block w-full md:w-auto md:ml-auto order-first md:order-last">
-            {showChristmas ? <ChristmasHeroCard /> : <DefaultHeroCard />}
+            {showValentine ? <ValentineHeroCard /> : <DefaultHeroCard />}
           </div>
 
-          {/* Bouton Noël mobile - ouvre la modale */}
-          {showChristmas && (
+          {/* Bouton Valentine mobile - ouvre la modale */}
+          {showValentine && (
             <button
-              onClick={() => window.dispatchEvent(new CustomEvent('open-christmas-modal'))}
-              className="md:hidden absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#1a472a] to-[#8B0000] rounded-full border border-[#EFC368]/50 shadow-lg animate-pulse hover:animate-none hover:scale-105 transition-transform"
-              aria-label="Voir les opérations de Noël"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-valentine-modal'))}
+              className="md:hidden absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-pink-500 to-red-500 rounded-full border border-pink-300/50 shadow-lg animate-pulse hover:animate-none hover:scale-105 transition-transform"
+              aria-label="Voir les offres Saint-Valentin"
             >
-              <span className="text-xl">🎄</span>
-              <span className="text-xs font-bold text-[#EFC368]">Offres Noël</span>
-              <span className="text-xl">🎁</span>
+              <span className="text-xl">💝</span>
+              <span className="text-xs font-bold text-white">-20%</span>
+              <span className="text-xl">🌹</span>
             </button>
           )}
 

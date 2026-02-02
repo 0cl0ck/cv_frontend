@@ -4,6 +4,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'christmas-modal-closed-2025';
 
+// Période d'affichage: 20-31 décembre 2025 (désactivé pour 2026)
+function isChristmasPeriod(): boolean {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed, décembre = 11
+  const day = now.getDate();
+  return year === 2025 && month === 11 && day >= 20 && day <= 31;
+}
+
 export default function ChristmasBanner() {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -13,6 +22,9 @@ export default function ChristmasBanner() {
   }, []);
 
   useEffect(() => {
+    // Ne pas afficher hors période de Noël
+    if (!isChristmasPeriod()) return;
+
     // Vérifier si déjà fermé (seulement pour l'affichage auto au chargement)
     const isClosed = localStorage.getItem(STORAGE_KEY) === 'true';
     if (!isClosed) {
