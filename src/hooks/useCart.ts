@@ -235,7 +235,7 @@ export const useCart = () => {
       categoryId:
         typeof product.category === "string"
           ? product.category
-          : (product.category as { id?: string })?.id,
+          : (product.category as { slug?: string })?.slug,
       name: product.name,
       price,
       priceCents,
