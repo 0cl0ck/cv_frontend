@@ -33,8 +33,7 @@ interface CheckoutSidebarProps {
   isSubmitting?: boolean;        // Flag pour indiquer si le formulaire est en cours de soumission
   paymentMethod: PaymentMethod;   // Méthode de paiement choisie
   setPaymentMethod: (method: PaymentMethod) => void; // Fonction pour changer la méthode de paiement
-  walletApplied?: boolean;       // Si true, la cagnotte est appliquée au calcul
-  onWalletApply?: (amount: number) => void; // Callback pour appliquer le wallet
+  walletApplied?: boolean;       // Si true, la cagnotte est appliquée au calcul (désactivé)
   onGuestAccountCreated?: (customerId: string) => void; // Callback quand un guest crée un compte
 }
 
@@ -64,7 +63,6 @@ export default function CheckoutSidebar({
   paymentMethod = 'card',
   setPaymentMethod,
   walletApplied = false,
-  onWalletApply,
   onGuestAccountCreated,
 }: CheckoutSidebarProps) {
   // Le backend calcule automatiquement TOUTES les remises
