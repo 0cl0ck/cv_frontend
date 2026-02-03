@@ -19,7 +19,6 @@ export default function CartView() {
   const { cart, clearCart } = useCartContext();
   const { isAuthenticated, user } = useAuthContext();
   const [checkoutMode, setCheckoutMode] = useState(false);
-  const [walletApplied, setWalletApplied] = useState(false);
 
   // customer info + erreurs
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -66,7 +65,7 @@ export default function CartView() {
     customerInfo,
     clearCart,
     setErrors,
-    walletApplied
+    false // wallet désactivé
   );
 
   // Initialiser l'email du compte pour les utilisateurs connectés
@@ -89,7 +88,6 @@ export default function CartView() {
   // UI handlers
   const handleCheckout = () => setCheckoutMode(true);
   const handleBack = () => setCheckoutMode(false);
-  const handleWalletApply = () => setWalletApplied(true);
 
   const handleSelectAddress = (addr: Address) => {
     const ALLOWED_COUNTRIES = [
@@ -239,8 +237,6 @@ export default function CartView() {
             isSubmitting={isSubmitting}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
-            walletApplied={walletApplied}
-            onWalletApply={handleWalletApply}
             onGuestAccountCreated={setGuestCustomerId}
           />
         </div>
