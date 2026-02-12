@@ -55,7 +55,7 @@ export async function generateMetadata({
         images: imageUrl ? [imageUrl] : [],
       },
       alternates: {
-        canonical: `https://chanvre-vert.fr/blog/${slug}`,
+        canonical: `https://www.chanvre-vert.fr/blog/${slug}`,
       },
     };
   } catch {
@@ -145,7 +145,7 @@ export default async function BlogPostPage({
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://chanvre-vert.fr/blog/${slug}`,
+      '@id': `https://www.chanvre-vert.fr/blog/${slug}`,
     },
   };
 
