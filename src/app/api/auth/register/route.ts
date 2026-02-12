@@ -31,13 +31,15 @@ export async function POST(request: NextRequest) {
     const data = response?.data as Record<string, unknown> | undefined;
 
     if (!response || response.status < 200 || response.status >= 300) {
-      let errorMessage = "Erreur d'inscription";
-      if (data) {
-        if (typeof data.error === 'string') errorMessage = data.error;
-        else if (data && typeof (data as { message?: string }).message === 'string') errorMessage = (data as { message: string }).message;
+      // Propager la réponse structurée du backend (inclut type, message, details.fields)
+      // pour permettre au frontend d'afficher les erreurs par champ
+      const status = response?.status || 500;
+      if (data && typeof data === 'object') {
+        logger.error('[/api/auth/register] Erreur retournée au client', { status, data });
+        return NextResponse.json(data, { status });
       }
-      logger.error('[/api/auth/register] Erreur retournée au client', { errorMessage });
-      return NextResponse.json({ error: errorMessage }, { status: response?.status || 500 });
+      logger.error('[/api/auth/register] Erreur retournée au client (pas de body)', { status });
+      return NextResponse.json({ error: { message: "Erreur d'inscription" } }, { status });
     }
 
     // Si le backend renvoie un token (même logique que login), on le place en cookie

@@ -1,17 +1,145 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
+
+// ---------------------------------------------------------------------------
+// Validation côté client (miroir de auth.schema.ts backend)
+// ---------------------------------------------------------------------------
+type FieldErrors = Record<string, string>;
+
+function validateForm(data: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  gdprConsent: { termsAccepted: boolean; privacyAccepted: boolean };
+}): FieldErrors {
+  const errors: FieldErrors = {};
+
+  if (!data.firstName.trim()) {
+    errors.firstName = 'Le prénom est requis';
+  } else if (data.firstName.trim().length < 2) {
+    errors.firstName = 'Le prénom doit contenir au moins 2 caractères';
+  }
+
+  if (!data.lastName.trim()) {
+    errors.lastName = 'Le nom est requis';
+  } else if (data.lastName.trim().length < 2) {
+    errors.lastName = 'Le nom doit contenir au moins 2 caractères';
+  }
+
+  if (!data.email.trim()) {
+    errors.email = 'L\'email est requis';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    errors.email = 'Email invalide';
+  }
+
+  if (!data.password) {
+    errors.password = 'Le mot de passe est requis';
+  } else {
+    if (data.password.length < 8) {
+      errors.password = 'Le mot de passe doit contenir au moins 8 caractères';
+    } else if (!/[A-Z]/.test(data.password)) {
+      errors.password = 'Le mot de passe doit contenir au moins une majuscule';
+    } else if (!/[0-9]/.test(data.password)) {
+      errors.password = 'Le mot de passe doit contenir au moins un chiffre';
+    }
+  }
+
+  if (!data.confirmPassword) {
+    errors.confirmPassword = 'La confirmation du mot de passe est requise';
+  } else if (data.password && data.confirmPassword !== data.password) {
+    errors.confirmPassword = 'Les mots de passe ne correspondent pas';
+  }
+
+  if (!data.gdprConsent.termsAccepted) {
+    errors.termsAccepted = 'Vous devez accepter les conditions générales';
+  }
+  if (!data.gdprConsent.privacyAccepted) {
+    errors.privacyAccepted = 'Vous devez accepter la politique de confidentialité';
+  }
+
+  return errors;
+}
+
+// ---------------------------------------------------------------------------
+// Extraction d'erreurs depuis la réponse structurée du backend
+// Format attendu: { error: { type, message, details: { fields: { field: [msg] } } } }
+// ---------------------------------------------------------------------------
+function extractBackendErrors(data: Record<string, unknown>): {
+  fieldErrors: FieldErrors;
+  globalError: string;
+} {
+  const fieldErrors: FieldErrors = {};
+  let globalError = '';
+
+  const error = data.error as Record<string, unknown> | string | undefined;
+
+  if (typeof error === 'string') {
+    globalError = error;
+  } else if (error && typeof error === 'object') {
+    globalError = (error.message as string) || 'Erreur lors de l\'inscription';
+
+    const details = error.details as Record<string, unknown> | undefined;
+    const fields = details?.fields as Record<string, string[]> | undefined;
+
+    if (fields && typeof fields === 'object') {
+      for (const [key, messages] of Object.entries(fields)) {
+        const msg = Array.isArray(messages) ? messages[0] : messages;
+        if (typeof msg === 'string') {
+          // Map backend field paths (e.g. "gdprConsent.termsAccepted") to form field names
+          const fieldKey = key.includes('.') ? key.split('.').pop()! : key;
+          fieldErrors[fieldKey] = msg;
+        }
+      }
+      // If we have per-field errors, clear the global one (the fields are more useful)
+      if (Object.keys(fieldErrors).length > 0) {
+        globalError = '';
+      }
+    }
+  } else if (data.message && typeof data.message === 'string') {
+    globalError = data.message;
+  } else {
+    globalError = 'Erreur lors de l\'inscription';
+  }
+
+  return { fieldErrors, globalError };
+}
+
+// ---------------------------------------------------------------------------
+// Composant d'erreur inline pour un champ
+// ---------------------------------------------------------------------------
+function FieldError({ error, id }: { error?: string; id?: string }) {
+  if (!error) return null;
+  return (
+    <p className="mt-1 text-xs text-red-400" role="alert" id={id}>
+      {error}
+    </p>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Input wrapper avec border d'erreur
+// ---------------------------------------------------------------------------
+function inputClass(hasError: boolean): string {
+  const base = 'w-full px-3 py-2 bg-[#00424A] border rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-colors';
+  return hasError
+    ? `${base} border-red-500 focus:ring-red-500`
+    : `${base} border-[#155757] focus:ring-[#10B981]`;
+}
 
 // Formulaire d'inscription
 function RegisterForm() {
   const router = useRouter();
   const { isAuthenticated, user, loading: authLoading } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [globalError, setGlobalError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [success, setSuccess] = useState('');
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -32,6 +160,16 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const redirectParam = searchParams?.get('redirect');
   const [referralValid, setReferralValid] = useState<null | boolean>(null);
+
+  // Clear field error when user types
+  const clearFieldError = useCallback((fieldName: string) => {
+    setFieldErrors(prev => {
+      if (!prev[fieldName]) return prev;
+      const next = { ...prev };
+      delete next[fieldName];
+      return next;
+    });
+  }, []);
 
   // Validate and track referral code (sets HttpOnly cookie if valid)
   const validateReferral = async (code: string): Promise<boolean> => {
@@ -83,6 +221,9 @@ function RegisterForm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     
+    // Clear field error on change
+    clearFieldError(name);
+    
     if (type === 'checkbox') {
       if (name === 'termsAccepted' || name === 'privacyAccepted') {
         setFormData(prev => ({
@@ -103,26 +244,24 @@ function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Validation de base
-    if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+    // Validation côté client
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setGlobalError('');
       return;
     }
     
-    if (!formData.gdprConsent.termsAccepted || !formData.gdprConsent.privacyAccepted) {
-      setError('Vous devez accepter les conditions générales et la politique de confidentialité');
-      return;
-    }
-
     setIsLoading(true);
-    setError('');
+    setGlobalError('');
+    setFieldErrors({});
 
     try {
       // If referral code provided, validate & set cookie before registering
       if (formData.referralCode) {
         const ok = await validateReferral(formData.referralCode);
         if (!ok) {
-          setError('Code parrainage invalide. Veuillez verifier le code.');
+          setGlobalError('Code parrainage invalide. Veuillez vérifier le code.');
           setIsLoading(false);
           return;
         }
@@ -148,21 +287,11 @@ function RegisterForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        let message = 'Erreur lors de l\'inscription';
-        if (data?.error) {
-          message = typeof data.error === 'string' ? data.error : (data.error?.message || data.message || message);
-          // Essayer d\'extraire une erreur de champ s\'il y en a
-          const fields = data.error?.details?.fields;
-          if (fields && typeof fields === 'object') {
-            const firstKey = Object.keys(fields)[0];
-            const firstVal = fields[firstKey];
-            const firstMsg = Array.isArray(firstVal) ? firstVal[0] : (typeof firstVal === 'string' ? firstVal : undefined);
-            if (firstMsg) message = firstMsg;
-          }
-        } else if (data?.message) {
-          message = data.message;
-        }
-        throw new Error(message);
+        const { fieldErrors: backendFieldErrors, globalError: backendGlobalError } = extractBackendErrors(data);
+        setFieldErrors(backendFieldErrors);
+        setGlobalError(backendGlobalError);
+        setIsLoading(false);
+        return;
       }
 
       // Inscription réussie: tenter une connexion locale via l'API front pour poser le cookie sur le bon domaine
@@ -184,7 +313,7 @@ function RegisterForm() {
       setSuccess('Votre compte a été créé avec succès.');
       setShowModal(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      setGlobalError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setIsLoading(false);
     }
@@ -203,9 +332,9 @@ function RegisterForm() {
     <div className="w-full max-w-md bg-[#002930] rounded-lg shadow-md p-8 border border-[#155757]">
       <h1 className="text-2xl font-bold mb-6 text-center text-white">Créer un compte</h1>
       
-      {error && (
-        <div className="bg-red-900 bg-opacity-25 text-red-300 px-4 py-3 rounded mb-4" role="alert">
-          <span className="block sm:inline">{error}</span>
+      {globalError && (
+        <div className="bg-red-900 bg-opacity-25 text-red-300 px-4 py-3 rounded mb-4" role="alert" data-testid="global-error">
+          <span className="block sm:inline">{globalError}</span>
         </div>
       )}
 
@@ -224,13 +353,7 @@ function RegisterForm() {
         </div>
       )}
 
-      {false && success && (
-        <div className="bg-green-900 bg-opacity-25 text-emerald-300 px-4 py-3 rounded mb-4" role="alert">
-          <span className="block sm:inline">{success} {loggedIn ? 'Vous pouvez accéder à votre espace.' : ''}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label htmlFor="firstName" className="block text-sm font-medium text-[#BEC3CA] mb-1">
@@ -242,9 +365,12 @@ function RegisterForm() {
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
+              className={inputClass(!!fieldErrors.firstName)}
+              aria-invalid={!!fieldErrors.firstName}
+              aria-describedby={fieldErrors.firstName ? 'firstName-error' : undefined}
               required
             />
+            <FieldError error={fieldErrors.firstName} id="firstName-error" />
           </div>
           <div>
             <label htmlFor="lastName" className="block text-sm font-medium text-[#BEC3CA] mb-1">
@@ -256,9 +382,12 @@ function RegisterForm() {
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
-              className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
+              className={inputClass(!!fieldErrors.lastName)}
+              aria-invalid={!!fieldErrors.lastName}
+              aria-describedby={fieldErrors.lastName ? 'lastName-error' : undefined}
               required
             />
+            <FieldError error={fieldErrors.lastName} id="lastName-error" />
           </div>
         </div>
         
@@ -272,9 +401,12 @@ function RegisterForm() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
+            className={inputClass(!!fieldErrors.email)}
+            aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
             required
           />
+          <FieldError error={fieldErrors.email} id="email-error" />
         </div>
         
         <div className="mb-4">
@@ -287,13 +419,19 @@ function RegisterForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
+            className={inputClass(!!fieldErrors.password)}
+            aria-invalid={!!fieldErrors.password}
+            aria-describedby={fieldErrors.password ? 'password-error' : 'password-hint'}
             required
             minLength={8}
           />
-          <p className="mt-1 text-xs text-[#8B93A0]">
-            8 caractères minimum, incluant lettres, chiffres et caractères spéciaux
-          </p>
+          {fieldErrors.password ? (
+            <FieldError error={fieldErrors.password} id="password-error" />
+          ) : (
+            <p className="mt-1 text-xs text-[#8B93A0]" id="password-hint">
+              8 caractères minimum, incluant une majuscule et un chiffre
+            </p>
+          )}
         </div>
         
         <div className="mb-6">
@@ -306,9 +444,12 @@ function RegisterForm() {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full px-3 py-2 bg-[#00424A] border border-[#155757] rounded-md text-[#D1D5DB] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent"
+            className={inputClass(!!fieldErrors.confirmPassword)}
+            aria-invalid={!!fieldErrors.confirmPassword}
+            aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
             required
           />
+          <FieldError error={fieldErrors.confirmPassword} id="confirmPassword-error" />
         </div>
 
         {/* Referral code (optional) */}
@@ -347,12 +488,15 @@ function RegisterForm() {
               name="termsAccepted"
               checked={formData.gdprConsent.termsAccepted}
               onChange={handleChange}
-              className="mt-1 h-4 w-4 text-[#10B981] focus:ring-[#10B981] bg-[#00424A] border-[#155757] rounded"
+              className={`mt-1 h-4 w-4 focus:ring-[#10B981] bg-[#00424A] rounded ${fieldErrors.termsAccepted ? 'border-red-500 text-red-500' : 'border-[#155757] text-[#10B981]'}`}
               required
             />
-            <label htmlFor="termsAccepted" className="ml-2 block text-sm text-[#BEC3CA]">
-              J&apos;accepte les <Link href="/conditions-generales" className="text-[#10B981] hover:text-[#34D399]">conditions générales de vente</Link>
-            </label>
+            <div className="ml-2">
+              <label htmlFor="termsAccepted" className="block text-sm text-[#BEC3CA]">
+                J&apos;accepte les <Link href="/conditions-generales" className="text-[#10B981] hover:text-[#34D399]">conditions générales de vente</Link>
+              </label>
+              <FieldError error={fieldErrors.termsAccepted} id="termsAccepted-error" />
+            </div>
           </div>
           
           <div className="flex items-start">
@@ -362,12 +506,15 @@ function RegisterForm() {
               name="privacyAccepted"
               checked={formData.gdprConsent.privacyAccepted}
               onChange={handleChange}
-              className="mt-1 h-4 w-4 text-[#10B981] focus:ring-[#10B981] bg-[#00424A] border-[#155757] rounded"
+              className={`mt-1 h-4 w-4 focus:ring-[#10B981] bg-[#00424A] rounded ${fieldErrors.privacyAccepted ? 'border-red-500 text-red-500' : 'border-[#155757] text-[#10B981]'}`}
               required
             />
-            <label htmlFor="privacyAccepted" className="ml-2 block text-sm text-[#BEC3CA]">
-              J&apos;accepte la <Link href="/politique-confidentialite" className="text-[#10B981] hover:text-[#34D399]">politique de confidentialité</Link>
-            </label>
+            <div className="ml-2">
+              <label htmlFor="privacyAccepted" className="block text-sm text-[#BEC3CA]">
+                J&apos;accepte la <Link href="/politique-confidentialite" className="text-[#10B981] hover:text-[#34D399]">politique de confidentialité</Link>
+              </label>
+              <FieldError error={fieldErrors.privacyAccepted} id="privacyAccepted-error" />
+            </div>
           </div>
         </div>
         
@@ -423,17 +570,6 @@ function RegisterForm() {
           S&apos;inscrire avec Google
         </a>
       </div>
-
-      {false && success && (
-        <div className="mt-4 flex justify-center">
-          <button
-            onClick={() => { router.push('/compte'); router.refresh(); }}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-md"
-          >
-            Accéder à mon compte
-          </button>
-        </div>
-      )}
       
       <div className="mt-4 text-center">
         <p className="text-sm text-[#BEC3CA]">
@@ -501,4 +637,3 @@ function SuccessModal({
     </div>
   );
 }
-
