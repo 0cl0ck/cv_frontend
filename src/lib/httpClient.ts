@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { secureLogger } from '@/utils/logger';
 
 // Instance axios configurée pour notre API
 // En développement : pointe vers backend PayloadCMS sur port 8080
@@ -72,7 +73,7 @@ httpClient.interceptors.request.use((config) => {
   }
   return config;
 }, (error) => {
-  console.error('[httpClient] Erreur de requête:', error.message);
+  secureLogger.error('[httpClient] Erreur de requête', { message: error.message });
   return Promise.reject(error);
 });
 
@@ -83,7 +84,7 @@ httpClient.interceptors.response.use(
   },
   (error) => {
     if (error.code === 'ERR_NETWORK') {
-      console.error('[httpClient] Erreur réseau - vérifiez CORS/backend:', error);
+      secureLogger.error('[httpClient] Erreur réseau - vérifiez CORS/backend', { code: error.code, message: error.message });
     }
     
     // 401 Unauthorized: retourner comme réponse normale pour éviter les logs d'erreur

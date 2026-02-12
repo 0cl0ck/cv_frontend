@@ -57,14 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
       
       logger.debug('[AuthContext] Vérification authentification');
-      const { data, status } = await httpClient.get('/auth/me', { withCsrf: true });
-
-      if (status === 401) {
-        logger.debug('[AuthContext] Utilisateur non authentifié');
-        setIsAuthenticated(false);
-        setUser(null);
-        return;
-      }
+      const { data } = await httpClient.get('/auth/me', { withCsrf: true });
 
       if (data?.user) {
         logger.debug('[AuthContext] Utilisateur authentifié', { userId: data.user.id });

@@ -144,10 +144,9 @@ const nextConfig = {
   
   // Compiler optimizations
   compiler: {
-    // Remove console.log in production
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
+    // Remove ALL console.* in production client bundle
+    // secureLogger handles real logging; raw console calls must not leak
+    removeConsole: process.env.NODE_ENV === 'production',
   },
   
   // Enable compression
@@ -169,13 +168,13 @@ const nextConfig = {
           value: [
             "default-src 'self'",
             // Scripts: self + Google Tag Manager/Analytics
-            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://vercel.live",
             "style-src 'self' 'unsafe-inline'",
             // Images: inclut Google Analytics tracking pixels
             "img-src 'self' data: https: blob: https://www.google-analytics.com https://www.googletagmanager.com",
             "font-src 'self' data:",
             // Connexions: API + Google Analytics
-            "connect-src 'self' https://api.chanvre-vert.fr https://cv-backend-1-5nru.onrender.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net",
+            "connect-src 'self' https://api.chanvre-vert.fr https://cv-backend-1-5nru.onrender.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://vercel.live",
             "media-src 'self' https://media.chanvre-vert.fr https://*.cloudfront.net",
             "frame-ancestors 'none'"
           ].join('; ')

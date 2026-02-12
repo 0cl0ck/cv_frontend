@@ -82,8 +82,7 @@ const CountryBadge: React.FC<{ origin: string }> = ({ origin }) => {
     <div className="flex items-center gap-1 px-2 py-1 text-xs md:gap-1.5 md:px-3 md:py-1.5 md:text-sm font-semibold text-black" style={{ backgroundColor: '#EFC368' }}>
       {countryData.isoCode && (
         <img 
-          src={`https://flagcdn.com/w20/${countryData.isoCode}.png`}
-          srcSet={`https://flagcdn.com/w40/${countryData.isoCode}.png 2x`}
+          src={`https://flagcdn.com/w40/${countryData.isoCode}.png`}
           width="16" 
           height="12" 
           alt={countryData.desktopName}
