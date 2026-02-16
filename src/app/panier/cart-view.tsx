@@ -190,21 +190,6 @@ export default function CartView() {
 
       <h1 className="text-3xl font-bold mb-8 text-[#F4F8F5]">Votre panier</h1>
 
-      {/* Bannière Saint-Valentin */}
-      <div className="mb-6 bg-gradient-to-r from-pink-600 to-red-600 border border-pink-400/30 rounded-lg p-4 shadow-lg">
-        <div className="flex items-start gap-3">
-          <span className="text-3xl">💝</span>
-          <div className="flex-1">
-            <h3 className="text-white font-bold text-lg mb-1">-20% Saint-Valentin</h3>
-            <p className="text-white/90 text-sm mb-2">
-              Profitez de <span className="text-pink-200 font-bold">-20% de réduction</span> sur tout le site !
-            </p>
-            <p className="text-white/70 text-xs">
-              ✨ Du 7 au 14 février 2026 • Hors packs CBD
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Liste des articles */}
       <CartItemList />
