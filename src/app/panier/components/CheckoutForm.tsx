@@ -2,6 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import { CustomerInfo, FormErrors, PaymentMethod } from '../types';
 
+// Désactivation temporaire du virement bancaire (16/02 au 02/03/2026)
+function isBankTransferDisabled(): boolean {
+  const now = new Date();
+  const start = new Date('2026-02-16T00:00:00+01:00');
+  const end = new Date('2026-03-02T23:59:59+01:00');
+  return now >= start && now <= end;
+}
+
 interface Props {
   customerInfo: CustomerInfo;
   errors: FormErrors;
@@ -114,6 +122,7 @@ export default function CheckoutForm({
             </div>
           </div>
           
+          {!isBankTransferDisabled() && (
           <div 
             className={`p-4 border rounded cursor-pointer ${
               paymentMethod === 'bank_transfer' 
@@ -134,6 +143,7 @@ export default function CheckoutForm({
               </div>
             </div>
           </div>
+          )}
         </div>
         
         {paymentMethod === 'bank_transfer' && (

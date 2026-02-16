@@ -2,9 +2,9 @@ import { CartItem } from '../types/cart';
 
 // Threshold configuration for automatic gifts (order amount after discounts and loyalty)
 export const GIFT_THRESHOLDS = {
-  TIER_1: 50,  // 2g offered
-  TIER_2: 90,  // 10g + 1 pre-roll
-  TIER_3: 160, // 20g + 2 pre-rolls
+  TIER_1: 60,  // 2g offered
+  TIER_2: 100,  // 10g offered
+  TIER_3: 180, // 20g offered
 };
 
 // Unique identifiers for automatic gifts
@@ -42,13 +42,11 @@ export const determineGiftsForSubtotal = (subtotalInEuros: number): CartItem[] =
 
   if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_3) {
     gifts.push(createGiftItem(GIFT_IDS.TIER_3_20G, 'Cadeau: 20g de fleurs CBD'));
-    gifts.push(createGiftItem(GIFT_IDS.TIER_3_PREROLL, 'Cadeau: Pre-roll CBD', 2));
     return gifts;
   }
 
   if (subtotalInEuros >= GIFT_THRESHOLDS.TIER_2) {
     gifts.push(createGiftItem(GIFT_IDS.TIER_2_10G, 'Cadeau: 10g de fleurs CBD'));
-    gifts.push(createGiftItem(GIFT_IDS.TIER_2_PREROLL, 'Cadeau: Pre-roll CBD'));
     return gifts;
   }
 

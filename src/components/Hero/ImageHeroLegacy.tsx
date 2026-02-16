@@ -45,13 +45,13 @@ export default function ImageHeroLegacy() {
                 </span>
               </p>
               <p className="text-xs text-white/90">
-                50 EUR : Livraison offerte* + 2g offerts / 90 EUR : Livraison offerte* + 10g + 1 pre-roll / 160 EUR : Livraison offerte* + 20g + 2 pre-rolls
+                60 EUR : Livraison offerte* + 2g offerts / 100 EUR : Livraison offerte* + 10g offerts / 180 EUR : Livraison offerte* + 20g offerts
               </p>
               <p className="text-[10px] text-white/70 uppercase tracking-wider">
                 Montant calcule apres remises et fidelite
               </p>
               <p className="text-[10px] text-white/60 italic mt-1">
-                * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
+                * Livraison offerte à partir de 60 EUR pour la France, 200 EUR pour les autres pays.
               </p>
             </div>
           </div>
@@ -80,15 +80,15 @@ export default function ImageHeroLegacy() {
               Livraison offerte* + cadeaux
             </p>
             <ul className="mt-3 space-y-1 text-sm text-white/90">
-              <li>50 EUR : Livraison offerte* + 2g offerts</li>
-              <li>90 EUR : Livraison offerte* + 10g offerts + 1 pre-roll</li>
-              <li>160 EUR : Livraison offerte* + 20g offerts + 2 pre-rolls</li>
+              <li>60 EUR : Livraison offerte* + 2g offerts</li>
+              <li>100 EUR : Livraison offerte* + 10g offerts</li>
+              <li>180 EUR : Livraison offerte* + 20g offerts</li>
             </ul>
             <p className="text-xs mt-3 text-white/70 uppercase tracking-wider">
               Montant calcule apres remises et fidelite
             </p>
             <p className="text-xs mt-2 text-white/60 italic">
-              * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
+              * Livraison offerte à partir de 60 EUR pour la France, 200 EUR pour les autres pays.
             </p>
           </div>
         </div>

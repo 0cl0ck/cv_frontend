@@ -85,7 +85,7 @@ function DefaultHeroCard() {
         Cadeaux offerts selon le montant du panier après remises
       </p>
       <p className="mt-2 text-[10px] md:text-xs text-white/70 italic text-center md:text-left">
-        * Livraison offerte à partir de 50 EUR pour la France, 200 EUR pour les autres pays.
+        * Livraison offerte à partir de 60 EUR pour la France, 200 EUR pour les autres pays.
       </p>
     </div>
   );

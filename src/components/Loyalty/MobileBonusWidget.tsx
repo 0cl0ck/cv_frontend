@@ -20,19 +20,19 @@ const BONUS_TIERS: BonusTier[] = [
   {
     amount: GIFT_THRESHOLDS.TIER_1,
     label: '2g offerts',
-    description: 'A partir de 50 EUR de panier',
+    description: 'A partir de 60 EUR de panier',
     totalGifts: 2,
   },
   {
     amount: GIFT_THRESHOLDS.TIER_2,
-    label: '10g + 1 pre-roll',
-    description: 'A partir de 90 EUR de panier',
+    label: '10g offerts',
+    description: 'A partir de 100 EUR de panier',
     totalGifts: 10,
   },
   {
     amount: GIFT_THRESHOLDS.TIER_3,
-    label: '20g + 2 pre-rolls',
-    description: 'A partir de 160 EUR de panier',
+    label: '20g offerts',
+    description: 'A partir de 180 EUR de panier',
     totalGifts: 20,
   },
 ];
@@ -81,9 +81,9 @@ function summarizeAutomaticGifts(
 
   let headline = '';
   if (hasTier3) {
-    headline = '20g + 2 pre-rolls offerts';
+    headline = '20g de fleurs CBD offerts';
   } else if (hasTier2) {
-    headline = '10g + 1 pre-roll offerts';
+    headline = '10g de fleurs CBD offerts';
   } else if (hasTier1) {
     headline = '2g de fleurs CBD offerts';
   }
@@ -103,16 +103,16 @@ function computeGifts(subtotal: number): GiftBreakdown {
   if (subtotal >= GIFT_THRESHOLDS.TIER_3) {
     return {
       grams: 20,
-      headline: '20g + 2 pre-rolls offerts',
-      perks: ['20g de fleurs CBD', '2 pre-rolls CBD'],
+      headline: '20g de fleurs CBD offerts',
+      perks: ['20g de fleurs CBD'],
     };
   }
 
   if (subtotal >= GIFT_THRESHOLDS.TIER_2) {
     return {
       grams: 10,
-      headline: '10g + 1 pre-roll offerts',
-      perks: ['10g de fleurs CBD', '1 pre-roll CBD'],
+      headline: '10g de fleurs CBD offerts',
+      perks: ['10g de fleurs CBD'],
     };
   }
 
@@ -583,32 +583,7 @@ export default function MobileBonusWidget() {
                   );
                 })}
               </div>
-              {/* Cashback de Noël - Période du 20-31 décembre */}
-              <div className="mt-4 rounded-2xl border border-[#EFC368]/30 bg-gradient-to-r from-[#1a472a]/30 to-[#8B0000]/20 p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg">💰</span>
-                  <span className="text-xs font-semibold text-[#EFC368] uppercase tracking-wide">
-                    Cashback Noël
-                  </span>
-                </div>
-                <p className="text-[11px] text-white/70 mb-2">
-                  Bonus en cagnotte utilisable en janvier !
-                </p>
-                <div className="grid grid-cols-3 gap-1 text-center">
-                  <div className="bg-black/20 rounded-lg py-1.5 px-1">
-                    <p className="text-white text-[10px] font-medium">25€</p>
-                    <p className="text-green-400 text-xs font-bold">→ 5€</p>
-                  </div>
-                  <div className="bg-black/20 rounded-lg py-1.5 px-1">
-                    <p className="text-white text-[10px] font-medium">50€</p>
-                    <p className="text-green-400 text-xs font-bold">→ 10€</p>
-                  </div>
-                  <div className="bg-black/20 rounded-lg py-1.5 px-1">
-                    <p className="text-white text-[10px] font-medium">100€</p>
-                    <p className="text-green-400 text-xs font-bold">→ 20€</p>
-                  </div>
-                </div>
-              </div>
+
 
               <div className="mt-4 flex flex-col gap-2 text-xs text-white/60">
                 <span>Cadeaux automatiquement ajoutes au panier.</span>
