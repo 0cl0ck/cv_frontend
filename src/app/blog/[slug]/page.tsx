@@ -5,10 +5,10 @@ import Link from 'next/link';
 import Script from 'next/script';
 import { getPostBySlug, getAllPostSlugs } from '@/services/api';
 import { extractHeadings, shouldShowTableOfContents } from '@/lib/lexical-utils';
-import { TableOfContents, RelatedProducts, BlogRichText } from '@/components/Blog';
+import { TableOfContents, RelatedProducts, RelatedPosts, BlogRichText } from '@/components/Blog';
 import { ExpertAuthorCard } from '@/components/solutions/ExpertAuthorCard';
 import type { Product } from '@/types/product';
-import type { LexicalRoot, ExpertAuthor } from '@/types/blog';
+import type { LexicalRoot, ExpertAuthor, PostRef } from '@/types/blog';
 
 // ISR: revalider toutes les heures
 export const revalidate = 3600;
@@ -100,6 +100,11 @@ export default async function BlogPostPage({
   // Récupérer les produits liés (filtrés pour n'avoir que les objets résolus)
   const relatedProducts = (post.relatedProducts || []).filter(
     (p): p is Product => typeof p === 'object' && p !== null && 'name' in p
+  );
+
+  // Récupérer les articles liés (filtrés pour n'avoir que les objets résolus)
+  const relatedPosts = (post.relatedPosts || []).filter(
+    (p): p is PostRef => typeof p === 'object' && p !== null && 'title' in p
   );
 
   // Récupérer les catégories liées
@@ -255,6 +260,11 @@ export default async function BlogPostPage({
           {/* Produits liés */}
           {relatedProducts.length > 0 && (
             <RelatedProducts products={relatedProducts} />
+          )}
+
+          {/* Articles liés (Cluster SEO) */}
+          {relatedPosts.length > 0 && (
+            <RelatedPosts posts={relatedPosts} />
           )}
 
           {/* Navigation */}
