@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useProductSearch } from "@/hooks/useProductSearch";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ProductCard } from "@/components/ProductCard/ProductCard";
 import CategoryFilter from "@/components/CategoryFilter/CategoryFilter";
 import Pagination from "@/components/Pagination/Pagination";

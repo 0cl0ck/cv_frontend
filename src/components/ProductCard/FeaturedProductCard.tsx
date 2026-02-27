@@ -3,7 +3,7 @@
 import { Product } from '@/types/product';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 import { IconLeaf } from '@tabler/icons-react';
 

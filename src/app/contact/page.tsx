@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { IconMapPin, IconPhone, IconClock, IconMail, IconBuildingStore, IconBrandFacebook, IconBrandInstagram, IconExternalLink, IconStar } from '@tabler/icons-react';
 import ContactForm from '@/components/Contact/ContactForm';
 import Link from 'next/link';

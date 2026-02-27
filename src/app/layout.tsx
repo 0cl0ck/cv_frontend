@@ -7,14 +7,8 @@ import Footer from "@/components/Footer/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import CsrfInitializer from "@/components/CsrfInitializer";
-// ResourcePreload supprimé - causait des warnings "preloaded but not used"
-// Les fonts sont gérées via next/font avec display:swap
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
-import FontLoader from "@/components/Performance/FontLoader";
-import AgeVerificationModal from '@/components/AgeVerificationModal/AgeVerificationModal';
-import MobileBonusWidget from '@/components/Loyalty/MobileBonusWidget';
-import { JanuaryBanner } from '@/components/Christmas';
-// OAuthExchange removed - handled by dedicated /compte/oauth page
+import DynamicWidgets from "@/components/DynamicWidgets";
 
 import { getCategories, fallbackCategories } from "@/services/api";
 
@@ -60,7 +54,7 @@ export default async function RootLayout({
   // criticalResources et ResourcePreload supprimés - voir commentaire ligne 10
 
   return (
-    <html lang="fr" className="optimize-fonts">
+    <html lang="fr">
       <GoogleTagManager gtmId="GTM-M3HTFJZD" />
       <GoogleAnalytics gaId="G-9HWW8S63HD" />
       <head>
@@ -68,31 +62,6 @@ export default async function RootLayout({
         <meta name="theme-color" content="#126E62" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
 
-        {/* Optimize font loading with minimal FOUT */}
-        <style dangerouslySetInnerHTML={{
-          __html: `
-          /* Prevent Flash of Unstyled Text with font-display strategy */
-          @font-face {
-            font-family: 'Geist';
-            font-display: swap;
-          }
-          @font-face {
-            font-family: 'Geist Mono';
-            font-display: swap;
-          }
-          
-          /* Hide content briefly until fonts load or timeout */
-          .optimize-fonts:not(.fonts-loaded) .fonts-sensitive {
-            /* Only apply to text that's visually critical */
-            opacity: 0.99;
-          }
-          
-          /* Apply once fonts are loaded */
-          .fonts-loaded .fonts-sensitive {
-            opacity: 1;
-          }
-        ` }} />
-        
         {/* Organization JSON-LD for rich snippets */}
         <script
           type="application/ld+json"
@@ -128,16 +97,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-950 text-gray-50`}
       >
-        {/* Preload supprimé */}
-        <AgeVerificationModal />
         <AuthProvider>
           <CartProvider>
-            <FontLoader />
             <CsrfInitializer />
+            <DynamicWidgets />
 
             <Header initialCategories={initialCategories} />
-            <JanuaryBanner />
-            <MobileBonusWidget />
             <main className="flex-grow bg-[#001E27]">
               {children}
             </main>

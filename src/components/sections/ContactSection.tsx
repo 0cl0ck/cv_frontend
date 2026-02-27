@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ContactForm from '@/components/Contact/ContactForm';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 const ContactSection = () => {
   return (

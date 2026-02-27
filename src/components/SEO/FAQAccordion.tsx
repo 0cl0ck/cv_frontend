@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { FAQItem, RichTextContent } from '@/types/product';
 import { RichTextRenderer } from '@/components/RichTextRenderer/RichTextRenderer';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface FAQAccordionProps {
   items: FAQItem[];

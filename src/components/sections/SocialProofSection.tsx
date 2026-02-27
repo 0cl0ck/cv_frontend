@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { IconMapPin, IconStar, IconStarFilled, IconArrowUpRight, IconMessageCircle2 } from '@tabler/icons-react';
 import testimonialData from '@/data/testimonials.json';
 

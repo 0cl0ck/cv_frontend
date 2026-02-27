@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/utils/utils";
 import useSWR from "swr";
 import type { Category } from "@/types/product";
 import {
@@ -21,7 +21,7 @@ import { getCategories, fallbackCategories } from "@/services/api";
 import MobileMenu from "./MobileMenu";
 import UserAccountMenu from "./UserAccountMenu";
 import { GlobalSearch } from "@/components/GlobalSearch/GlobalSearch";
-import { cn } from "@/utils/utils";
+
 
 type NavChild = {
   name: string;
@@ -45,14 +45,7 @@ type HeaderProps = {
   initialCategories?: Category[];
 };
 
-const springTransition = {
-  type: "spring",
-  mass: 0.5,
-  damping: 11.5,
-  stiffness: 100,
-  restDelta: 0.001,
-  restSpeed: 0.001,
-};
+
 
 const mapCategoryToNavChild = (category: Category): NavChild => {
   const rawImage = category.image;
@@ -376,22 +369,20 @@ const MenuItem: React.FC<MenuItemProps> = ({ setActive, active, item, children, 
         />
       </Link>
 
-      <AnimatePresence>
-        {isActive && children ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: 12 }}
-            transition={springTransition}
-            className="absolute left-1/2 top-[calc(100%+0.75rem)] z-40 -translate-x-1/2"
-            onMouseEnter={() => setActive(item)}
-          >
-            <motion.div className="overflow-hidden rounded-2xl border border-white/10 bg-[#012730] shadow-2xl backdrop-blur">
-              {children}
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {/* CSS transition dropdown - replaces framer-motion for perf */}
+      <div
+        className={cn(
+          "absolute left-1/2 top-[calc(100%+0.75rem)] z-40 -translate-x-1/2 transition-all duration-200 ease-out",
+          isActive && children
+            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 scale-95 translate-y-3 pointer-events-none",
+        )}
+        onMouseEnter={() => setActive(item)}
+      >
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#012730] shadow-2xl backdrop-blur">
+          {children}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
-'use client';
 import Image from 'next/image';
 import Link from "next/link";
+import ValentineButton from './ValentineButton';
 
 type Cta = {
   text: string;
@@ -13,7 +13,6 @@ interface HeroProps {
   description?: string;
   primaryCTA?: Cta;
   secondaryCTA?: Cta;
-  videoUrl?: string;
   imageUrl?: string;
 }
 
@@ -103,32 +102,24 @@ export default function ImageHero({
     text: "En savoir plus",
     href: "/a-propos",
   },
-  // videoUrl supprimé - vidéo désactivée pour janvier
   imageUrl = "/images/hero/HeroHiver.webp",
 }: HeroProps = {}) {
   // Affichage card spéciale basé sur la période
   const showValentine = isValentinePeriod();
 
-  // Vidéo désactivée pour janvier
-  const showVideo = false;
-  const videoLoaded = false;
-
   return (
     <section className="relative min-h-[70vh] md:min-h-[600px] overflow-hidden">
       <div className="absolute inset-0 z-0">
-        {/* Image de fond - toujours présente comme fallback */}
+        {/* Image de fond */}
         <Image
           src={imageUrl}
           alt="CBD Premium - Chanvre Vert"
           fill
           sizes="100vw"
-          className={`object-cover object-center md:object-right transition-opacity duration-500 ${showVideo && videoLoaded ? 'opacity-0' : 'opacity-100'
-            }`}
+          className="object-cover object-center md:object-right"
           priority
           quality={85}
         />
-
-        {/* Vidéo désactivée pour janvier */}
 
         <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black/80 via-black/60 to-black/30 md:to-transparent" />
       </div>
@@ -150,18 +141,8 @@ export default function ImageHero({
             {showValentine ? <ValentineHeroCard /> : <DefaultHeroCard />}
           </div>
 
-          {/* Bouton Valentine mobile - ouvre la modale */}
-          {showValentine && (
-            <button
-              onClick={() => window.dispatchEvent(new CustomEvent('open-valentine-modal'))}
-              className="md:hidden absolute top-4 right-4 flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-pink-500 to-red-500 rounded-full border border-pink-300/50 shadow-lg animate-pulse hover:animate-none hover:scale-105 transition-transform"
-              aria-label="Voir les offres Saint-Valentin"
-            >
-              <span className="text-xl">💝</span>
-              <span className="text-xs font-bold text-white">-20%</span>
-              <span className="text-xl">🌹</span>
-            </button>
-          )}
+          {/* Bouton Valentine mobile - ouvre la modale (client component) */}
+          {showValentine && <ValentineButton />}
 
           {/* Contenu texte principal */}
           <div className="max-w-2xl text-white order-last md:order-first text-center md:text-left">
