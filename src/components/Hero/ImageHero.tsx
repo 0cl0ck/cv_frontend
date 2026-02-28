@@ -22,7 +22,7 @@ function isValentinePeriod(): boolean {
   const year = now.getFullYear();
   const month = now.getMonth(); // 0-indexed (février = 1)
   const day = now.getDate();
-  
+
   // Février 2026, du 7 au 14
   return year === 2026 && month === 1 && day >= 7 && day <= 14;
 }
@@ -91,9 +91,9 @@ function DefaultHeroCard() {
 }
 
 export default function ImageHero({
-  title = "avec du CBD premium certifié",
-  subtitle = "Boostez votre bien-être",
-  description = "Découvrez huiles, fleurs et infusions triées pour votre équilibre, traçabilité claire, livraison express.",
+  title = "CBD de qualité, livré chez vous",
+  subtitle = "Votre bien-être au naturel",
+  description = "Fleurs, huiles et infusions CBD certifiées, testées en laboratoire. Livraison express 24-48h en France.",
   primaryCTA = {
     text: "Découvrir nos produits",
     href: "/produits",

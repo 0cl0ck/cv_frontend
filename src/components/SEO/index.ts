@@ -4,3 +4,5 @@ export { default as FAQSchema } from './FAQSchema';
 export { default as SEOContentSection } from './SEOContentSection';
 export { default as BreadcrumbSchema, generateBreadcrumbs } from './BreadcrumbSchema';
 export { default as CollectionPageSchema } from './CollectionPageSchema';
+export { default as WebSiteSchema } from './WebSiteSchema';
+export { default as LocalBusinessSchema } from './LocalBusinessSchema';
