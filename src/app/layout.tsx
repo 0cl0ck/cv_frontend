@@ -70,8 +70,8 @@ export default async function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "Chanvre Vert",
-              "url": "https://chanvre-vert.fr",
-              "logo": "https://chanvre-vert.fr/logo.png",
+              "url": "https://www.chanvre-vert.fr",
+              "logo": "https://www.chanvre-vert.fr/logo.png",
               "description": "Spécialiste du CBD en France - Fleurs, huiles, infusions et résines de haute qualité",
               "address": {
                 "@type": "PostalAddress",

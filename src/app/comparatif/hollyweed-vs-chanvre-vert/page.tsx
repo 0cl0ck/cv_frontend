@@ -9,7 +9,7 @@ import { LegalDisclaimer } from '@/components/solutions/LegalDisclaimer'
 // METADATA (SEO-Optimized for comparative keywords)
 // ============================================================
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://chanvre-vert.fr'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr'
 const PAGE_PATH = '/comparatif/hollyweed-vs-chanvre-vert'
 
 export const metadata: Metadata = {

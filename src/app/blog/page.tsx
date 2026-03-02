@@ -86,12 +86,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   <ul className="space-y-3">
                     {pillarPosts.docs.map((post) => (
                       <li key={post.id}>
-                        <a
+                        <Link
                           href={`/blog/${post.slug}`}
                           className="block text-sm text-white/80 transition-colors hover:text-[#EFC368]"
                         >
                           {post.title}
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>

@@ -6,6 +6,7 @@ import Script from 'next/script';
 import { getPostBySlug, getAllPostSlugs } from '@/services/api';
 import { extractHeadings, shouldShowTableOfContents } from '@/lib/lexical-utils';
 import { TableOfContents, RelatedProducts, RelatedPosts, BlogRichText } from '@/components/Blog';
+import { BreadcrumbSchema, generateBreadcrumbs } from '@/components/SEO';
 import { ExpertAuthorCard } from '@/components/solutions/ExpertAuthorCard';
 import type { Product } from '@/types/product';
 import type { LexicalRoot, ExpertAuthor, PostRef } from '@/types/blog';
@@ -145,7 +146,7 @@ export default async function BlogPostPage({
       name: 'Chanvre Vert',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://chanvre-vert.fr/logo.png',
+        url: 'https://www.chanvre-vert.fr/logo.png',
       },
     },
     mainEntityOfPage: {
@@ -157,6 +158,10 @@ export default async function BlogPostPage({
   return (
     <>
       {/* JSON-LD */}
+      <BreadcrumbSchema items={generateBreadcrumbs('https://www.chanvre-vert.fr', [
+        { name: 'Blog', path: '/blog' },
+        { name: post.title, path: `/blog/${slug}` },
+      ])} />
       <Script
         id="article-jsonld"
         type="application/ld+json"

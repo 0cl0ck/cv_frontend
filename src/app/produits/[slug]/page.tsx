@@ -6,6 +6,7 @@ import { getProductBySlug, getRelatedProducts, getCategories } from "@/services/
 import ProductDetailView from "./product-detail-view";
 import { config } from "@/config/site";
 import { RichTextContent } from "@/types/product";
+import { BreadcrumbSchema, generateBreadcrumbs } from '@/components/SEO';
 
 // ISR: Revalidate pages every hour
 export const revalidate = 3600;
@@ -98,10 +99,10 @@ export async function generateMetadata({
       description: 'Découvrez nos produits CBD de qualité premium.',
     };
   }
-  const descriptionText =
-    typeof product.description === "string"
-      ? product.description
-      : `Découvrez notre produit ${product.name}`;
+  const descriptionText = extractTextFromRichText(product.description);
+  const metaDescription = descriptionText.length > 0
+    ? descriptionText.substring(0, 160)
+    : `Découvrez ${product.name} - CBD de qualité premium chez Chanvre Vert`;
   const imageUrl =
     product.mainImage?.url || 
     (product.galleryImages?.[0]?.image && typeof product.galleryImages[0].image !== 'string' 
@@ -112,13 +113,13 @@ export async function generateMetadata({
 
   return {
     title: `${product.name} | Chanvre Vert`,
-    description: descriptionText,
+    description: metaDescription,
     alternates: {
       canonical: `https://www.chanvre-vert.fr/produits/${product.slug}`,
     },
     openGraph: {
       title: `${product.name} | Chanvre Vert`,
-      description: descriptionText,
+      description: metaDescription,
       images: imageUrl
         ? [{ url: imageUrl, width: 1200, height: 630, alt: product.name }]
         : [],
@@ -127,7 +128,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       site: `@${config.social.twitter}`,
       title: `${product.name} | Chanvre Vert`,
-      description: descriptionText,
+      description: metaDescription,
       images: imageUrl ? [imageUrl] : [],
     },
   };
@@ -277,8 +278,12 @@ export default async function ProductPage({
     }),
   };
 
-  return (
+    return (
     <>
+      <BreadcrumbSchema items={generateBreadcrumbs('https://www.chanvre-vert.fr', [
+        { name: 'Produits', path: '/produits' },
+        { name: product.name, path: `/produits/${product.slug}` },
+      ])} />
       <Script
         id="product-jsonld"
         type="application/ld+json"

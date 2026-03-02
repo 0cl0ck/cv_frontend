@@ -7,7 +7,7 @@ import Image from 'next/image';
 // ============================================================
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://chanvre-vert.fr';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;

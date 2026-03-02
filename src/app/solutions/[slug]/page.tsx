@@ -7,6 +7,7 @@ import Script from 'next/script'
 import { LegalDisclaimer } from '@/components/solutions/LegalDisclaimer'
 import { ExpertAuthorCard } from '@/components/solutions/ExpertAuthorCard'
 import { BlogRichText } from '@/components/Blog'
+import { BreadcrumbSchema, generateBreadcrumbs } from '@/components/SEO'
 import { ProductCard } from '@/components/ProductCard/ProductCard'
 import type { Product } from '@/types/product'
 
@@ -15,7 +16,7 @@ import type { Product } from '@/types/product'
 // ============================================================
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://chanvre-vert.fr'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.chanvre-vert.fr'
 
 // ISR: Revalidate every hour
 export const revalidate = 3600
@@ -313,6 +314,10 @@ export default async function SolutionPage({
   return (
     <>
       {/* JSON-LD Scripts */}
+      <BreadcrumbSchema items={generateBreadcrumbs(SITE_URL, [
+        { name: 'Solutions', path: '/solutions' },
+        { name: useCase.title, path: `/solutions/${slug}` },
+      ])} />
       <Script
         id="article-jsonld"
         type="application/ld+json"
