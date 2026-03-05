@@ -7,9 +7,14 @@ import { generatePageMetadata } from '@/lib/metadata';
 import { getCategories, fallbackCategories } from '@/services/api';
 import type { Category } from '@/types/product';
 import { WebSiteSchema, LocalBusinessSchema, BreadcrumbSchema } from '@/components/SEO';
+import {
+  CategoryGridEnhanced,
+  FeaturesBannerEnhanced,
+  StatsGridEnhanced,
+  SocialProofEnhanced,
+} from '@/components/sections/HomepageEnhanced';
 
 import Link from 'next/link';
-import Image from 'next/image';
 
 // ISR: Revalidate every hour (3600 seconds)
 export const revalidate = 3600;
@@ -48,6 +53,14 @@ async function CategoryGrid() {
     categories = fallbackCategories;
   }
 
+  // Prepare serializable data for client component
+  const categoryItems = categories.map((category) => ({
+    id: category.id,
+    slug: category.slug,
+    name: category.name,
+    imageUrl: getCategoryImageUrl(category),
+  }));
+
   return (
     <section className="relative overflow-hidden bg-[#00333e] py-16">
       <div className="absolute top-0 left-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#004942] opacity-5" />
@@ -70,32 +83,7 @@ async function CategoryGrid() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category) => (
-            <Link key={category.id} href={`/produits/categorie/${category.slug}`} className="block group">
-              <div className="relative flex flex-col overflow-hidden rounded-lg bg-[#004942] shadow-md transition-transform duration-300 hover:scale-[1.02]">
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <Image
-                    src={getCategoryImageUrl(category)}
-                    alt={category.name}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#004942] to-transparent opacity-30 group-hover:opacity-50 transition-opacity" />
-                </div>
-                <div className="flex flex-grow items-center justify-between p-4">
-                  <h3 className="text-lg font-medium text-white">{category.name}</h3>
-                  <div className="rounded-full bg-white/10 p-2 text-white group-hover:bg-white/20 transition-colors">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <CategoryGridEnhanced categories={categoryItems} />
 
         <div className="mt-8 text-center sm:hidden">
           <Link
@@ -113,7 +101,7 @@ async function CategoryGrid() {
   );
 }
 
-// SSR Features Banner
+// SSR Features Banner — enhanced with WobbleCard
 function FeaturesBanner() {
   const features = [
     { id: '1', title: 'Produits 100% naturels', description: "Tous nos produits sont issus d'agriculture biologique, sans pesticides ni additifs.", icon: '🌿' },
@@ -135,26 +123,13 @@ function FeaturesBanner() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature) => (
-            <div key={feature.id} className="relative flex flex-col overflow-hidden rounded-lg bg-[#023440] p-6 shadow-md border border-[#004942]/20 h-full">
-              <div className="absolute top-0 left-0 h-1 bg-[#004942] w-full" />
-              <div className="mx-auto mb-4 p-4 rounded-full bg-[#004942]/40 text-white text-2xl">
-                {feature.icon}
-              </div>
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-                <p className="text-white/80 text-sm">{feature.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <FeaturesBannerEnhanced features={features} />
       </div>
     </section>
   );
 }
 
-// SSR Social Proof Section
+// SSR Social Proof Section — enhanced with CardSpotlight
 function SocialProofSection() {
   const stores = [
     {
@@ -187,53 +162,7 @@ function SocialProofSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {stores.map(store => (
-            <div key={store.name} className="bg-[#00454f] rounded-lg overflow-hidden shadow-lg flex flex-col h-full">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-white">{store.name}</h3>
-                    <div className="flex items-center text-white/80 mt-1">
-                      <span className="text-sm">📍 {store.location}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span key={star} className="text-yellow-400">
-                        {star <= store.rating ? '★' : '☆'}
-                      </span>
-                    ))}
-                    <span className="ml-2 text-white font-medium">{store.rating.toFixed(1)}</span>
-                  </div>
-                  <p className="text-white/70 text-sm mt-1">
-                    Basé sur {store.reviewCount} avis
-                  </p>
-                </div>
-
-                <div className="mt-4 bg-[#003945] p-4 rounded-lg">
-                  <p className="text-white/90 italic text-sm">&quot;{store.reviewText}&quot;</p>
-                  <p className="text-white/70 text-sm mt-2">- {store.reviewAuthor}</p>
-                </div>
-              </div>
-
-              <div className="mt-auto p-4 border-t border-[#005965]">
-                <a
-                  href={store.googleLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between text-white hover:text-green-300 transition-colors"
-                >
-                  <span>Voir tous les avis sur Google</span>
-                  <span>↗</span>
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
+        <SocialProofEnhanced stores={stores} />
 
         <div className="mt-12 text-center">
           <p className="text-white/70 text-sm max-w-2xl mx-auto">
@@ -362,13 +291,13 @@ function HomepageFAQ() {
   );
 }
 
-// CBD Expertise & Statistics Section
+// CBD Expertise & Statistics Section — enhanced with AnimatedCounter
 function CBDExpertise() {
   const stats = [
-    { value: '4.9/5', label: 'Note Google', detail: 'Sur 180+ avis clients vérifiés' },
-    { value: '100%', label: 'Testés en labo', detail: 'Analyses indépendantes certifiées' },
-    { value: '<0,3%', label: 'THC garanti', detail: 'Conforme à la législation européenne' },
-    { value: '24-48h', label: 'Livraison', detail: 'Expédition express France métropolitaine' },
+    { value: '4.9/5', numericValue: 4.9, suffix: '/5', decimals: 1, label: 'Note Google', detail: 'Sur 180+ avis clients vérifiés' },
+    { value: '100%', numericValue: 100, suffix: '%', decimals: 0, label: 'Testés en labo', detail: 'Analyses indépendantes certifiées' },
+    { value: '<0,3%', numericValue: 0.3, prefix: '<', suffix: '%', decimals: 1, label: 'THC garanti', detail: 'Conforme à la législation européenne' },
+    { value: '24-48h', numericValue: 48, suffix: 'h', decimals: 0, label: 'Livraison', detail: 'Expédition express France métropolitaine' },
   ];
 
   return (
@@ -384,16 +313,8 @@ function CBDExpertise() {
           </p>
         </div>
 
-        {/* Statistics Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center p-6 bg-[#023440] rounded-lg border border-[#004942]/30">
-              <div className="text-3xl md:text-4xl font-bold text-[#EFC368] mb-2">{stat.value}</div>
-              <div className="text-white font-medium mb-1">{stat.label}</div>
-              <div className="text-white/60 text-sm">{stat.detail}</div>
-            </div>
-          ))}
-        </div>
+        {/* Statistics Grid — animated counters */}
+        <StatsGridEnhanced stats={stats} />
 
         {/* Expert Content */}
         <div className="max-w-4xl mx-auto">

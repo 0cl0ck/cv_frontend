@@ -218,7 +218,7 @@ export default function Header({ initialCategories }: HeaderProps): JSX.Element 
 
       <div
         className={cn(
-          "md:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-500 ease-in-out",
+          "lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-500 ease-in-out",
           menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         )}
         onClick={() => setMenuOpen(false)}
@@ -258,7 +258,7 @@ const DesktopNav: React.FC<DesktopNavProps> = ({
   const isOnProductListingPage = pathname === '/produits' || pathname?.startsWith('/produits/categorie');
 
   return (
-    <div className="hidden items-center justify-between py-4 md:flex">
+    <div className="hidden items-center justify-between py-4 lg:flex">
       <Logo />
 
       <div className="flex items-center gap-8">
@@ -372,7 +372,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ setActive, active, item, children, 
       {/* CSS transition dropdown - replaces framer-motion for perf */}
       <div
         className={cn(
-          "absolute left-1/2 top-[calc(100%+0.75rem)] z-40 -translate-x-1/2 transition-all duration-200 ease-out",
+          "absolute left-1/2 top-full z-40 -translate-x-1/2 transition-all duration-200 ease-out pt-3",
           isActive && children
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
             : "opacity-0 scale-95 translate-y-3 pointer-events-none",
@@ -443,7 +443,7 @@ type MobileTopbarProps = {
 
 const MobileTopbar: React.FC<MobileTopbarProps> = ({ menuOpen, setMenuOpen, cartCount, isAuthenticated }) => {
   return (
-    <div className="relative flex items-center justify-between py-4 md:hidden">
+    <div className="relative flex items-center justify-between py-4 lg:hidden">
       <button
         onClick={() => setMenuOpen(!menuOpen)}
         className="rounded-lg bg-white/10 p-2 text-white transition-colors hover:bg-white/20"

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from "next/link";
 import ValentineButton from './ValentineButton';
+import { HeroTextAnimated } from './HeroTextAnimated';
 
 type Cta = {
   text: string;
@@ -134,10 +135,10 @@ export default function ImageHero({
         />
       </div>
 
-      <div className="relative z-20 mx-auto flex min-h-[70vh] md:min-h-[600px] max-w-7xl items-center px-4 py-8 md:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row w-full gap-6 md:gap-8 items-center md:items-center">
-          {/* Card dynamique - Valentine ou standard - CACHÉE sur mobile (la modale suffit) */}
-          <div className="hidden md:block w-full md:w-auto md:ml-auto order-first md:order-last">
+      <div className="relative z-20 mx-auto flex min-h-[70vh] lg:min-h-[600px] max-w-7xl items-center px-4 py-8 md:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row w-full gap-6 lg:gap-8 items-center lg:items-center">
+          {/* Card dynamique - Valentine ou standard - CACHÉE sauf desktop */}
+          <div className="hidden lg:block w-full lg:w-auto lg:ml-auto order-first lg:order-last">
             {showValentine ? <ValentineHeroCard /> : <DefaultHeroCard />}
           </div>
 
@@ -145,24 +146,23 @@ export default function ImageHero({
           {showValentine && <ValentineButton />}
 
           {/* Contenu texte principal */}
-          <div className="max-w-2xl text-white order-last md:order-first text-center md:text-left">
-            <h1 className="mb-4 md:mb-6 text-[32px] sm:text-[40px] md:text-[48px] lg:text-[60px] font-bold leading-[1.1] tracking-[-0.01em] text-white">
-              <span className="block whitespace-nowrap">{subtitle}</span>
-              <span className="block text-[#EFC368]">{title}</span>
+          <div className="max-w-2xl text-white order-last lg:order-first text-center lg:text-left">
+            <h1 className="mb-4 md:mb-6 text-[26px] sm:text-[40px] md:text-[48px] lg:text-[60px] font-bold leading-[1.1] tracking-[-0.01em] text-white">
+              <HeroTextAnimated subtitle={subtitle} title={title} />
             </h1>
-            <p className="mb-6 md:mb-8 text-base md:text-xl leading-relaxed text-gray-200 px-2 md:px-0">
+            <p className="mb-6 md:mb-8 text-base md:text-xl leading-relaxed text-gray-200 px-2 lg:px-0">
               {description}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
               <Link
                 href={primaryCTA.href}
-                className="inline-flex items-center justify-center rounded-lg bg-[#EFC368] px-6 py-3 text-base font-semibold text-black shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d3a74f] hover:shadow-xl"
+                className="inline-flex items-center justify-center rounded-lg bg-[#EFC368] px-4 sm:px-6 py-3 text-sm sm:text-base font-semibold text-black shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#d3a74f] hover:shadow-xl w-full sm:w-auto"
               >
                 {primaryCTA.text}
               </Link>
               <Link
                 href={secondaryCTA.href}
-                className="inline-flex items-center justify-center rounded-lg border border-white px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-xl"
+                className="inline-flex items-center justify-center rounded-lg border border-white px-4 sm:px-6 py-3 text-sm sm:text-base font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-xl w-full sm:w-auto"
               >
                 {secondaryCTA.text}
               </Link>
