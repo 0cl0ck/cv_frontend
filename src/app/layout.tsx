@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
@@ -110,6 +111,7 @@ export default async function RootLayout({
             <Footer />
             <ClientLayoutWrapper />
             <Analytics />
+            <SpeedInsights />
           </CartProvider>
         </AuthProvider>
       </body>
