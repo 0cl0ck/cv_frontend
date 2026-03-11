@@ -93,15 +93,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-// Define modern browsers target - this reduces unnecessary polyfills
-const browserslistConfig = [
-  'Chrome >= 70',
-  'Firefox >= 78',
-  'Safari >= 14',
-  'Edge >= 79',
-  'iOS >= 14',
-  'not IE 11'
-];
+
 
 const nextConfig = {
   reactStrictMode: true,

@@ -60,6 +60,21 @@ export default async function RootLayout({
       <GoogleTagManager gtmId="GTM-M3HTFJZD" />
       <GoogleAnalytics gaId="G-9HWW8S63HD" />
       <head>
+        {/* Preload LCP hero image — browser discovers it before JS parsing */}
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero/HeroHiver.webp"
+          type="image/webp"
+          fetchPriority="high"
+        />
+
+        {/* Preconnect to critical origins — eliminates DNS+TLS latency */}
+        <link rel="preconnect" href="https://api.chanvre-vert.fr" />
+        <link rel="preconnect" href="https://media.chanvre-vert.fr" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#126E62" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />

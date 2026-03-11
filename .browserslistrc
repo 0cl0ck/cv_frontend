@@ -1,16 +1,16 @@
-# Browsers we support
-# This configuration targets modern browsers only
-# to reduce unnecessary polyfills and optimize bundle size
+# Target modern browsers only — eliminates unnecessary polyfills
+# for Array.prototype.at, Array.prototype.flat, Object.fromEntries, etc.
+# Saves ~12KB of unused JavaScript (flagged by PSI)
 
 # Desktop browsers
-Chrome >= 70
-Firefox >= 78
-Safari >= 14
-Edge >= 79
+Chrome >= 90
+Firefox >= 90
+Safari >= 15
+Edge >= 90
 
-# Mobile browsers  
-iOS >= 14
-Android >= 5
+# Mobile browsers
+iOS >= 15
 
 # Explicitly exclude IE 11
 not IE 11
+not dead

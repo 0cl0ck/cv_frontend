@@ -119,7 +119,9 @@ export default function ImageHero({
           sizes="100vw"
           className="object-cover object-center md:object-right"
           priority
-          quality={85}
+          fetchPriority="high"
+          loading="eager"
+          quality={75}
         />
 
         <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-black/80 via-black/60 to-black/30 md:to-transparent" />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "motion/react";
 
 interface TextGenerateEffectProps {
   words: string;
@@ -12,7 +11,7 @@ interface TextGenerateEffectProps {
 
 /**
  * TextGenerateEffect — fades in words one by one when the element enters the viewport.
- * Lightweight: uses only motion transforms + opacity (no canvas, no WebGL).
+ * Uses pure CSS animations instead of motion/react to avoid pulling heavy JS into the critical path.
  * SSR-safe: renders all text in the DOM immediately for crawlers.
  */
 export function TextGenerateEffect({
@@ -21,38 +20,45 @@ export function TextGenerateEffect({
   staggerDelay = 0.08,
 }: TextGenerateEffectProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const [hasAnimated, setHasAnimated] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (isInView) setHasAnimated(true);
-  }, [isInView]);
+    const el = ref.current;
+    if (!el) return;
+
+    // Use IntersectionObserver instead of motion's useInView
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "-50px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const wordArray = words.split(" ");
 
   return (
     <span ref={ref} className={className}>
       {wordArray.map((word, idx) => (
-        <motion.span
+        <span
           key={`${word}-${idx}`}
-          initial={{ opacity: 0, filter: "blur(4px)", y: 8 }}
-          animate={
-            hasAnimated
-              ? { opacity: 1, filter: "blur(0px)", y: 0 }
-              : { opacity: 0, filter: "blur(4px)", y: 8 }
-          }
-          transition={{
-            duration: 0.4,
-            delay: idx * staggerDelay,
-            ease: "easeOut",
-          }}
           className="inline-block"
-          // SSR: text is always in the DOM
-          style={{ willChange: "opacity, transform, filter" }}
+          style={{
+            opacity: isVisible ? 1 : 0,
+            filter: isVisible ? "blur(0px)" : "blur(4px)",
+            transform: isVisible ? "translateY(0)" : "translateY(8px)",
+            transition: `opacity 0.4s ease-out ${idx * staggerDelay}s, filter 0.4s ease-out ${idx * staggerDelay}s, transform 0.4s ease-out ${idx * staggerDelay}s`,
+          }}
         >
           {word}
           {idx < wordArray.length - 1 ? "\u00A0" : ""}
-        </motion.span>
+        </span>
       ))}
     </span>
   );

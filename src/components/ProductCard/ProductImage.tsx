@@ -19,19 +19,19 @@ export default function ProductImage({
   productName,
   isHovered,
   showFeaturedBadge = false,
-  index
+  index: _index
 }: ProductImageProps) {
   const getImageUrl = (image: Media | undefined): string => {
     if (!image) return '';
     return image.url || '';
   };
 
-  // Calculate loading priority - prioritize first few products for LCP optimization
-  const shouldPrioritize = index < 3;
-  
+
+
   return (
     <div className="relative overflow-hidden aspect-square w-full mb-2">
-      {/* Image principale */}
+      {/* Image principale — always lazy, below-the-fold product cards must not
+          compete with the hero LCP image for bandwidth */}
       <Image
         src={getImageUrl(mainImage) || '/placeholder-product.png'}
         alt={productName}
@@ -40,8 +40,8 @@ export default function ProductImage({
         className={`object-cover transition-opacity duration-300 ${
           isHovered && hoverImage ? 'opacity-0' : 'opacity-100'
         }`}
-        priority={shouldPrioritize}
-        loading={shouldPrioritize ? 'eager' : 'lazy'}
+        loading="lazy"
+        quality={75}
       />
       
       {/* Image au survol (si disponible) */}
@@ -55,6 +55,7 @@ export default function ProductImage({
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}
           loading="lazy"
+          quality={75}
         />
       )}
       
