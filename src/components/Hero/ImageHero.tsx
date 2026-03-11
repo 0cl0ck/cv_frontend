@@ -119,8 +119,6 @@ export default function ImageHero({
           sizes="100vw"
           className="object-cover object-center md:object-right"
           priority
-          fetchPriority="high"
-          loading="eager"
           quality={75}
         />
 

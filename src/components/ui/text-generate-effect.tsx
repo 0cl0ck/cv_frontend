@@ -51,9 +51,8 @@ export function TextGenerateEffect({
           className="inline-block"
           style={{
             opacity: isVisible ? 1 : 0,
-            filter: isVisible ? "blur(0px)" : "blur(4px)",
             transform: isVisible ? "translateY(0)" : "translateY(8px)",
-            transition: `opacity 0.4s ease-out ${idx * staggerDelay}s, filter 0.4s ease-out ${idx * staggerDelay}s, transform 0.4s ease-out ${idx * staggerDelay}s`,
+            transition: `opacity 0.4s ease-out ${idx * staggerDelay}s, transform 0.4s ease-out ${idx * staggerDelay}s`,
           }}
         >
           {word}
