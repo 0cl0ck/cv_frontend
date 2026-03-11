@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -57,8 +57,6 @@ export default async function RootLayout({
 
   return (
     <html lang="fr">
-      <GoogleTagManager gtmId="GTM-M3HTFJZD" />
-      <GoogleAnalytics gaId="G-9HWW8S63HD" />
       <head>
         {/* DNS prefetch for analytics (non-critical, low overhead) */}
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
@@ -115,6 +113,32 @@ export default async function RootLayout({
             <ClientLayoutWrapper />
             <Analytics />
             <SpeedInsights />
+
+            {/* GTM & GA4 — lazyOnload: loads after window.onload, off the critical path */}
+            <Script
+              id="gtm-init"
+              strategy="lazyOnload"
+              dangerouslySetInnerHTML={{
+                __html: `(function(w,l){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});})(window,'dataLayer');`,
+              }}
+            />
+            <Script
+              id="gtm"
+              strategy="lazyOnload"
+              src="https://www.googletagmanager.com/gtm.js?id=GTM-M3HTFJZD"
+            />
+            <Script
+              id="ga-init"
+              strategy="lazyOnload"
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-9HWW8S63HD');`,
+              }}
+            />
+            <Script
+              id="ga"
+              strategy="lazyOnload"
+              src="https://www.googletagmanager.com/gtag/js?id=G-9HWW8S63HD"
+            />
           </CartProvider>
         </AuthProvider>
       </body>
