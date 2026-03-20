@@ -392,10 +392,10 @@ export default async function SolutionPage({
         </header>
 
         {/* Main Content */}
-        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 overflow-hidden">
 
           {/* Article Content */}
-          <div className="prose prose-lg prose-invert prose-headings:text-white prose-p:text-white/80 prose-strong:text-white prose-li:text-white/80 max-w-none">
+          <div className="prose prose-lg prose-invert prose-headings:text-white prose-p:text-white/80 prose-strong:text-white prose-li:text-white/80 max-w-none break-words overflow-hidden">
             <BlogRichText content={useCase.content as Parameters<typeof BlogRichText>[0]['content']} />
           </div>
 

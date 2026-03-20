@@ -83,7 +83,7 @@ export default function BlogRichText({ content }: BlogRichTextProps) {
   try {
     if (content.root && content.root.children) {
       return (
-        <div className="prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-white/90 prose-a:text-[#EFC368] prose-strong:text-white prose-blockquote:border-[#EFC368] prose-blockquote:text-white/80">
+        <div className="prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-white/90 prose-a:text-[#EFC368] prose-strong:text-white prose-blockquote:border-[#EFC368] prose-blockquote:text-white/80" style={{ overflowWrap: 'anywhere' }}>
           <RichTextNode nodes={content.root.children} />
         </div>
       );
