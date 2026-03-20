@@ -16,7 +16,7 @@ interface StoreData {
 const STORES: StoreData[] = [
     {
         name: 'Chanvre Vert Bergues',
-        streetAddress: '5 rue d\'Ypres',
+        streetAddress: '9 Rue Faidherbe',
         addressLocality: 'Bergues',
         postalCode: '59380',
         latitude: 50.9683,

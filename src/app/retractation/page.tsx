@@ -24,7 +24,7 @@ export default function RetractationPage() {
       <div className="bg-gray-800 rounded-lg shadow-md p-8">
         <h2 className="text-xl font-semibold mb-4">À l&apos;attention de :</h2>
         <p className="mb-1"><strong>Chanvre Vert (Hugo Dewas EI)</strong></p>
-        <p className="mb-1">5 rue d&apos;Ypres</p>
+        <p className="mb-1">9 Rue Faidherbe</p>
         <p className="mb-6">59380 Bergues, France</p>
 
         <h2 className="text-xl font-semibold mb-4">Détails de la rétractation</h2>

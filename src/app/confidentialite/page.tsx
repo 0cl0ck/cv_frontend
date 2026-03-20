@@ -35,7 +35,7 @@ export default function ConfidentialitePage() {
         </p>
         <ul className="list-none pl-5 space-y-2">
           <li><span className="font-medium">Identité :</span> Hugo Dewas EI</li>
-          <li><span className="font-medium">Adresse :</span> 5 rue d&apos;Ypres, 59380 Bergues, France</li>
+          <li><span className="font-medium">Adresse :</span> 9 Rue Faidherbe, 59380 Bergues, France</li>
           <li><span className="font-medium">Email :</span> contact@chanvre-vert.fr</li>
           <li><span className="font-medium">SIRET :</span> 978 589 893 00012</li>
         </ul>

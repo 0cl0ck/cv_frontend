@@ -19,7 +19,7 @@ export default function CGVPage() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">1. Vendeur</h2>
           <p className="mb-4">
-            Hugo Dewas EI – SIRET 978 589 893 00012 – 5 rue d&apos;Ypres, 59380 Bergues.
+            Hugo Dewas EI – SIRET 978 589 893 00012 – 9 Rue Faidherbe, 59380 Bergues.
           </p>
         </section>
 

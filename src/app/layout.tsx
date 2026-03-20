@@ -78,7 +78,7 @@ export default async function RootLayout({
               "description": "Spécialiste du CBD en France - Fleurs, huiles, infusions et résines de haute qualité",
               "address": {
                 "@type": "PostalAddress",
-                "streetAddress": "5 rue d'Ypres",
+                "streetAddress": "9 Rue Faidherbe",
                 "addressLocality": "Bergues",
                 "postalCode": "59380",
                 "addressCountry": "FR"
