@@ -120,6 +120,15 @@ export default function Footer() {
             <Link href="/cgv" className="text-sm text-white/70 hover:text-white">
               CGV
             </Link>
+            <a
+              href="https://top-cbd.eu/"
+              title="Top CBD"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-white/70 hover:text-white"
+            >
+              Top CBD
+            </a>
           </div>
         </div>
       </div>
