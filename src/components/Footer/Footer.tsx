@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { cn } from '@/utils/utils';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IconSun, IconMoon } from '@tabler/icons-react';
+import { TextShimmer } from '@/components/ui/text-shimmer';
 
 export default function Footer() {
   // État pour le thème (simplifié par rapport au ThemeSelector)
@@ -61,20 +62,6 @@ export default function Footer() {
         </Link>
 
         <div className="flex flex-col-reverse items-center md:flex-row gap-4 md:items-center">
-          {/* Sélecteur de thème simplifié */}
-          {/* <button 
-            onClick={toggleTheme}
-            className={cn(
-              "p-2 rounded-full transition-colors",
-              isDarkMode 
-                ? "bg-gray-700 hover:bg-gray-600" 
-                : "bg-gray-200 hover:bg-gray-300 text-gray-900"
-            )}
-            aria-label={isDarkMode ? "Passer au mode clair" : "Passer au mode sombre"}
-          >
-            {isDarkMode ? <IconSun size={20} /> : <IconMoon size={20} />}
-          </button> */}
-
           {/* Navigation */}
           <nav className="flex justify-center items-center flex-col md:flex-row gap-4">
             {categoryLinks.map((item, i) => (
@@ -132,6 +119,27 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Crédit Opale Acquisition */}
+      <div className="py-4 flex justify-center border-t border-white/10">
+        <a
+          href="https://www.opaleacquisition.fr/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/70 transition-colors duration-300"
+        >
+          <span>Site réalisé par</span>
+          <TextShimmer
+            as="span"
+            className="font-semibold [--base-color:#EFC368] [--base-gradient-color:#ffffff]"
+            duration={2}
+            spread={2}
+          >
+            Opale Acquisition
+          </TextShimmer>
+        </a>
+      </div>
     </footer>
   );
 }
+
