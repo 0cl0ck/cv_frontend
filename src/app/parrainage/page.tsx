@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Gift, Users, Sparkles, TicketPercent, Leaf, Clock, ShieldCheck } from "lucide-react";
 import { generatePageMetadata } from '@/lib/metadata';
 
@@ -12,12 +12,12 @@ const highlights = [
   {
     icon: Gift,
     title: "-15% pour vos proches",
-    description: "Votre filleul profite de 15% sur sa première commande dès 60 € d'achat.",
+    description: "Votre filleul profite de 15% sur sa première commande.",
   },
   {
     icon: TicketPercent,
     title: "-30% pour vous",
-    description: "À chaque filleul validé, recevez un bon -30% valable sur une commande de 100 € ou plus.",
+    description: "À chaque filleul validé, recevez un bon -30% valable sur votre prochaine commande.",
   },
   {
     icon: Clock,
@@ -45,7 +45,7 @@ const steps = [
   {
     title: "3. Recevez votre récompense",
     description:
-      "Une fois la commande du filleul validée, nous créditons votre bon -30% (minimum de commande 100 €) dans votre espace client.",
+      "Une fois la commande du filleul validée, nous créditons votre bon -30% dans votre espace client.",
   },
 ];
 
@@ -53,12 +53,12 @@ const faq = [
   {
     question: "Comment fonctionne la réduction pour mon filleul ?",
     answer:
-      "Le code parrain offre 15% de remise sur la première commande dès 60 € de produits éligibles (hors frais de livraison). Le code n’est pas cumulable avec d&apos;autres promotions en cours.",
+      "Le code parrain offre 15% de remise sur la première commande (hors frais de livraison). Le code n&apos;est pas cumulable avec d&apos;autres promotions en cours.",
   },
   {
     question: "Quand est-ce que je reçois ma récompense ?",
     answer:
-      "Dès que la commande du filleul est payée et validée, nous générons pour vous un bon -30% utilisable sur 100 € d'achat minimum, valable 90 jours et à usage unique.",
+      "Dès que la commande du filleul est payée et validée, nous générons pour vous un bon -30% valable 90 jours et à usage unique.",
   },
   {
     question: "Puis-je parrainer plusieurs personnes ?",

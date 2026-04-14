@@ -120,8 +120,8 @@ export default function CheckoutSidebar({
           onCancel={onCancel}
           promoResult={promoResult}
           isApplying={isApplying}
-          disableApply={promoCode.trim().toUpperCase().startsWith('PAR-') && cart.subtotal < 100}
-          applyHint={promoCode.trim().toUpperCase().startsWith('PAR-') && cart.subtotal < 100 ? 'Ce code parrain est valable dès 100€ de panier.' : undefined}
+          disableApply={false}
+          applyHint={undefined}
         />
 
         {/* 2) Programme de fidélité */}
@@ -192,8 +192,8 @@ export default function CheckoutSidebar({
         onCancel={onCancel}
         promoResult={promoResult}
         isApplying={isApplying}
-        disableApply={promoCode.trim().toUpperCase().startsWith('PAR-') && cart.subtotal < 100}
-        applyHint={promoCode.trim().toUpperCase().startsWith('PAR-') && cart.subtotal < 100 ? 'Ce code parrain est valable dès 100€ de panier.' : undefined}
+        disableApply={false}
+        applyHint={undefined}
       />
 
       {/* 2) Programme de fidélité pour le mode checkout */}

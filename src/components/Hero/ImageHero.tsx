@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from "next/link";
-import ValentineButton from './ValentineButton';
 import { HeroTextAnimated } from './HeroTextAnimated';
 
 type Cta = {
@@ -17,61 +16,63 @@ interface HeroProps {
   imageUrl?: string;
 }
 
-// Vérifie si on est dans la période de la Saint-Valentin (7-14 février 2026)
-function isValentinePeriod(): boolean {
+// Vérifie si on est dans la période 4/20 (18-20 avril 2026)
+function is420Period(): boolean {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-indexed (février = 1)
-  const day = now.getDate();
-
-  // Février 2026, du 7 au 14
-  return year === 2026 && month === 1 && day >= 7 && day <= 14;
+  const from = new Date('2026-04-18T00:00:00+02:00');
+  const until = new Date('2026-04-20T23:59:59+02:00');
+  return now >= from && now <= until;
 }
 
-// Card spéciale Saint-Valentin
-function ValentineHeroCard() {
+// Card spéciale 4/20 BONUS X2
+function FourTwentyHeroCard() {
   return (
-    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-pink-400/40 bg-gradient-to-br from-pink-600/80 to-red-600/60">
+    <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-emerald-400/40 bg-gradient-to-br from-emerald-700/80 to-green-800/60">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-2xl animate-bounce">💝</span>
+        <span className="text-2xl animate-bounce">🔥</span>
         <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide text-white text-center md:text-left">
-          -20% SAINT-VALENTIN
+          4/20 = BONUS X2
         </p>
-        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🌹</span>
+        <span className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🎁</span>
       </div>
 
-      {/* Promo description */}
-      <div className="mb-3 pb-3 border-b border-white/20">
+      {/* Promo tiers */}
+      <div className="mb-3 pb-3 border-b border-white/20 space-y-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-xl">🎁</span>
-          <p className="text-sm md:text-base font-semibold text-pink-200">
-            Sur tout le site !
+          <span className="text-sm">🌿</span>
+          <p className="text-sm md:text-base font-semibold text-emerald-200">
+            60€ → <span className="text-white">4g offerts</span> <span className="text-white/50 text-xs line-through">2g</span>
           </p>
         </div>
-        <p className="text-xs md:text-sm text-white/80 mt-1">
-          Réduction automatique appliquée<br />
-          <span className="text-pink-200">dans votre panier !</span>
-        </p>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">🌿</span>
+          <p className="text-sm md:text-base font-semibold text-emerald-200">
+            100€ → <span className="text-white">20g offerts</span> <span className="text-white/50 text-xs line-through">10g</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">🌿</span>
+          <p className="text-sm md:text-base font-semibold text-emerald-200">
+            180€ → <span className="text-white">40g offerts</span> <span className="text-white/50 text-xs line-through">20g</span>
+          </p>
+        </div>
       </div>
 
       {/* Info */}
       <div>
         <p className="text-xs md:text-sm text-white/80">
-          ✨ Offre valable du 7 au 14 février
-        </p>
-        <p className="text-xs md:text-sm text-white/60 mt-1">
-          💡 Hors packs CBD
+          ✨ Cadeaux doublés automatiquement dans votre panier
         </p>
       </div>
 
       <p className="mt-3 text-[10px] md:text-xs text-white/60 italic text-center md:text-left">
-        Du 7 au 14 février 2026
+        Du 18 au 20 avril 2026
       </p>
     </div>
   );
 }
 
-// Card standard (hors période Noël)
+// Card standard (hors période promo)
 function DefaultHeroCard() {
   return (
     <div className="neon-container backdrop-blur-sm p-4 md:p-5 rounded-lg text-white border border-white/20">
@@ -103,10 +104,10 @@ export default function ImageHero({
     text: "En savoir plus",
     href: "/a-propos",
   },
-  imageUrl = "/images/hero/HeroHiver.webp",
+  imageUrl = "/images/hero/HeroPrintemps.webp",
 }: HeroProps = {}) {
   // Affichage card spéciale basé sur la période
-  const showValentine = isValentinePeriod();
+  const show420 = is420Period();
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[600px] overflow-hidden">
@@ -138,13 +139,10 @@ export default function ImageHero({
 
       <div className="relative z-20 mx-auto flex min-h-[70vh] lg:min-h-[600px] max-w-7xl items-center px-4 py-8 md:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row w-full gap-6 lg:gap-8 items-center lg:items-center">
-          {/* Card dynamique - Valentine ou standard - CACHÉE sauf desktop */}
-          <div className="hidden lg:block w-full lg:w-auto lg:ml-auto order-first lg:order-last">
-            {showValentine ? <ValentineHeroCard /> : <DefaultHeroCard />}
+          {/* Card dynamique - 4/20 ou standard */}
+          <div className="w-full lg:w-auto lg:ml-auto order-first lg:order-last">
+            {show420 ? <FourTwentyHeroCard /> : <DefaultHeroCard />}
           </div>
-
-          {/* Bouton Valentine mobile - ouvre la modale (client component) */}
-          {showValentine && <ValentineButton />}
 
           {/* Contenu texte principal */}
           <div className="max-w-2xl text-white order-last lg:order-first text-center lg:text-left">
@@ -184,3 +182,4 @@ export default function ImageHero({
     </section>
   );
 }
+

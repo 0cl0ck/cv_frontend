@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState, useId, type MouseEvent } from 're
 import clsx from 'clsx';
 
 import { useCartContext } from '@/context/CartContext';
-import { GIFT_THRESHOLDS, GIFT_IDS } from '@/utils/gift-utils';
+import { GIFT_THRESHOLDS, GIFT_IDS, is420PromoActive } from '@/utils/gift-utils';
 
 type BonusTier = {
   amount: number;
@@ -16,26 +16,29 @@ type BonusTier = {
   totalGifts: number;
 };
 
-const BONUS_TIERS: BonusTier[] = [
-  {
-    amount: GIFT_THRESHOLDS.TIER_1,
-    label: '2g offerts',
-    description: 'A partir de 60 EUR de panier',
-    totalGifts: 2,
-  },
-  {
-    amount: GIFT_THRESHOLDS.TIER_2,
-    label: '10g offerts',
-    description: 'A partir de 100 EUR de panier',
-    totalGifts: 10,
-  },
-  {
-    amount: GIFT_THRESHOLDS.TIER_3,
-    label: '20g offerts',
-    description: 'A partir de 180 EUR de panier',
-    totalGifts: 20,
-  },
-];
+function getBonusTiers(): BonusTier[] {
+  const promo420 = is420PromoActive();
+  return [
+    {
+      amount: GIFT_THRESHOLDS.TIER_1,
+      label: promo420 ? '🔥 4g offerts' : '2g offerts',
+      description: 'A partir de 60 EUR de panier',
+      totalGifts: promo420 ? 4 : 2,
+    },
+    {
+      amount: GIFT_THRESHOLDS.TIER_2,
+      label: promo420 ? '🔥 20g offerts' : '10g offerts',
+      description: 'A partir de 100 EUR de panier',
+      totalGifts: promo420 ? 20 : 10,
+    },
+    {
+      amount: GIFT_THRESHOLDS.TIER_3,
+      label: promo420 ? '🔥 40g offerts' : '20g offerts',
+      description: 'A partir de 180 EUR de panier',
+      totalGifts: promo420 ? 40 : 20,
+    },
+  ];
+}
 
 const MAX_AMOUNT = GIFT_THRESHOLDS.TIER_3;
 
@@ -53,6 +56,10 @@ const GIFT_GRAMS: Record<string, number> = {
   [GIFT_IDS.TIER_1_2G]: 2,
   [GIFT_IDS.TIER_2_10G]: 10,
   [GIFT_IDS.TIER_3_20G]: 20,
+  // 4/20 BONUS X2 IDs
+  'gift-tier1-4g': 4,
+  'gift-tier2-20g': 20,
+  'gift-tier3-40g': 40,
   // Rétrocompatibilité avec les anciens IDs Halloween
   'gift-halloween-tier1-2g': 2,
   'gift-halloween-tier2-10g': 10,
@@ -100,27 +107,29 @@ function summarizeAutomaticGifts(
 }
 
 function computeGifts(subtotal: number): GiftBreakdown {
+  const promo420 = is420PromoActive();
+
   if (subtotal >= GIFT_THRESHOLDS.TIER_3) {
     return {
-      grams: 20,
-      headline: '20g de fleurs CBD offerts',
-      perks: ['20g de fleurs CBD'],
+      grams: promo420 ? 40 : 20,
+      headline: promo420 ? '40g de fleurs CBD offerts 🔥' : '20g de fleurs CBD offerts',
+      perks: [promo420 ? '40g de fleurs CBD (4/20 BONUS X2)' : '20g de fleurs CBD'],
     };
   }
 
   if (subtotal >= GIFT_THRESHOLDS.TIER_2) {
     return {
-      grams: 10,
-      headline: '10g de fleurs CBD offerts',
-      perks: ['10g de fleurs CBD'],
+      grams: promo420 ? 20 : 10,
+      headline: promo420 ? '20g de fleurs CBD offerts 🔥' : '10g de fleurs CBD offerts',
+      perks: [promo420 ? '20g de fleurs CBD (4/20 BONUS X2)' : '10g de fleurs CBD'],
     };
   }
 
   if (subtotal >= GIFT_THRESHOLDS.TIER_1) {
     return {
-      grams: 2,
-      headline: '2g de fleurs CBD offerts',
-      perks: ['2g de fleurs CBD'],
+      grams: promo420 ? 4 : 2,
+      headline: promo420 ? '4g de fleurs CBD offerts 🔥' : '2g de fleurs CBD offerts',
+      perks: [promo420 ? '4g de fleurs CBD (4/20 BONUS X2)' : '2g de fleurs CBD'],
     };
   }
 
@@ -137,6 +146,9 @@ export default function MobileBonusWidget() {
   const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prevSubtotalRef = useRef<number>(0);
   const autoCloseRequestedRef = useRef(false);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const BONUS_TIERS = useMemo(() => getBonusTiers(), []);
 
   const netSubtotal = useMemo(() => {
     if (!pricingTotals) {
