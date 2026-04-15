@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from "next/link";
 import { HeroTextAnimated } from './HeroTextAnimated';
+import { FourTwentyCountdown } from './FourTwentyCountdown';
 
 type Cta = {
   text: string;
@@ -21,6 +22,14 @@ function is420Period(): boolean {
   const now = new Date();
   const from = new Date('2026-04-18T00:00:00+02:00');
   const until = new Date('2026-04-20T23:59:59+02:00');
+  return now >= from && now <= until;
+}
+
+// Vérifie si on est dans la période teaser pré-4/20 (15-17 avril 2026)
+function is420TeaserPeriod(): boolean {
+  const now = new Date();
+  const from = new Date('2026-04-15T00:00:00+02:00');
+  const until = new Date('2026-04-17T23:59:59+02:00');
   return now >= from && now <= until;
 }
 
@@ -72,6 +81,63 @@ function FourTwentyHeroCard() {
   );
 }
 
+// Card teaser pré-4/20 avec countdown — palette chaude assortie au Hero
+function FourTwentyTeaserCard() {
+  return (
+    <div className="relative backdrop-blur-md p-5 md:p-6 rounded-xl text-white border border-[#EFC368]/20 bg-black/50 shadow-2xl shadow-black/30">
+      {/* Bordure lumineuse dorée subtile */}
+      <div className="absolute -inset-px rounded-xl bg-gradient-to-br from-[#EFC368]/15 via-transparent to-white/5 pointer-events-none" aria-hidden />
+
+      <div className="relative">
+        {/* Header */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <span className="text-lg" aria-hidden>🔥</span>
+          <p className="font-bold text-base md:text-xl lg:text-2xl tracking-wide text-[#EFC368] text-center">
+            LE 4/20 ARRIVE
+          </p>
+          <span className="text-lg" aria-hidden>🔥</span>
+        </div>
+
+        {/* Countdown */}
+        <div className="mb-4 pb-4 border-b border-white/10">
+          <FourTwentyCountdown />
+        </div>
+
+        {/* Aperçu des paliers doublés */}
+        <div className="mb-4 space-y-2">
+          <p className="text-[10px] md:text-xs uppercase tracking-widest text-[#EFC368]/70 mb-2.5 text-center font-medium">
+            Cadeaux × 2 — du 18 au 20 avril
+          </p>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 rounded-lg bg-white/[0.05] px-3 py-1.5">
+              <span className="text-sm" aria-hidden>🌿</span>
+              <p className="text-sm md:text-base font-semibold text-white/90">
+                60€ → <span className="text-[#EFC368] font-bold">4g offerts</span> <span className="text-white/35 text-xs line-through">2g</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg bg-white/[0.05] px-3 py-1.5">
+              <span className="text-sm" aria-hidden>🌿</span>
+              <p className="text-sm md:text-base font-semibold text-white/90">
+                100€ → <span className="text-[#EFC368] font-bold">20g offerts</span> <span className="text-white/35 text-xs line-through">10g</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg bg-white/[0.05] px-3 py-1.5">
+              <span className="text-sm" aria-hidden>🌿</span>
+              <p className="text-sm md:text-base font-semibold text-white/90">
+                180€ → <span className="text-[#EFC368] font-bold">40g offerts</span> <span className="text-white/35 text-xs line-through">20g</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-xs md:text-sm text-white/60 text-center">
+          ✨ Préparez votre panier !
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // Card standard (hors période promo)
 function DefaultHeroCard() {
   return (
@@ -108,6 +174,7 @@ export default function ImageHero({
 }: HeroProps = {}) {
   // Affichage card spéciale basé sur la période
   const show420 = is420Period();
+  const show420Teaser = !show420 && is420TeaserPeriod();
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[600px] overflow-hidden">
@@ -137,11 +204,11 @@ export default function ImageHero({
         />
       </div>
 
-      <div className="relative z-20 mx-auto flex min-h-[70vh] lg:min-h-[600px] max-w-7xl items-center px-4 py-8 md:px-6 lg:px-8">
+      <div className="relative z-30 mx-auto flex min-h-[70vh] lg:min-h-[600px] max-w-7xl items-center px-4 py-8 md:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row w-full gap-6 lg:gap-8 items-center lg:items-center">
           {/* Card dynamique - 4/20 ou standard */}
           <div className="w-full lg:w-auto lg:ml-auto order-first lg:order-last">
-            {show420 ? <FourTwentyHeroCard /> : <DefaultHeroCard />}
+            {show420 ? <FourTwentyHeroCard /> : show420Teaser ? <FourTwentyTeaserCard /> : <DefaultHeroCard />}
           </div>
 
           {/* Contenu texte principal */}
