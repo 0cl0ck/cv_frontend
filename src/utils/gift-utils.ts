@@ -40,7 +40,7 @@ export const createGiftItem = (
 export function is420PromoActive(): boolean {
   const now = new Date().getTime()
   const from = new Date('2026-04-18T00:00:00+02:00').getTime()
-  const until = new Date('2026-04-20T23:59:59+02:00').getTime()
+  const until = new Date('2026-04-22T23:59:59+02:00').getTime()
   return now >= from && now <= until
 }
 

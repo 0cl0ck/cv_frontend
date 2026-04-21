@@ -17,11 +17,11 @@ interface HeroProps {
   imageUrl?: string;
 }
 
-// Vérifie si on est dans la période 4/20 (18-20 avril 2026)
+// Vérifie si on est dans la période 4/20 (18-22 avril 2026, prolongée)
 function is420Period(): boolean {
   const now = new Date();
   const from = new Date('2026-04-18T00:00:00+02:00');
-  const until = new Date('2026-04-20T23:59:59+02:00');
+  const until = new Date('2026-04-22T23:59:59+02:00');
   return now >= from && now <= until;
 }
 
