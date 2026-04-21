@@ -75,7 +75,7 @@ function FourTwentyHeroCard() {
       </div>
 
       <p className="mt-3 text-[10px] md:text-xs text-white/60 italic text-center md:text-left">
-        Du 18 au 20 avril 2026
+        Du 18 au 22 avril 2026
       </p>
     </div>
   );
@@ -106,7 +106,7 @@ function FourTwentyTeaserCard() {
         {/* Aperçu des paliers doublés */}
         <div className="mb-4 space-y-2">
           <p className="text-[10px] md:text-xs uppercase tracking-widest text-[#EFC368]/70 mb-2.5 text-center font-medium">
-            Cadeaux × 2 — du 18 au 20 avril
+            Cadeaux × 2 — du 18 au 22 avril
           </p>
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 rounded-lg bg-white/[0.05] px-3 py-1.5">
