@@ -214,8 +214,8 @@ const HOMEPAGE_FAQ = [
     answer: 'Pour choisir un CBD de qualité, vérifiez trois critères essentiels : les analyses de laboratoire indépendant (taux de CBD, absence de contaminants), la méthode de culture (biologique de préférence), et la traçabilité du produit. Chez Chanvre Vert, chaque lot est accompagné de son certificat d\'analyse.',
   },
   {
-    question: 'Quels sont les bienfaits reconnus du CBD ?',
-    answer: 'Selon un rapport de l\'Organisation Mondiale de la Santé (OMS, 2018), le CBD présente un bon profil de sécurité et est étudié pour ses propriétés relaxantes, anti-inflammatoires et anxiolytiques. Il est utilisé par de nombreux consommateurs pour favoriser le sommeil, réduire le stress et soulager les tensions musculaires.',
+    question: 'Que dit la recherche scientifique sur le CBD ?',
+    answer: 'Selon le rapport de l\'Organisation Mondiale de la Santé (OMS, 2018), le CBD présente un bon profil de sécurité et ne génère ni dépendance ni effet psychoactif. Les recherches sur ses propriétés sont en cours et n\'ont, à ce jour, donné lieu à aucune autorisation de mise sur le marché en tant que médicament en France hors cas spécifiques. Le CBD vendu sur ce site est un produit de bien-être, pas un médicament : il ne diagnostique, ne traite, ne guérit ni ne prévient aucune maladie. Pour toute question de santé, consultez un professionnel.',
   },
   {
     question: 'Combien de temps pour recevoir ma commande ?',

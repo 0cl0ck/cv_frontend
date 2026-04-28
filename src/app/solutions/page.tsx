@@ -64,11 +64,11 @@ async function getPublishedUseCases(): Promise<UseCase[]> {
 export const metadata: Metadata = {
   title: 'Solutions & Usages du CBD | Chanvre Vert',
   description:
-    'Découvrez nos guides CBD par besoin : sommeil, stress, récupération, bien-être animal. Conseils pratiques et produits recommandés par nos experts.',
+    'Découvrez nos guides CBD par usage : rituel du soir, détente, bien-être animal, conseils par ville. Informations pratiques rédigées par nos experts.',
   openGraph: {
     title: 'Solutions & Usages du CBD',
     description:
-      'Guides pratiques CBD adaptés à vos besoins : sommeil, détente, récupération...',
+      'Guides pratiques CBD pour vos rituels du quotidien : détente, bien-être animal, conseils par ville.',
     type: 'website',
     locale: 'fr_FR',
     siteName: 'Chanvre Vert',
@@ -109,10 +109,10 @@ export default async function SolutionsPage() {
 
           {/* Intro E-E-A-T */}
           <p className="text-lg text-white/80 max-w-3xl">
-            Chaque personne réagit différemment au CBD. Découvrez nos guides par
-            besoin pour comprendre comment intégrer le cannabidiol dans votre
-            quotidien, selon vos objectifs : sommeil, détente, récupération ou
-            bien-être animal.
+            Chaque personne intègre le CBD différemment dans son quotidien.
+            Découvrez nos guides pratiques par usage : rituels du soir,
+            moments de détente, bien-être animal ou repères locaux. Le CBD est
+            un produit de bien-être, pas un médicament.
           </p>
         </div>
       </section>
